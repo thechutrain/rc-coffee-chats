@@ -12,8 +12,10 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 
 - [x] move glitch project to github
 - [x] make readme, with todo list
-- [ ] project formating setup (prettier, linter, githooks)
-- [ ] add typescript: setup compiler && linter
+- [X] project formating setup (prettier, githooks)
+- [ ] add typescript:
+  - [X] setup compiler
+  - [ ] set up tslint
 - [ ] set up jest
 - [ ] Code reorganization: spliting into db, matching algorithm, server/router
 - [ ] Test deploy to now zeit

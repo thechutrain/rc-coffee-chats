@@ -116,12 +116,14 @@ const getUserConfigs = async ({ emails }) => {
 // TODO: abstract this and getEmailsNoNextMatch into one function w string param
 // and pull map to list of emails into it
 const getEmailExceptions = async ({ tableName }) => {
+  let rowsAsMap: any[];
   const rows = await new Promise((resolve, reject) => {
-    db.all(`SELECT email FROM ${tableName}`, (err, rows) =>
-      err ? reject(err) : resolve(rows)
-    );
+    db.all(`SELECT email FROM ${tableName}`, (err, rows) => {
+      rowsAsMap = rows;
+      err ? reject(err) : resolve(rows);
+    });
   });
-  const exceptionsList = rows.map(v => v.email);
+  const exceptionsList = rowsAsMap.map(v => v.email);
 
   return exceptionsList;
 };
@@ -225,7 +227,7 @@ const matchEmails = async ({ emails }) => {
 
   while (unmatchedEmails.length > 0) {
     const currentEmail = unmatchedEmails.shift();
-    const pastMatchedEmails = pastMatches
+    const pastMatchedEmails = (pastMatches as any[])
       .filter(
         match => match.email1 === currentEmail || match.email2 === currentEmail
       ) // filter to current email's matches
@@ -559,7 +561,8 @@ const testMatches = async () => {
   logger.info(activeEmails);
   const todaysActiveEmails = await getEmailsForDay({
     emails: activeEmails,
-    day: new Date().getDay()
+    day: new Date().getDay(),
+    userConfigs: null // TODO: look at later, fixes TS compile error
   });
   logger.info(todaysActiveEmails);
   const matchedEmails = await matchEmails({ emails: todaysActiveEmails });
