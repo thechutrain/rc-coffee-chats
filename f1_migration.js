@@ -1,6 +1,6 @@
-const zulip = require("zulip-js");
-var fs = require("fs");
-var sqlite3 = require("sqlite3").verbose();
+const zulip = require('zulip-js');
+var fs = require('fs');
+var sqlite3 = require('sqlite3').verbose();
 
 const zulipConfig = {
   username: process.env.ZULIP_USERNAME,
@@ -8,7 +8,7 @@ const zulipConfig = {
   realm: process.env.ZULIP_REALM
 };
 
-var dbFile = "./.data/sqlite.db";
+var dbFile = './.data/sqlite.db';
 var exists = fs.existsSync(dbFile);
 var db = new sqlite3.Database(dbFile);
 
@@ -35,11 +35,10 @@ const seedF1Emails = async () => {
     matches.forEach(match => {
       db.run(
         `INSERT INTO matches(date, email1, email2) VALUES ("${
-          new Date().toISOString().split("T")[0]
+          new Date().toISOString().split('T')[0]
         }", "${match[0]}", "${match[1]}")`
       );
       console.log(match[0], match[1]);
     });
   });
 };
-  
