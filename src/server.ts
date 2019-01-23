@@ -331,7 +331,8 @@ const isExceptionDay = day => {
   return false;
 };
 
-const run = async () => {
+// TODO: run conflicts with the type definiton in mocha file
+const _run = async () => {
   logger.info('-----------');
   const today = new Date();
 
@@ -525,7 +526,7 @@ app.get('/', function(request, response) {
 
 app.post('/cron/run', function(request, response) {
   logger.info('Running the matcher and sending out matches');
-  if (request.headers.secret === process.env.RUN_SECRET) run();
+  if (request.headers.secret === process.env.RUN_SECRET) _run();
   response.status(200).json({ status: 'ok' });
 });
 
