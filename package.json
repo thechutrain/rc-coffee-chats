@@ -4,9 +4,11 @@
   "description": "A simple Node app with SQLite as a database management system, instantly up and running.",
   "main": "server.js",
   "scripts": {
+    "dev": "ts-node src/server.ts",
     "start": "ts-node src/server.ts",
     "format": "prettier --write \"./**/*.{ts,js,json,md}\"",
     "tsc": "npm run clean && tsc",
+    "tslint": "tslint --format stylish --project tsconfig.json",
     "test": "jest",
     "clean": "rimraf dist"
   },
@@ -23,11 +25,12 @@
     ]
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "sqlite3": "^4.0.0",
-    "zulip-js": "^2.0.5",
     "lodash": "^4.17.11",
-    "winston": "^2.4.0"
+    "sqlite3": "^4.0.0",
+    "winston": "^2.4.0",
+    "zulip-js": "^2.0.5"
   },
   "engines": {
     "node": "8.x"
@@ -52,6 +55,9 @@
     "rimraf": "^2.6.3",
     "ts-jest": "^23.10.5",
     "ts-node": "^8.0.1",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.2.4"
   }
 }

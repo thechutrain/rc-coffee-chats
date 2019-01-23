@@ -10,7 +10,7 @@
 const EXCEPTION_DATES = [Date.UTC(2018, 12 - 1, 31)];
 
 // logging - all logs will be saved in winston.log file
-const winston = require('winston');
+import * as winston from 'winston';
 
 const timestamp = () =>
   new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
@@ -29,13 +29,16 @@ const logger = new winston.Logger({
 });
 
 // init project
-const HAVING_GOODTIME = true;
-console.log(HAVING_GOODTIME);
 const zulip = require('zulip-js');
-var express = require('express');
-var bodyParser = require('body-parser');
-var fs = require('fs');
-var shuffle = require('lodash/shuffle');
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const shuffle = require('lodash/shuffle');
+// import * as zulip from 'zulip-js'
+// import {express} from 'express'
+// import * as bodyParser from 'body-parser'
+// import * as fs from 'fs'
+// import {shuffle} from 'lodash';
 
 // we've started you off with Express,
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -51,37 +54,38 @@ const coffeeDaysMap = {
 };
 
 // http://expressjs.com/en/starter/static-files.html
-var app = express();
+const app = express();
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // init sqlite db
-var dbFile = './.data/sqlite.db';
-var exists = fs.existsSync(dbFile);
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(dbFile);
+const dbFile = './.data/sqlite.db';
+const exists = fs.existsSync(dbFile);
+import * as nonVerboseSqlite3 from 'sqlite3';
+const sqlite3 = nonVerboseSqlite3.verbose();
+const db = new sqlite3.Database(dbFile);
 
 const createUsersMigration = () => {
-  db.serialize(function() {
+  db.serialize(() => {
     db.run(
       'CREATE TABLE IF NOT EXISTS users (email STRING NOT NULL UNIQUE, coffee_days STRING NOT NULL);'
     );
-    db.serialize(function() {
+    db.serialize(() => {
       db.run('CREATE INDEX IF NOT EXISTS users_email_index ON users (email);');
     });
   });
 };
 
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
-db.serialize(function() {
+db.serialize(() => {
   if (!exists) {
     db.run(`CREATE TABLE matches ( 
               date TEXT NOT NULL,  
               email1 TEXT NOT NULL, 
               email2 TEXT NOT NULL
             );`);
-    db.serialize(function() {
+    db.serialize(() => {
       db.run('CREATE INDEX date_index ON matches (date)');
       db.run('CREATE INDEX email1_index ON matches (email1)');
       db.run('CREATE INDEX email2_index ON matches (email2)');
@@ -117,7 +121,7 @@ const getUserConfigs = async ({ emails }) => {
 // and pull map to list of emails into it
 const getEmailExceptions = async ({ tableName }) => {
   let rowsAsMap: any[];
-  const rows = await new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     db.all(`SELECT email FROM ${tableName}`, (err, rows) => {
       rowsAsMap = rows;
       err ? reject(err) : resolve(rows);
@@ -151,7 +155,8 @@ const getEmailExceptions = async ({ tableName }) => {
 // coffee_days is formatted as a string of ints mapped to days 0123456 (Sunday = 0)
 const getEmailsForDay = async ({ emails, userConfigs, day }) => {
   const userConfigMap = userConfigs.reduce((acc, v) => {
-    acc[v['email']] = String(v['coffee_days']);
+    // acc[v['email']] = String(v['coffee_days']);
+    acc[v.email] = String(v.coffee_days);
     return acc;
   }, {});
 
@@ -222,7 +227,7 @@ const matchEmails = async ({ emails }) => {
     );
   });
 
-  let unmatchedEmails = shuffle(emails);
+  const unmatchedEmails = shuffle(emails);
   const newMatches = [];
 
   while (unmatchedEmails.length > 0) {
@@ -282,7 +287,7 @@ const sendMessage = ({ zulipAPI, toEmail, matchedName, userConfig }) => {
 };
 
 const sendAllMessages = ({ zulipAPI, matchedEmails, users, userConfigs }) => {
-  db.serialize(function() {
+  db.serialize(() => {
     matchedEmails.forEach(match => {
       const sortedMatch = match.sort();
       db.run(
@@ -307,7 +312,7 @@ const sendAllMessages = ({ zulipAPI, matchedEmails, users, userConfigs }) => {
 };
 
 const sendWarningMessages = ({ zulipAPI, warningMessageEmails }) => {
-  db.serialize(function() {
+  db.serialize(() => {
     warningMessageEmails.forEach(email => {
       zulipAPI.messages.send({
         to: email,
@@ -323,15 +328,16 @@ const sendWarningMessages = ({ zulipAPI, warningMessageEmails }) => {
 
 const isExceptionDay = day => {
   const inUTC = Date.UTC(day.getFullYear(), day.getMonth(), day.getDate());
-  for (let i in EXCEPTION_DATES) {
-    if (EXCEPTION_DATES[i] == inUTC) {
+  for (const i in EXCEPTION_DATES) {
+    if (EXCEPTION_DATES[i] === inUTC) {
       return true;
     }
   }
   return false;
 };
 
-// TODO: run conflicts with the type definiton in mocha file
+// TODO: run conflicts with the type definiton in mocha file, ask TENOR
+// tslint:disable-next-line
 const _run = async () => {
   logger.info('-----------');
   const today = new Date();
@@ -380,7 +386,7 @@ const _run = async () => {
 // run();
 
 const clearNoNextMatchTable = async () => {
-  db.serialize(function() {
+  db.serialize(() => {
     db.run(`DELETE FROM noNextMatch`);
   });
 };
@@ -405,7 +411,7 @@ const runWarningMessages = async () => {
   const userConfigs = await getUserConfigs({ emails: subscribedEmails });
   logger.info('userConfigs', userConfigs);
 
-  let emailsForTomorrow = await getEmailsForDay({
+  const emailsForTomorrow = await getEmailsForDay({
     emails: subscribedEmails,
     userConfigs,
     day: tomorrow.getDay()
@@ -447,7 +453,7 @@ const handlePrivateMessageToBot = async body => {
   const coffeeDaysMatch = message.match(/^[0-6]+$/);
   if (coffeeDaysMatch) {
     const coffeeDays = coffeeDaysMatch[0];
-    db.serialize(function() {
+    db.serialize(() => {
       db.run(
         'INSERT OR REPLACE INTO users(email, coffee_days) VALUES (?, ?)',
         fromEmail,
@@ -463,8 +469,8 @@ const handlePrivateMessageToBot = async body => {
     });
     return;
   }
-  if (message == 'warnings off') {
-    db.serialize(function() {
+  if (message === 'warnings off') {
+    db.serialize(() => {
       db.run(
         'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
         fromEmail
@@ -477,8 +483,8 @@ const handlePrivateMessageToBot = async body => {
     });
     return;
   }
-  if (message == 'warnings on') {
-    db.serialize(function() {
+  if (message === 'warnings on') {
+    db.serialize(() => {
       db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
     });
     zulipAPI.messages.send({
@@ -488,8 +494,8 @@ const handlePrivateMessageToBot = async body => {
     });
     return;
   }
-  if (message == 'cancel next match') {
-    db.serialize(function() {
+  if (message === 'cancel next match') {
+    db.serialize(() => {
       db.run('insert into noNextMatch (email) values(?)', fromEmail);
     });
     zulipAPI.messages.send({
@@ -520,29 +526,33 @@ To subscribe to the warning messages send me a message "warnings on".
 };
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get('/', function(request, response) {
+app.get('/', (request, response) => {
   response.sendFile(__dirname + '/views/index.html'); // TODO: update this page
 });
 
-app.post('/cron/run', function(request, response) {
+app.get('/test', (request, response) => {
+  response.send('Working yooooo');
+});
+
+app.post('/cron/run', (request, response) => {
   logger.info('Running the matcher and sending out matches');
   if (request.headers.secret === process.env.RUN_SECRET) _run();
   response.status(200).json({ status: 'ok' });
 });
 
-app.post('/cron/run/warnings', function(request, response) {
+app.post('/cron/run/warnings', (request, response) => {
   logger.info('Sending warning messages about tomorrow matches');
   if (request.headers.secret === process.env.RUN_SECRET) runWarningMessages();
   response.status(200).json({ status: 'ok' });
 });
 
-app.post('/webhooks/zulip', function(request, response) {
+app.post('/webhooks/zulip', (request, response) => {
   handlePrivateMessageToBot(request.body);
   response.status(200).json({ status: 'ok' });
 });
 
 // listen for requests :)
-const listener = app.listen(process.env.PORT, function() {
+const listener = app.listen(process.env.PORT, () => {
   logger.info('Your app is listening on port ' + listener.address().port);
 });
 
@@ -567,7 +577,7 @@ const testMatches = async () => {
   });
   logger.info(todaysActiveEmails);
   const matchedEmails = await matchEmails({ emails: todaysActiveEmails });
-  logger.info(matchedEmails);
+  logger.info(JSON.stringify(matchedEmails));
 };
 
 // won't work till bot has admin privileges
@@ -583,7 +593,7 @@ const testMatches = async () => {
 // }
 
 // removeSubs(["sheridan.kates@gmail.com"])
-//testMatches()
+// testMatches()
 
 // testDB()
 
