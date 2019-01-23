@@ -17,7 +17,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 - [ ] set up jest
 - [ ] Code reorganization: spliting into db, matching algorithm, server/router
 - [ ] Test deploy to now zeit
-- [ ] \*Design database schema (archive users)
+- [ ] Design database schema (archive users)
 
 #### RC Hackathon
 
