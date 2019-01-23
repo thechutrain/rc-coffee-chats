@@ -13,10 +13,10 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 - [x] move glitch project to github
 - [x] make readme, with todo list
 - [x] project formating setup (prettier, githooks)
-- [X] add typescript:
+- [x] add typescript:
   - [x] setup compiler
-  - [X] set up tslint
-- [X] set up jest
+  - [x] set up tslint
+- [x] set up jest
 - [ ] Code reorganization: spliting into db, matching algorithm, server/router
 - [ ] Test deploy to now zeit
 - [ ] Design database schema (archive users)
@@ -26,6 +26,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 [TBD]
 
 #### Proposed Feature
+
 - [ ] Writing Tests (prioritize)
 
 - [ ] Move database to Firebase (no relational db)
@@ -54,18 +55,21 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 - [ ] Propose moving the database to use postgres
 
 - [ ] Front end interface for end users:
+
   - [ ] allow users to see who they've matched with
   - [ ] same features of zulip bot cli, in browser?
 
 - [ ] make maintainer-notes markdown file
+
 #### Other Ideas
+
 - Virtual Coffee Chats! (liz)
 
 ### Learning Goals
+
 - Greg: Firebase, TypeScript
 - Liz: TypeScript, Zulip bots
 - Alan: Refactoring, Teamwork
-
 
 ### Contributors
 
