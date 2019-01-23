@@ -1,28 +1,55 @@
-Welcome to Glitch
-=================
+# Coffee Chats 2.0
+> Zulip bot that pairs Recursers for coffee chats
 
-Click `Show` in the header to see your app live. Updates to your code will instantly deploy and update live.
+## Introduction
+Coffee Chats are a great way to get matched with someone else at RC to chat about what you'll be doing at RC or what you're doing in life
 
-**Glitch** is the friendly community where you'll build the app of your dreams. Glitch lets you instantly create, remix, edit, and host an app, bot or site, and you can invite collaborators or helpers to simultaneously edit code with you.
+## TODO
+#### Prep
+- [x] move glitch project to github
+- [x] make readme, with todo list
+- [ ] project formating setup (prettier, linter, githooks) 
+- [ ] add typescript: setup compiler && linter
+- [ ] set up jest
+- [ ] Code reorganization: spliting into db, matching algorithm, server/router
+- [ ] Test deploy to now zeit
+- [ ] *Design database schema (archive users)
 
-Find out more [about Glitch](https://glitch.com/about).
+#### RC Hackathon
+[TBD]
 
+#### Proposed Feature
+- [ ] Writing Tests (prioritize)
+  - [ ] create test stream & test database
 
-Your Project
-------------
+- [ ] End of batch confirmation message of do you want to continue with coffee chats? 
 
-On the front-end,
-- edit `public/client.js`, `public/style.css` and `views/index.html`
-- drag in `assets`, like images or music, to add them to your project
+- [ ] Revisit Matching Algorithm?
+  - [ ] don't pair facilitors with each other
+  - [ ] pairing new recursers with continuing recursers (first two weeks?)
+  - [ ] allow users to set matching criteria (May be counter to coffee chat intention)
+  - [ ] Date handling (use moment.js, date-fns? )
 
-On the back-end,
-- your app starts at `server.js`
-- add frameworks and packages in `package.json`
-- safely store app secrets in `.env` (nobody can see this but you and people you invite)
+- [ ] Admin CLI for managing coffee chats bot:
+  - [ ] getting recent logs, if it ran today, will run tomorrow
+  - [ ] checking holidays, toggling on and off
+  - [ ] change who the odd match facilitor is
 
-This app has a database!
-- this app uses sqlite but you can power your apps with [a number of other storage options](https://glitch.com/storage)
-- `sqlite.db` is created and put into the `.data` folder, a hidden directory whose contents aren’t copied when a project is remixed. you can see the contents of `.data` in the console under "Logs"
+- [ ] raincheck feature (if you get paired, but don't meet up, remove the matched record so they can be paired later)
+
+- [ ] *writing migration scripts, preserving existing data
+
+- [ ] Propose moving the database to use postgres
+
+- [ ] Front end interface for end users:
+  - [ ] allow users to see who they've matched with
+  - [ ] same features of zulip bot cli, in browser? 
+
+#### Other Ideas
+- Virtual Coffee Chats! (liz)
+
+### Contributors
+Todo ... (include previous glitch coffee chats)
 
 RC-specific Messages
 --------------------
@@ -33,8 +60,3 @@ Hi everyone! From tomorrow morning, we'll be kicking off coffee chat pairings (M
 It's really simple to get paired - just subscribe to the Zulip channel #**Coffee Chats**. If you're in there at 10am on any given day, we'll pair you up with someone new (expect the message at 10:30am each day). If you're sick that day and forget to remove yourself, don't worry! You can just meet with the person you paired with once you're back.
 
 Feel free to add or remove yourself at any point, (just try to do so before 10am if you don't want to have coffee that day). Thanks and happy chatting!
-
-Made by [Fog Creek](https://fogcreek.com/)
--------------------
-
-\ ゜o゜)ノ
