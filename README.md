@@ -16,7 +16,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 - [ ] add typescript:
   - [x] setup compiler
   - [ ] set up tslint
-- [ ] set up jest
+- [X] set up jest
 - [ ] Code reorganization: spliting into db, matching algorithm, server/router
 - [ ] Test deploy to now zeit
 - [ ] Design database schema (archive users)
