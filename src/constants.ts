@@ -1,12 +1,12 @@
-export const coffeeDaysMap = {
-  '0': 'Sunday',
-  '1': 'Monday',
-  '2': 'Tuesday',
-  '3': 'Wednesday',
-  '4': 'Thursday',
-  '5': 'Friday',
-  '6': 'Saturday'
-};
+export enum WEEKDAYS {
+  SUNDAY,
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+  THURSDAY,
+  FRIDAY,
+  SATURDAY
+}
 
 // Exception dates can be added in this array,
 //     - the coffee chat bot won't run on these dates
@@ -16,5 +16,4 @@ export const coffeeDaysMap = {
 // ¯\_(ツ)_/¯
 
 export const EXCEPTION_DATES = [Date.UTC(2018, 12 - 1, 31)];
-
 export const oddNumberBackupEmails = ['alicia@recurse.com'];

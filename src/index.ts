@@ -1,9 +1,5 @@
 import { logger } from './logger';
-import {
-  coffeeDaysMap,
-  EXCEPTION_DATES,
-  oddNumberBackupEmails
-} from './constants';
+import { WEEKDAYS, EXCEPTION_DATES, oddNumberBackupEmails } from './constants';
 import { initZulipAPI } from './zulipMessenger';
 
 const express = require('express');
@@ -29,14 +25,6 @@ const tryToGetUsernameWithEmail = ({ users, email }) => {
   } catch (e) {
     return email;
   }
-};
-
-const coffeeDaysEnumToString = coffeeDays => {
-  logger.info(typeof coffeeDays, coffeeDays);
-  return String(coffeeDays)
-    .split('')
-    .map(v => coffeeDaysMap[v])
-    .join(', ');
 };
 
 const sendMessage = ({ zulipAPI, toEmail, matchedName, userConfig }) => {
