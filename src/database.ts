@@ -1,115 +1,15 @@
-import logger from './logger';
+import models from './models';
+import DIYSqliteORM from './databaseWrapper';
 import * as fs from 'fs';
 import Database from 'better-sqlite3';
-import { isArray, values } from 'lodash';
 
-const models = {
-  users: {
-    fields: {
-      email: {
-        type: 'TEXT',
-        unique: true
-      },
-      coffee_days: { type: 'TEXT' }
-    },
-    indices: ['email']
-  },
-  matches: {
-    fields: {
-      date: { type: 'TEXT' },
-      email1: { type: 'TEXT' },
-      email2: { type: 'TEXT' }
-    },
-    indices: ['date', 'email1', 'email2', ['email1', 'email2']]
-  },
-  warningsExceptions: {
-    fields: {
-      email: { type: 'TEXT' }
-    }
-  },
-  noNextMatch: {
-    fields: {
-      email: { type: 'TEXT' }
-    }
-  }
-};
 // init sqlite db
 const initDB = () => {
   const dbFile = process.env.DATABASE_FILE || './.data/dev.db';
   const exists = fs.existsSync(dbFile);
   const db = new Database(dbFile, { verbose: console.log });
-
-  const DIYSqliteORM = (models: any): any => ({
-    createTables: (commit = true) => {
-      const dbStatements = Object.keys(models).reduce(
-        (statements, modelName) => {
-          const model = models[modelName];
-          const fields = model.fields;
-          statements.push(`
-            CREATE TABLE ${modelName} (
-              ${Object.keys(fields)
-                .map(fieldName => {
-                  const field = fields[fieldName];
-                  return `${fieldName} ${field.type} NOT NULL${
-                    field.unique ? ' UNIQUE' : ''
-                  }`;
-                })
-                .join(', ')}
-            )
-          `);
-
-          return statements.concat(
-            (model.indices || []).map(
-              index =>
-                `CREATE INDEX ${
-                  isArray(index) ? index.join('_') : index
-                }_index ON ${modelName} (${
-                  isArray(index) ? index.join(', ') : index
-                })`
-            )
-          );
-        },
-        []
-      );
-      if (commit) {
-        dbStatements.forEach(statement => db.prepare(statement).run());
-      }
-      return dbStatements;
-    },
-    ...Object.keys(models).reduce((modelInterfaces, modelName) => {
-      modelInterfaces[modelName] = {
-        create: (attrs, { orReplace } = { orReplace: false }) => {
-          const statement = db.prepare(`
-            INSERT${orReplace ? ' OR REPLACE' : ''} INTO
-            ${modelName}(${Object.keys(attrs).join(', ')}) VALUES
-            (${values(attrs)
-              .map(x => `"${x}"`)
-              .join(', ')})
-          `);
-          statement.run();
-          return true;
-        },
-        get: ({ attrs, where }) => {
-          const statement = db.prepare(`
-            SELECT ${attrs ? attrs.join(', ') : '*'} FROM
-            ${modelName}${where ? ` WHERE ${where}` : ''}
-          `);
-          return statement.all();
-        },
-        delete: where => {
-          const statement = db.prepare(`
-            DELETE FROM
-            ${modelName}${where ? ` WHERE ${where}` : ''}
-          `);
-          return statement.run();
-        }
-      };
-      return modelInterfaces;
-    }, {})
-  });
-
   // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
-  const dbWrapper = DIYSqliteORM(models);
+  const dbWrapper = DIYSqliteORM(db, models);
   if (!exists) {
     dbWrapper.createTables();
   }
