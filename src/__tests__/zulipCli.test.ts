@@ -42,7 +42,7 @@ describe('should be able to parse various zulip requests', () => {
         content: 'uPdaTe updatePayload'
       }
     };
-    
+
     // tslint:disable-next-line
     const fakeZulipRequest_status = {
       message: {
@@ -52,9 +52,12 @@ describe('should be able to parse various zulip requests', () => {
       }
     };
 
-
-    const parsedDirectiveUpdate = parseZulipServerRequest(fakeZulipRequest_update);
-    const parsedDirectiveStatus = parseZulipServerRequest(fakeZulipRequest_status);
+    const parsedDirectiveUpdate = parseZulipServerRequest(
+      fakeZulipRequest_update
+    );
+    const parsedDirectiveStatus = parseZulipServerRequest(
+      fakeZulipRequest_status
+    );
     const expectedUpdate = {
       command: cliCommands.UPDATE,
       payload: ['updatePayload']
