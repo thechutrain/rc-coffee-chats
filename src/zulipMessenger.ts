@@ -1,7 +1,7 @@
 import logger from './logger';
 import * as zulip from 'zulip-js';
 import { stringifyWeekDays } from './utils';
-import { WARNING_MSG } from './constants';
+import { MESSAGES, BOT_COMMANDS } from './constants';
 
 export const initZulipAPI = (zulipConfig = {}) => {
   const zulipConfig = {
@@ -19,9 +19,12 @@ export const initZulipAPI = (zulipConfig = {}) => {
     // get all subs for a channel from the Zulip API, as far as we could see
     const botSubsResponse = await zulipAPI.streams.subscriptions.retrieve();
     const botSubs = botSubsResponse.subscriptions;
+
+    // TODO: save the Stream ID in .env or constants, not hard-coded! =P
     const allSubscribedEmails = botSubs.filter(
       sub => sub.stream_id === 142655
     )[0].subscribers;
+
     // need to remember to remove all the bots that are in the channel
     return allSubscribedEmails.filter(email => {
       return (
@@ -31,6 +34,8 @@ export const initZulipAPI = (zulipConfig = {}) => {
     });
   };
 
+  // TO DO: pass in a user object which contains that user's config info AND their email...
+  // set their "coffee day numbers" before reaching this function (based on config OR default values)
   const sendMessage = ({ toEmail, matchedName, userConfig }) => {
     let coffeeDayNumbers =
       (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS;
@@ -53,7 +58,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
     zulipAPI.messages.send({
       to: toEmail,
       type: 'private',
-      content: WARNING_MSG
+      content: MESSAGE.WARNING
     });
   };
 
@@ -76,11 +81,14 @@ export const initZulipAPI = (zulipConfig = {}) => {
   // - for all matched emails, call zulipFunc sendMessage
   // - for all warning message emails, call zulipFunc sendWarningMessage
 
-  const handlePrivateMessageToBot = async body => {
-    logger.info('handlePrivateMessageToBot', body);
+  const handlePrivateMessageToBot = responseBody => {
+    logger.info('handlePrivateMessageToBot', respononseBody);
 
+    // Parse response body
     const message = body.data.toLowerCase();
     const fromEmail = body.message.sender_email;
+
+    // If user sends a string containing numbers 0 through 6:
     const coffeeDaysMatch = message.match(/^[0-6]+$/);
     if (coffeeDaysMatch) {
       const coffeeDayNumbers = coffeeDaysMatch[0];
@@ -99,7 +107,8 @@ export const initZulipAPI = (zulipConfig = {}) => {
       });
       return;
     }
-    if (message === 'warnings off') {
+
+    if (message === BOT_COMMANDS.WARNINGS_OFF) {
       db.serialize(() => {
         db.run(
           'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
@@ -109,11 +118,12 @@ export const initZulipAPI = (zulipConfig = {}) => {
       zulipAPI.messages.send({
         to: fromEmail,
         type: 'private',
-        content: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`
+        content: MESSAGES.WARNINGS_OFF
       });
       return;
     }
-    if (message === 'warnings on') {
+
+    if (message === BOT_COMMANDS.WARNINGS_ON) {
       db.serialize(() => {
         db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
       });
@@ -124,34 +134,24 @@ export const initZulipAPI = (zulipConfig = {}) => {
       });
       return;
     }
-    if (message === 'cancel next match') {
+
+    if (message === BOT_COMMANDS.CANCEL_NEXT) {
       db.serialize(() => {
         db.run('insert into noNextMatch (email) values(?)', fromEmail);
       });
       zulipAPI.messages.send({
         to: fromEmail,
         type: 'private',
-        content: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
+        content: MESSAGES.CANCEL_NEXT
       });
       return;
     }
 
+    // OTHERWISE, if user message has no recognizable command, send the user general info on what commands are available
     zulipAPI.messages.send({
       to: fromEmail,
       type: 'private',
-      content: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
-0 = Sunday
-1 = Monday
-2 = Tuesday
-3 = Wednesday
-4 = Thursday
-5 = Friday
-6 = Saturday
-E.g. Send "135" for matches on Monday, Wednesday, and Friday.
-
-To unsubscribe from warning messages send me a message "warnings off".
-To subscribe to the warning messages send me a message "warnings on".
-`
+      content: MESSAGES.INFO
     });
   };
 

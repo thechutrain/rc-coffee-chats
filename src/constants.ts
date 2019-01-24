@@ -18,7 +18,32 @@ export enum WEEKDAYS {
 export const EXCEPTION_DATES = [Date.UTC(2018, 12 - 1, 31)];
 export const oddNumberBackupEmails = ['alicia@recurse.com'];
 
-export const WARNING_MSG = `Hi there, You will be matched tomorrow for a coffee chat. 
+export const BOT_COMMANDS = {
+  WARNINGS_OFF: 'warnings off',
+  WARNINGS_ON: 'warnings on',
+  CANCEL_NEXT: 'cancel next match'
+};
+
+export const MESSAGES = {
+  WARNING: `Hi there, You will be matched tomorrow for a coffee chat. 
               If you don't want to be matched tomorrow reply to me with "cancel next match". 
               If you no longer want to receive these warning messages, reply to me with a message "warnings off".
-              If you don't want to participate in the coffee chats anymore, unsubscribe from "coffee chats" channel.`;
+              If you don't want to participate in the coffee chats anymore, unsubscribe from "coffee chats" channel.`,
+
+  WARNINGS_OFF: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`,
+
+  INFO: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
+0 = Sunday
+1 = Monday
+2 = Tuesday
+3 = Wednesday
+4 = Thursday
+5 = Friday
+6 = Saturday
+E.g. Send "135" for matches on Monday, Wednesday, and Friday.
+
+To unsubscribe from warning messages send me a message "warnings off".
+To subscribe to the warning messages send me a message "warnings on".`,
+
+  CANCEL_NEXT: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
+};
