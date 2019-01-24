@@ -1,7 +1,7 @@
 import logger from './logger';
 import * as fs from 'fs';
-import * as nonVerboseSqlite3 from 'sqlite3';
-import { isArray } from 'lodash';
+import Database from 'better-sqlite3';
+import { isArray, values } from 'lodash';
 
 const models = {
   users: {
@@ -37,10 +37,9 @@ const models = {
 const initDB = () => {
   const dbFile = process.env.DATABASE_FILE || './.data/dev.db';
   const exists = fs.existsSync(dbFile);
-  const sqlite3 = nonVerboseSqlite3.verbose();
-  const db = new sqlite3.Database(dbFile);
+  const db = new Database(dbFile, { verbose: console.log });
 
-  const DIYSqliteORM = models => ({
+  const DIYSqliteORM = (models: any): any => ({
     createTables: (commit = true) => {
       const dbStatements = Object.keys(models).reduce(
         (statements, modelName) => {
@@ -51,10 +50,12 @@ const initDB = () => {
               ${Object.keys(fields)
                 .map(fieldName => {
                   const field = fields[fieldName];
-                  return `${fieldName} ${field.type} NOT NULL`;
+                  return `${fieldName} ${field.type} NOT NULL${
+                    field.unique ? ' UNIQUE' : ''
+                  }`;
                 })
                 .join(', ')}
-            );
+            )
           `);
 
           return statements.concat(
@@ -71,121 +72,93 @@ const initDB = () => {
         []
       );
       if (commit) {
-        db.serialize(() =>
-          dbStatements.forEach(statement => db.run(statement))
-        );
+        dbStatements.forEach(statement => db.prepare(statement).run());
       }
       return dbStatements;
     },
-    ...Object.keys(models).reduce((methods, modelName) => {
-      methods[`${modelName}Create`] = (
-        attrs,
-        { orReplace, commit } = { orReplace: false, commit: true }
-      ) => {
-        const statement = `
+    ...Object.keys(models).reduce((modelInterfaces, modelName) => {
+      modelInterfaces[modelName] = {
+        create: (attrs, { orReplace } = { orReplace: false }) => {
+          const statement = db.prepare(`
             INSERT${orReplace ? ' OR REPLACE' : ''} INTO
             ${modelName}(${Object.keys(attrs).join(', ')}) VALUES
-            (${Object.values(attrs)})
-          `;
-        if (commit) db.serialize(db.run(statement));
+            (${values(attrs)
+              .map(x => `"${x}"`)
+              .join(', ')})
+          `);
+          statement.run();
+          return true;
+        },
+        get: ({ attrs, where }) => {
+          const statement = db.prepare(`
+            SELECT ${attrs ? attrs.join(', ') : '*'} FROM
+            ${modelName}${where ? ` WHERE ${where}` : ''}
+          `);
+          return statement.all();
+        },
+        delete: where => {
+          const statement = db.prepare(`
+            DELETE FROM
+            ${modelName}${where ? ` WHERE ${where}` : ''}
+          `);
+          return statement.run();
+        }
       };
-      methods[`${modelName}Get`] = (attrs = [], where) => {
-        const statement = `
-            SELECT ${attrs.length ? attrs.join(', ') : '*'} FROM
-            modelName WHERE ${where}
-          `;
-      };
-      return methods;
+      return modelInterfaces;
     }, {})
   });
 
   // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
+  const dbWrapper = DIYSqliteORM(models);
   if (!exists) {
-    DIYSqliteORM.createTables(models);
+    dbWrapper.createTables();
   }
 
-  const getUserConfigs = async ({ emails }) => {
-    const userConfigs = new Promise((resolve, reject) => {
-      db.all(
-        `SELECT email, coffee_days
-              FROM users
-              WHERE email in ("${emails.join('","')}")`,
-        [],
-        (err, rows) => (err ? reject(err) : resolve(rows))
-      );
+  const getUserConfigs = emails => {
+    return dbWrapper.users.get({
+      attrs: ['email', 'coffee_days'],
+      where: `email in ("${emails.join('","')}")`
     });
-    return userConfigs;
   };
 
   const getEmailExceptions = async ({ tableName }) => {
-    let rowsAsMap: any[];
-    await new Promise((resolve, reject) => {
-      db.all(`SELECT email FROM ${tableName}`, (err, rows) => {
-        rowsAsMap = rows;
-        err ? reject(err) : resolve(rows);
-      });
-    });
-    const exceptionsList = rowsAsMap.map(v => v.email);
-
-    return exceptionsList;
+    return dbWrapper[tableName].get({ attrs: ['email'] }).map(v => v.email);
   };
 
   const insertCoffeeDaysForUser = (fromEmail, coffeeDays) =>
-    db.serialize(() => {
-      db.run(
-        'INSERT OR REPLACE INTO users(email, coffee_days) VALUES (?, ?)',
-        fromEmail,
-        coffeeDays
-      );
-    });
+    dbWrapper.users.create(
+      { email: fromEmail, coffee_days: coffeeDays },
+      { orReplace: true }
+    );
 
-  const clearNoNextMatchTable = async () => {
-    db.serialize(() => {
-      db.run(`DELETE FROM noNextMatch`);
-    });
+  const clearNoNextMatchTable = () => {
+    dbWrapper.noNextMatch.delete();
   };
 
-  const getPastMatches = async emails => {
-    return new Promise((resolve, reject) => {
-      db.all(
-        `SELECT *
-              FROM matches
-              WHERE email1 in ("${emails.join('","')}")
-              OR email2 in ("${emails.join('","')}")`,
-        [],
-        (err, rows) => (err ? reject(err) : resolve(rows))
-      );
+  const getPastMatches = emails =>
+    dbWrapper.matches.get({
+      where: `email1 in ("${emails.join('","')}")
+    OR email2 in ("${emails.join('","')}")`
     });
-  };
 
   const insertIntoMatches = match =>
-    db.serialize(() => {
-      db.run(
-        `INSERT INTO matches(date, email1, email2) VALUES ("${
-          new Date().toISOString().split('T')[0]
-        }", "${match[0]}", "${match[1]}")`
-      );
+    dbWrapper.matches.create({
+      date: new Date().toISOString().split('T')[0],
+      email1: match[0],
+      email2: match[1]
     });
 
   const insertIntoWarningExceptions = email =>
-    db.serialize(() => {
-      db.run(
-        'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
-        email
-      );
-    });
+    dbWrapper.warningsExceptions.create({ email }, { orReplace: true });
 
   const deleteFromWarningExceptions = email =>
-    db.serialize(() => {
-      db.run('DELETE FROM warningsExceptions WHERE email=?', email);
-    });
+    dbWrapper.warningsExceptions.delete(`email = "${email}"`);
 
   const insertIntoNoNextMatch = email =>
-    db.serialize(() => {
-      db.run('insert into noNextMatch (email) values(?)', email);
-    });
+    dbWrapper.noNextMatch.create({ email });
+
   return {
-    db,
+    dbWrapper,
     clearNoNextMatchTable,
     deleteFromWarningExceptions,
     getEmailExceptions,
