@@ -1,7 +1,38 @@
 import logger from './logger';
 import * as fs from 'fs';
 import * as nonVerboseSqlite3 from 'sqlite3';
+import { isArray } from 'lodash';
 
+const models = {
+  users: {
+    fields: {
+      email: {
+        type: 'TEXT',
+        unique: true
+      },
+      coffee_days: { type: 'TEXT' }
+    },
+    indices: ['email']
+  },
+  matches: {
+    fields: {
+      date: { type: 'TEXT' },
+      email1: { type: 'TEXT' },
+      email2: { type: 'TEXT' }
+    },
+    indices: ['date', 'email1', 'email2', ['email1', 'email2']]
+  },
+  warningsExceptions: {
+    fields: {
+      email: { type: 'TEXT' }
+    }
+  },
+  noNextMatch: {
+    fields: {
+      email: { type: 'TEXT' }
+    }
+  }
+};
 // init sqlite db
 const initDB = () => {
   const dbFile = process.env.DATABASE_FILE || './.data/dev.db';
@@ -9,31 +40,49 @@ const initDB = () => {
   const sqlite3 = nonVerboseSqlite3.verbose();
   const db = new sqlite3.Database(dbFile);
 
-  // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
-  db.serialize(() => {
-    if (!exists) {
-      db.run(`CREATE TABLE matches (
-                date TEXT NOT NULL,
-                email1 TEXT NOT NULL,
-                email2 TEXT NOT NULL
-              );`);
-      db.run('CREATE INDEX date_index ON matches (date)');
-      db.run('CREATE INDEX email1_index ON matches (email1)');
-      db.run('CREATE INDEX email2_index ON matches (email2)');
-      db.run('CREATE INDEX email1_email2_index ON matches (email1, email2)');
-      logger.info('New table "matches" created!');
-      db.run(`CREATE TABLE warningsExceptions (
-            email TEXT NOT NULL
-      );`);
-      db.run(`CREATE TABLE noNextMatch (
-            email TEXT NOT NULL
-      );`);
-      db.run(
-        'CREATE TABLE users (email TEXT NOT NULL UNIQUE, coffee_days TEXT NOT NULL);'
+  const DIYSqliteORM = {
+    createTables: (models, commit = true) => {
+      const dbStatements = Object.keys(models).reduce(
+        (statements, modelName) => {
+          const model = models[modelName];
+          const fields = model.fields;
+          statements.push(`
+            CREATE TABLE ${modelName} (
+              ${Object.keys(fields)
+                .map(fieldName => {
+                  const field = fields[fieldName];
+                  return `${fieldName} ${field.type} NOT NULL`;
+                })
+                .join(', ')}
+            );
+          `);
+
+          return statements.concat(
+            (model.indices || []).map(
+              index =>
+                `CREATE INDEX ${
+                  isArray(index) ? index.join('_') : index
+                }_index ON ${modelName} (${
+                  isArray(index) ? index.join(', ') : index
+                })`
+            )
+          );
+        },
+        []
       );
-      db.run('CREATE INDEX IF NOT EXISTS users_email_index ON users (email);');
+      if (commit) {
+        db.serialize(() =>
+          dbStatements.forEach(statement => db.run(statement))
+        );
+      }
+      return dbStatements;
     }
-  });
+  };
+
+  // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
+  if (!exists) {
+    DIYSqliteORM.createTables(models);
+  }
 
   const getUserConfigs = async ({ emails }) => {
     const userConfigs = await new Promise((resolve, reject) => {
