@@ -1,17 +1,23 @@
 import logger from './logger';
 import * as zulip from 'zulip-js';
-import { stringifyWeekDays } from './utils';
+import { getUserWithEmail, stringifyWeekDays } from './utils';
 import { MESSAGES, BOT_COMMANDS } from './constants';
 
-export const initZulipAPI = (zulipConfig = {}) => {
-  const zulipConfig = {
+interface IZulipConfig {
+  ZULIP_USERNAME?: string;
+  ZULIP_API_KEY?: string;
+  ZULIP_REALM?: string;
+}
+
+export const initZulipAPI = async (zulipConfig: IZulipConfig = {}) => {
+  const config = {
     username: zulipConfig.ZULIP_USERNAME || process.env.ZULIP_USERNAME,
-    apiKey: zulipConfig.ZULIP_ZULIP_API_KEY || process.env.ZULIP_API_KEY,
+    apiKey: zulipConfig.ZULIP_API_KEY || process.env.ZULIP_API_KEY,
     realm: zulipConfig.ZULIP_REALM || process.env.ZULIP_REALM
   };
 
   // set up Zulip JS library
-  const zulipAPI = await zulip(zulipConfig);
+  const zulipAPI = await zulip(config);
 
   const getSubscribedEmails = async ({ users }) => {
     // retrieve the subscriptions for the Coffee Chat Bot in order to find the other
@@ -28,8 +34,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
     // need to remember to remove all the bots that are in the channel
     return allSubscribedEmails.filter(email => {
       return (
-        email !== zulipConfig.username &&
-        !getUserWithEmail({ users, email }).is_bot
+        email !== config.username && !getUserWithEmail({ users, email }).is_bot
       );
     });
   };
@@ -37,9 +42,9 @@ export const initZulipAPI = (zulipConfig = {}) => {
   // TO DO: pass in a user object which contains that user's config info AND their email...
   // set their "coffee day numbers" before reaching this function (based on config OR default values)
   const sendMessage = ({ toEmail, matchedName, userConfig }) => {
-    let coffeeDayNumbers =
+    const coffeeDayNumbers =
       (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS;
-    let coffeeDaysString = stringifyWeekDays(coffeeDayNumbers);
+    const coffeeDaysString = stringifyWeekDays(coffeeDayNumbers);
     zulipAPI.messages.send({
       to: toEmail,
       type: 'private',
@@ -58,7 +63,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
     zulipAPI.messages.send({
       to: toEmail,
       type: 'private',
-      content: MESSAGE.WARNING
+      content: MESSAGES.WARNING
     });
   };
 
@@ -84,11 +89,11 @@ export const initZulipAPI = (zulipConfig = {}) => {
   //    ... so make sendMessage more reusable :)
 
   const handlePrivateMessageToBot = responseBody => {
-    logger.info('handlePrivateMessageToBot', respononseBody);
+    logger.info('handlePrivateMessageToBot', responseBody);
 
     // Parse response body
-    const message = body.data.toLowerCase();
-    const fromEmail = body.message.sender_email;
+    const message = responseBody.data.toLowerCase();
+    const fromEmail = responseBody.message.sender_email;
 
     // If user sends a string containing numbers 0 through 6:
     const coffeeDaysMatch = message.match(/^[0-6]+$/);
