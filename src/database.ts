@@ -40,8 +40,8 @@ const initDB = () => {
   const sqlite3 = nonVerboseSqlite3.verbose();
   const db = new sqlite3.Database(dbFile);
 
-  const DIYSqliteORM = {
-    createTables: (models, commit = true) => {
+  const DIYSqliteORM = models => ({
+    createTables: (commit = true) => {
       const dbStatements = Object.keys(models).reduce(
         (statements, modelName) => {
           const model = models[modelName];
@@ -76,8 +76,28 @@ const initDB = () => {
         );
       }
       return dbStatements;
-    }
-  };
+    },
+    ...Object.keys(models).reduce((methods, modelName) => {
+      methods[`${modelName}Create`] = (
+        attrs,
+        { orReplace, commit } = { orReplace: false, commit: true }
+      ) => {
+        const statement = `
+            INSERT${orReplace ? ' OR REPLACE' : ''} INTO
+            ${modelName}(${Object.keys(attrs).join(', ')}) VALUES
+            (${Object.values(attrs)})
+          `;
+        if (commit) db.serialize(db.run(statement));
+      };
+      methods[`${modelName}Get`] = (attrs = [], where) => {
+        const statement = `
+            SELECT ${attrs.length ? attrs.join(', ') : '*'} FROM
+            modelName WHERE ${where}
+          `;
+      };
+      return methods;
+    }, {})
+  });
 
   // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
   if (!exists) {
@@ -85,7 +105,7 @@ const initDB = () => {
   }
 
   const getUserConfigs = async ({ emails }) => {
-    const userConfigs = await new Promise((resolve, reject) => {
+    const userConfigs = new Promise((resolve, reject) => {
       db.all(
         `SELECT email, coffee_days
               FROM users
@@ -94,7 +114,6 @@ const initDB = () => {
         (err, rows) => (err ? reject(err) : resolve(rows))
       );
     });
-    console.log(userConfigs);
     return userConfigs;
   };
 
@@ -178,15 +197,5 @@ const initDB = () => {
     insertIntoNoNextMatch
   };
 };
-
-// const seedTestData = db => {
-//   db.run(
-//     `INSERT OR REPLACE INTO users(email, coffee_days) VALUES
-//     ("alldays@recurse.com", "0123456"),
-//     ("onlyrcdays@recurse.com", "1234"),
-//     ("onlymonday@recurse.com", "1"),
-//     ("nowarningmessages@recurse.com", ")`
-//   );
-// };
 
 export default initDB;
