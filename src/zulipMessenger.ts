@@ -1,6 +1,7 @@
 import logger from './logger';
 import * as zulip from 'zulip-js';
 import { stringifyWeekDays } from './utils';
+import { WARNING_MSG } from './constants';
 
 export const initZulipAPI = (zulipConfig = {}) => {
   const zulipConfig = {
@@ -12,7 +13,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
   // set up Zulip JS library
   const zulipAPI = await zulip(zulipConfig);
 
-  const getSubscribedEmails = async ({ zulipAPI, users }) => {
+  const getSubscribedEmails = async ({ users }) => {
     // retrieve the subscriptions for the Coffee Chat Bot in order to find the other
     // emails that are subscribed to the Coffee Chats channel. This is the only way to
     // get all subs for a channel from the Zulip API, as far as we could see
@@ -30,7 +31,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
     });
   };
 
-  const sendMessage = ({ zulipAPI, toEmail, matchedName, userConfig }) => {
+  const sendMessage = ({ toEmail, matchedName, userConfig }) => {
     let coffeeDayNumbers =
       (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS;
     let coffeeDaysString = stringifyWeekDays(coffeeDayNumbers);
@@ -48,10 +49,18 @@ export const initZulipAPI = (zulipConfig = {}) => {
     });
   };
 
-  // TODO: re-implement coffeeDaysEnumToString using typescript enum.. call it stringifyCoffeeDays ?
+  const sendWarningMessage = toEmail => {
+    zulipAPI.messages.send({
+      to: toEmail,
+      type: 'private',
+      content: WARNING_MSG
+    });
+  };
 
-  const sendAllMessages = ({ zulipAPI, matchedEmails, users, userConfigs }) => {
-    db.serialize(() => {
+  // TO MOVE TO DB:
+  // given list of matched emails, insert all new matches:
+  /* 
+  db.serialize(() => {
       matchedEmails.forEach(match => {
         const sortedMatch = match.sort();
         db.run(
@@ -59,40 +68,17 @@ export const initZulipAPI = (zulipConfig = {}) => {
             new Date().toISOString().split('T')[0]
           }", "${sortedMatch[0]}", "${sortedMatch[1]}")`
         );
-        sendMessage({
-          zulipAPI,
-          toEmail: match[0],
-          matchedName: tryToGetUsernameWithEmail({ users, email: match[1] }),
-          userConfig: userConfigs.filter(c => c.email === match[0])[0]
-        });
-        sendMessage({
-          zulipAPI,
-          toEmail: match[1],
-          matchedName: tryToGetUsernameWithEmail({ users, email: match[0] }),
-          userConfig: userConfigs.filter(c => c.email === match[1])[0]
-        });
       });
     });
-  };
+  */
 
-  const sendWarningMessages = ({ zulipAPI, warningMessageEmails }) => {
-    db.serialize(() => {
-      warningMessageEmails.forEach(email => {
-        zulipAPI.messages.send({
-          to: email,
-          type: 'private',
-          content: `Hi there, You will be matched tomorrow for a coffee chat. 
-              If you don't want to be matched tomorrow reply to me with "cancel next match". 
-              If you no longer want to receive these warning messages, reply to me with a message "warnings off".
-              If you don't want to participate in the coffee chats anymore, unsubscribe from "coffee chats" channel.`
-        });
-      });
-    });
-  };
+  // TO MOVE TO SERVER FILE:
+  // - for all matched emails, call zulipFunc sendMessage
+  // - for all warning message emails, call zulipFunc sendWarningMessage
 
   const handlePrivateMessageToBot = async body => {
     logger.info('handlePrivateMessageToBot', body);
-    const zulipAPI = await zulip(zulipConfig);
+
     const message = body.data.toLowerCase();
     const fromEmail = body.message.sender_email;
     const coffeeDaysMatch = message.match(/^[0-6]+$/);
@@ -172,8 +158,7 @@ To subscribe to the warning messages send me a message "warnings on".
   return {
     getSubscribedEmails,
     sendMessage,
-    sendAllMessages,
-    sendWarningMessages,
+    sendWarningMessage,
     handlePrivateMessageToBot
   };
 };
