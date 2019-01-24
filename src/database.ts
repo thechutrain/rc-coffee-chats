@@ -14,12 +14,11 @@ const initDB = () => {
     dbWrapper.createTables();
   }
 
-  const getUserConfigs = ({ emails }) => {
-    return dbWrapper.users.get({
+  const getUserConfigs = ({ emails }) =>
+    dbWrapper.users.get({
       attrs: ['email', 'coffee_days'],
       where: `email in ("${emails.join('","')}")`
     });
-  };
 
   const getEmailExceptions = ({ tableName }) => {
     return dbWrapper[tableName].get({ attrs: ['email'] }).map(v => v.email);
@@ -31,9 +30,7 @@ const initDB = () => {
       { orReplace: true }
     );
 
-  const clearNoNextMatchTable = () => {
-    dbWrapper.noNextMatch.delete();
-  };
+  const clearNoNextMatchTable = () => dbWrapper.noNextMatch.delete();
 
   const getPastMatches = emails =>
     dbWrapper.matches.get({

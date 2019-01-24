@@ -11,7 +11,7 @@ test('database can insert users', () => {
   users = db.getUserConfigs({ emails: ['onlyrcdays@recurse.com'] });
   expect(users[0].email).toBe('onlyrcdays@recurse.com');
   expect(users[0].coffee_days).toBe('1234');
-})
+});
 
 test('database can insert and clear noNextmatches', () => {
   let noNextMatches;

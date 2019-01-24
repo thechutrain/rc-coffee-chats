@@ -40,9 +40,7 @@ const DIYSqliteORM = (db: any, models: any): any => ({
         const statement = db.prepare(`
           INSERT${orReplace ? ' OR REPLACE' : ''} INTO
           ${modelName}(${Object.keys(attrs).join(', ')}) VALUES
-          (${values(attrs)
-            .map(x => `"${x}"`)
-            .join(', ')})
+          ("${values(attrs).join('", "')}")
         `);
         statement.run();
         return true;
