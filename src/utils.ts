@@ -1,18 +1,5 @@
 import { EXCEPTION_DATES, WEEKDAYS } from './constants';
 
-export const getUserWithEmail = ({ users, email }) => {
-  return users.find(user => user.email === email);
-};
-
-// Wat? - used in sendAllMessages? may not need ...
-export const tryToGetUsernameWithEmail = ({ users, email }) => {
-  try {
-    return getUserWithEmail({ users, email }).full_name;
-  } catch (e) {
-    return email;
-  }
-};
-
 export const stringifyWeekDays = dayNumbersArray => {
   if (typeof dayNumbersArray === 'string') {
     dayNumbersArray = dayNumbersArray.split('');
