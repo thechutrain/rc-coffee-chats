@@ -4,7 +4,7 @@ const timestamp = () => {
   new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
 };
 
-export const logger = new winston.Logger({
+const logger = new winston.Logger({
   transports: [
     new winston.transports.Console({
       timestamp,
@@ -17,3 +17,5 @@ export const logger = new winston.Logger({
     })
   ]
 });
+
+export default logger;
