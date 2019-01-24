@@ -17,3 +17,8 @@ export enum WEEKDAYS {
 
 export const EXCEPTION_DATES = [Date.UTC(2018, 12 - 1, 31)];
 export const oddNumberBackupEmails = ['alicia@recurse.com'];
+
+export const WARNING_MSG = `Hi there, You will be matched tomorrow for a coffee chat. 
+              If you don't want to be matched tomorrow reply to me with "cancel next match". 
+              If you no longer want to receive these warning messages, reply to me with a message "warnings off".
+              If you don't want to participate in the coffee chats anymore, unsubscribe from "coffee chats" channel.`;
