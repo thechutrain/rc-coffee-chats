@@ -21,3 +21,10 @@ export const tryToGetUsernameWithEmail = ({ users, email }) => {
     return email;
   }
 };
+
+export const stringifyWeekDays = dayNumbersArray => {
+  if (typeof dayNumbersArray === 'string') {
+    dayNumbersArray = dayNumbersArray.split('');
+  }
+  return dayNumbersArray.map(dayNum => WEEKDAYS[dayNum]).join();
+};
