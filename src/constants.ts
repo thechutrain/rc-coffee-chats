@@ -32,6 +32,8 @@ export const MESSAGES = {
 
   WARNINGS_OFF: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`,
 
+  WARNINGS_ON: `Hi! You've successfully subscribed to the warning messages!`,
+
   INFO: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
 0 = Sunday
 1 = Monday

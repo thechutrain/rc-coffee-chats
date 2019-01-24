@@ -80,6 +80,8 @@ export const initZulipAPI = (zulipConfig = {}) => {
   // TO MOVE TO SERVER FILE:
   // - for all matched emails, call zulipFunc sendMessage
   // - for all warning message emails, call zulipFunc sendWarningMessage
+  // - MOVE handlePrivateMessageToBot into server -- parse response, talk to db, and send zulip mesg
+  //    ... so make sendMessage more reusable :)
 
   const handlePrivateMessageToBot = responseBody => {
     logger.info('handlePrivateMessageToBot', respononseBody);
@@ -130,7 +132,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
       zulipAPI.messages.send({
         to: fromEmail,
         type: 'private',
-        content: `Hi! You've successfully subscribed to the warning messages!`
+        content: MESSAGES.WARNINGS_ON
       });
       return;
     }
