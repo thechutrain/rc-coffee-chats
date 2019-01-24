@@ -51,8 +51,8 @@ export async function initZulipAPI(
     });
   }
 
-  // Store Zulip users who signed up for coffee chats (private var of this module)
-  const zulipCoffeeUsers: IZulipUser[] = await getZulipUsers();
+  // Store Zulip users who signed up for coffee chats (make public)
+  const users: IZulipUser[] = await getZulipUsers();
 
   // Send a message to a given Zulip user
   function sendMessage(toEmail: string, messageContent: string) {
@@ -63,11 +63,8 @@ export async function initZulipAPI(
     });
   }
 
-  // Store subscribed emails array (expose this to other modules)
-  const subscribedEmails: string[] = zulipCoffeeUsers.map(user => user.email);
-
   return {
-    subscribedEmails,
+    users,
     sendMessage
   };
 }
