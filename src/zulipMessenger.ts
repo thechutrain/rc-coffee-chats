@@ -9,7 +9,7 @@ interface IZulipConfig {
 
 // Subset of user data defined by Zulip API:
 // https://zulipchat.com/api/get-all-users
-interface ZulipUser {
+interface IZulipUser {
   is_active: boolean;
   user_id: number;
   full_name: string;
@@ -17,9 +17,9 @@ interface ZulipUser {
   email: string;
 }
 
-export const initZulipAPI = async function(
+export async function initZulipAPI(
   zulipConfig: IZulipConfig = {}
-): void {
+): Promise<any> {
   // set up Zulip JS library
   const config = {
     username: zulipConfig.ZULIP_USERNAME || process.env.ZULIP_USERNAME,
@@ -29,35 +29,39 @@ export const initZulipAPI = async function(
   const zulipAPI = await zulip(config);
 
   // Get all Zulip user info for the users subscribed to the coffee chats stream
-  const getZulipUsers = async function(): ZulipUser[] {
-    // First get user data (name, ID, is_bot, etc) for ALL Zulip users
-    const allZulipUsers = (await zulipAPI.users.retrieve()).members;
+  function getZulipUsers(): Promise<IZulipUser[]> {
+    return new Promise(async resolve => {
+      // First get user data (name, ID, is_bot, etc) for ALL Zulip users
+      const allZulipUsers = (await zulipAPI.users.retrieve()).members;
 
-    // Next, retrieve every stream that Coffee Bot is subscribed to...
-    const botSubsResponse = await zulipAPI.streams.subscriptions.retrieve();
+      // Next, retrieve every stream that Coffee Bot is subscribed to...
+      const botSubsResponse = await zulipAPI.streams.subscriptions.retrieve();
 
-    // ...and get the user emails subscribed to STREAM_ID (the coffee bot channel)
-    let allSubscribedEmails = botSubsResponse.subscriptions.filter(
-      sub => sub.stream_id === STREAM_ID
-    )[0].subscribers;
+      // ...and get the user emails subscribed to STREAM_ID (the coffee bot channel)
+      const allSubscribedEmails = botSubsResponse.subscriptions.filter(
+        sub => sub.stream_id === STREAM_ID
+      )[0].subscribers;
 
-    // Return only non-bot zulip users who are subscribed to coffee chats stream
-    return allZulipUsers.filter(user => {
-      return !user.is_bot && allSubscribedEmails.includes(user.email);
+      // Return only non-bot zulip users who are subscribed to coffee chats stream
+      const subscribedUsers = allZulipUsers.filter(user => {
+        return !user.is_bot && allSubscribedEmails.includes(user.email);
+      });
+
+      resolve(subscribedUsers);
     });
-  };
+  }
 
   // Store Zulip users who signed up for coffee chats (private var of this module)
-  const zulipCoffeeUsers: ZulipUser[] = getZulipUsers();
+  const zulipCoffeeUsers: IZulipUser[] = await getZulipUsers();
 
   // Send a message to a given Zulip user
-  const sendMessage = function(toEmail: string, messageContent: string) {
+  function sendMessage(toEmail: string, messageContent: string) {
     zulipAPI.messages.send({
       to: toEmail,
       type: 'private',
       content: messageContent
     });
-  };
+  }
 
   // Store subscribed emails array (expose this to other modules)
   const subscribedEmails: string[] = zulipCoffeeUsers.map(user => user.email);
@@ -66,4 +70,4 @@ export const initZulipAPI = async function(
     subscribedEmails,
     sendMessage
   };
-};
+}
