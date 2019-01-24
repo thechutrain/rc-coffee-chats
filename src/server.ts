@@ -1,47 +1,19 @@
-// const zulip = require('zulip-js');
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-// const fs = require('fs');
-import initDB from './database';
-
-const { getUserConfigs, insertCoffeeDaysForUser } = initDB();
-// const shuffle = require('lodash/shuffle');
-// import * as zulip from 'zulip-js'
-// import {express} from 'express'
-// import * as bodyParser from 'body-parser'
-// import * as fs from 'fs'
-// import {shuffle} from 'lodash';
+import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import logger from './logger';
+import { WEEKDAYS, EXCEPTION_DATES, oddNumberBackupEmails } from './constants';
+import { isExceptionDay } from './utils';
+import { initZulipAPI } from './zulipMessenger';
 
 const PORT = process.env.PORT || 3000;
+
 const app = express();
-
-// coffee_days is formatted as a string of ints mapped to days 0123456 (Sunday = 0)
-const getEmailsForDay = ({ emails, userConfigs, day }) => {
-  const userConfigMap = userConfigs.reduce((acc, v) => {
-    // acc[v['email']] = String(v['coffee_days']);
-    acc[v.email] = String(v.coffee_days);
-    return acc;
-  }, {});
-
-  const isDefaultDay = process.env.DEFAULT_COFFEE_DAYS.includes(day);
-  return emails.filter(email => {
-    const config = userConfigMap[email];
-    if (!config && isDefaultDay) return true;
-    if (config && config.includes(day)) return true;
-    return false;
-  });
-};
-
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', (request, response) => {
-  const pathToHtml = path.join(__dirname, '..', 'views/index.html');
-  console.log(pathToHtml);
-  response.sendFile(pathToHtml);
-  // response.sendFile(__dirname + '/views/index.html'); // TODO: update this page
+  response.sendFile(__dirname + '/views/index.html');
 });
 
 app.get('/test', (request, response) => {
@@ -77,79 +49,79 @@ const listener = app.listen(PORT, () => {
   // logger.info('Your app is listening on port ' + listener.address().port);
 });
 
-const handlePrivateMessageToBot = async body => {
-  logger.info('handlePrivateMessageToBot', body);
-  const zulipAPI = await zulip(zulipConfig);
-  const message = body.data.toLowerCase();
-  const fromEmail = body.message.sender_email;
-  const coffeeDaysMatch = message.match(/^[0-6]+$/);
-  if (coffeeDaysMatch) {
-    const coffeeDays = coffeeDaysMatch[0];
-    insertCoffeeDaysForUser(fromEmail, coffeeDays);
-    zulipAPI.messages.send({
-      to: fromEmail,
-      type: 'private',
-      content: `We changed your coffee chat days to: **${coffeeDaysEnumToString(
-        coffeeDays
-      )}** 🎊`
-    });
-    return;
-  }
-  if (message === 'warnings off') {
-    db.serialize(() => {
-      db.run(
-        'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
-        fromEmail
-      );
-    });
-    zulipAPI.messages.send({
-      to: fromEmail,
-      type: 'private',
-      content: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`
-    });
-    return;
-  }
-  if (message === 'warnings on') {
-    db.serialize(() => {
-      db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
-    });
-    zulipAPI.messages.send({
-      to: fromEmail,
-      type: 'private',
-      content: `Hi! You've successfully subscribed to the warning messages!`
-    });
-    return;
-  }
-  if (message === 'cancel next match') {
-    db.serialize(() => {
-      db.run('insert into noNextMatch (email) values(?)', fromEmail);
-    });
-    zulipAPI.messages.send({
-      to: fromEmail,
-      type: 'private',
-      content: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
-    });
-    return;
-  }
+// const handlePrivateMessageToBot = async body => {
+//   logger.info('handlePrivateMessageToBot', body);
+//   const zulipAPI = await zulip(zulipConfig);
+//   const message = body.data.toLowerCase();
+//   const fromEmail = body.message.sender_email;
+//   const coffeeDaysMatch = message.match(/^[0-6]+$/);
+//   if (coffeeDaysMatch) {
+//     const coffeeDays = coffeeDaysMatch[0];
+//     insertCoffeeDaysForUser(fromEmail, coffeeDays);
+//     zulipAPI.messages.send({
+//       to: fromEmail,
+//       type: 'private',
+//       content: `We changed your coffee chat days to: **${coffeeDaysEnumToString(
+//         coffeeDays
+//       )}** 🎊`
+//     });
+//     return;
+//   }
+//   if (message === 'warnings off') {
+//     db.serialize(() => {
+//       db.run(
+//         'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
+//         fromEmail
+//       );
+//     });
+//     zulipAPI.messages.send({
+//       to: fromEmail,
+//       type: 'private',
+//       content: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`
+//     });
+//     return;
+//   }
+//   if (message === 'warnings on') {
+//     db.serialize(() => {
+//       db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
+//     });
+//     zulipAPI.messages.send({
+//       to: fromEmail,
+//       type: 'private',
+//       content: `Hi! You've successfully subscribed to the warning messages!`
+//     });
+//     return;
+//   }
+//   if (message === 'cancel next match') {
+//     db.serialize(() => {
+//       db.run('insert into noNextMatch (email) values(?)', fromEmail);
+//     });
+//     zulipAPI.messages.send({
+//       to: fromEmail,
+//       type: 'private',
+//       content: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
+//     });
+//     return;
+//   }
 
-  zulipAPI.messages.send({
-    to: fromEmail,
-    type: 'private',
-    content: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
-0 = Sunday
-1 = Monday
-2 = Tuesday
-3 = Wednesday
-4 = Thursday
-5 = Friday
-6 = Saturday
-E.g. Send "135" for matches on Monday, Wednesday, and Friday.
+//   zulipAPI.messages.send({
+//     to: fromEmail,
+//     type: 'private',
+//     content: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
+// 0 = Sunday
+// 1 = Monday
+// 2 = Tuesday
+// 3 = Wednesday
+// 4 = Thursday
+// 5 = Friday
+// 6 = Saturday
+// E.g. Send "135" for matches on Monday, Wednesday, and Friday.
 
-To unsubscribe from warning messages send me a message "warnings off".
-To subscribe to the warning messages send me a message "warnings on".
-`
-  });
-};
+// To unsubscribe from warning messages send me a message "warnings off".
+// To subscribe to the warning messages send me a message "warnings on".
+// `
+//   });
+// };
 
 // ========= TESTS ============
 // const testDB = () => {
