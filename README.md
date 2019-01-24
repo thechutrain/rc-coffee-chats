@@ -27,6 +27,8 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 
 #### Proposed Feature
 
+- [ ] welcome message when you first subscribe
+
 - [ ] Writing Tests (prioritize)
 
 - [ ] Move database to Firebase (no relational db)
