@@ -12,6 +12,7 @@
     "mocha-no-side-effect-code": false,
     "no-var-requires": false,
     "no-submodule-imports": false,
+    "jsdoc-format": false,
     // "missing-jsdoc": false,
     // "no-relative-imports": false,
     // "export-name": false,
