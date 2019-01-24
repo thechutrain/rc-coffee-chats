@@ -114,14 +114,14 @@ const initDB = () => {
     dbWrapper.createTables();
   }
 
-  const getUserConfigs = emails => {
+  const getUserConfigs = ({ emails }) => {
     return dbWrapper.users.get({
       attrs: ['email', 'coffee_days'],
       where: `email in ("${emails.join('","')}")`
     });
   };
 
-  const getEmailExceptions = async ({ tableName }) => {
+  const getEmailExceptions = ({ tableName }) => {
     return dbWrapper[tableName].get({ attrs: ['email'] }).map(v => v.email);
   };
 
