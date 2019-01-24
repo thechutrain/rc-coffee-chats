@@ -1,10 +1,10 @@
-import * as nonVerboseSqlite3 from 'sqlite3';
-import * as fs from 'fs';
 import logger from './logger';
+import * as fs from 'fs';
+import * as nonVerboseSqlite3 from 'sqlite3';
 
 // init sqlite db
 const initDB = () => {
-  const dbFile = './.data/sqlite.db';
+  const dbFile = process.env.DATABASE_FILE || './.data/dev.db';
   const exists = fs.existsSync(dbFile);
   const sqlite3 = nonVerboseSqlite3.verbose();
   const db = new sqlite3.Database(dbFile);
@@ -17,33 +17,24 @@ const initDB = () => {
                 email1 TEXT NOT NULL,
                 email2 TEXT NOT NULL
               );`);
-      db.serialize(() => {
-        db.run('CREATE INDEX date_index ON matches (date)');
-        db.run('CREATE INDEX email1_index ON matches (email1)');
-        db.run('CREATE INDEX email2_index ON matches (email2)');
-        db.run('CREATE INDEX email1_email2_index ON matches (email1, email2)');
-        logger.info('New table "matches" created!');
-      });
+      db.run('CREATE INDEX date_index ON matches (date)');
+      db.run('CREATE INDEX email1_index ON matches (email1)');
+      db.run('CREATE INDEX email2_index ON matches (email2)');
+      db.run('CREATE INDEX email1_email2_index ON matches (email1, email2)');
+      logger.info('New table "matches" created!');
       db.run(`CREATE TABLE warningsExceptions (
             email TEXT NOT NULL
       );`);
       db.run(`CREATE TABLE noNextMatch (
             email TEXT NOT NULL
       );`);
-    } else {
-      db.serialize(() => {
-        db.run(
-          'CREATE TABLE IF NOT EXISTS users (email STRING NOT NULL UNIQUE, coffee_days STRING NOT NULL);'
-        );
-        db.serialize(() => {
-          db.run(
-            'CREATE INDEX IF NOT EXISTS users_email_index ON users (email);'
-          );
-        });
-      });
-      logger.info('Database "matches" ready to go!');
+      db.run(
+        'CREATE TABLE users (email TEXT NOT NULL UNIQUE, coffee_days TEXT NOT NULL);'
+      );
+      db.run('CREATE INDEX IF NOT EXISTS users_email_index ON users (email);');
     }
   });
+
   const getUserConfigs = async ({ emails }) => {
     const userConfigs = await new Promise((resolve, reject) => {
       db.all(
@@ -54,6 +45,7 @@ const initDB = () => {
         (err, rows) => (err ? reject(err) : resolve(rows))
       );
     });
+    console.log(userConfigs);
     return userConfigs;
   };
 
@@ -125,6 +117,7 @@ const initDB = () => {
       db.run('insert into noNextMatch (email) values(?)', email);
     });
   return {
+    db,
     clearNoNextMatchTable,
     deleteFromWarningExceptions,
     getEmailExceptions,
@@ -136,5 +129,15 @@ const initDB = () => {
     insertIntoNoNextMatch
   };
 };
+
+// const seedTestData = db => {
+//   db.run(
+//     `INSERT OR REPLACE INTO users(email, coffee_days) VALUES
+//     ("alldays@recurse.com", "0123456"),
+//     ("onlyrcdays@recurse.com", "1234"),
+//     ("onlymonday@recurse.com", "1"),
+//     ("nowarningmessages@recurse.com", ")`
+//   );
+// };
 
 export default initDB;
