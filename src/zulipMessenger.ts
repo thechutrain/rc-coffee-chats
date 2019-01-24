@@ -1,6 +1,6 @@
 import logger from './logger';
 import * as zulip from 'zulip-js';
-import { WEEKDAYS } from './constants';
+import { stringifyWeekDays } from './utils';
 
 export const initZulipAPI = (zulipConfig = {}) => {
   const zulipConfig = {
@@ -11,14 +11,6 @@ export const initZulipAPI = (zulipConfig = {}) => {
 
   // set up Zulip JS library
   const zulipAPI = await zulip(zulipConfig);
-
-  return {
-    getSubscribedEmails,
-    sendMessage,
-    sendAllMessages,
-    sendWarningMessages,
-    handlePrivateMessageToBot
-  };
 
   const getSubscribedEmails = async ({ zulipAPI, users }) => {
     // retrieve the subscriptions for the Coffee Chat Bot in order to find the other
@@ -39,6 +31,9 @@ export const initZulipAPI = (zulipConfig = {}) => {
   };
 
   const sendMessage = ({ zulipAPI, toEmail, matchedName, userConfig }) => {
+    let coffeeDayNumbers =
+      (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS;
+    let coffeeDaysString = stringifyWeekDays(coffeeDayNumbers);
     zulipAPI.messages.send({
       to: toEmail,
       type: 'private',
@@ -49,10 +44,7 @@ export const initZulipAPI = (zulipConfig = {}) => {
       )}) for more details. 
 
 *Reply to me with "help" to change how often you get matches.*
-*Your current days are: ${coffeeDaysEnumToString(
-        (userConfig && userConfig.coffee_days) ||
-          process.env.DEFAULT_COFFEE_DAYS
-      )}*`
+*Your current days are: ${coffeeDaysString}*`
     });
   };
 
@@ -105,20 +97,19 @@ export const initZulipAPI = (zulipConfig = {}) => {
     const fromEmail = body.message.sender_email;
     const coffeeDaysMatch = message.match(/^[0-6]+$/);
     if (coffeeDaysMatch) {
-      const coffeeDays = coffeeDaysMatch[0];
+      const coffeeDayNumbers = coffeeDaysMatch[0];
+      const coffeeDaysString = stringifyWeekDays(coffeeDayNumbers);
       db.serialize(() => {
         db.run(
           'INSERT OR REPLACE INTO users(email, coffee_days) VALUES (?, ?)',
           fromEmail,
-          coffeeDays
+          coffeeDayNumbers
         );
       });
       zulipAPI.messages.send({
         to: fromEmail,
         type: 'private',
-        content: `We changed your coffee chat days to: **${coffeeDaysEnumToString(
-          coffeeDays
-        )}** 🎊`
+        content: `We changed your coffee chat days to: **${coffeeDaysString}** 🎊`
       });
       return;
     }
@@ -176,5 +167,13 @@ To unsubscribe from warning messages send me a message "warnings off".
 To subscribe to the warning messages send me a message "warnings on".
 `
     });
+  };
+
+  return {
+    getSubscribedEmails,
+    sendMessage,
+    sendAllMessages,
+    sendWarningMessages,
+    handlePrivateMessageToBot
   };
 };
