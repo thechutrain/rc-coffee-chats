@@ -26,6 +26,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 [TBD]
 
 #### Proposed Feature
+- [ ] welcome message when you first subscribe
 
 - [ ] Writing Tests (prioritize)
 
