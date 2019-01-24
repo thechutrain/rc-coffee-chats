@@ -49,3 +49,5 @@ To subscribe to the warning messages send me a message "warnings on".`,
 
   CANCEL_NEXT: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
 };
+
+export const STREAM_ID = 142655;

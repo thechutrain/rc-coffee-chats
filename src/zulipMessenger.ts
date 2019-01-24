@@ -1,7 +1,7 @@
 import logger from './logger';
 import * as zulip from 'zulip-js';
 import { getUserWithEmail, stringifyWeekDays } from './utils';
-import { MESSAGES, BOT_COMMANDS } from './constants';
+import { STREAM_ID, MESSAGES, BOT_COMMANDS } from './constants';
 
 interface IZulipConfig {
   ZULIP_USERNAME?: string;
@@ -28,7 +28,7 @@ export const initZulipAPI = async (zulipConfig: IZulipConfig = {}) => {
 
     // TODO: save the Stream ID in .env or constants, not hard-coded! =P
     const allSubscribedEmails = botSubs.filter(
-      sub => sub.stream_id === 142655
+      sub => sub.stream_id === STREAM_ID
     )[0].subscribers;
 
     // need to remember to remove all the bots that are in the channel
