@@ -1,4 +1,8 @@
-import { parseZulipServerRequest, cliCommands, payloadFlags } from '../zulipCli';
+import {
+  parseZulipServerRequest,
+  cliCommands,
+  payloadFlags
+} from '../zulipCli';
 
 describe('should be able to parse various zulip requests', () => {
   it('should assume HELP if nothing is passed', () => {
@@ -12,7 +16,7 @@ describe('should be able to parse various zulip requests', () => {
     const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
     const expected = {
       command: cliCommands.HELP,
-      payload: {} 
+      payload: {}
     };
     expect(parsedDirective).toEqual(expected);
   });
@@ -50,12 +54,8 @@ describe('should be able to parse various zulip requests', () => {
       }
     };
 
-    const parsedDirective1 = parseZulipServerRequest(
-      fakeZulipReq1
-    );
-    const parsedDirective2 = parseZulipServerRequest(
-      fakeZulipReq1
-    );
+    const parsedDirective1 = parseZulipServerRequest(fakeZulipReq1);
+    const parsedDirective2 = parseZulipServerRequest(fakeZulipReq1);
 
     const expectedUpdate = {
       command: cliCommands.UPDATE,
@@ -68,6 +68,5 @@ describe('should be able to parse various zulip requests', () => {
     expect(parsedDirective2).toEqual(expectedUpdate);
   });
 });
-
 
 // TODO: write test for multiple arguments
