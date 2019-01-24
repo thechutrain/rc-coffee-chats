@@ -1,4 +1,4 @@
-import { parseZulipServerRequest, cliCommands } from '../zulipCli';
+import { parseZulipServerRequest, cliCommands, payloadFlags } from '../zulipCli';
 
 describe('should be able to parse various zulip requests', () => {
   it('should assume HELP if nothing is passed', () => {
@@ -12,7 +12,7 @@ describe('should be able to parse various zulip requests', () => {
     const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
     const expected = {
       command: cliCommands.HELP,
-      payload: []
+      payload: {} 
     };
     expect(parsedDirective).toEqual(expected);
   });
@@ -22,52 +22,52 @@ describe('should be able to parse various zulip requests', () => {
       message: {
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: '0123'
+        content: 'UPDATE'
       }
     };
     const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
     const expected = {
       command: cliCommands.UPDATE,
-      payload: ['0123']
+      payload: {}
     };
     expect(parsedDirective).toEqual(expected);
   });
 
   it('should be able to determine commands in a non-case sensitive way', () => {
-    // tslint:disable-next-line
-    const fakeZulipRequest_update = {
+    const fakeZulipReq1 = {
       message: {
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: 'uPdaTe updatePayload'
+        content: 'uPdaTe --date 012'
       }
     };
 
-    // tslint:disable-next-line
-    const fakeZulipRequest_status = {
+    const fakeZulipReq2 = {
       message: {
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: 'status'
+        content: 'upate --DaTe 012'
       }
     };
 
-    const parsedDirectiveUpdate = parseZulipServerRequest(
-      fakeZulipRequest_update
+    const parsedDirective1 = parseZulipServerRequest(
+      fakeZulipReq1
     );
-    const parsedDirectiveStatus = parseZulipServerRequest(
-      fakeZulipRequest_status
+    const parsedDirective2 = parseZulipServerRequest(
+      fakeZulipReq1
     );
+
     const expectedUpdate = {
       command: cliCommands.UPDATE,
-      payload: ['updatePayload']
-    };
-    const expectedStatus = {
-      command: cliCommands.STATUS,
-      payload: []
+      payload: {
+        '--DATE': '012'
+      }
     };
 
-    expect(parsedDirectiveUpdate).toEqual(expectedUpdate);
-    expect(parsedDirectiveStatus).toEqual(expectedStatus);
+    expect(parsedDirective1).toEqual(expectedUpdate);
+    expect(parsedDirective2).toEqual(expectedUpdate);
   });
 });
+
+
+// TODO: write test for multiple arguments

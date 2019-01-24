@@ -23,7 +23,7 @@ interface IZulipRequest {
 interface ICliDirective {
   command: cliCommands;
   // payload: any[]; // should be an object with keys (--flag) & values (params)
-  payload: string | I;
+  payload: string | Ipayload; // allow flexibility with payload if no flags passed?
 }
 
 // NOTE: string enums are not reverse mapped
@@ -31,9 +31,24 @@ export enum cliCommands {
   UPDATE = 'UPDATE', // updates your weekday
   STATUS = 'STATUS',
   HELP = 'HELP'
+  // ADMIN = 'ADMIN', // for admin features
+  // INFO = 'INFO',
   // PASS, // DO nothing, or default. Not necessary?
 }
 
+export enum payloadFlags {
+  DATE_FLAG = '--DATE'
+}
+// NOTE: you can use enum values to define the keys of an interface
+interface Ipayload {
+  [payloadFlags.DATE_FLAG]?: string;
+}
+
+/**
+ * ex.) update --date 12321 ==> command: UPDATE, payload: {DATE_FLAG: 12321}
+ *
+ * @param zulipRequest
+ */
 export function parseZulipServerRequest(
   zulipRequest: IZulipRequest
 ): ICliDirective {
@@ -43,30 +58,52 @@ export function parseZulipServerRequest(
   const cliArgumentsArray = content.split(' ');
 
   // Get first argument of requestbody, default to the help command if no arguments passed
-  let command;
-  let payload;
   const strCommand =
     cliArgumentsArray.length > 0 ? cliArgumentsArray[0].toUpperCase() : '';
-  payload = cliArgumentsArray.length > 0 ? cliArgumentsArray.slice(1) : [];
+
+  const payload = {};
+
+  for (let f = 1, d = 2; d < cliArgumentsArray.length; f += 2, d += 2) {
+    const cliFlag = cliArgumentsArray[f].toUpperCase();
+    const cliFlagData = cliArgumentsArray[d]; // does it make sense to make this caps too?
+
+    // Check that odd indicies should be flags (must begin with --); 0 index is the CliCommand
+    if (!cliFlag.startsWith('--')) {
+      throw new Error(
+        `Should have received a flag, but received "${cliFlag}" instead`
+      );
+    }
+
+    if (cliFlagData.startsWith('--')) {
+      throw new Error(
+        `Non-flag arguments cannot begin with "--", received "${cliFlagData}"`
+      );
+    }
+
+    payload[cliFlag] = cliFlagData;
+  }
 
   // FEATURE:  fuzzy search feature, did you mean this COMMAND?
-  if (isNaN(parseInt(strCommand, 10))) {
-    // Assume first argument is a string
-    command = (Object as any).values(cliCommands).includes(strCommand)
-      ? cliCommands[strCommand]
-      : cliCommands.HELP;
-  } else {
-    /**
-     * Liz's design suggestion: if no command default to changing of the dates
-     * ex.) input of: 12345
-     *     output = UPDATE_WEEKDAYS, 12345
-     */
-    command = cliCommands.UPDATE;
-    payload = cliArgumentsArray.slice(0); // since first argument isnt a command, but payload
-  }
+  const command = (Object as any).values(cliCommands).includes(strCommand)
+    ? cliCommands[strCommand]
+    : cliCommands.HELP;
 
   return {
     command,
     payload
   };
+}
+
+export function dispatchActionFromZulipCli(cliDirective: ICliDirective) {
+  const { command, payload } = cliDirective;
+
+  switch (command) {
+    case cliCommands.UPDATE:
+      console.log('Updating', payload);
+      break;
+
+    case cliCommands.STATUS:
+      console.log('Status', payload);
+      break;
+  }
 }
