@@ -24,7 +24,14 @@ export const DEFAULT_COFFEE_DAYS = [
 
 // TODO: exception dates && oddNumberBacksup should eventually be put in a separate table
 export const EXCEPTION_DATES = [Date.UTC(2018, 12 - 1, 31)];
-export const oddNumberBackupEmails = ['alicia@recurse.com'];
+export const oddNumberBackupUsers = [
+  {
+    is_active: true,
+    full_name: 'Alicia',
+    is_bot: false,
+    email: 'alicia@recurse.com'
+  }
+];
 
 export const BOT_COMMANDS = {
   WARNINGS_OFF: 'warnings off',

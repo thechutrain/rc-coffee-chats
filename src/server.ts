@@ -2,9 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import logger from './logger';
-import { WEEKDAYS, EXCEPTION_DATES, oddNumberBackupEmails } from './constants';
+import { BOT_COMMANDS, MESSAGES, oddNumberBackupUsers } from './constants';
+import { initZulipAPI, IZulipUser } from './zulipMessenger';
 import { isExceptionDay } from './utils';
-import { initZulipAPI } from './zulipMessenger';
+import { shuffle } from 'lodash';
 
 const PORT = process.env.PORT || 3000;
 
@@ -12,19 +13,204 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// TODO -- this should be defined or updated whenever
+// the server is pinged by the cron thingy!!!
+const zulipAPI = initZulipAPI(); // using default config from .env here
+
+type ZulipUserPairs = [IZulipUser, IZulipUser][];
+// type boolNum = 0 | 1;
+// type a = (boolNum|boolean)[]
+
+// This function receives an array of IZulipUser who want a coffee chat partner today
+async function getMatchedUserPairs(
+  usersAvailableToday: IZulipUser[]
+): Promise<ZulipUserPairs> {
+  // DB CALL -- get past matches...... what's the data format here???
+  let pastMatches = []; // STUFF GOES HERE
+
+  /* PAST MATCHES: array of objects with date, email1, email2
+  [ { date: '2019-01-14',
+      email1: '',
+      email2: ''
+    },
+    {...}
+  ]
+*/
+
+  let unmatchedUsers = shuffle(usersAvailableToday);
+
+  const unmatchedUsersEmails = unmatchedUsersEmails.map(user => user.email);
+  const newMatches: IZulipUser[] = []; //.... yes or no for TypeScript? =P
+
+  // Sort through all the users
+  while (unmatchedUsers.length > 0) {
+    // Remove from list one by one as people get paired up
+    const currentUser = unmatchedUsers.shift();
+
+    // Get list of the current person's past matches as an array of users
+    const pastMatchedEmailsAvailableToday = pastMatches
+      .filter(
+        match =>
+          match.email1 === currentUser.email ||
+          match.email2 === currentUser.email
+      ) // filter to current user...
+      .sort((a, b) => Number(new Date(a.date)) - Number(new Date(b.date))) // sort oldest to newest, so if there is a conflict we can rematch with oldest first
+      .map(match =>
+        match.email1 === currentUser.email ? match.email2 : match.email1
+      ) // extract only the other person's email out of the results (drop currentEmail ...
+      .filter(email => unmatchedUsersEmails.includes(email)) // remove past matches who are not looking for a match today or who already got matched
+      // (note: they did this because past matches are the fallback option in case no new matches are available;
+      //        any match NEEDS to be someone available today.)
+      .filter((value, index, self) => self.indexOf(value) === index); // uniq emails // TODO: this should be a reduce that adds a match count to every email so we can factor that into matches
+
+    // ...convert array of emails to array of users:
+    const pastMatchedUsersAvailableToday = unmatchedUsers.filter(user =>
+      pastMatchedUsersAvailableToday.includes(user.email)
+    );
+
+    // Get possible NEW matches for the current person: users available today who the current person has NOT previously matched with
+    const availableNewUsers = unmatchedUsers.filter(
+      user => !pastMatchedEmailsAvailableToday.includes(user.email)
+    );
+
+    // NOTE -- splice and indexOf for arrays of objects should work as long as the two arrays unmatchedUsers and availableNewUsers / pastMatchedUsersAvailableToday are referring to the same object refs!
+
+    if (availableNewUsers.length > 0) {
+      // TODO: potentialy prioritize matching people from different batches
+      newMatches.push([currentUser, availableNewUsers[0]]);
+      unmatchedUsers.splice(unmatchedUsers.indexOf(availableNewUsers[0]), 1);
+
+      // If no available NEW matches, then match current user with one of their past matches
+    } else if (
+      pastMatchedUsersAvailableToday.length > 0 &&
+      unmatchedUsers.length > 0
+    ) {
+      newMatches.push([currentUser, pastMatchedUsersAvailableToday[0]]);
+      unmatchedUsers.splice(
+        unmatchedUsers.indexOf(pastMatchedUsersAvailableToday[0]),
+        1
+      );
+    } else {
+      // this should only happen on an odd number of emails
+      // TODO: how to handle the odd person
+      newMatches.push([
+        currentUser,
+        oddNumberBackupUsers[
+          Math.floor(Math.random() * oddNumberBackupUsers.length)
+        ]
+      ]);
+    }
+    // logger.info("<<<<<<", newMatches);
+  }
+  return newMatches;
+}
+
+// TODO: reimplement the send warnings function too!
+// name: notifyPlannedMatch
+async function matchAndNotifyUsers() {
+  const today = new Date();
+
+  if (isExceptionDay(today)) {
+    logger.info('Today is an exception day, no coffee chats T__T');
+    return;
+  }
+
+  // Get array of emails for users subscribed to coffee bot stream
+  const subscribedEmails = zulipAPI.users.map(user => user.email);
+
+  // TODO: integrate with db stuff
+  // .... reintegrate with current array of users??? (one data struct?)
+  const userConfigs = await getUserConfigs({ emails: subscribedEmails });
+  logger.info('userConfigs', userConfigs);
+
+  // TODO: integrate with db stuff
+  const todaysActiveEmails = await getEmailsForDay({
+    emails: subscribedEmails,
+    userConfigs,
+    day: today.getDay()
+  });
+  logger.info('todaysActiveEmails', todaysActiveEmails);
+
+  // TODO: integrate with db stuff
+  const noEmailToday = await getEmailExceptions({ tableName: 'noNextMatch' });
+  logger.info('noEmailToday', noEmailToday);
+
+  const emailsToMatch = todaysActiveEmails.filter(
+    email => !noEmailToday.includes(email)
+  );
+  logger.info('emailsToMatch', emailsToMatch);
+
+  // IMPORTANT! Comment out this next line if you want to test something!!!
+  // TODO: integrate with db stuff
+  // clearNoNextMatchTable();
+
+  const usersToMatch = zulipAPI.users.map(user =>
+    emailsToMatch.includes(user.email)
+  );
+
+  const matchedUserPairs = await getMatchedUserPairs(usersToMatch);
+
+  // ******* SEND ALL MESSAGES *****
+  // IMPORTANT! Comment out this next part when testing things
+  matchedUserPairs.forEach(pair => {
+    // why sort????
+    const sortedMatch = pair.sort();
+
+    const user1Email = pair[0].email;
+    const user1FullName = pair[0].full_name;
+    const user1FirstName = user1FullName.split(' ')[0];
+
+    const user2Email = pair[1].email;
+    const user2FullName = pair[1].full_name;
+    const user2FirstName = user2FullName.split(' ')[0];
+
+    // TODO: db!
+    /* db.run(
+        `INSERT INTO pair(date, email1, email2) VALUES ("${
+          new Date().toISOString().split("T")[0]
+        }", "${sortedMatch[0]}", "${sortedMatch[1]}")`
+      );
+    */
+
+    // TODO -- refactor the messages!
+
+    /* TODO -- reimplement the userConfig part of the message sent to users.
+    const message1 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user1FullName}** today - enjoy! See [${user1FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(user1FullName)}) for more details. 
+
+*Reply to me with "help" to change how often you get matches.*
+*Your current days are: ${coffeeDaysEnumToString(
+      (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS
+    )}*`;
+  */
+
+    // Send message1 to user2Email (tell user2 they've been matched with user1)
+    const message1 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user1FullName}** today - enjoy! See [${user1FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+      user1FullName
+    )}) for more details. 
+
+*Reply to me with "help" to change how often you get matches.**`;
+
+    // Send message2 to user1Email (tell user1 they've been matched with user2)
+    const message2 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user2FullName}** today - enjoy! See [${user2FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+      user2FullName
+    )}) for more details. 
+
+*Reply to me with "help" to change how often you get matches.**`;
+
+    zulipAPI.sendMessage(user2Email, message1);
+    zulipAPI.sendMessage(user1Email, message2);
+  });
+}
+
 app.get('/', (request, response) => {
   response.sendFile(__dirname + '/views/index.html');
-});
-
-app.get('/test', (request, response) => {
-  response.send('Working yooooo');
 });
 
 app.post('/cron/run', (request, response) => {
   // logger.info('Running the matcher and sending out matches');
   if (request.headers.secret === process.env.RUN_SECRET) {
     console.log('Run the main function here');
-    // _run();
+    matchAndNotifyUsers();
   }
   response.status(200).json({ status: 'ok' });
 });
@@ -38,9 +224,64 @@ app.post('/cron/run/warnings', (request, response) => {
   response.status(200).json({ status: 'ok' });
 });
 
+// Handle messages received from Zulip outgoing webhooks
+// (when users @mention the coffee bot)
 app.post('/webhooks/zulip', (request, response) => {
-  // handlePrivateMessageToBot(request.body);
-  response.status(200).json({ status: 'ok' });
+  const userMessage = body.data.toLowerCase();
+  const userEmail = body.message.sender_email;
+
+  const coffeeDaysMatch = message.match(/^[0-6]+$/);
+
+  if (coffeeDaysMatch) {
+    // TODO: link this to database functions
+    insertCoffeeDaysForUser(userEmail, coffeeDaysMatch[0]);
+
+    const replyMessage = `We changed your coffee chat days to: **${stringifyWeekDays(
+      coffeeDaysMatch[0]
+    )}** 🎊`;
+
+    zulipAPI.sendMessage(userEmail, replyMessage);
+  } else if (userMessage === BOT_COMMANDS.WARNINGS_OFF) {
+    // TODO:
+    /*
+       db.serialize(() => {
+       db.run(
+         'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
+         fromEmail
+       );
+     });
+    */
+    zulipAPI.sendMessage(userEmail, MESSAGES.WARNINGS_OFF);
+  } else if (userMessage === BOT_COMMANDS.WARNINGS_ON) {
+    // TODO:
+    /*      db.serialize(() => {
+       db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
+     });
+    */
+
+    zulipAPI.sendMessage(userEmail, MESSAGES.WARNINGS_ON);
+  } else if (userMessage === BOT_COMMANDS.CANCEL_NEXT) {
+    // TODO:
+    /*
+     db.serialize(() => {
+       db.run('insert into noNextMatch (email) values(?)', fromEmail);
+     });
+
+       */
+
+    zulipAPI.sendMessage(userEmail, MESSAGES.CANCEL_NEXT);
+
+    // DEFAULT: if no recognizable command, send "help" info
+  } else {
+    zulipAPI.sendMessage(userEmail, MESSAGES.INFO);
+  }
+
+  // See: https://zulipchat.com/api/outgoing-webhooks
+  response.status(200).json({ response_not_required: true });
+
+  // TODO: send response with content key instead of the above,
+  // (and instead of calling zulipAPI.sendMessage)!
+  // ...only reply if request came from a user via private message?
 });
 
 // listen for requests :)
@@ -48,129 +289,3 @@ const listener = app.listen(PORT, () => {
   console.log(`🌍 is listening on port: ${PORT}`);
   // logger.info('Your app is listening on port ' + listener.address().port);
 });
-
-// const handlePrivateMessageToBot = async body => {
-//   logger.info('handlePrivateMessageToBot', body);
-//   const zulipAPI = await zulip(zulipConfig);
-//   const message = body.data.toLowerCase();
-//   const fromEmail = body.message.sender_email;
-//   const coffeeDaysMatch = message.match(/^[0-6]+$/);
-//   if (coffeeDaysMatch) {
-//     const coffeeDays = coffeeDaysMatch[0];
-//     insertCoffeeDaysForUser(fromEmail, coffeeDays);
-//     zulipAPI.messages.send({
-//       to: fromEmail,
-//       type: 'private',
-//       content: `We changed your coffee chat days to: **${coffeeDaysEnumToString(
-//         coffeeDays
-//       )}** 🎊`
-//     });
-//     return;
-//   }
-//   if (message === 'warnings off') {
-//     db.serialize(() => {
-//       db.run(
-//         'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
-//         fromEmail
-//       );
-//     });
-//     zulipAPI.messages.send({
-//       to: fromEmail,
-//       type: 'private',
-//       content: `Hi! You've successfully unsubscribed from warning messages! (You are still going to be matched while subscribed to the channel).`
-//     });
-//     return;
-//   }
-//   if (message === 'warnings on') {
-//     db.serialize(() => {
-//       db.run('DELETE FROM warningsExceptions WHERE email=?', fromEmail);
-//     });
-//     zulipAPI.messages.send({
-//       to: fromEmail,
-//       type: 'private',
-//       content: `Hi! You've successfully subscribed to the warning messages!`
-//     });
-//     return;
-//   }
-//   if (message === 'cancel next match') {
-//     db.serialize(() => {
-//       db.run('insert into noNextMatch (email) values(?)', fromEmail);
-//     });
-//     zulipAPI.messages.send({
-//       to: fromEmail,
-//       type: 'private',
-//       content: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
-//     });
-//     return;
-//   }
-
-//   zulipAPI.messages.send({
-//     to: fromEmail,
-//     type: 'private',
-//     content: `Hi! To change the days you get matched send me a message with any subset of the numbers 0123456.
-// 0 = Sunday
-// 1 = Monday
-// 2 = Tuesday
-// 3 = Wednesday
-// 4 = Thursday
-// 5 = Friday
-// 6 = Saturday
-// E.g. Send "135" for matches on Monday, Wednesday, and Friday.
-
-// To unsubscribe from warning messages send me a message "warnings off".
-// To subscribe to the warning messages send me a message "warnings on".
-// `
-//   });
-// };
-
-// ========= TESTS ============
-// const testDB = () => {
-//   db.all(
-//     'SELECT * FROM matches WHERE email1 = "test@test.com" OR email2="test@test.com"',
-//     (err, rows) => {
-//       logger.info(rows);
-//     }
-//   );
-// };
-
-// const testMatches = async () => {
-//   const zulipAPI = await zulip(zulipConfig);
-//   const users = (await zulipAPI.users.retrieve()).members;
-
-//   const activeEmails = await getSubscribedEmails({ zulipAPI, users });
-//   // logger.info(activeEmails);
-//   const todaysActiveEmails = await getEmailsForDay({
-//     emails: activeEmails,
-//     day: new Date().getDay(),
-//     userConfigs: null // TODO: look at later, fixes TS compile error
-//   });
-//   // logger.info(todaysActiveEmails);
-//   const matchedEmails = await matchEmails({ emails: todaysActiveEmails });
-//   // logger.info(JSON.stringify(matchedEmails));
-// };
-
-// won't work till bot has admin privileges
-// const removeSubs = async (emails) => {
-//   const zulipAPI = await zulip(zulipConfig);
-//   // const users = (await zulipAPI.users.retrieve()).members; // this is only needed if you want to remove by anything other than email
-
-//   logger.info(await zulipAPI.users.me.subscriptions.remove({
-//     subscriptions: JSON.stringify(["Coffee Chats"]),
-//     principals: JSON.stringify(emails)
-//   }))
-
-// }
-
-// removeSubs(["sheridan.kates@gmail.com"])
-// testMatches()
-
-// testDB()
-
-// // util for testing messages
-// const test = async () => {
-//   // const zulipAPI = await zulip(zulipConfig);
-//   // sendMessage({ zulipAPI, toEmail: "<>", matchedName: "<>" });
-//   db.run('INSERT OR REPLACE INTO users(email, coffee_days) VALUES ("c", "3")');
-//   logger.info(await getTodaysEmails({emails: ["c", "d"]}), (new Date("2018-10-07")).getDay());
-// };
-// test()
