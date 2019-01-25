@@ -3,8 +3,9 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import logger from './logger';
 import { BOT_COMMANDS, MESSAGES, oddNumberBackupUsers } from './constants';
-import { initZulipAPI } from './zulipMessenger';
+import { initZulipAPI, IZulipUser } from './zulipMessenger';
 import { isExceptionDay } from './utils';
+import { shuffle } from 'lodash';
 
 const PORT = process.env.PORT || 3000;
 
@@ -16,11 +17,14 @@ app.use(express.static('public'));
 // the server is pinged by the cron thingy!!!
 const zulipAPI = initZulipAPI(); // using default config from .env here
 
+type ZulipUserPairs = [IZulipUser, IZulipUser][];
+// type boolNum = 0 | 1;
+// type a = (boolNum|boolean)[]
+
 // This function receives an array of IZulipUser who want a coffee chat partner today
-// TODO -- typescript issue: will this work if IZulipUser interface is defined elsewhere?
 async function getMatchedUserPairs(
   usersAvailableToday: IZulipUser[]
-): IZulipUser[] {
+): Promise<ZulipUserPairs> {
   // DB CALL -- get past matches...... what's the data format here???
   let pastMatches = []; // STUFF GOES HERE
 
@@ -101,6 +105,8 @@ async function getMatchedUserPairs(
   return newMatches;
 }
 
+// TODO: reimplement the send warnings function too!
+// name: notifyPlannedMatch
 async function matchAndNotifyUsers() {
   const today = new Date();
 
