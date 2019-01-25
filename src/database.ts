@@ -4,8 +4,7 @@ import * as fs from 'fs';
 import Database from 'better-sqlite3';
 
 // init sqlite db
-const initDB = () => {
-  const dbFile = process.env.DATABASE_FILE || './.data/dev.db';
+const initDB = (dbFile = process.env.DATABASE_FILE) => {
   const exists = fs.existsSync(dbFile);
   const db = new Database(dbFile, { verbose: console.log });
   // if ./.data/sqlite.db does not exist, create it, otherwise print records to console

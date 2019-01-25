@@ -1,7 +1,12 @@
 import initDB from '../database';
-const db = initDB();
+import * as fs from 'fs';
 
-test('database can insert users', () => {
+const TEST_DB_FILE = './.data/test.db';
+const exists = fs.existsSync(TEST_DB_FILE);
+if (exists) fs.unlinkSync(TEST_DB_FILE)
+const db = initDB(TEST_DB_FILE);
+
+test('database can get and insert users', () => {
   db.insertCoffeeDaysForUser('alldays@recurse.com', '0123456');
   db.insertCoffeeDaysForUser('onlyrcdays@recurse.com', '1234');
   let users;
@@ -13,7 +18,7 @@ test('database can insert users', () => {
   expect(users[0].coffee_days).toBe('1234');
 });
 
-test('database can insert and clear noNextmatches', () => {
+test('database can get, insert and clear noNextmatches', () => {
   let noNextMatches;
   noNextMatches = db.getEmailExceptions({ tableName: 'noNextMatch' });
   expect(noNextMatches.length).toBe(0);
@@ -24,4 +29,26 @@ test('database can insert and clear noNextmatches', () => {
   db.clearNoNextMatchTable();
   noNextMatches = db.getEmailExceptions({ tableName: 'noNextMatch' });
   expect(noNextMatches.length).toBe(0);
+});
+
+test('database can get, insert and delete warnings exceptions', () => {
+  let warningsExceptions;
+  warningsExceptions = db.getEmailExceptions({ tableName: 'warningsExceptions' });
+  expect(warningsExceptions.length).toBe(0);
+  db.insertIntoWarningExceptions('onlyrcdays@recurse.com');
+  db.insertIntoWarningExceptions('alldays@recurse.com');
+  warningsExceptions = db.getEmailExceptions({ tableName: 'warningsExceptions' });
+  expect(warningsExceptions.length).toBe(2);
+  db.deleteFromWarningExceptions('alldays@recurse.com');
+  warningsExceptions = db.getEmailExceptions({ tableName: 'warningsExceptions' });
+  expect(warningsExceptions.length).toBe(1);
+});
+
+test('database can get, and insert matches', () => {
+  let matches;
+  matches = db.getPastMatches(['onlyrcdays@recurse.com', 'alldays@recurse.com']);
+  expect(matches.length).toBe(0);
+  db.insertIntoMatches(['onlyrcdays@recurse.com', 'alldays@recurse.com']);
+  matches = db.getPastMatches(['onlyrcdays@recurse.com', 'alldays@recurse.com']);
+  expect(matches.length).toBe(1);
 });
