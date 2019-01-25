@@ -11,7 +11,7 @@ interface IZulipConfig {
 // https://zulipchat.com/api/get-all-users
 interface IZulipUser {
   is_active: boolean;
-  user_id: number;
+  user_id?: number;
   full_name: string;
   is_bot: boolean;
   email: string;
