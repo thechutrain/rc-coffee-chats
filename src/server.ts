@@ -138,72 +138,61 @@ async function matchAndNotifyUsers() {
   // TODO: integrate with db stuff
   // clearNoNextMatchTable();
 
-  // TODO: ...where's matchEmails defined now?
-  const matchedEmails = await matchEmails({ emails: emailsToMatch });
-  logger.info('matchedEmails', matchedEmails);
+  const usersToMatch = zulipAPI.users.map(user =>
+    emailsToMatch.includes(user.email)
+  );
 
-  const matchedUserPairs = matchedEmails.map;
-
-  // **** NEXT IDEA:
-  // updated matchedEmails to be name/emal pairs:
-  // [  [ {name: liz, email: lizemail}, {name: alan, email: alanemail} ], [..], [..] ]
-
-  // NOTE: matchedEmails is an array of arrays of strings, pairs of emails: [ [userEmail1, userEmail2] ]
+  const matchedUserPairs = await getMatchedUserPairs(usersToMatch);
 
   // ******* SEND ALL MESSAGES *****
   // IMPORTANT! Comment out this next part when testing things
+  matchedUserPairs.forEach(pair => {
+    // why sort????
+    const sortedMatch = pair.sort();
 
-  matchedEmails.forEach(match => {
-    const sortedMatch = match.sort();
-    const user1;
+    const user1Email = pair[0].email;
+    const user1FullName = pair[0].full_name;
+    const user1FirstName = user1FullName.split(' ')[0];
+
+    const user2Email = pair[1].email;
+    const user2FullName = pair[1].full_name;
+    const user2FirstName = user2FullName.split(' ')[0];
+
     // TODO: db!
     /* db.run(
-        `INSERT INTO matches(date, email1, email2) VALUES ("${
+        `INSERT INTO pair(date, email1, email2) VALUES ("${
           new Date().toISOString().split("T")[0]
         }", "${sortedMatch[0]}", "${sortedMatch[1]}")`
       );
     */
 
     // TODO -- refactor the messages!
-    const message1 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${matchedName}** today - enjoy! See [${
-      matchedName.split(' ')[0]
-    }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
-      matchedName
-    )}) for more details. 
+
+    /* TODO -- reimplement the userConfig part of the message sent to users.
+    const message1 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user1FullName}** today - enjoy! See [${user1FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(user1FullName)}) for more details. 
 
 *Reply to me with "help" to change how often you get matches.*
 *Your current days are: ${coffeeDaysEnumToString(
       (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS
     )}*`;
+  */
 
-    const message2 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${matchedName}** today - enjoy! See [${
-      matchedName.split(' ')[0]
-    }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
-      matchedName
+    // Send message1 to user2Email (tell user2 they've been matched with user1)
+    const message1 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user1FullName}** today - enjoy! See [${user1FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+      user1FullName
     )}) for more details. 
 
-*Reply to me with "help" to change how often you get matches.*
-*Your current days are: ${coffeeDaysEnumToString(
-      (userConfig && userConfig.coffee_days) || process.env.DEFAULT_COFFEE_DAYS
-    )}*`;
+*Reply to me with "help" to change how often you get matches.**`;
 
-    /*
+    // Send message2 to user1Email (tell user1 they've been matched with user2)
+    const message2 = `Hi there! You're having coffee (or tea, or a walk, or whatever you fancy) with @**${user2FullName}** today - enjoy! See [${user2FirstName}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+      user2FullName
+    )}) for more details. 
 
-  sendMessage({
-        zulipAPI,
-        toEmail: match[0],
-        matchedName: tryToGetUsernameWithEmail({ users, email: match[1] }),
-        userConfig: userConfigs.filter(c => c.email === match[0])[0],
-      });
-  
-    sendMessage({
-        zulipAPI,
-        toEmail: match[1],
-        matchedName: tryToGetUsernameWithEmail({ users, email: match[0] }),
-        userConfig: userConfigs.filter(c => c.email === match[1])[0],
-      });
-  // sendAllMessages({ zulipAPI, matchedEmails, users, userConfigs });
-*/
+*Reply to me with "help" to change how often you get matches.**`;
+
+    zulipAPI.sendMessage(user2Email, message1);
+    zulipAPI.sendMessage(user1Email, message2);
   });
 }
 
