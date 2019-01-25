@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import logger from './logger';
-import { BOT_COMMANDS, MESSAGES } from './constants';
+import { BOT_COMMANDS, MESSAGES, oddNumberBackupUsers } from './constants';
 import { initZulipAPI } from './zulipMessenger';
 import { isExceptionDay } from './utils';
 
@@ -13,8 +13,93 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // TODO -- this should be defined or updated whenever
-// the server is pinged by the cron thingy
+// the server is pinged by the cron thingy!!!
 const zulipAPI = initZulipAPI(); // using default config from .env here
+
+// This function receives an array of IZulipUser who want a coffee chat partner today
+// TODO -- typescript issue: will this work if IZulipUser interface is defined elsewhere?
+async function getMatchedUserPairs(
+  usersAvailableToday: IZulipUser[]
+): IZulipUser[] {
+  // DB CALL -- get past matches...... what's the data format here???
+  let pastMatches = []; // STUFF GOES HERE
+
+  /* PAST MATCHES: array of objects with date, email1, email2
+  [ { date: '2019-01-14',
+      email1: '',
+      email2: ''
+    },
+    {...}
+  ]
+*/
+
+  let unmatchedUsers = shuffle(usersAvailableToday);
+
+  const unmatchedUsersEmails = unmatchedUsersEmails.map(user => user.email);
+  const newMatches: IZulipUser[] = []; //.... yes or no for TypeScript? =P
+
+  // Sort through all the users
+  while (unmatchedUsers.length > 0) {
+    // Remove from list one by one as people get paired up
+    const currentUser = unmatchedUsers.shift();
+
+    // Get list of the current person's past matches as an array of users
+    const pastMatchedEmailsAvailableToday = pastMatches
+      .filter(
+        match =>
+          match.email1 === currentUser.email ||
+          match.email2 === currentUser.email
+      ) // filter to current user...
+      .sort((a, b) => Number(new Date(a.date)) - Number(new Date(b.date))) // sort oldest to newest, so if there is a conflict we can rematch with oldest first
+      .map(match =>
+        match.email1 === currentUser.email ? match.email2 : match.email1
+      ) // extract only the other person's email out of the results (drop currentEmail ...
+      .filter(email => unmatchedUsersEmails.includes(email)) // remove past matches who are not looking for a match today or who already got matched
+      // (note: they did this because past matches are the fallback option in case no new matches are available;
+      //        any match NEEDS to be someone available today.)
+      .filter((value, index, self) => self.indexOf(value) === index); // uniq emails // TODO: this should be a reduce that adds a match count to every email so we can factor that into matches
+
+    // ...convert array of emails to array of users:
+    const pastMatchedUsersAvailableToday = unmatchedUsers.filter(user =>
+      pastMatchedUsersAvailableToday.includes(user.email)
+    );
+
+    // Get possible NEW matches for the current person: users available today who the current person has NOT previously matched with
+    const availableNewUsers = unmatchedUsers.filter(
+      user => !pastMatchedEmailsAvailableToday.includes(user.email)
+    );
+
+    // NOTE -- splice and indexOf for arrays of objects should work as long as the two arrays unmatchedUsers and availableNewUsers / pastMatchedUsersAvailableToday are referring to the same object refs!
+
+    if (availableNewUsers.length > 0) {
+      // TODO: potentialy prioritize matching people from different batches
+      newMatches.push([currentUser, availableNewUsers[0]]);
+      unmatchedUsers.splice(unmatchedUsers.indexOf(availableNewUsers[0]), 1);
+
+      // If no available NEW matches, then match current user with one of their past matches
+    } else if (
+      pastMatchedUsersAvailableToday.length > 0 &&
+      unmatchedUsers.length > 0
+    ) {
+      newMatches.push([currentUser, pastMatchedUsersAvailableToday[0]]);
+      unmatchedUsers.splice(
+        unmatchedUsers.indexOf(pastMatchedUsersAvailableToday[0]),
+        1
+      );
+    } else {
+      // this should only happen on an odd number of emails
+      // TODO: how to handle the odd person
+      newMatches.push([
+        currentUser,
+        oddNumberBackupUsers[
+          Math.floor(Math.random() * oddNumberBackupUsers.length)
+        ]
+      ]);
+    }
+    // logger.info("<<<<<<", newMatches);
+  }
+  return newMatches;
+}
 
 async function matchAndNotifyUsers() {
   const today = new Date();
@@ -57,18 +142,16 @@ async function matchAndNotifyUsers() {
   const matchedEmails = await matchEmails({ emails: emailsToMatch });
   logger.info('matchedEmails', matchedEmails);
 
-  // const matchedUsers = zulipAPI.users.filter( (user) => matchedEmails.includes(user.email) ).map( (user) => {...user, partner;
+  const matchedUserPairs = matchedEmails.map;
 
-  /*
-    user1,
-    user2
-
-  */
+  // **** NEXT IDEA:
+  // updated matchedEmails to be name/emal pairs:
+  // [  [ {name: liz, email: lizemail}, {name: alan, email: alanemail} ], [..], [..] ]
 
   // NOTE: matchedEmails is an array of arrays of strings, pairs of emails: [ [userEmail1, userEmail2] ]
 
+  // ******* SEND ALL MESSAGES *****
   // IMPORTANT! Comment out this next part when testing things
-  matchedEmails.forEach(email => sendMessage(email, '...msg...'));
 
   matchedEmails.forEach(match => {
     const sortedMatch = match.sort();
