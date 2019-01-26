@@ -4,7 +4,7 @@ import { _prevMatchingAlgo } from '../matchAlgo';
  * List of tests:
  * -
  */
-describe('this is an example test', () => {
+describe('Previous ', () => {
   it('empty emails to match and no past matches should give us no matched users', () => {
     const arrEmailsToMatch = [];
     const allPastMatches = [];
