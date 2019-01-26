@@ -66,28 +66,13 @@ export function _prevMatchingAlgo(
   pastMatches: IpastMatchObj[],
   oddNumberBackupEmails = ['oddEmail@rc.com']
 ): Array<[string, string]> {
-  // const unmatchedEmails = shuffle(emails); //
+  // Note: having the shuffling outside of matching algorithm will allow us to test
+  // const unmatchedEmails = shuffle(emails);
   const unmatchedEmails = emails; //
   const newMatches = [];
 
-  // console.log("-----------------------");
-  // console.log("unmatchedEmails:");
-  // console.log(unmatchedEmails);
-  // console.log("-----------------------");
-
   while (unmatchedEmails.length > 0) {
     const currentEmail = unmatchedEmails.shift();
-
-    // console.log("-----------------------");
-    // console.log("currentEMail:");
-    // console.log(currentEmail);
-    // console.log("-----------------------");
-
-    /**
-     *
-     *
-     *
-     */
     const pastMatchedEmails = pastMatches
       .filter(
         match => match.email1 === currentEmail || match.email2 === currentEmail
