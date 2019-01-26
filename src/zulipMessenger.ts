@@ -10,7 +10,7 @@ interface IZulipConfig {
 // Subset of user data defined by Zulip API:
 // https://zulipchat.com/api/get-all-users
 export interface IZulipUser {
-  is_active: boolean;
+  // is_active: boolean;
   user_id?: number;
   full_name: string;
   is_bot: boolean;

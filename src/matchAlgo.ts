@@ -1,15 +1,59 @@
 import { shuffle } from 'lodash';
+import { IZulipUser } from './zulipMessenger';
 
 type email = string;
 
 interface IUser {
   email: string;
+  full_name: string;
   prevMatches: email[];
+  // ==== Proposed Data Structure ===
+  // potentialMatches: {
+  // newMatch: IUser[]
+  // oldMatch: IUser[] // sorted by date
+  // }
+  // hasBeenMatched: boolean
 }
 
-// export function makeMatches(usersToMatch: IUser[]): [IUser, IUser][] {
-// return  []
-// }
+// INPUT: IUser
+// OUTPUT: user name and email, to easily pass off to zulip API sendMessage
+// NOTE: for database, need primary keys for users, new table for matches (foreign key),
+// interface IUser: is the result of search our new db, and not zulip stream API shit
+export function makeMatches(
+  usersToMatch: IUser[],
+  fallBackUser: IUser[]
+): Array<[IUser, IUser]> {
+  // TODO: deep clone the userToMatch
+
+  // while there are users to match
+  // get the first user from usersToMatch
+  // get all potential users they can match with (All the users )
+  // find a user who is not in their prevMatch
+  // if there is a user:
+  // pair the those users
+  // find the other user and also remove them from usersToMatch list
+  // else:
+  // just pair them with the least recent prev match
+
+  return [];
+}
+
+/**
+ *
+ * @param currUser
+ * @param refUsersToMatch
+ */
+export function getUsersPotentialMatches(
+  currUser: IUser,
+  refUsersToMatch: IUser[]
+): IUser[] {
+  // get currUser's prevMatches
+  // For all usersToMatch:
+  // check if its in prevMatch or not
+  // return that value:
+
+  return [];
+}
 
 interface IpastMatchObj {
   date: string;
