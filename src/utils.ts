@@ -17,6 +17,8 @@ export const stringifyWeekDays = dayNumbersArray => {
 // };
 
 // PREVIOUS JS VERSION
+// TODO: better to separate out contasts of exception dates from isExceptionDay function
+// decoupling will make it easier to test!
 export function isExceptionDay(day: Date): boolean {
   const inUTC = Date.UTC(day.getFullYear(), day.getMonth(), day.getDate());
   for (const i in EXCEPTION_DATES) {
