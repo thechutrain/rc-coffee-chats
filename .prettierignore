@@ -4,3 +4,4 @@ dist/**
 .vscode/**
 tsconfig.json
 tslint.json
+*.md
