@@ -2,20 +2,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 import Database from 'better-sqlite3';
 
-interface ISqlResponse {
+// Models
+import { initUserModel, IUserTableMethods } from './user.model';
+
+export interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
   message?: string;
-}
-
-interface IAddUserArgs {
-  email: string;
-  full_name: string;
+  payload?: any; // valid model?
 }
 
 // tslint:disable-next-line
 type dbMethods = {
-  createUserTable: () => ISqlResponse;
-  addUser: (userVals: IAddUserArgs | IAddUserArgs[]) => ISqlResponse;
+  // createUserTable: () => ISqlResponse;
+  // addUser: (userVals: IAddUserArgs) => ISqlResponse;
+  user: IUserTableMethods;
+  createMatchTable: () => ISqlResponse;
   closeDb: () => ISqlResponse;
 };
 
@@ -38,46 +39,31 @@ export function initDB(dbFile: string): dbMethods {
   const db = new Database(fullDbPath, { verbose: console.log });
 
   return {
-    createUserTable: initCreateUserTable(db),
-    addUser: initAddUserTable(db),
+    user: initUserModel(db),
+    // createUserTable: initCreateUserTable(db),
+    // addUser: initAddUserTable(db),
+    createMatchTable: initCreateMatchTable(db),
     closeDb: initCloseDb(db)
   };
 }
 
 // =========== queries =========
-// USER TABLE
-function initCreateUserTable(db: Database): () => ISqlResponse {
-  return () => {
-    // NOTE: should I do this as a prepare() statemnt, and then execute?
-    const createUserTableSql = `CREATE TABLE IF NOT EXISTS User (
-      user_id INTEGER NOT NULL UNIQUE PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      full_name TEXT NOT NULL,
-      is_alumn INTEGER DEFAULT 0,
-      is_faculty INTEGER DEFAULT 0,
-      is_active INTEGER DEFAULT 1,
-      skip_next_match INTEGER DEFAULT 0,
-      warning_exception INTEGER DEFAULT 0
-    )`;
-    try {
-      db.exec(createUserTableSql);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
-  };
-}
 
-function initAddUserTable(db: Database) {
-  // (userVals: IAddUserArgs): void;
-  // (userVals: IAddUserArgs[]): void ;
-  // TODO: add flexibility in receiving an array or single UserArg
-  return (userVals: IAddUserArgs | IAddUserArgs[]): ISqlResponse => {
-    const insertSQL = db.prepare(
-      `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
-    );
+// == UserMatch table ==
+function initCreateMatchTable(db: Database): () => ISqlResponse {
+  return () => {
+    const createMatchTableSql = db.prepare(`CREATE TABLE IF NOT EXISTS UserMatch (
+      match_id INTEGER NOT NULL UNIQUE,
+      user_1 INTEGER NOT NULL,
+      user_2 INTEGER NOT NULL,
+      date TEXT,
+      rain_checked INTEGER DEFAULT 0,
+      PRIMARY KEY (match_id),
+      FOREIGN KEY (user_1) REFERENCES User (user_id),
+      FOREIGN KEY (user_2) REFERENCES User (user_id)
+    )`);
     try {
-      insertSQL.run(userVals);
+      createMatchTableSql.run();
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
@@ -98,8 +84,14 @@ function initCloseDb(db): () => ISqlResponse {
 }
 
 // ========= TESTING ===========
-const { createUserTable, addUser } = initDB('test.db');
-createUserTable();
+const { user, createMatchTable } = initDB('test.db');
 
-const response = addUser({ email: 'test@gmail.com', full_name: 'Foo bar' });
-console.log(response);
+const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
+const barUser = { email: 'bar@gmail.com', full_name: 'Bar Bar' };
+// Create Table
+user.createTable();
+user.add(fooUser);
+user.add(barUser);
+
+// console.log(response);
+// console.log(createMatchTable());
