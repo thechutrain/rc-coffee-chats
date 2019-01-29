@@ -13,32 +13,46 @@ beforeEach(() => {
 describe('New version of Matching Algo', () => {
   it('empty emails to match and no past matches should give us no matched users', () => {
     const usersToMatch = [];
-    const receivedValue = makeMatches(usersToMatch, [fallBackUser]);
+    const receivedValue = makeMatches(usersToMatch, fallBackUser);
     const expectedValue = [];
 
     expect(receivedValue).toEqual(expectedValue);
   });
 
-  // it('even # of users should not return the fallback person', () => {
-  //   const userA = {
-  //     email: 'A',
-  //     full_name: 'First User',
-  //     prevMatches: []
-  //   };
-  //   const userB = {
-  //     email: 'B',
-  //     full_name: 'Second User',
-  //     prevMatches: []
-  //   };
-  //   const usersToMatch = [userA, userB];
-  //   const arrUserMatches = makeMatches(usersToMatch, [fallBackUser]);
-  //   const expectedValue = [[userA, userB]];
-  //   // arrUserMatches.forEach((matchPair) => {
-  //   //   expect(matchPair[0]).not.toBe()
-  //   // })
+  it('even # of users should not return the fallback person', () => {
+    const userA = {
+      email: 'A',
+      full_name: 'First User',
+      prevMatches: []
+    };
+    const userB = {
+      email: 'B',
+      full_name: 'Second User',
+      prevMatches: []
+    };
+    const usersToMatch = [userA, userB];
+    const arrUserMatches = makeMatches(usersToMatch, fallBackUser);
+    const expectedValue = [[userA, userB]];
+    // arrUserMatches.forEach((matchPair) => {
+    //   expect(matchPair[0]).not.toBe()
+    // })
 
-  //   expect(arrUserMatches).toEqual(expectedValue);
-  // });
+    expect(arrUserMatches).toEqual(expectedValue);
+  });
+
+  it('odd # of users the fallback person should be used', () => {
+    const userA = {
+      email: 'A',
+      full_name: 'First User',
+      prevMatches: []
+    };
+
+    const usersToMatch = [userA];
+    const receivedValue = makeMatches(usersToMatch, fallBackUser);
+    const expectedValue = [[userA, fallBackUser]];
+
+    expect(receivedValue).toEqual(expectedValue);
+  });
 
   // it('odd # of users should not return the fallback person', () => {
   //   const userA = {
@@ -57,7 +71,7 @@ describe('New version of Matching Algo', () => {
   //     prevMatches: []
   //   };
   //   const usersToMatch = [userA, userB, userC];
-  //   const receivedValue = makeMatches(usersToMatch, [fallBackUser]);
+  //   const receivedValue = makeMatches(usersToMatch, fallBackUser);
   //   const expectedValue = [[userA, userB], [userC, fallBackUser]];
 
   //   expect(receivedValue).toEqual(expectedValue);

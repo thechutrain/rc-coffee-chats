@@ -1,5 +1,11 @@
-import { email, IUser, IpastMatchObj } from './matching-algo';
+import { IUser, IpastMatchObj } from './matching-algo';
 import { deepClone } from '../utils/clone';
+import {
+  filterForUniqueMatches,
+  filterForPrevMatches,
+  sortByOldestMatch,
+  findAndRemoveUserFromPool
+} from './matchingHelperFn';
 
 // interface IUserMatchedObj extends IUser {
 //   hasBeenMatched:boolean
@@ -14,36 +20,68 @@ import { deepClone } from '../utils/clone';
 // OUTPUT: user name and email, to easily pass off to zulip API sendMessage
 // NOTE: for database, need primary keys for users, new table for matches (foreign key),
 // interface IUser: is the result of search our new db, and not zulip stream API shit
+
 export function makeMatches(
   usersToMatch: IUser[],
-  fallBackUser: IUser[]
+  fallBackUser: IUser
 ): Array<[IUser, IUser]> {
-  // Note: would it be useful to deep clone the userToMatch?
-  const poolUnMatchedUsers = deepClone(usersToMatch);
+  const matchedPairs = [];
+  let poolAvailableUsers = deepClone(usersToMatch);
+  // TODO: sort pool of Available users by user with the most # of prev matches
 
-  // while there are users to match
-  while (poolUnMatchedUsers.length > 0) {
-    // get the first user from usersToMatch
-    const currUnMatchedUser = poolUnMatchedUsers.splice(0, 1);
-    // const uniqueMatchPairs = findUniqueMatchPair(
-    //   currUserEmail,
-    //   prevMatchPairs,
-    //   poolUnMatchedUsers
-    // );
+  while (poolAvailableUsers.length > 1) {
+    let otherMatch: IUser;
+    const currUnMatchedUser = poolAvailableUsers.shift(); // filter this out && return clone
+    const { email, prevMatches } = currUnMatchedUser;
+
     // get all potential users they can match with (All the users )
-    // find a user who is not in their prevMatch
-    // if there is a user:
-    // pair the those users
-    // find the other user and also remove them from usersToMatch list
-    // else:
-    // just pair them with the least recent prev match
+    const possibleNewMatches = filterForUniqueMatches(
+      prevMatches,
+      poolAvailableUsers
+    );
+
+    // Ideal Case: Try to first match with a new person
+    if (possibleNewMatches.length !== 0) {
+      const i = Math.floor(Math.random() * possibleNewMatches.length);
+      otherMatch = possibleNewMatches[i];
+    } else {
+      // 2nd Case: No available new matches for this user, so find the least recent match they had:
+      const possiblePrevMatches = filterForPrevMatches(
+        prevMatches,
+        poolAvailableUsers
+      );
+      const sortedPrevMatches = sortByOldestMatch(possiblePrevMatches, email);
+
+      if (sortedPrevMatches.length === 0) {
+        throw new Error(
+          `Cannot match a user if they do not have any prevMatches`
+        );
+      }
+
+      otherMatch = sortedPrevMatches[0];
+    }
+
+    // filter otherMatch out of poolAvailableUsers
+    poolAvailableUsers = findAndRemoveUserFromPool(
+      otherMatch.email,
+      poolAvailableUsers
+    );
+    matchedPairs.push([currUnMatchedUser, otherMatch]);
+  }
+  // Special Case: Odd number of people in pool, then match last user
+  // with fallback person:
+  if (poolAvailableUsers.length === 1) {
+    const lastUnMatchedUser = poolAvailableUsers[0];
+    matchedPairs.push([lastUnMatchedUser, fallBackUser]);
+
+    return matchedPairs;
   }
 
-  return [];
+  return matchedPairs;
 }
 
 export function _prevMatchingAlgo(
-  emails: email[],
+  emails: string[],
   pastMatches: IpastMatchObj[],
   oddNumberBackupEmails = ['oddEmail@rc.com']
 ): Array<[string, string]> {
