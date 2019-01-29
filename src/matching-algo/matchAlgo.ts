@@ -1,20 +1,15 @@
-import { shuffle } from 'lodash';
-import { IZulipUser } from './zulipMessenger';
+import { email, IUser, IpastMatchObj } from './matching-algo';
+import { deepClone } from '../utils/clone';
 
-type email = string;
-
-interface IUser {
-  email: string;
-  full_name: string;
-  prevMatches: email[];
-  // ==== Proposed Data Structure ===
-  // potentialMatches: {
-  // newMatch: IUser[]
-  // oldMatch: IUser[] // sorted by date
-  // }
-  // hasBeenMatched: boolean
-}
-
+// interface IUserMatchedObj extends IUser {
+//   hasBeenMatched:boolean
+//   // ==== Proposed Data Structure ===
+//   // potentialMatches, can be segmeneted pools with priority (first see if they're in the first batch, oh no? then the next pool? etc. etc. )
+//   // potentialMatches: {
+//   // newMatch: IUser[]
+//   // prevMatch: IUser[] // sorted by date
+//   // }
+// }
 // INPUT: IUser
 // OUTPUT: user name and email, to easily pass off to zulip API sendMessage
 // NOTE: for database, need primary keys for users, new table for matches (foreign key),
@@ -23,42 +18,28 @@ export function makeMatches(
   usersToMatch: IUser[],
   fallBackUser: IUser[]
 ): Array<[IUser, IUser]> {
-  // TODO: deep clone the userToMatch
+  // Note: would it be useful to deep clone the userToMatch?
+  const poolUnMatchedUsers = deepClone(usersToMatch);
 
   // while there are users to match
-  // get the first user from usersToMatch
-  // get all potential users they can match with (All the users )
-  // find a user who is not in their prevMatch
-  // if there is a user:
-  // pair the those users
-  // find the other user and also remove them from usersToMatch list
-  // else:
-  // just pair them with the least recent prev match
+  while (poolUnMatchedUsers.length > 0) {
+    // get the first user from usersToMatch
+    const currUnMatchedUser = poolUnMatchedUsers.splice(0, 1);
+    // const uniqueMatchPairs = findUniqueMatchPair(
+    //   currUserEmail,
+    //   prevMatchPairs,
+    //   poolUnMatchedUsers
+    // );
+    // get all potential users they can match with (All the users )
+    // find a user who is not in their prevMatch
+    // if there is a user:
+    // pair the those users
+    // find the other user and also remove them from usersToMatch list
+    // else:
+    // just pair them with the least recent prev match
+  }
 
   return [];
-}
-
-/**
- *
- * @param currUser
- * @param refUsersToMatch
- */
-export function getUsersPotentialMatches(
-  currUser: IUser,
-  refUsersToMatch: IUser[]
-): IUser[] {
-  // get currUser's prevMatches
-  // For all usersToMatch:
-  // check if its in prevMatch or not
-  // return that value:
-
-  return [];
-}
-
-interface IpastMatchObj {
-  date: string;
-  email1: string;
-  email2: string;
 }
 
 export function _prevMatchingAlgo(
@@ -81,6 +62,7 @@ export function _prevMatchingAlgo(
       .map(match =>
         match.email1 === currentEmail ? match.email2 : match.email1
       ) // extract only the other person's email out of the results (drop currentEmail and date)
+      // tslint:disable-next-line
       .filter(email => unmatchedEmails.includes(email)) // remove past matches who are not looking for a match today or who already got matched
       .filter((value, index, self) => self.indexOf(value) === index); // uniq emails // TODO: this should be a reduce that adds a match count to every email so we can factor that into matches
 
@@ -89,6 +71,7 @@ export function _prevMatchingAlgo(
     // console.log("-----------------------");
 
     const availableEmails = unmatchedEmails.filter(
+      // tslint:disable-next-line
       email => !pastMatchedEmails.includes(email)
     );
 

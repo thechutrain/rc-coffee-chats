@@ -1,4 +1,4 @@
-import { makeMatches } from '../matchAlgo';
+import { makeMatches } from './matchAlgo';
 
 let fallBackUser;
 
@@ -19,49 +19,49 @@ describe('New version of Matching Algo', () => {
     expect(receivedValue).toEqual(expectedValue);
   });
 
-  it('even # of users should not return the fallback person', () => {
-    const userA = {
-      email: 'A',
-      full_name: 'First User',
-      prevMatches: []
-    };
-    const userB = {
-      email: 'B',
-      full_name: 'Second User',
-      prevMatches: []
-    };
-    const usersToMatch = [userA, userB];
-    const arrUserMatches = makeMatches(usersToMatch, [fallBackUser]);
-    const expectedValue = [[userA, userB]];
-    // arrUserMatches.forEach((matchPair) => {
-    //   expect(matchPair[0]).not.toBe()
-    // })
+  // it('even # of users should not return the fallback person', () => {
+  //   const userA = {
+  //     email: 'A',
+  //     full_name: 'First User',
+  //     prevMatches: []
+  //   };
+  //   const userB = {
+  //     email: 'B',
+  //     full_name: 'Second User',
+  //     prevMatches: []
+  //   };
+  //   const usersToMatch = [userA, userB];
+  //   const arrUserMatches = makeMatches(usersToMatch, [fallBackUser]);
+  //   const expectedValue = [[userA, userB]];
+  //   // arrUserMatches.forEach((matchPair) => {
+  //   //   expect(matchPair[0]).not.toBe()
+  //   // })
 
-    expect(arrUserMatches).toEqual(expectedValue);
-  });
+  //   expect(arrUserMatches).toEqual(expectedValue);
+  // });
 
-  it('odd # of users should not return the fallback person', () => {
-    const userA = {
-      email: 'A',
-      full_name: 'First User',
-      prevMatches: []
-    };
-    const userB = {
-      email: 'B',
-      full_name: 'Second User',
-      prevMatches: []
-    };
-    const userC = {
-      email: 'C',
-      full_name: 'THird user',
-      prevMatches: []
-    };
-    const usersToMatch = [userA, userB, userC];
-    const receivedValue = makeMatches(usersToMatch, [fallBackUser]);
-    const expectedValue = [[userA, userB], [userC, fallBackUser]];
+  // it('odd # of users should not return the fallback person', () => {
+  //   const userA = {
+  //     email: 'A',
+  //     full_name: 'First User',
+  //     prevMatches: []
+  //   };
+  //   const userB = {
+  //     email: 'B',
+  //     full_name: 'Second User',
+  //     prevMatches: []
+  //   };
+  //   const userC = {
+  //     email: 'C',
+  //     full_name: 'THird user',
+  //     prevMatches: []
+  //   };
+  //   const usersToMatch = [userA, userB, userC];
+  //   const receivedValue = makeMatches(usersToMatch, [fallBackUser]);
+  //   const expectedValue = [[userA, userB], [userC, fallBackUser]];
 
-    expect(receivedValue).toEqual(expectedValue);
-  });
+  //   expect(receivedValue).toEqual(expectedValue);
+  // });
 
   // it('odd # of users should return the fallback person', () => {
   //   const arrEmailsToMatch = ['a', 'b', 'c'];
