@@ -1,7 +1,5 @@
-export type email = string;
-
 export type prevMatch = {
-  email;
+  email: string;
   matchDate: Date;
 };
 export interface IUser {
