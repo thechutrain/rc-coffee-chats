@@ -12,5 +12,6 @@ module.exports = {
     'ts-jest': {
       warnOnly: true
     }
-  }
+  },
+  modulePaths: ['<rootDir>']
 };

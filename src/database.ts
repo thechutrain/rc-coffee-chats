@@ -1,130 +1,60 @@
-import * as nonVerboseSqlite3 from 'sqlite3';
+import models from './models';
+import DIYSqliteORM from './databaseWrapper';
 import * as fs from 'fs';
-import logger from './logger';
+import Database from 'better-sqlite3';
 
 // init sqlite db
-const initDB = () => {
-  const dbFile = './.data/sqlite.db';
+const initDB = (dbFile = process.env.DATABASE_FILE) => {
   const exists = fs.existsSync(dbFile);
-  const sqlite3 = nonVerboseSqlite3.verbose();
-  const db = new sqlite3.Database(dbFile);
-
+  const db = new Database(dbFile, { verbose: console.log });
   // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
-  db.serialize(() => {
-    if (!exists) {
-      db.run(`CREATE TABLE matches (
-                date TEXT NOT NULL,
-                email1 TEXT NOT NULL,
-                email2 TEXT NOT NULL
-              );`);
-      db.serialize(() => {
-        db.run('CREATE INDEX date_index ON matches (date)');
-        db.run('CREATE INDEX email1_index ON matches (email1)');
-        db.run('CREATE INDEX email2_index ON matches (email2)');
-        db.run('CREATE INDEX email1_email2_index ON matches (email1, email2)');
-        logger.info('New table "matches" created!');
-      });
-      db.run(`CREATE TABLE warningsExceptions (
-            email TEXT NOT NULL
-      );`);
-      db.run(`CREATE TABLE noNextMatch (
-            email TEXT NOT NULL
-      );`);
-    } else {
-      db.serialize(() => {
-        db.run(
-          'CREATE TABLE IF NOT EXISTS users (email STRING NOT NULL UNIQUE, coffee_days STRING NOT NULL);'
-        );
-        db.serialize(() => {
-          db.run(
-            'CREATE INDEX IF NOT EXISTS users_email_index ON users (email);'
-          );
-        });
-      });
-      logger.info('Database "matches" ready to go!');
-    }
-  });
-  const getUserConfigs = async ({ emails }) => {
-    const userConfigs = await new Promise((resolve, reject) => {
-      db.all(
-        `SELECT email, coffee_days
-              FROM users
-              WHERE email in ("${emails.join('","')}")`,
-        [],
-        (err, rows) => (err ? reject(err) : resolve(rows))
-      );
-    });
-    return userConfigs;
-  };
+  const dbWrapper = DIYSqliteORM(db, models);
+  if (!exists) {
+    dbWrapper.createTables();
+  }
 
-  const getEmailExceptions = async ({ tableName }) => {
-    let rowsAsMap: any[];
-    await new Promise((resolve, reject) => {
-      db.all(`SELECT email FROM ${tableName}`, (err, rows) => {
-        rowsAsMap = rows;
-        err ? reject(err) : resolve(rows);
-      });
+  const getUserConfigs = ({ emails }) =>
+    dbWrapper.users.get({
+      attrs: ['email', 'coffee_days'],
+      where: `email in ("${emails.join('","')}")`
     });
-    const exceptionsList = rowsAsMap.map(v => v.email);
 
-    return exceptionsList;
+  const getEmailExceptions = ({ tableName }) => {
+    return dbWrapper[tableName].get({ attrs: ['email'] }).map(v => v.email);
   };
 
   const insertCoffeeDaysForUser = (fromEmail, coffeeDays) =>
-    db.serialize(() => {
-      db.run(
-        'INSERT OR REPLACE INTO users(email, coffee_days) VALUES (?, ?)',
-        fromEmail,
-        coffeeDays
-      );
-    });
+    dbWrapper.users.create(
+      { email: fromEmail, coffee_days: coffeeDays },
+      { orReplace: true }
+    );
 
-  const clearNoNextMatchTable = async () => {
-    db.serialize(() => {
-      db.run(`DELETE FROM noNextMatch`);
-    });
-  };
+  const clearNoNextMatchTable = () => dbWrapper.noNextMatch.delete();
 
-  const getPastMatches = async emails => {
-    return new Promise((resolve, reject) => {
-      db.all(
-        `SELECT *
-              FROM matches
-              WHERE email1 in ("${emails.join('","')}")
-              OR email2 in ("${emails.join('","')}")`,
-        [],
-        (err, rows) => (err ? reject(err) : resolve(rows))
-      );
+  const getPastMatches = emails =>
+    dbWrapper.matches.get({
+      where: `email1 in ("${emails.join('","')}")
+    OR email2 in ("${emails.join('","')}")`
     });
-  };
 
   const insertIntoMatches = match =>
-    db.serialize(() => {
-      db.run(
-        `INSERT INTO matches(date, email1, email2) VALUES ("${
-          new Date().toISOString().split('T')[0]
-        }", "${match[0]}", "${match[1]}")`
-      );
+    dbWrapper.matches.create({
+      date: new Date().toISOString().split('T')[0],
+      email1: match[0],
+      email2: match[1]
     });
 
   const insertIntoWarningExceptions = email =>
-    db.serialize(() => {
-      db.run(
-        'INSERT OR REPLACE INTO warningsExceptions(email) VALUES (?)',
-        email
-      );
-    });
+    dbWrapper.warningsExceptions.create({ email }, { orReplace: true });
 
   const deleteFromWarningExceptions = email =>
-    db.serialize(() => {
-      db.run('DELETE FROM warningsExceptions WHERE email=?', email);
-    });
+    dbWrapper.warningsExceptions.delete(`email = "${email}"`);
 
   const insertIntoNoNextMatch = email =>
-    db.serialize(() => {
-      db.run('insert into noNextMatch (email) values(?)', email);
-    });
+    dbWrapper.noNextMatch.create({ email });
+
   return {
+    dbWrapper,
     clearNoNextMatchTable,
     deleteFromWarningExceptions,
     getEmailExceptions,
