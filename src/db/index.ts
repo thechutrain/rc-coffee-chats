@@ -2,10 +2,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 import Database from 'better-sqlite3';
 
+interface ISqlResponse {
+  status: 'SUCCESS' | 'FAILURE';
+  message?: string;
+}
+
+interface IAddUserArgs {
+  email: string;
+  full_name: string;
+}
+
 // tslint:disable-next-line
 type dbMethods = {
-  createUserTable: () => void;
-  closeDb: () => void;
+  createUserTable: () => ISqlResponse;
+  addUser: (userVals: IAddUserArgs | IAddUserArgs[]) => ISqlResponse;
+  closeDb: () => ISqlResponse;
 };
 
 export function initDB(dbFile: string): dbMethods {
@@ -28,17 +39,17 @@ export function initDB(dbFile: string): dbMethods {
 
   return {
     createUserTable: initCreateUserTable(db),
-    closeDb: () => {
-      db.close();
-    }
+    addUser: initAddUserTable(db),
+    closeDb: initCloseDb(db)
   };
 }
 
 // =========== queries =========
 // USER TABLE
-function initCreateUserTable(db: Database) {
+function initCreateUserTable(db: Database): () => ISqlResponse {
   return () => {
-    const createUserTableSql = `CREATE TABLE IF NOT EXISTS user(
+    // NOTE: should I do this as a prepare() statemnt, and then execute?
+    const createUserTableSql = `CREATE TABLE IF NOT EXISTS User (
       user_id INTEGER NOT NULL UNIQUE PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
@@ -48,16 +59,47 @@ function initCreateUserTable(db: Database) {
       skip_next_match INTEGER DEFAULT 0,
       warning_exception INTEGER DEFAULT 0
     )`;
-    db.exec(createUserTableSql);
+    try {
+      db.exec(createUserTableSql);
+    } catch (e) {
+      return { status: 'FAILURE', message: e };
+    }
+    return { status: 'SUCCESS' };
   };
 }
 
-function addUserTable(db: Database) {
+function initAddUserTable(db: Database) {
+  // (userVals: IAddUserArgs): void;
+  // (userVals: IAddUserArgs[]): void ;
+  // TODO: add flexibility in receiving an array or single UserArg
+  return (userVals: IAddUserArgs | IAddUserArgs[]): ISqlResponse => {
+    const insertSQL = db.prepare(
+      `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
+    );
+    try {
+      insertSQL.run(userVals);
+    } catch (e) {
+      return { status: 'FAILURE', message: e };
+    }
+    return { status: 'SUCCESS' };
+  };
+}
+
+// Close DB connection
+function initCloseDb(db): () => ISqlResponse {
   return () => {
-    const queryStr = `INSERT INTO user`;
+    try {
+      db.close();
+    } catch (e) {
+      return { status: 'FAILURE', message: e };
+    }
+    return { status: 'SUCCESS' };
   };
 }
 
-// TESTING
-const { createUserTable } = initDB('test.db');
+// ========= TESTING ===========
+const { createUserTable, addUser } = initDB('test.db');
 createUserTable();
+
+const response = addUser({ email: 'test@gmail.com', full_name: 'Foo bar' });
+console.log(response);
