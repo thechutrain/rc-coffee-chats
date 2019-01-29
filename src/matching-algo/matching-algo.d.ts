@@ -1,9 +1,13 @@
 export type email = string;
 
+export type prevMatch = {
+  email;
+  matchDate: Date;
+};
 export interface IUser {
   email: string;
   full_name: string;
-  prevMatches: email[];
+  prevMatches: prevMatch[];
   // hasBeenMatched: boolean
 }
 

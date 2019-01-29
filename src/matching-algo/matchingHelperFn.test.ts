@@ -1,7 +1,8 @@
-import { findUniqueMatches } from './matchingHelperFn';
-import { IUser, IpastMatchObj } from './matching-algo';
+import { findUniqueMatches, getLeastRecentMatches } from './matchingHelperFn';
+import { IUser, IpastMatchObj, prevMatch } from './matching-algo';
 
-describe('matching algorithm helper functions', () => {
+// previous findUniqueMatchers
+describe('matching algorithm helper function: findUniqueMatchers', () => {
   it('should not find any new matched pairs from empty pool of unmatched users ', () => {
     const currUser: IUser = Object.freeze({
       email: 'test@rc.com',
@@ -63,7 +64,12 @@ describe('matching algorithm helper functions', () => {
     const currUser: IUser = Object.freeze({
       email: 'test@rc.com',
       full_name: 'test email',
-      prevMatches: [userA.email]
+      prevMatches: [
+        {
+          email: userA.email,
+          matchDate: new Date()
+        }
+      ]
     });
     const poolOfUnMatchedUsers: IUser[] = [userA, userB];
 
@@ -75,5 +81,44 @@ describe('matching algorithm helper functions', () => {
     );
 
     expect(newMatchedPairs).toEqual([userB]);
+  });
+});
+
+// Test for getLeastRecentMatch
+describe('matching algorithm helper fn: getLeastRecentMatch', () => {
+  it('should return an empty array if no one in poolOfMatches', () => {
+    const currUser: IUser = Object.freeze({
+      email: 'test@rc.com',
+      full_name: 'test email',
+      prevMatches: []
+    });
+
+    const { prevMatches } = currUser;
+    const poolOfMatches = [];
+
+    const leastRecentMatches = getLeastRecentMatches(
+      prevMatches,
+      poolOfMatches
+    );
+
+    expect(leastRecentMatches).toEqual([]);
+  });
+
+  it('should return everyone in the poolOfMatches', () => {
+    const currUser: IUser = Object.freeze({
+      email: 'test@rc.com',
+      full_name: 'test email',
+      prevMatches: []
+    });
+
+    const { prevMatches } = currUser;
+    const poolOfMatches = [];
+
+    const leastRecentMatches = getLeastRecentMatches(
+      prevMatches,
+      poolOfMatches
+    );
+
+    expect(leastRecentMatches).toEqual([]);
   });
 });
