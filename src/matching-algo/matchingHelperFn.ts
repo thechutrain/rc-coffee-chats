@@ -30,5 +30,14 @@ export function filterForPrevMatches(
 }
 
 export function sortByOldestMatch(prevMatches: prevMatch[]): prevMatch[] {
-  return [];
+  return prevMatches.sort((a: prevMatch, b: prevMatch) => {
+    if (a.matchDate < b.matchDate) {
+      return -1;
+    }
+    if (a.matchDate > b.matchDate) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 }

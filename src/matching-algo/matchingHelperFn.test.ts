@@ -1,6 +1,7 @@
 import {
   filterForUniqueMatches,
-  filterForPrevMatches
+  filterForPrevMatches,
+  sortByOldestMatch
 } from './matchingHelperFn';
 import { IUser, IpastMatchObj, prevMatch } from './matching-algo';
 
@@ -122,4 +123,63 @@ describe('match-algo-helper-fn: filterForPrevMatches', () => {
     expect(received).toEqual([userA]);
   });
   // it('should not be able to return any one outside of the available users if that user was a prev match', () => {});
+});
+
+describe('sort prev matches: match-algo-helper-fn', () => {
+  it('should return an empty list of prevMatch if none', () => {
+    const prevMatches = [];
+    expect(sortByOldestMatch(prevMatches)).toEqual([]);
+  });
+
+  it('should return a single prevMatch if theres only a single prevMatch', () => {
+    const match1: prevMatch = {
+      email: 'a',
+      matchDate: new Date(1)
+    };
+
+    const prevMatches: prevMatch[] = [match1];
+    expect(sortByOldestMatch(prevMatches)).toEqual([match1]);
+  });
+
+  it('should return a sorted list of prevMatch for two matches', () => {
+    const match1: prevMatch = {
+      email: 'a',
+      matchDate: new Date(11)
+    };
+    const match2: prevMatch = {
+      email: 'b',
+      matchDate: new Date(22)
+    };
+
+    const prevMatches = [match2, match1];
+    const received = sortByOldestMatch(prevMatches);
+    expect(received).toEqual([match1, match2]);
+  });
+
+  it('should return a sorted list of prevMatch for more than two matches', () => {
+    const match1: prevMatch = {
+      email: 'a',
+      matchDate: new Date(11)
+    };
+    const match2: prevMatch = {
+      email: 'b',
+      matchDate: new Date(22)
+    };
+    const match3: prevMatch = {
+      email: 'c',
+      matchDate: new Date(33)
+    };
+    const match4: prevMatch = {
+      email: 'd',
+      matchDate: new Date(44)
+    };
+
+    const prevMatches = [match3, match4, match2, match1];
+    const sortedMatches = sortByOldestMatch(prevMatches);
+    let prevDate = new Date(0);
+    sortedMatches.forEach(match => {
+      expect(prevDate < match.matchDate).toBe(true);
+      prevDate = match.matchDate;
+    });
+  });
 });
