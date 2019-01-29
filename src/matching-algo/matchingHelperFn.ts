@@ -1,4 +1,5 @@
-import { email, IUser, IpastMatchObj, prevMatch } from './matching-algo';
+import { IUser, prevMatch } from './matching-algo';
+import { deepClone } from '../utils/clone';
 
 export function filterForUniqueMatches(
   prevMatches: prevMatch[],
@@ -31,7 +32,7 @@ export function filterForPrevMatches(
 
 export function sortByOldestMatch(
   poolPrevMatches: IUser[],
-  emailToSortMatchesBy: email
+  emailToSortMatchesBy: string
 ): IUser[] {
   function getMatchDate(user: IUser): prevMatch {
     const foundMatch = user.prevMatches.find(
@@ -52,7 +53,6 @@ export function sortByOldestMatch(
   return poolPrevMatches.sort((a: IUser, b: IUser) => {
     const { matchDate: dateA } = getMatchDate(a);
     const { matchDate: dateB } = getMatchDate(b);
-
     if (dateA < dateB) {
       return -1;
     }
@@ -65,10 +65,17 @@ export function sortByOldestMatch(
 }
 
 export function findAndRemoveUserFromPool(
-  userEmail: email,
+  userEmail: string,
   poolOfAvailableUsers: IUser[]
 ): IUser[] {
-  return [];
+  const newPoolOfAvailableUsers = [];
+  for (const availableUser of poolOfAvailableUsers) {
+    if (availableUser.email !== userEmail) {
+      newPoolOfAvailableUsers.push(deepClone(availableUser));
+    }
+  }
+
+  return newPoolOfAvailableUsers;
 }
 
 // TODO: write a fn to sort pool of available users to get user with most number of previous matches first ...

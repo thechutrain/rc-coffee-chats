@@ -1,7 +1,8 @@
 import {
   filterForUniqueMatches,
   filterForPrevMatches,
-  sortByOldestMatch
+  sortByOldestMatch,
+  findAndRemoveUserFromPool
 } from './matchingHelperFn';
 import { IUser, IpastMatchObj, prevMatch } from './matching-algo';
 
@@ -239,4 +240,42 @@ describe('sort prev matches: match-algo-helper-fn', () => {
   //     prevDate = match.matchDate;
   //   });
   // });
+});
+
+describe('findAndRemoveUserFromPool', () => {
+  it('should be able to remove user from available pool', () => {
+    const userA = {
+      email: 'a@gmail.com',
+      full_name: 'a test',
+      prevMatches: []
+    };
+    const userB = {
+      email: 'b@gmail.com',
+      full_name: 'b test',
+      prevMatches: []
+    };
+    const poolOfUsers: IUser[] = [userA, userB];
+
+    const newPool = findAndRemoveUserFromPool('a@gmail.com', poolOfUsers);
+
+    expect(newPool).toEqual([userB]);
+  });
+  it('should return the same sized pool if email not found', () => {
+    const userA = {
+      email: 'a@gmail.com',
+      full_name: 'a test',
+      prevMatches: []
+    };
+    const userB = {
+      email: 'b@gmail.com',
+      full_name: 'b test',
+      prevMatches: []
+    };
+    const poolOfUsers: IUser[] = [userA, userB];
+
+    const newPool = findAndRemoveUserFromPool('unavailable', poolOfUsers);
+
+    expect(newPool).toEqual(poolOfUsers);
+    expect(newPool).not.toBe(poolOfUsers);
+  });
 });
