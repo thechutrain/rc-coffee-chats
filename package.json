@@ -9,15 +9,16 @@
     "format": "prettier --write \"./**/*.{ts,js,json,md}\"",
     "tsc": "npm run clean && tsc",
     "tslint": "tslint --format stylish --project tsconfig.json",
-    "test": "jest",
+    "test:db": "cross-env DB_FILE=test.db DEBUG=1 ts-node src/db/index.ts",
+    "clean:db": "rimraf .data/test.db",
+    "test": "cross-env DB_FILE=test.db jest",
     "test:watch": "jest --watch",
-    "clean": "rimraf dist",
-    "build": "tsc",
-    "now-build": "npm run build"
+    "build": "tsc"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
     }
   },
   "lint-staged": {
