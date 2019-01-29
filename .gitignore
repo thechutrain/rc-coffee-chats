@@ -5,3 +5,8 @@ dist/
 .DS_Store
 notes/**
 winston.log
+# better-sqlite3 requires python version 2.7
+.python-version
+
+# Data
+.data/**

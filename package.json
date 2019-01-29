@@ -28,10 +28,11 @@
   },
   "dependencies": {
     "@types/express": "^4.16.1",
+    "better-sqlite3": "^4.2.0",
     "body-parser": "^1.18.3",
+    "cross-env": "^5.2.0",
     "express": "^4.16.3",
     "lodash": "^4.17.11",
-    "better-sqlite3": "^4.0.0",
     "winston": "^2.4.0",
     "zulip-js": "^2.0.5"
   },
