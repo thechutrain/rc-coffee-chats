@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import sqlite from 'better-sqlite3';
 
 // Models
-import { initUserModel, IUserTableMethods } from './user';
+import { initUserModel, IUserTableMethods } from './user/user';
+import { initMatchModel } from './match/match';
 
 export interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
@@ -11,14 +12,14 @@ export interface ISqlResponse {
   payload?: any; // valid model?
 }
 
-// tslint:disable-next-line
-type dbMethods = {
+interface IDBMethods {
   user: IUserTableMethods;
-  createMatchTable: () => ISqlResponse;
+  match: any; // TODO: update type
+  // createMatchTable: () => ISqlResponse;
   closeDb: () => ISqlResponse;
-};
+}
 
-export function initDB(dbFile: string): dbMethods {
+export function initDB(dbFile: string): IDBMethods {
   const dataDir = path.join(__dirname, '../../', '.data/');
   const fullDbPath = path.join(dataDir, dbFile);
   const dbExists = fs.existsSync(fullDbPath);
@@ -38,7 +39,7 @@ export function initDB(dbFile: string): dbMethods {
 
   return {
     user: initUserModel(db),
-    createMatchTable: initCreateMatchTable(db),
+    match: initMatchModel(db),
     closeDb: initCloseDb(db)
   };
 }

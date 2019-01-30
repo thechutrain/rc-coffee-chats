@@ -1,5 +1,5 @@
 import sqlite from 'better-sqlite3';
-import { ISqlResponse } from '../index';
+import { ISqlResponse } from '../db';
 import { castBoolInt } from '../../utils/index';
 
 interface IAddUserArgs {
