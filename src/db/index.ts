@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import sqlite from 'better-sqlite3';
 
 // Models
-import { initUserModel, IUserTableMethods } from './user/user.model';
+import { initUserModel, IUserTableMethods } from './user';
 
 export interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';

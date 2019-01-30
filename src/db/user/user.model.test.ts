@@ -1,7 +1,7 @@
 import { initDB } from '..';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
-import { initUserModel, IUserDB } from './user.model';
+import { initUserModel, IUserDB } from '.';
 import sqlite from 'better-sqlite3';
 
 const DB_FILE_NAME = 'user-test.db';
