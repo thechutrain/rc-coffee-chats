@@ -1,7 +1,6 @@
-import { initDB } from '..';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
-import { initUserModel, IUserDB } from '.';
+import { initUserModel, IUserDB } from './user';
 import sqlite from 'better-sqlite3';
 
 const DB_FILE_NAME = 'user-test.db';
@@ -68,10 +67,10 @@ describe('User Model test', () => {
     expect(count()).toBe(1);
 
     // Delete all records
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
-    // check that there are no more records
-    expect(count()).toBe(0);
+    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    // dropStmt.run();
+    // // check that there are no more records
+    // expect(count()).toBe(0);
   });
 
   it('should not recreate table if a table has been created already', () => {
@@ -89,10 +88,10 @@ describe('User Model test', () => {
     expect(count()).toBe(1);
 
     // Delete all records
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
-    // check that there are no more records
-    expect(count()).toBe(0);
+    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    // dropStmt.run();
+    // // check that there are no more records
+    // expect(count()).toBe(0);
   });
 
   it('should not be able to add duplicate users', () => {
@@ -112,10 +111,10 @@ describe('User Model test', () => {
     expect(errResponse.status).toBe('FAILURE');
 
     // Delete all records
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
-    // check that there are no more records
-    expect(count()).toBe(0);
+    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    // dropStmt.run();
+    // // check that there are no more records
+    // expect(count()).toBe(0);
   });
 
   it('should be able to add a different users to the User table', () => {
@@ -134,10 +133,10 @@ describe('User Model test', () => {
     expect(count()).toBe(2);
 
     // Delete all records
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
-    // check that there are no more records
-    expect(count()).toBe(0);
+    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    // dropStmt.run();
+    // // check that there are no more records
+    // expect(count()).toBe(0);
   });
 
   it('should be able to find a single user to the User table', () => {
@@ -156,10 +155,10 @@ describe('User Model test', () => {
     expect(findResult.payload).toMatchObject(fooUser);
 
     // Delete all records
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
-    // check that there are no more records
-    expect(count()).toBe(0);
+    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    // dropStmt.run();
+    // // check that there are no more records
+    // expect(count()).toBe(0);
   });
 
   // TODO:
