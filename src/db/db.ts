@@ -12,6 +12,11 @@ export interface ISqlResponse {
   payload?: any; // valid model?
 }
 
+export interface ISqlError {
+  status: 'FAILURE';
+  message: string;
+}
+
 interface IDBMethods {
   user: IUserTableMethods;
   match: any; // TODO: update type

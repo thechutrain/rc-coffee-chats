@@ -51,7 +51,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
     // TODO: check that having checks work!
     const query = `CREATE TABLE IF NOT EXISTS User (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
       skip_next_match INTEGER DEFAULT 0,
