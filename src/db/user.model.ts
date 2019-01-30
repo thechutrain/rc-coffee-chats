@@ -1,5 +1,6 @@
 import sqlite from 'better-sqlite3';
 import { ISqlResponse } from './index';
+import { castBoolInt } from '../utils/index';
 
 interface IAddUserArgs {
   email: string;
@@ -7,30 +8,34 @@ interface IAddUserArgs {
 }
 
 interface IUpdateUserArgs {
-  warning_exceptions?: boolean;
   skip_next_match?: boolean;
+  warning_exception?: boolean;
   // ==== Admin features? ===
-  is_alum?: boolean;
+  is_active?: boolean;
   is_faculty?: boolean;
-  is_admin?: boolean;
-  in_session?: boolean;
+  is_at_rc?: boolean;
+  is_alum?: boolean;
 }
 
 type truthy = boolean | number;
-interface IUserDB {
+export interface IUserDB {
   user_id: number;
   email: string;
   full_name: string;
-  is_faculty: truthy;
-  is_alumn: truthy;
-  is_active: truthy; // Whether they will get any matches or not
-  in_session: truthy; // Will Deprecate Later
-  warning_exceptions: truthy;
   skip_next_match: truthy;
+  warning_exception: truthy;
+  is_active: truthy; // Whether they will get any matches or not
+  is_faculty: truthy;
+  is_alum: truthy;
+  // is_admin: truthy; // admin has ability to change other user settings & view logs
+  // in_session: truthy; // Will Deprecate Later
 }
 
 interface IUserSqlResponse extends ISqlResponse {
-  payload?: IUserDB | IUserDB[];
+  payload?: IUserDB;
+}
+interface IUsersSqlResponse extends ISqlResponse {
+  payload?: IUserDB[];
 }
 export interface IUserTableMethods {
   // _dropTable: () => ISqlResponse;
@@ -42,9 +47,6 @@ export interface IUserTableMethods {
 }
 
 export function initUserModel(db: sqlite): IUserTableMethods {
-  // TODO: declare all my functions here & wont need the init anymore
-  // and can reference each other
-
   function createTable(): ISqlResponse {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
     // TODO: check that having checks work!
@@ -52,12 +54,11 @@ export function initUserModel(db: sqlite): IUserTableMethods {
       user_id INTEGER NOT NULL UNIQUE PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
-      is_alum INTEGER DEFAULT 0,
-      is_faculty INTEGER DEFAULT 0,
-      is_at_rc INTERGER DEFAULT 1,
-      is_active INTEGER DEFAULT 1,
       skip_next_match INTEGER DEFAULT 0,
       warning_exception INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      is_faculty INTEGER DEFAULT 0,
+      is_alum INTEGER DEFAULT 0,
       CHECK (is_alum in (0,1)),
       CHECK (is_faculty in (0,1)),
       CHECK (is_active in (0,1)),
@@ -98,20 +99,70 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     const insertSQL = db.prepare(
       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
     );
+    let newUser;
     try {
-      insertSQL.run(userVals);
+      newUser = insertSQL.run(userVals);
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
-    return { status: 'SUCCESS' };
+    return { status: 'SUCCESS', payload: newUser };
   }
 
   function updateUser(
     targetEmail: string,
     opts: IUpdateUserArgs
   ): IUserSqlResponse {
+    // Check if the user exists
+    const { payload: targetUser } = findUserByEmail(targetEmail);
+    if (!targetUser) {
+      return {
+        status: 'FAILURE',
+        message: `No user found with email "${targetEmail}". Could not update User`
+      };
+    }
+
+    // Created updated User in memory
+    let updatedUser;
+    const colVals = {
+      skip_next_match: castBoolInt(
+        opts.skip_next_match || targetUser.skip_next_match
+      ),
+      warning_exceptions: castBoolInt(
+        opts.warning_exception || targetUser.warning_exception
+      ),
+      is_active: castBoolInt(opts.is_active || targetUser.is_active),
+      is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
+      is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
+    };
+    const updateStmt = db.prepare(
+      `UPDATE User SET 
+      skip_next_match = ?,
+      warning_exception = ?,
+      is_active = ?,
+      is_faculty = ?,
+      is_alum = ?
+      WHERE user_id = ?`
+    );
+
+    try {
+      updatedUser = updateStmt.run(
+        colVals.skip_next_match,
+        colVals.warning_exceptions,
+        colVals.is_active,
+        colVals.is_faculty,
+        colVals.is_alum,
+        targetUser.user_id
+      );
+    } catch (e) {
+      return {
+        status: 'FAILURE',
+        message: e
+      };
+    }
+
     return {
-      status: 'SUCCESS'
+      status: 'SUCCESS',
+      payload: updatedUser
     };
   }
 
@@ -124,6 +175,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     return { status: 'SUCCESS', message: 'Dropped User table' };
   }
 
+  // Exposing User table methods
   return {
     createTable,
     count,
@@ -132,110 +184,3 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     update: updateUser
   };
 }
-
-// =========== old stuff ===================
-
-// export function initCreateUserTable(db: sqlite): () => ISqlResponse {
-//   return () => {
-//     // NOTE: should I do this as a prepare() statemnt, and then execute?
-//     // TODO: check that having checks work!
-//     const query = `CREATE TABLE IF NOT EXISTS User (
-//       user_id INTEGER NOT NULL UNIQUE PRIMARY KEY,
-//       email TEXT NOT NULL UNIQUE,
-//       full_name TEXT NOT NULL,
-//       is_alum INTEGER DEFAULT 0,
-//       is_faculty INTEGER DEFAULT 0,
-//       is_at_rc INTERGER DEFAULT 1,
-//       is_active INTEGER DEFAULT 1,
-//       skip_next_match INTEGER DEFAULT 0,
-//       warning_exception INTEGER DEFAULT 0,
-//       CHECK (is_alum in (0,1)),
-//       CHECK (is_faculty in (0,1)),
-//       CHECK (is_active in (0,1)),
-//       CHECK (skip_next_match in (0,1)),
-//       CHECK (warning_exception in (0,1))
-//     )`;
-
-//     try {
-//       db.exec(query);
-//     } catch (e) {
-//       return { status: 'FAILURE', message: e };
-//     }
-//     return { status: 'SUCCESS' };
-//   };
-// }
-
-// export function initCountUsers(db: sqlite): () => number {
-//   return () => {
-//     const stmt = db.prepare('SELECT * FROM User');
-//     return stmt.all().length;
-//   };
-// }
-
-// export function initFindUser(db: sqlite): (email: string) => IUserSqlResponse {
-//   return (email: string) => {
-//     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
-//     try {
-//       const user = findStmt.get(email);
-//       return {
-//         status: 'SUCCESS',
-//         payload: user
-//       };
-//     } catch (e) {
-//       return {
-//         status: 'FAILURE',
-//         message: e
-//       };
-//     }
-//   };
-// }
-
-// export function initAddUser(db: sqlite) {
-//   // (userVals: IAddUserArgs): void;
-//   // (userVals: IAddUserArgs[]): void ;
-//   // TODO: add flexibility in receiving an array or single UserArg
-//   return (userVals: IAddUserArgs): ISqlResponse => {
-//     const insertSQL = db.prepare(
-//       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
-//     );
-//     try {
-//       insertSQL.run(userVals);
-//     } catch (e) {
-//       return { status: 'FAILURE', message: e };
-//     }
-//     return { status: 'SUCCESS' };
-//   };
-// }
-
-// export function initUpdateUser(
-//   db: sqlite
-// ): (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse {
-//   // TODO: make targeEmail flexible (email or user_id)
-//   return (targetEmail: string, opts: IUpdateUserArgs) => {
-//     // Disadvantage
-
-//     return {
-//       status: 'SUCCESS'
-//     };
-//   };
-// }
-
-// Note: used for testing
-export function initDropUserTable(db: sqlite): () => ISqlResponse {
-  return () => {
-    try {
-      db.exec(`DROP TABLE User`);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS', message: 'Dropped User table' };
-  };
-}
-// function for updating a user's configs
-// input: email or primary_key? + opts{is_alumn: true, is_active: true, is_faculty: false}
-// output: updated user object
-
-// function for finding a single user
-// input: { email: asdfa }
-
-// function for finding many users that fit a criteria
