@@ -1,6 +1,6 @@
 import sqlite from 'better-sqlite3';
-import { ISqlResponse } from './index';
-import { castBoolInt } from '../utils/index';
+import { ISqlResponse } from '../index';
+import { castBoolInt } from '../../utils/index';
 
 interface IAddUserArgs {
   email: string;

@@ -1,13 +1,15 @@
-import { initDB } from '.';
+import { initDB } from '..';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
 import { initUserModel, IUserDB } from './user.model';
 import sqlite from 'better-sqlite3';
 
+const DB_FILE_NAME = 'user-test.db';
+
 beforeAll(() => {
   // const dataDir = path.join(__dirname, '../../', '.data/');
-  // const fullDbPath = path.join(dataDir, process.env.DB_FILE);
-  const dbPath = path.join(__dirname, process.env.DB_FILE);
+  // const fullDbPath = path.join(dataDir, DB_FILE_NAME);
+  const dbPath = path.join(__dirname, DB_FILE_NAME);
   rimraf.sync(dbPath, {}, err => {
     if (err) {
       console.log(err);
@@ -17,19 +19,19 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  // const dbPath = path.join(__dirname, process.env.DB_FILE);
-  // const db = new sqlite(dbPath);
-  // expect(db).toBeDefined();
-  // // Delete all records
-  // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-  // dropStmt.run();
-  // // check that there are no more records
-  // const { count } = initUserModel(db);
-  // expect(count()).toBe(0);
+  const dbPath = path.join(__dirname, DB_FILE_NAME);
+  const db = new sqlite(dbPath);
+  expect(db).toBeDefined();
+  // Delete all records
+  const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+  dropStmt.run();
+  // check that there are no more records
+  const { count } = initUserModel(db);
+  expect(count()).toBe(0);
 });
 
 afterAll(() => {
-  const dbPath = path.join(__dirname, process.env.DB_FILE);
+  const dbPath = path.join(__dirname, DB_FILE_NAME);
   const db = new sqlite(dbPath);
   expect(db).toBeDefined();
   // Drop the table?
@@ -38,7 +40,7 @@ afterAll(() => {
 
 describe('User Model test', () => {
   it('should be able to create an empty table', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -55,7 +57,7 @@ describe('User Model test', () => {
   });
 
   it('should be able to add a single user to the User table', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -73,7 +75,7 @@ describe('User Model test', () => {
   });
 
   it('should not recreate table if a table has been created already', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -94,7 +96,7 @@ describe('User Model test', () => {
   });
 
   it('should not be able to add duplicate users', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -117,7 +119,7 @@ describe('User Model test', () => {
   });
 
   it('should be able to add a different users to the User table', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -139,7 +141,7 @@ describe('User Model test', () => {
   });
 
   it('should be able to find a single user to the User table', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
@@ -162,7 +164,7 @@ describe('User Model test', () => {
 
   // TODO:
   it('should be able to update a single user in the User table', () => {
-    const dbPath = path.join(__dirname, process.env.DB_FILE);
+    const dbPath = path.join(__dirname, DB_FILE_NAME);
     const db = new sqlite(dbPath);
     expect(db).toBeDefined();
 
