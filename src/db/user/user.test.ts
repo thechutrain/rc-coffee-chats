@@ -4,8 +4,12 @@ import sqlite from 'better-sqlite3';
 
 const DB_PATH = path.join(__dirname, 'user-test.db');
 
+/**
+ * beforeAll queries, make a new database for testing this single table
+ */
 beforeAll(() => {
   // Ensures that creating brand new .db file
+  // Should fail to connect to existing db (ensures rimraf removed old .db files)
   let failedConnection = false;
   try {
     // tslint:disable-next-line
@@ -15,10 +19,15 @@ beforeAll(() => {
   }
   expect(failedConnection).toBe(true);
 
-  const db = new sqlite(DB_PATH); // creates DB
+  // creates new DB
+  const db = new sqlite(DB_PATH);
   expect(db.open).toBe(true);
 
-  // === User Table ====
+  // create User table
+  const { createTable, count } = initUserModel(db);
+  const { status, message } = createTable();
+  expect(message).toBeUndefined();
+  expect(status).toBe('SUCCESS');
 
   db.close();
   expect(db.open).toBe(false);
@@ -31,18 +40,11 @@ afterEach(() => {
   // Delete all records
   const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
   dropStmt.run();
+
   // check that there are no more records
   const { count } = initUserModel(db);
   expect(count()).toBe(0);
 });
-
-// afterAll(() => {
-//   const dbPath = path.join(__dirname, DB_FILE_NAME);
-//   const db = new sqlite(dbPath);
-//   expect(db).toBeDefined();
-//   // Drop the table?
-//   db.close();
-// });
 
 describe('User Model test', () => {
   // it('should pass', () => {
