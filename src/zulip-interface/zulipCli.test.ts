@@ -1,8 +1,4 @@
-import {
-  parseZulipServerRequest,
-  cliCommands,
-  payloadFlags
-} from '../zulipCli';
+import { parseZulipServerRequest, cliCommands, payloadFlags } from './zulipCli';
 
 describe('should be able to parse various zulip requests', () => {
   it('should assume HELP if nothing is passed', () => {
