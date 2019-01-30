@@ -10,3 +10,4 @@ winston.log
 
 # Data
 .data/**
+**.db

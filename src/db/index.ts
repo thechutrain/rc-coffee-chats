@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import Database from 'better-sqlite3';
+import sqlite from 'better-sqlite3';
 
 // Models
 import { initUserModel, IUserTableMethods } from './user.model';
@@ -13,8 +13,6 @@ export interface ISqlResponse {
 
 // tslint:disable-next-line
 type dbMethods = {
-  // createUserTable: () => ISqlResponse;
-  // addUser: (userVals: IAddUserArgs) => ISqlResponse;
   user: IUserTableMethods;
   createMatchTable: () => ISqlResponse;
   closeDb: () => ISqlResponse;
@@ -36,12 +34,10 @@ export function initDB(dbFile: string): dbMethods {
   // NOTE: should check that dbFile name is a valid db file before trying
   // to create one
   // Note: can set readonly, fileMustExist, timeout etc
-  const db = new Database(fullDbPath, { verbose: console.log });
+  const db = new sqlite(fullDbPath, { verbose: console.log });
 
   return {
     user: initUserModel(db),
-    // createUserTable: initCreateUserTable(db),
-    // addUser: initAddUserTable(db),
     createMatchTable: initCreateMatchTable(db),
     closeDb: initCloseDb(db)
   };
@@ -50,7 +46,7 @@ export function initDB(dbFile: string): dbMethods {
 // =========== queries =========
 
 // == UserMatch table ==
-function initCreateMatchTable(db: Database): () => ISqlResponse {
+function initCreateMatchTable(db: sqlite): () => ISqlResponse {
   return () => {
     const createMatchTableSql = db.prepare(`CREATE TABLE IF NOT EXISTS UserMatch (
       match_id INTEGER NOT NULL UNIQUE,
@@ -82,16 +78,3 @@ function initCloseDb(db): () => ISqlResponse {
     return { status: 'SUCCESS' };
   };
 }
-
-// ========= TESTING ===========
-const { user, createMatchTable } = initDB('test.db');
-
-const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
-const barUser = { email: 'bar@gmail.com', full_name: 'Bar Bar' };
-// Create Table
-user.createTable();
-user.add(fooUser);
-user.add(barUser);
-
-// console.log(response);
-// console.log(createMatchTable());
