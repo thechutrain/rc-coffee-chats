@@ -10,8 +10,10 @@ interface IUpdateUserArgs {
   warning_exceptions?: boolean;
   skip_next_match?: boolean;
   // ==== Admin features? ===
-  // in_session?: boolean,
-  // is_alumn?: boolean
+  is_alum?: boolean;
+  is_faculty?: boolean;
+  is_admin?: boolean;
+  in_session?: boolean;
 }
 
 type truthy = boolean | number;
@@ -36,23 +38,14 @@ export interface IUserTableMethods {
   count: () => number;
   find: (email: string) => IUserSqlResponse;
   add: (IAddUserArgs) => ISqlResponse;
-  // update: (email: string, opts: IUpdateUserArgs) => ISqlResponse;
+  update: (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse;
 }
 
 export function initUserModel(db: sqlite): IUserTableMethods {
-  return {
-    createTable: initCreateUserTable(db),
-    // _dropTable: initDropUserTable(db), // admin priviledges
-    // remove: initRemoveUser(db) // Admin privileges
-    count: initCountUsers(db),
-    find: initFindUser(db),
-    add: initAddUser(db)
-    // update: initUpdateUser(db)
-  };
-}
+  // TODO: declare all my functions here & wont need the init anymore
+  // and can reference each other
 
-export function initCreateUserTable(db: sqlite): () => ISqlResponse {
-  return () => {
+  function createTable(): ISqlResponse {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
     // TODO: check that having checks work!
     const query = `CREATE TABLE IF NOT EXISTS User (
@@ -78,18 +71,14 @@ export function initCreateUserTable(db: sqlite): () => ISqlResponse {
       return { status: 'FAILURE', message: e };
     }
     return { status: 'SUCCESS' };
-  };
-}
+  }
 
-export function initCountUsers(db: sqlite): () => number {
-  return () => {
+  function count(): number {
     const stmt = db.prepare('SELECT * FROM User');
     return stmt.all().length;
-  };
-}
+  }
 
-export function initFindUser(db: sqlite): (email: string) => IUserSqlResponse {
-  return (email: string) => {
+  function findUserByEmail(email: string): IUserSqlResponse {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     try {
       const user = findStmt.get(email);
@@ -103,14 +92,9 @@ export function initFindUser(db: sqlite): (email: string) => IUserSqlResponse {
         message: e
       };
     }
-  };
-}
+  }
 
-export function initAddUser(db: sqlite) {
-  // (userVals: IAddUserArgs): void;
-  // (userVals: IAddUserArgs[]): void ;
-  // TODO: add flexibility in receiving an array or single UserArg
-  return (userVals: IAddUserArgs): ISqlResponse => {
+  function addUser(userVals: IAddUserArgs): ISqlResponse {
     const insertSQL = db.prepare(
       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
     );
@@ -120,10 +104,121 @@ export function initAddUser(db: sqlite) {
       return { status: 'FAILURE', message: e };
     }
     return { status: 'SUCCESS' };
+  }
+
+  function updateUser(
+    targetEmail: string,
+    opts: IUpdateUserArgs
+  ): IUserSqlResponse {
+    return {
+      status: 'SUCCESS'
+    };
+  }
+
+  function dropTable(): ISqlResponse {
+    try {
+      db.exec(`DROP TABLE User`);
+    } catch (e) {
+      return { status: 'FAILURE', message: e };
+    }
+    return { status: 'SUCCESS', message: 'Dropped User table' };
+  }
+
+  return {
+    createTable,
+    count,
+    find: findUserByEmail,
+    add: addUser,
+    update: updateUser
   };
 }
 
-// export function initUpdateUser(db: sqlite): () => ISqlResponse {}
+// =========== old stuff ===================
+
+// export function initCreateUserTable(db: sqlite): () => ISqlResponse {
+//   return () => {
+//     // NOTE: should I do this as a prepare() statemnt, and then execute?
+//     // TODO: check that having checks work!
+//     const query = `CREATE TABLE IF NOT EXISTS User (
+//       user_id INTEGER NOT NULL UNIQUE PRIMARY KEY,
+//       email TEXT NOT NULL UNIQUE,
+//       full_name TEXT NOT NULL,
+//       is_alum INTEGER DEFAULT 0,
+//       is_faculty INTEGER DEFAULT 0,
+//       is_at_rc INTERGER DEFAULT 1,
+//       is_active INTEGER DEFAULT 1,
+//       skip_next_match INTEGER DEFAULT 0,
+//       warning_exception INTEGER DEFAULT 0,
+//       CHECK (is_alum in (0,1)),
+//       CHECK (is_faculty in (0,1)),
+//       CHECK (is_active in (0,1)),
+//       CHECK (skip_next_match in (0,1)),
+//       CHECK (warning_exception in (0,1))
+//     )`;
+
+//     try {
+//       db.exec(query);
+//     } catch (e) {
+//       return { status: 'FAILURE', message: e };
+//     }
+//     return { status: 'SUCCESS' };
+//   };
+// }
+
+// export function initCountUsers(db: sqlite): () => number {
+//   return () => {
+//     const stmt = db.prepare('SELECT * FROM User');
+//     return stmt.all().length;
+//   };
+// }
+
+// export function initFindUser(db: sqlite): (email: string) => IUserSqlResponse {
+//   return (email: string) => {
+//     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
+//     try {
+//       const user = findStmt.get(email);
+//       return {
+//         status: 'SUCCESS',
+//         payload: user
+//       };
+//     } catch (e) {
+//       return {
+//         status: 'FAILURE',
+//         message: e
+//       };
+//     }
+//   };
+// }
+
+// export function initAddUser(db: sqlite) {
+//   // (userVals: IAddUserArgs): void;
+//   // (userVals: IAddUserArgs[]): void ;
+//   // TODO: add flexibility in receiving an array or single UserArg
+//   return (userVals: IAddUserArgs): ISqlResponse => {
+//     const insertSQL = db.prepare(
+//       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
+//     );
+//     try {
+//       insertSQL.run(userVals);
+//     } catch (e) {
+//       return { status: 'FAILURE', message: e };
+//     }
+//     return { status: 'SUCCESS' };
+//   };
+// }
+
+// export function initUpdateUser(
+//   db: sqlite
+// ): (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse {
+//   // TODO: make targeEmail flexible (email or user_id)
+//   return (targetEmail: string, opts: IUpdateUserArgs) => {
+//     // Disadvantage
+
+//     return {
+//       status: 'SUCCESS'
+//     };
+//   };
+// }
 
 // Note: used for testing
 export function initDropUserTable(db: sqlite): () => ISqlResponse {
