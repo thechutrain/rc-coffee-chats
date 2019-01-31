@@ -6,7 +6,7 @@ import sqlite from 'better-sqlite3';
 const DB_PATH = path.join(__dirname, 'user-match-integration-test.db');
 // Global Scope:
 let userTable; // obj containaing: k->primary key, v-> single userToAdd obj
-let matchTable; //
+let matchTable;
 const usersToAdd = [
   {
     email: 'a@gmail.com',
@@ -65,23 +65,31 @@ beforeAll(() => {
   expect(countUsers()).toBe(usersToAdd.length);
 
   // create Match table
-  // matchTable = createMatchTable(db);
-  // const { count: countMatches } = initMatchModel(db);
-  // expect(countMatches()).toBe(matchesToAdd.length);
-  // expect(message).toBeUndefined();
-  // expect(status).toBe('SUCCESS');
+  matchTable = createMatchTable(db);
+  const { count: countMatches } = initMatchModel(db);
+  expect(countMatches()).toBe(matchesToAdd.length);
 
   db.close();
   expect(db.open).toBe(false);
 });
 
 describe('Overall db table integration test', () => {
+  // NOTE: GREG this test should fail
   it('should be able to find all the previous matches that a User had', () => {
-    expect(true).toBe(true);
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { getUsersByCoffeeDay } = initUserModel(db);
+    const userSearchResult = getUsersByCoffeeDay(1);
+
+    expect(userSearchResult.length).toBe(usersToAdd.length);
+    userSearchResult.forEach(userResult => {
+      expect(userResult).toHaveProperty('prevMatches');
+    });
   });
 });
 
-// helper function to create User table
+// ===== helper function to create User table =====
 function createUserTable(db: sqlite) {
   const { createTable, add } = initUserModel(db);
   createTable();

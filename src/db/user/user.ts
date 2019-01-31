@@ -1,6 +1,7 @@
 import sqlite from 'better-sqlite3';
 import { ISqlResponse } from '../db';
 import { castBoolInt } from '../../utils/index';
+import { Interface } from 'readline';
 
 interface IAddUserArgs {
   email: string;
@@ -10,6 +11,7 @@ interface IAddUserArgs {
 interface IUpdateUserArgs {
   skip_next_match?: boolean;
   warning_exception?: boolean;
+  coffee_days?: string;
   // ==== Admin features? ===
   is_active?: boolean;
   is_faculty?: boolean;
@@ -22,6 +24,7 @@ export interface IUserDB {
   user_id: number;
   email: string;
   full_name: string;
+  coffee_days: string; // coffee_days into an enum
   skip_next_match: truthy;
   warning_exception: truthy;
   is_active: truthy; // Whether they will get any matches or not
@@ -41,7 +44,10 @@ export interface IUserTableMethods {
   // _dropTable: () => ISqlResponse;
   createTable: () => ISqlResponse; // can I make this chainable?
   count: () => number;
+  // NOTE: ultimately want to make this find flexible
   find: (email: string) => IUserSqlResponse;
+  getUsersByCoffeeDay: any;
+  // findUserMatch: (email: string) => IUserSqlResponse;
   add: (IAddUserArgs) => ISqlResponse;
   update: (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse;
 }
@@ -54,6 +60,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
       user_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
+      coffee_days TEXT DEFAULT 1234,
       skip_next_match INTEGER DEFAULT 0,
       warning_exception INTEGER DEFAULT 0,
       is_active INTEGER DEFAULT 1,
@@ -99,6 +106,23 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     }
   }
 
+  // TODO: GREG wanna give this a try?
+  // TODO: fn that gets all the users for the day of the week & their matches
+  interface IPrevMatch {
+    user_id: number;
+    date: string | Date;
+  }
+  interface IUserMatchResult extends IUserDB {
+    prevMatches: IPrevMatch[];
+  }
+  // NOTE: would be nice to also sort via sql by the number of prevMatches
+  function getUsersByCoffeeDay(
+    coffeeDay: number,
+    includePrevMatches: boolean = true
+  ): IUserMatchResult[] {
+    return [];
+  }
+
   function addUser(userVals: IAddUserArgs): ISqlResponse {
     const insertSQL = db.prepare(
       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
@@ -128,6 +152,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     // Created updated User in memory
     let updatedUser;
     const colVals = {
+      coffee_days: opts.coffee_days || targetUser.coffee_days,
       skip_next_match: castBoolInt(
         opts.skip_next_match || targetUser.skip_next_match
       ),
@@ -140,6 +165,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     };
     const updateStmt = db.prepare(
       `UPDATE User SET 
+      coffee_days = ?,
       skip_next_match = ?,
       warning_exception = ?,
       is_active = ?,
@@ -150,6 +176,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
 
     try {
       updatedUser = updateStmt.run(
+        colVals.coffee_days,
         colVals.skip_next_match,
         colVals.warning_exceptions,
         colVals.is_active,
@@ -184,6 +211,8 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     createTable,
     count,
     find: findUserByEmail,
+    getUsersByCoffeeDay,
+    // findUserMatch: findUserWithPrevMatches,
     add: addUser,
     update: updateUser
   };

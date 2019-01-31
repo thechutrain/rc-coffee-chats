@@ -122,7 +122,7 @@ describe('User Model test', () => {
     expect(findResult.payload).toMatchObject(fooUser);
   });
 
-  // // TODO:
+  // // TODO: WRITE TEST TO UPDATE VALUES!!
   // it('should be able to update a single user in the User table', () => {
   //   const dbPath = path.join(__dirname, DB_FILE_NAME);
   //   const db = new sqlite(dbPath);

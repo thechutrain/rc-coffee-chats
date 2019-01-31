@@ -108,8 +108,8 @@ export function initMatchModel(db: sqlite): IMatchModel {
     }
 
     return {
-      status: 'SUCCESS'
-      // payload: newMatch // {changes: 1, lastInsertROWID: 1}
+      status: 'SUCCESS',
+      payload: newMatch // {changes: 1, lastInsertROWID: 1}
     };
   }
 
