@@ -25,6 +25,8 @@ interface IDBMethods {
 }
 
 export function initDB(dbFile: string): IDBMethods {
+  // NOTE: Should all only reading a new db?
+  // Should I make it more strict to create vs connect db?
   const dataDir = path.join(__dirname, '../../', '.data/');
   const fullDbPath = path.join(dataDir, dbFile);
   const dbExists = fs.existsSync(fullDbPath);

@@ -48,22 +48,6 @@ afterEach(() => {
 });
 
 describe('User Model test', () => {
-  // it('should pass', () => {
-  //   expect(true).toBe(true);
-  // });
-  it('should be able to create an empty table', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-
-    const { createTable, count } = initUserModel(db);
-    createTable();
-    const numUsers = count();
-    expect(numUsers).toBe(0);
-    const response = createTable();
-    expect(response.status).toBe('SUCCESS');
-    db.close();
-  });
-
   it('should be able to add a single user to the User table', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
@@ -97,6 +81,7 @@ describe('User Model test', () => {
     const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
     add(fooUser);
     expect(count()).toBe(1);
+
     // Should not be able to add same user twice
     const errResponse = add(fooUser);
     expect(count()).toBe(1);
@@ -117,12 +102,6 @@ describe('User Model test', () => {
     expect(count()).toBe(1);
     add(barUser);
     expect(count()).toBe(2);
-
-    // Delete all records
-    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    // dropStmt.run();
-    // // check that there are no more records
-    // expect(count()).toBe(0);
   });
 
   it('should be able to find a single user to the User table', () => {
@@ -140,11 +119,6 @@ describe('User Model test', () => {
     expect(findResult.status).toBe('SUCCESS');
     expect(findResult.payload).toBeDefined();
     expect(findResult.payload).toMatchObject(fooUser);
-    // Delete all records
-    // const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    // dropStmt.run();
-    // // check that there are no more records
-    // expect(count()).toBe(0);
   });
   // // TODO:
   // it('should be able to update a single user in the User table', () => {

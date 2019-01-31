@@ -47,6 +47,7 @@ export function initMatchModel(db: sqlite): IMatchModel {
     return { status: 'SUCCESS' };
   }
 
+  // Rename to remove all records & use it in the test
   function cleanTable(): ISqlResponse {
     const query = `DELETE FROM ${TABLE_NAME} WHERE true`;
     try {
@@ -101,16 +102,14 @@ export function initMatchModel(db: sqlite): IMatchModel {
     const date = matchArgs.date || new Date().toISOString().split('T')[0];
 
     try {
-      // newMatch = insertQuery.run(recordVals);
-      // newMatch = insertQuery.run(user_1_id, user_2_id, date);
-      newMatch = insertQuery.run(1, user_2_id, date);
+      newMatch = insertQuery.run(user_1_id, user_2_id, date);
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
 
     return {
-      status: 'SUCCESS',
-      payload: newMatch // {changes: 1, lastInsertROWID: 1}
+      status: 'SUCCESS'
+      // payload: newMatch // {changes: 1, lastInsertROWID: 1}
     };
   }
 
