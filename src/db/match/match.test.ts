@@ -116,7 +116,7 @@ describe('User Model test', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { add, count, createTable } = initMatchModel(db);
+    const { add, count } = initMatchModel(db);
     expect(count()).toBe(0);
     const { status } = add({
       user_1_id: 1,
@@ -131,7 +131,7 @@ describe('User Model test', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { add, count, createTable } = initMatchModel(db);
+    const { add, count } = initMatchModel(db);
     expect(count()).toBe(0);
     const { status: status1 } = add({
       user_1_id: 1,
@@ -152,17 +152,29 @@ describe('User Model test', () => {
   });
 
   // // === INSERT queries ===
-  // it('should be able to add a single match to the Match table', () => {
-  //   const db = new sqlite(DB_PATH, { fileMustExist: true });
-  //   expect(db.open).toBe(true);
+  it('should be able to find a single match to the Match table', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
 
-  //   const { add, count, find } = initMatchModel(db);
-  //   expect(count()).toBe(0);
-  //   const { payload: matchesUser1, status, message } = find(1);
-  //   expect(message).not.toBeDefined();
-  //   expect(status).toBe('SUCCESS');
-  //   expect(matchesUser1).toEqual([]);
-  // });
+    const { add, count, find } = initMatchModel(db);
+
+    expect(count()).toBe(0);
+
+    const matchRecord1 = {
+      user_1_id: 1,
+      user_2_id: 2,
+      date: '2019-01-31'
+    };
+    const { status: status1 } = add(matchRecord1);
+    expect(status1).toBe('SUCCESS');
+
+    const { payload: matchesUser1, status, message } = find(1);
+
+    expect(message).not.toBeDefined();
+    expect(status).toBe('SUCCESS');
+    expect(matchesUser1).toMatchObject([matchRecord1]);
+  });
+
   // it('should be able to add multiple matches on different days', () => {
   //   const dbPath = path.join(__dirname, DB_FILE_NAME);
   //   const db = new sqlite(dbPath);
@@ -176,6 +188,7 @@ describe('User Model test', () => {
   //   expect(count()).toBe(1);
   //   expect(errResponse.status).toBe('FAILURE');
   // });
+
   // OPTIONAL - repetitive?
   // it('should be able to add various different matches for a given user', () => {
   //   const dbPath = path.join(__dirname, DB_FILE_NAME);

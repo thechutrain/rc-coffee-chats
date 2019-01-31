@@ -12,7 +12,7 @@ interface IMatchModel {
   createTable: () => ISqlResponse;
   cleanTable?: () => ISqlResponse; // TODO: remove this? allow only for testing?
   count: () => ISqlError | number;
-  find: any;
+  find: (targetUserId: number) => ISqlResponse;
   add: (opts: IAddMatchArgs) => ISqlResponse;
 }
 
@@ -58,14 +58,6 @@ export function initMatchModel(db: sqlite): IMatchModel {
   }
 
   function count(): number {
-    // let numRecords;
-
-    // const getAllTables = db.prepare(
-    //   `select name from sqlite_master where type='table'`
-    // );
-
-    // const tables = getAllTables.all();
-
     const stmt = db.prepare(`SELECT COUNT(match_id) FROM Match`);
     const { 'COUNT(match_id)': numRecord } = stmt.get();
     return numRecord;
@@ -79,7 +71,7 @@ export function initMatchModel(db: sqlite): IMatchModel {
 
   function findAllUserMatches(targetUser: number): IMatchesSqlResponse {
     const findStmt = db.prepare(
-      `SELECT * FROM ${TABLE_NAME} WHERE user_1_id = ? OR user_2_id = ?`
+      `SELECT * FROM Match WHERE user_1_id = ? OR user_2_id = ?`
     );
     let matches = [];
     try {
@@ -111,7 +103,7 @@ export function initMatchModel(db: sqlite): IMatchModel {
     try {
       // newMatch = insertQuery.run(recordVals);
       // newMatch = insertQuery.run(user_1_id, user_2_id, date);
-      newMatch = insertQuery.run(1, user_2_id, 'today');
+      newMatch = insertQuery.run(1, user_2_id, date);
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
