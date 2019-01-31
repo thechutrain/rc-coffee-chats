@@ -1,5 +1,6 @@
 import * as path from 'path';
-import { initUserModel, IUserDB } from './user';
+import { initUserModel } from './user';
+import { initMatchModel } from '../match/match';
 import sqlite from 'better-sqlite3';
 
 const DB_PATH = path.join(__dirname, 'user-test.db');
@@ -120,6 +121,7 @@ describe('User Model test', () => {
     expect(findResult.payload).toBeDefined();
     expect(findResult.payload).toMatchObject(fooUser);
   });
+
   // // TODO:
   // it('should be able to update a single user in the User table', () => {
   //   const dbPath = path.join(__dirname, DB_FILE_NAME);

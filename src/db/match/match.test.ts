@@ -175,19 +175,17 @@ describe('User Model test', () => {
     expect(matchesUser1).toMatchObject([matchRecord1]);
   });
 
-  // it('should be able to add multiple matches on different days', () => {
-  //   const dbPath = path.join(__dirname, DB_FILE_NAME);
-  //   const db = new sqlite(dbPath);
-  //   expect(db).toBeDefined();
-  //   const { add, count } = initMatchModel(db);
-  //   expect(count()).toBe(0);
-  //   const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
-  //   // add(fooUser);
-  //   expect(count()).toBe(1);
-  //   // const errResponse = add(fooUser);
-  //   expect(count()).toBe(1);
-  //   expect(errResponse.status).toBe('FAILURE');
-  // });
+  it('should be able to add multiple matches on different days', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+    const { add, count } = initMatchModel(db);
+
+    expect(count()).toBe(0);
+    add({ user_1_id: 1, user_2_id: 2, date: '2019-01-31' });
+    expect(count()).toBe(1);
+    add({ user_1_id: 1, user_2_id: 2, date: '2019-01-30' });
+    expect(count()).toBe(2);
+  });
 
   // OPTIONAL - repetitive?
   // it('should be able to add various different matches for a given user', () => {
