@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { initUserModel } from './user';
+import { initUserModel } from '../user/user';
 import { initMatchModel } from '../match/match';
 import sqlite from 'better-sqlite3';
 

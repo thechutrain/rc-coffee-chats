@@ -1,6 +1,6 @@
 // import * as rimraf from 'rimraf';
 import * as path from 'path';
-import { initMatchModel } from './match';
+import { initMatchModel } from '../match/match';
 import { initUserModel } from '../user/user';
 import sqlite from 'better-sqlite3';
 

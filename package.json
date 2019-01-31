@@ -11,7 +11,7 @@
     "tslint": "tslint --format stylish --project tsconfig.json",
     "test:db": "cross-env DB_FILE=test.db DEBUG=1 ts-node src/db/index.ts",
     "clean:db": "rimraf .data/test.db",
-    "pretest": "rm -rf src/**/*.db",
+    "pretest": "rimraf src/db/__tests__/*.db",
     "test": "cross-env DB_FILE=test.db jest",
     "build": "tsc"
   },
