@@ -1,5 +1,5 @@
 import sqlite from 'better-sqlite3';
-import { ISqlResponse, ISqlError } from '../db';
+import { ISqlResponse, ISqlError } from './db';
 
 const TABLE_NAME = 'Match';
 

@@ -1,7 +1,7 @@
 // import * as rimraf from 'rimraf';
 import * as path from 'path';
-import { initMatchModel } from '../match/match';
-import { initUserModel } from '../user/user';
+import { initMatchModel } from '../match';
+import { initUserModel } from '../user';
 import sqlite from 'better-sqlite3';
 
 const DB_PATH = path.join(__dirname, 'match-test.db');

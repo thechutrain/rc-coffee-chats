@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import sqlite from 'better-sqlite3';
 
 // Models
-import { initUserModel, IUserTableMethods } from './user/user';
-import { initMatchModel } from './match/match';
+import { initUserModel, IUserTableMethods } from './user';
+import { initMatchModel } from './match';
 
 export interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
