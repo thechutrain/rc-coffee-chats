@@ -8,64 +8,26 @@ const DB_PATH = path.join(__dirname, 'match-test.db');
 
 // Global Scope:
 let userTable;
+const usersToAdd = [
+  {
+    email: 'a@gmail.com',
+    full_name: 'a user'
+  },
+  {
+    email: 'b@gmail.com',
+    full_name: 'b user'
+  },
+  {
+    email: 'c@gmail.com',
+    full_name: 'c user'
+  },
+  {
+    email: 'd@gmail.com',
+    full_name: 'd user'
+  }
+];
 
-function initUserTable(db: sqlite) {
-  // const dbPath = path.join(__dirname, DB_FILE_NAME);
-  // const db = new sqlite(dbPath);
-  const { createTable, add } = initUserModel(db);
-  // createTable();
-
-  const usersToAdd = [
-    {
-      email: 'a@gmail.com',
-      full_name: 'a user'
-    },
-    {
-      email: 'b@gmail.com',
-      full_name: 'b user'
-    },
-    {
-      email: 'c@gmail.com',
-      full_name: 'c user'
-    },
-    {
-      email: 'd@gmail.com',
-      full_name: 'd user'
-    }
-  ];
-
-  const userMap = {};
-  usersToAdd.forEach(user => {
-    const { status, payload } = add(user);
-    if (status === 'FAILURE') {
-      throw new Error('Error adding users from initUserTable()');
-    }
-    userMap[payload.user_id] = payload;
-  });
-
-  userTable = Object.freeze(userMap);
-  console.log(userTable);
-}
-
-// function resetMatch() {
-//   const dbPath = path.join(__dirname, DB_FILE_NAME);
-//   return new Promise((resolve, reject) => {
-//     rimraf(dbPath, {}, err => {
-//       if (err) {
-//         reject(err);
-//       }
-//       expect(err).not.toBeDefined();
-//       const db = new sqlite(dbPath);
-//       // Create a user's table
-//       initUserTable(db);
-//       const numUsers = Object.keys(userTable).length;
-//       expect(numUsers).toBe(4);
-//       resolve();
-//     });
-//   });
-// }
-
-beforeAll(async () => {
+beforeAll(() => {
   // Ensures that creating brand new .db file
   let failedConnection = false;
   try {
@@ -76,31 +38,36 @@ beforeAll(async () => {
   }
   expect(failedConnection).toBe(true);
 
-  const db = new sqlite(DB_PATH); // creates DB
+  // creates new DB
+  const db = new sqlite(DB_PATH);
   expect(db.open).toBe(true);
 
-  // === create Match table ===
-  // const { createTable } = initMatchModel(db);
-  // const SqlResponse = createTable();
-  // expect(SqlResponse.message).toBeNull();
-  // expect(SqlResponse.status).toBe('SUCCESS');
+  // !IMPORTANT: need to create User table first!
+  userTable = createUserTable(db);
 
-  // db.close();
-  // expect(db.open).toBe(false);
+  // create Match table
+  const { createTable, count } = initMatchModel(db);
+  const { status, message } = createTable();
+  // expect(count()).toBe(0);
+  expect(message).toBeUndefined();
+  expect(status).toBe('SUCCESS');
+
+  db.close();
+  expect(db.open).toBe(false);
 });
 
-// afterEach(() => {
-//   const db = new sqlite(DB_PATH, { fileMustExist: true });
-//   expect(db.open).toBe(true);
+afterEach(() => {
+  const db = new sqlite(DB_PATH, { fileMustExist: true });
+  expect(db.open).toBe(true);
 
-//   // Delete all records
-//   const dropStmt = db.prepare(`DELETE FROM Match WHERE true`);
-//   dropStmt.run();
+  // Delete all records
+  const dropStmt = db.prepare(`DELETE FROM Match WHERE true`);
+  dropStmt.run();
 
-//   // check that there are no more records
-//   const { count } = initUserModel(db);
-//   expect(count()).toBe(0);
-// });
+  // check that there are no more records
+  const { count } = initUserModel(db);
+  expect(count()).toBe(usersToAdd.length);
+});
 
 // afterAll(() => {
 //   const dbPath = path.join(__dirname, DB_FILE_NAME);
@@ -118,48 +85,77 @@ beforeAll(async () => {
 // });
 
 describe('User Model test', () => {
-  // it('should pass', () => {
-  //   expect(true).toBe(true);
-  // });
+  it('should pass', () => {
+    expect(true).toBe(true);
+  });
   // === CREATE table query
-  // it('should be able to create an empty table', () => {
-  //   const db = new sqlite(DB_PATH, { fileMustExist: true });
-  //   expect(db.open).toBe(true);
-  //   const { createTable, count } = initMatchModel(db);
-  //   createTable();
-  //   const numUsers = count();
-  //   expect(numUsers).toBe(0);
-  //   const response = createTable();
-  //   expect(response.status).toBe('SUCCESS');
-  //   db.close();
-  // });
-  // it('should not be able to find any matches in an empty Match Table', () => {
-  //   const dbPath = path.join(__dirname, DB_FILE_NAME);
-  //   const db = new sqlite(dbPath);
-  //   expect(db).toBeDefined();
-  //   const { count, find } = initMatchModel(db);
-  //   expect(count()).toBe(0);
-  //   const { payload: matchesUser1, status, message } = find(1);
-  //   expect(message).not.toBeDefined();
-  //   expect(status).toBe('SUCCESS');
-  //   expect(matchesUser1).toEqual([]);
-  // });
-  // it('should not recreate table if a table has been created already', () => {
-  //   const dbPath = path.join(__dirname, DB_FILE_NAME);
-  //   const db = new sqlite(dbPath);
-  //   expect(db).toBeDefined();
-  //   const { add, count, createTable } = initMatchModel(db);
-  //   expect(count()).toBe(0);
-  //   add(1, 2);
-  //   expect(count()).toBe(1);
-  //   createTable();
-  //   // expect(count()).toBe(1);
-  // });
+  it('should be able to create an empty table', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { createTable, count } = initMatchModel(db);
+    createTable();
+    const numUsers = count();
+    expect(numUsers).toBe(0);
+    const response = createTable();
+    expect(response.status).toBe('SUCCESS');
+    db.close();
+  });
+
+  it('should not be able to find any matches in an empty Match Table', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+    const { find } = initMatchModel(db);
+    const { payload: matchesUser1, status, message } = find(1);
+    expect(message).not.toBeDefined();
+    expect(status).toBe('SUCCESS');
+    expect(matchesUser1).toEqual([]);
+  });
+
+  it('should be able to create a new match', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { add, count, createTable } = initMatchModel(db);
+    expect(count()).toBe(0);
+    const { status } = add({
+      user_1_id: 1,
+      user_2_id: 2
+    });
+    expect(status).toBe('SUCCESS');
+
+    expect(count()).toBe(1);
+  });
+
+  it('should be able to create a multiple matches of same users', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { add, count, createTable } = initMatchModel(db);
+    expect(count()).toBe(0);
+    const { status: status1 } = add({
+      user_1_id: 1,
+      user_2_id: 2,
+      date: '2019-01-31'
+    });
+    expect(status1).toBe('SUCCESS');
+
+    const { status: status2 } = add({
+      user_1_id: 1,
+      user_2_id: 2,
+      date: '2019-02-31'
+    });
+
+    expect(status2).toBe('SUCCESS');
+
+    expect(count()).toBe(2);
+  });
+
   // // === INSERT queries ===
   // it('should be able to add a single match to the Match table', () => {
-  //   const dbPath = path.join(__dirname, DB_FILE_NAME);
-  //   const db = new sqlite(dbPath);
-  //   expect(db).toBeDefined();
+  //   const db = new sqlite(DB_PATH, { fileMustExist: true });
+  //   expect(db.open).toBe(true);
+
   //   const { add, count, find } = initMatchModel(db);
   //   expect(count()).toBe(0);
   //   const { payload: matchesUser1, status, message } = find(1);
@@ -239,3 +235,19 @@ describe('User Model test', () => {
 // // check that there are no more records
 // const { count } = initMatchModel(db);
 // expect(count()).toBe(0);
+// helper function to create User table
+function createUserTable(db: sqlite) {
+  const { createTable, add } = initUserModel(db);
+  createTable();
+
+  const userMap = {};
+  usersToAdd.forEach(user => {
+    const { status, payload } = add(user);
+    if (status === 'FAILURE') {
+      throw new Error('Error adding users from initUserTable()');
+    }
+    userMap[payload.lastInsertROWID] = user;
+  });
+
+  return Object.freeze(userMap);
+}

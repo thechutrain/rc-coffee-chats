@@ -26,6 +26,7 @@ beforeAll(() => {
   // create User table
   const { createTable, count } = initUserModel(db);
   const { status, message } = createTable();
+  expect(count()).toBe(0);
   expect(message).toBeUndefined();
   expect(status).toBe('SUCCESS');
 
@@ -62,6 +63,7 @@ describe('User Model test', () => {
     expect(response.status).toBe('SUCCESS');
     db.close();
   });
+
   it('should be able to add a single user to the User table', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);

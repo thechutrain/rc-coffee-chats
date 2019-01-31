@@ -3,12 +3,17 @@ import { ISqlResponse, ISqlError } from '../db';
 
 const TABLE_NAME = 'Match';
 
+interface IAddMatchArgs {
+  user_1_id: number;
+  user_2_id: number;
+  date?: string;
+}
 interface IMatchModel {
   createTable: () => ISqlResponse;
   cleanTable?: () => ISqlResponse; // TODO: remove this? allow only for testing?
   count: () => ISqlError | number;
   find: any;
-  add: any;
+  add: (opts: IAddMatchArgs) => ISqlResponse;
 }
 
 export function initMatchModel(db: sqlite): IMatchModel {
@@ -16,16 +21,23 @@ export function initMatchModel(db: sqlite): IMatchModel {
   // createTable();
 
   function createTable(): ISqlResponse {
-    const query = `CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
+    const query = `CREATE TABLE IF NOT EXISTS Match (
       match_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       user_1_id INTEGER NOT NULL,
       user_2_id INTEGER NOT NULL,
-      date TEXT NOT NULL
+      date TEXT NOT NULL,
       FOREIGN KEY (user_1_id) REFERENCES User (user_id)
-        ON DELETE CASCADE ON UPDATE NO ACTION,
-      FOREIGN KEY (user_2_id) REFERENCES User (user_id)
-        ON DELETE CASCADE ON UPDATE NO ACTION
+      ON DELETE CASCADE ON UPDATE NO ACTION,
+    FOREIGN KEY (user_2_id) REFERENCES User (user_id)
+      ON DELETE CASCADE ON UPDATE NO ACTION
     )`;
+
+    // const query = `CREATE TABLE IF NOT EXISTS Match (
+    //   match_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+    //   user_1_id INTEGER NOT NULL references User(user_id),
+    //   user_2_id INTEGER NOT NULL references User(user_id),
+    //   date TEXT NOT NULL
+    // )`;
 
     try {
       db.exec(query);
@@ -46,18 +58,17 @@ export function initMatchModel(db: sqlite): IMatchModel {
   }
 
   function count(): number {
-    let numRecords;
+    // let numRecords;
 
-    const getAllTables = db.prepare(
-      `select name from sqlite_master where type='table'`
-    );
+    // const getAllTables = db.prepare(
+    //   `select name from sqlite_master where type='table'`
+    // );
 
-    const tables = getAllTables.all();
+    // const tables = getAllTables.all();
 
     const stmt = db.prepare(`SELECT COUNT(match_id) FROM Match`);
-    numRecords = stmt.run();
-
-    return numRecords;
+    const { 'COUNT(match_id)': numRecord } = stmt.get();
+    return numRecord;
   }
 
   // TODO: (LATER) add flexiblity to find targetUser via email
@@ -85,32 +96,29 @@ export function initMatchModel(db: sqlite): IMatchModel {
     };
   }
 
-  // required user_id 1&2, date as option?
-  interface IAddMatchArgs {
-    user_1_id: number;
-    user_2_id: number;
-    date?: string;
-  }
-  function addMatch(matchArgs: IAddMatchArgs) {
+  function addMatch(matchArgs: IAddMatchArgs): ISqlResponse {
+    // const insertQuery = db.prepare(`
+    // INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, @date)`);
+
     const insertQuery = db.prepare(`
-    INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, date)`);
+    INSERT INTO Match (user_1_id, user_2_id, date) VALUES (?, ?, ?)`);
 
     let newMatch;
     // TODO: validate that date is in the right format
-    const recordVals = {
-      user_1_id: matchArgs.user_1_id,
-      user_2_id: matchArgs.user_2_id,
-      date: matchArgs.date || new Date().toISOString().split('T')[0]
-    };
+    const { user_1_id, user_2_id } = matchArgs;
+    const date = matchArgs.date || new Date().toISOString().split('T')[0];
 
     try {
-      newMatch = insertQuery.run(recordVals);
+      // newMatch = insertQuery.run(recordVals);
+      // newMatch = insertQuery.run(user_1_id, user_2_id, date);
+      newMatch = insertQuery.run(1, user_2_id, 'today');
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
+
     return {
       status: 'SUCCESS',
-      payload: newMatch
+      payload: newMatch // {changes: 1, lastInsertROWID: 1}
     };
   }
 

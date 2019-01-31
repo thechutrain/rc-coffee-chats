@@ -75,8 +75,12 @@ export function initUserModel(db: sqlite): IUserTableMethods {
   }
 
   function count(): number {
-    const stmt = db.prepare('SELECT * FROM User');
-    return stmt.all().length;
+    const countQuery = db.prepare(`SELECT COUNT(user_id) FROM User`);
+
+    const { 'COUNT(user_id)': numRecord } = countQuery.get();
+    return numRecord;
+    // const stmt = db.prepare('SELECT * FROM User');
+    // return stmt.all().length;
   }
 
   function findUserByEmail(email: string): IUserSqlResponse {
