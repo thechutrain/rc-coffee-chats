@@ -1,11 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import path from 'path';
+// import path from 'path';
 import logger from './logger';
-import { BOT_COMMANDS, MESSAGES, oddNumberBackupUsers } from './constants';
-import { initZulipAPI, IZulipUser } from './zulip-interface/zulipMessenger';
-import { isExceptionDay } from './utils';
-import { shuffle } from 'lodash';
+// import { initZulipAPI, IZulipUser } from './zulip-interface/zulipMessenger';
 
 const PORT = process.env.PORT || 3000;
 
