@@ -6,6 +6,15 @@ import logger from './logger';
 
 const PORT = process.env.PORT || 3000;
 
+import { createDbClient } from './db';
+const client = createDbClient();
+
+client.query('SELECT NOW()', (err, res) => {
+  console.log(err, res);
+  client.end();
+});
+
+//  ====================
 const app = express();
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -15,6 +24,12 @@ app.use(express.static('public'));
 app.get('/', (request, response) => {
   logger.info('this is a test log from the / route');
   response.send('Hi');
+});
+
+app.get('/create-user-table', (request, response) => {});
+
+app.get('/make-user', (request, response) => {
+  const age = Math.floor(Math.random() * 40) + 18;
 });
 
 app.post('/cron/run', (request, response) => {
