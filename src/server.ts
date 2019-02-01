@@ -6,14 +6,6 @@ import logger from './logger';
 
 const PORT = process.env.PORT || 3000;
 
-import { createDbClient } from './db';
-const client = createDbClient();
-
-client.query('SELECT NOW()', (err, res) => {
-  console.log(err, res);
-  client.end();
-});
-
 //  ====================
 const app = express();
 app.use(bodyParser.json());
@@ -26,7 +18,10 @@ app.get('/', (request, response) => {
   response.send('Hi');
 });
 
-app.get('/create-user-table', (request, response) => {});
+app.get('/test', (request, response) => {
+  logger.info('received /test endpoint');
+  response.send('test');
+});
 
 app.get('/make-user', (request, response) => {
   const age = Math.floor(Math.random() * 40) + 18;
