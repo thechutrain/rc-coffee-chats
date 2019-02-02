@@ -4,8 +4,8 @@
   "description": "A simple Node app with SQLite as a database management system, instantly up and running.",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon",
-    "start": "ts-node src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "start": "cross-env NODE_ENV=production ts-node src/server.ts",
     "format": "prettier --write \"./**/*.{ts,js,json,md}\"",
     "tsc": "npm run clean && tsc",
     "tslint": "tslint --format stylish --project tsconfig.json",

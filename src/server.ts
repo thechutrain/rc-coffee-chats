@@ -6,6 +6,17 @@ import logger from './logger';
 
 const PORT = process.env.PORT || 3000;
 
+/////////////////
+/// Database
+/////////////////
+import { initDB } from './db/db';
+const DB_FILE_NAME =
+  process.env.NODE_ENV === 'production' ? 'prod.db' : 'dev.db';
+console.log(DB_FILE_NAME);
+const { user } = initDB(DB_FILE_NAME);
+
+user.createTable();
+
 //  ====================
 const app = express();
 app.use(bodyParser.json());
@@ -18,9 +29,20 @@ app.get('/', (request, response) => {
   response.send('Hi');
 });
 
-app.get('/test', (request, response) => {
-  logger.info('received /test endpoint');
-  response.send('test');
+app.get('/user/add/:name', (request, response) => {
+  logger.info('received /user/add/:name');
+  const { status } = user.add({
+    email: `${request.params.name}`,
+    full_name: 'test name'
+  });
+  response.send(status);
+});
+
+app.get('/user/find/:name', (request, response) => {
+  logger.info('received /user/find');
+  console.log(request.params.name);
+  const { payload } = user.find(`${request.params.name}`);
+  response.json(payload);
 });
 
 app.get('/make-user', (request, response) => {

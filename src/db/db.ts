@@ -27,7 +27,8 @@ interface IDBMethods {
 export function initDB(dbFile: string): IDBMethods {
   // NOTE: Should all only reading a new db?
   // Should I make it more strict to create vs connect db?
-  const dataDir = path.join(__dirname, '../../', '.data/');
+  const dataDir = path.join(__dirname, '../../', 'data/');
+
   const fullDbPath = path.join(dataDir, dbFile);
   const dbExists = fs.existsSync(fullDbPath);
 
@@ -54,26 +55,26 @@ export function initDB(dbFile: string): IDBMethods {
 // =========== queries =========
 
 // == UserMatch table ==
-function initCreateMatchTable(db: sqlite): () => ISqlResponse {
-  return () => {
-    const createMatchTableSql = db.prepare(`CREATE TABLE IF NOT EXISTS UserMatch (
-      match_id INTEGER NOT NULL UNIQUE,
-      user_1 INTEGER NOT NULL,
-      user_2 INTEGER NOT NULL,
-      date TEXT,
-      rain_checked INTEGER DEFAULT 0,
-      PRIMARY KEY (match_id),
-      FOREIGN KEY (user_1) REFERENCES User (user_id),
-      FOREIGN KEY (user_2) REFERENCES User (user_id)
-    )`);
-    try {
-      createMatchTableSql.run();
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
-  };
-}
+// function initCreateMatchTable(db: sqlite): () => ISqlResponse {
+//   return () => {
+//     const createMatchTableSql = db.prepare(`CREATE TABLE IF NOT EXISTS UserMatch (
+//       match_id INTEGER NOT NULL UNIQUE,
+//       user_1 INTEGER NOT NULL,
+//       user_2 INTEGER NOT NULL,
+//       date TEXT,
+//       rain_checked INTEGER DEFAULT 0,
+//       PRIMARY KEY (match_id),
+//       FOREIGN KEY (user_1) REFERENCES User (user_id),
+//       FOREIGN KEY (user_2) REFERENCES User (user_id)
+//     )`);
+//     try {
+//       createMatchTableSql.run();
+//     } catch (e) {
+//       return { status: 'FAILURE', message: e };
+//     }
+//     return { status: 'SUCCESS' };
+//   };
+// }
 
 // Close DB connection
 function initCloseDb(db): () => ISqlResponse {
