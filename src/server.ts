@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 // import path from 'path';
 import logger from './logger';
-// import { initZulipAPI, IZulipUser } from './zulip-interface/zulipMessenger';
+import { parseZulipServerRequest } from './zulip_coms/zulipCli';
 
 const PORT = process.env.PORT || 3000;
 
@@ -65,11 +65,14 @@ app.post('/cron/run', (request, response) => {
 //   }
 //   response.status(200).json({ status: 'ok' });
 // });
-app.post('/webhooks/zulip', (request, response) => {
-  const requestBody = request.body;
-  const userMessage = request.body.data;
-  console.log(request.body.data);
-  response.end('hit the webhooks zulip route');
+app.post('/webhooks/zulip', (req, res) => {
+  // const requestBody = request.body;
+  // const userMessage = request.body.data;
+  console.log(req.body);
+  const cliAction = parseZulipServerRequest(req.body);
+  console.log('action --->');
+  console.log(cliAction);
+  res.json(cliAction);
 });
 // Handle messages received from Zulip outgoing webhooks
 // (when users @mention the coffee bot)

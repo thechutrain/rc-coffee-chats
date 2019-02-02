@@ -18,9 +18,18 @@ export function parseZulipServerRequest(
   const {
     message: { content }
   } = zulipRequest;
+  const trimmedContent = content.replace(/^\s+|\s+$/g, '');
 
-  // NOTE: do I need to trim the white space??
-  const cliArgumentsArray = content.split(' ').map(word => word.toUpperCase());
+  const cliArgumentsArray = trimmedContent
+    .split(/[\s]+/)
+    .map(word => word.toUpperCase());
+
+  // Case of no content: --> send the default help
+  if (!cliArgumentsArray.length) {
+    return {
+      directive: directives.HELP
+    };
+  }
 
   ///////////////////////////
   // Validate Directive
@@ -34,6 +43,11 @@ export function parseZulipServerRequest(
       message: `Cli parsing Error: first word must be a valid directive.
       Directive Received: ${directive}`
     };
+  } else if (directive === directives.HELP && cliArgumentsArray.length === 1) {
+    // Generic Help case: args --> HELP
+    return {
+      directive: directives.HELP
+    };
   }
 
   ///////////////////////////
@@ -41,7 +55,7 @@ export function parseZulipServerRequest(
   ///////////////////////////
   const subCommand = cliArgumentsArray[1];
   const validSubCmd = Util.valueExistsInEnum(subCommand, subCommands);
-  if (!validDirective) {
+  if (!validSubCmd) {
     return {
       status: 'ERROR',
       errorType: 'NO VALID SUBCOMMAND',
@@ -56,51 +70,6 @@ export function parseZulipServerRequest(
     payload: cliArgumentsArray.slice(2)
   };
 }
-
-// export function parseZulipServerRequest(
-//   zulipRequest: IZulipRequest
-// ): ICliAction | ICliError {
-//   const {
-//     message: { content }
-//   } = zulipRequest;
-//   const cliArgumentsArray = content.split(' ');
-
-//   // Get first argument of requestbody, default to the help command if no arguments passed
-//   const strCommand =
-//     cliArgumentsArray.length > 0 ? cliArgumentsArray[0].toUpperCase() : '';
-
-//   const payload = {};
-
-//   for (let f = 1, d = 2; d < cliArgumentsArray.length; f += 2, d += 2) {
-//     const cliFlag = cliArgumentsArray[f].toUpperCase();
-//     const cliFlagData = cliArgumentsArray[d]; // does it make sense to make this caps too?
-
-//     // Check that odd indicies should be flags (must begin with --); 0 index is the CliCommand
-//     if (!cliFlag.startsWith('--')) {
-//       throw new Error(
-//         `Should have received a flag, but received "${cliFlag}" instead`
-//       );
-//     }
-
-//     if (cliFlagData.startsWith('--')) {
-//       throw new Error(
-//         `Non-flag arguments cannot begin with "--", received "${cliFlagData}"`
-//       );
-//     }
-
-//     payload[cliFlag] = cliFlagData;
-//   }
-
-//   // FEATURE:  fuzzy search feature, did you mean this COMMAND?
-//   const command = (Object as any).values(cliCommands).includes(strCommand)
-//     ? cliCommands[strCommand]
-//     : cliCommands.HELP;
-
-//   return {
-//     command,
-//     payload
-//   };
-// }
 
 // export function dispatchActionFromZulipCli(cliDirective: ICliDirective) {
 //   const { command, payload } = cliDirective;

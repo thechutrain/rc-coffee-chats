@@ -21,7 +21,7 @@ describe('should be able to parse various zulip requests', () => {
     expect(parsedDirective).toMatchObject(expected);
   });
 
-  it('should be abe to get the DIRECTIVE', () => {
+  it('should return an error if only DIRECTIVE', () => {
     const fakeZulipRequest = {
       message: {
         type: 'private',
@@ -35,6 +35,65 @@ describe('should be able to parse various zulip requests', () => {
     const expected = {
       status: 'ERROR',
       errorType: 'NO VALID SUBCOMMAND'
+    };
+
+    expect(parsedDirective).toMatchObject(expected);
+  });
+
+  it('should be valid with DIRECTIVE && SUBCMD', () => {
+    const fakeZulipRequest = {
+      message: {
+        type: 'private',
+        sender_email: 'ac@gmail.com',
+        sender_short_name: 'alancodes',
+        sender_full_name: "Alan Chu (W1'18)",
+        content: `${directives.CHANGE} ${subCommands.DAYS}`
+      }
+    };
+    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    const expected = {
+      directive: directives.CHANGE,
+      subCommand: subCommands.DAYS
+    };
+
+    expect(parsedDirective).toMatchObject(expected);
+  });
+
+  it('should be valid with DIRECTIVE && SUBCMD with weird spacing', () => {
+    // NOTE: does not handle issue with multiple spaces between words!!!
+    const fakeZulipRequest = {
+      message: {
+        type: 'private',
+        sender_email: 'ac@gmail.com',
+        sender_short_name: 'alancodes',
+        sender_full_name: "Alan Chu (W1'18)",
+        content: `  ${directives.CHANGE}      ${subCommands.DAYS}  `
+      }
+    };
+    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    const expected = {
+      directive: directives.CHANGE,
+      subCommand: subCommands.DAYS
+    };
+
+    expect(parsedDirective).toMatchObject(expected);
+  });
+
+  it('should be able to get a Directive, SubCmd, Args', () => {
+    const fakeZulipRequest = {
+      message: {
+        type: 'private',
+        sender_email: 'ac@gmail.com',
+        sender_short_name: 'alancodes',
+        sender_full_name: "Alan Chu (W1'18)",
+        content: `  ${directives.CHANGE}   ${subCommands.DAYS} a b `
+      }
+    };
+    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    const expected = {
+      directive: directives.CHANGE,
+      subCommand: subCommands.DAYS,
+      payload: ['A', 'B']
     };
 
     expect(parsedDirective).toMatchObject(expected);

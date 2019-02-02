@@ -24,8 +24,8 @@ export interface IZulipRequest {
 ////////////////////////
 export interface ICliAction {
   directive: directives;
-  subCommand: subCommands;
-  payload: string[]; // allow flexibility with payload if no flags passed?
+  subCommand?: subCommands;
+  payload?: string[]; // allow flexibility with payload if no flags passed?
 }
 
 // NOTE: string enums are not reverse mapped
