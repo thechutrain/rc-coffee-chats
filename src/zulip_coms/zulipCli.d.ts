@@ -27,4 +27,11 @@
  * - skip [option true/false]
  */
 
+/**
+ * directive: CHANGE | STATUS | HELP
+ * subcommand: DAYS | MATCH | SKIP
+ * cmd arguments: strings, true or false
+ */
 export enum CliCommand {}
+
+declare interface ICliCommand {}

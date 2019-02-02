@@ -1,5 +1,10 @@
+/**
+ * This module is responsible for sending messages to end user
+ * sent from our server --> bot/zulip server
+ */
+
 import * as zulip from 'zulip-js';
-import { STREAM_ID } from './constants';
+// import { STREAM_ID } from './constants';
 
 interface IZulipConfig {
   ZULIP_USERNAME?: string;
