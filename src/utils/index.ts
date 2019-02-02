@@ -1,5 +1,14 @@
 import { EXCEPTION_DATES, WEEKDAYS } from '../constants';
 
+export class Util {
+  // public static existValueInEnum(type: any, val: any): boolean {
+  //   return Object.keys(type).filter(k => type[k] === val).length > 0;
+  // }
+  public static valueExistsInEnum(val: any, type: any): boolean {
+    return Object.keys(type).filter(k => type[k] === val).length > 0;
+  }
+}
+
 export function castBoolInt(boolVal): 0 | 1 {
   return boolVal ? 1 : 0;
 }

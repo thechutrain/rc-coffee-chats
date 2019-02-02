@@ -66,6 +66,7 @@ app.post('/cron/run', (request, response) => {
 //   response.status(200).json({ status: 'ok' });
 // });
 app.post('/webhooks/zulip', (request, response) => {
+  const requestBody = request.body;
   const userMessage = request.body.data;
   console.log(request.body.data);
   response.end('hit the webhooks zulip route');
