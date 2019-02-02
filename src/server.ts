@@ -65,7 +65,11 @@ app.post('/cron/run', (request, response) => {
 //   }
 //   response.status(200).json({ status: 'ok' });
 // });
-
+app.post('/webhooks/zulip', (request, response) => {
+  const userMessage = request.body.data;
+  console.log(request.body.data);
+  response.end('hit the webhooks zulip route');
+});
 // Handle messages received from Zulip outgoing webhooks
 // (when users @mention the coffee bot)
 // app.post('/webhooks/zulip', (request, response) => {
