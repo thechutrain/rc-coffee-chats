@@ -1,10 +1,12 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-// import path from 'path';
 import logger from './logger';
+import * as dotenv from 'dotenv-safe';
+dotenv.config();
+
 import { initDB } from './db/db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
-import { initZulipMessenger } from './zulip_coms/sendMessage';
+import { sendMessage } from './zulip_coms/sendMessage';
 import { directives } from './zulip_coms/interface';
 
 (async () => {
@@ -23,7 +25,6 @@ import { directives } from './zulip_coms/interface';
   /////////////////
   /// Zulip COMS
   /////////////////
-  const { sendMessage } = initZulipMessenger();
 
   /////////////////
   /// Server
@@ -33,7 +34,25 @@ import { directives } from './zulip_coms/interface';
 
   app.get('/', (request, response) => {
     logger.info('this is a test log from the / route');
-    response.send('Hi');
+    sendMessage('alancodes@gmail.com', 'test message').catch(e => {
+      console.log(e);
+    });
+    response.json({ sent: true });
+    // .then(result => {
+    //   response.json(result);
+    // })
+    // .catch(err => {
+    //   response.json(err);
+    // });
+  });
+
+  app.post('/', (request, response) => {
+    console.log('POST REQUEST @ /');
+    console.log('headers ....');
+    console.log(request.header);
+    console.log('body ....');
+    console.log(request.body);
+    response.send('ok received!');
   });
 
   // Handle messages received from Zulip outgoing webhooks
@@ -48,7 +67,7 @@ import { directives } from './zulip_coms/interface';
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
-      sendMessage(senderEmail, e.message);
+      // sendMessage(senderEmail, e.message);
       return res.json({});
     }
 
