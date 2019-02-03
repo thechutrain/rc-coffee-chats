@@ -5,77 +5,32 @@
 
 import axios from 'axios';
 
-export function sendMessage(toEmail: string, messageContent: string) {
-  // const dataString = `type=private\nto=alancodes@gmail.com\ncontent=hellothere`;
-  const data = {
+export function sendMessage(
+  toEmail: string | string[],
+  messageContent: string
+) {
+  // example: link See [${matchedName.split(" ")[0]}'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(matchedName)})
+  // const testMessage = `Hi you're @**Alan Chu (W1\'18)** my name is *coffee-bot*`;
+  const rawData = {
     type: 'private',
-    to: 'alancodes@gmail.com',
-    content: 'sending message via axios'
+    to: toEmail instanceof Array ? toEmail.join(', ') : toEmail,
+    content: encodeURIComponent(messageContent)
   };
 
-  const baseURL = 'https://recurse.zulipchat.com/api/v1/messages';
+  const dataAsQueryParams = Object.keys(rawData)
+    .map(key => `${key}=${rawData[key]}`)
+    .join('&');
 
   return axios({
     method: 'post',
-    baseURL,
+    baseURL: process.env.ZULIP_URL_ENDPOINT,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     auth: {
-      username: process.env.ZULIP_USERNAME,
-      password: process.env.ZULIP_API_KEY
+      username: process.env.ZULIP_BOT_USERNAME,
+      password: process.env.ZULIP_BOT_API_KEY
     },
-    data,
-    transformRequest: [
-      defaultData => {
-        const dataQueryString = Object.keys(data)
-          .map(key => `${key}=${defaultData.key}`)
-          .join('&');
-        return dataQueryString;
-      }
-    ]
+    data: dataAsQueryParams
   });
 }
-
-// export function sendMessage(
-//   toEmail: string | string[],
-//   messageContent: string
-// ) {
-//   const postBodyData = {
-//     type: 'private',
-//     // to: toEmail instanceof Array ? toEmail.join() : toEmail,
-//     to: 'alancodes@gmail.com',
-//     content: 'da faque' // Note: need to url encode?
-//   };
-
-//   // TODO: process the data here:
-//   console.log(postBodyData);
-
-//   // const url = 'https://recurse.zulipchat.com/api/v1/messages';
-//   console.log(process.env.ZULIP_URL_ENDPOINT);
-
-//   return axios({
-//     method: 'post',
-//     baseURL: process.env.ZULIP_URL_ENDPOINT, // NOTE: includes api/v1/messages
-//     // baseURL: url,
-//     headers: {
-//       'Content-Type': 'application/x-www-form-urlencoded'
-//     },
-//     auth: {
-//       username: process.env.ZULIP_USERNAME,
-//       password: process.env.ZULIP_API_KEY
-//     },
-//     data: postBodyData,
-//     // NOTE: need to process data, to make it analogous to the curl -d
-//     transformRequest: [
-//       rawData => {
-//         const dataQueryString = Object.keys(rawData)
-//           .map(key => `${key}=${rawData[key]}`)
-//           .join('&');
-//         console.log(dataQueryString);
-
-//         return dataQueryString;
-//       }
-//     ]
-//   });
-// }

@@ -12,7 +12,7 @@ export interface IZulipRequest {
     type: string; // 'private'
     sender_email: string; //
     sender_short_name: string; // 'alancodes'
-    sender_full_name: string; // 'Alan Chu (W1\'18)',
+    sender_full_name: string; // 'Alan Chu (W1\'18)', NOTE: important for @ tagging
     // rendered_content: string, // '<p>hi my name is alan</p>'
     content: string; // 'hi my name is alan' || 'hi it\'s I the code alan'
   };

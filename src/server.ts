@@ -9,6 +9,8 @@ import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage } from './zulip_coms/sendMessage';
 import { directives } from './zulip_coms/interface';
 
+// TODO: pass in env vars into the IFFE?
+
 (async () => {
   const PORT = process.env.PORT || 3000;
 
@@ -20,11 +22,7 @@ import { directives } from './zulip_coms/interface';
   console.log(DB_FILE_NAME);
   const { user } = initDB(DB_FILE_NAME);
 
-  user.createTable();
-
-  /////////////////
-  /// Zulip COMS
-  /////////////////
+  // user.createTable();
 
   /////////////////
   /// Server
@@ -32,37 +30,43 @@ import { directives } from './zulip_coms/interface';
   const app = express();
   // app.use(bodyParser.json());
 
-  app.get('/', (request, response) => {
+  // ==== TESTING ====
+  app.get('/', async (request, response) => {
     logger.info('this is a test log from the / route');
-    sendMessage('alancodes@gmail.com', 'test message').catch(e => {
-      // ERROR OBJECT: of e.response.data
-      // { code: 'BAD_REQUEST',
-      // msg: 'Invalid email \'lancodes@gmail.com\'',
-      // result: 'error' }
-      console.log(e.response.data);
-      // console.log(e);
-    });
-    response.json({ sent: true });
-    // .then(result => {
-    //   response.json(result);
-    // })
-    // .catch(err => {
-    //   response.json(err);
-    // });
+    const zulipMsg = await sendMessage(
+      ['alancodes@gmail.com'],
+      'test message from my local server'
+    )
+      .then(result => {
+        console.log(result);
+        return { error: false };
+      })
+      .catch(e => {
+        // ERROR OBJECT: of e.response.data
+        // { code: 'BAD_REQUEST',
+        // msg: 'Invalid email \'lancodes@gmail.com\'',
+        // result: 'error' }
+        console.log(e.response.data);
+        return { error: true };
+        // console.log(e);
+      });
+
+    response.json(zulipMsg);
   });
 
-  app.post(
-    '/',
-    bodyParser.urlencoded({ extended: true }),
-    (request, response) => {
-      console.log('POST REQUEST @ /');
-      console.log('headers ....');
-      console.log(request.headers);
-      console.log('body ....');
-      console.log(request.body);
-      response.send('ok received!');
-    }
-  );
+  // ====== USED FOR TESTING =========
+  // app.post(
+  //   '/',
+  //   bodyParser.urlencoded({ extended: true }),
+  //   (request, response) => {
+  //     console.log('POST REQUEST @ /');
+  //     console.log('headers ....');
+  //     console.log(request.headers);
+  //     console.log('body ....');
+  //     console.log(request.body);
+  //     response.send('ok received!');
+  //   }
+  // );
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', (req, res) => {
