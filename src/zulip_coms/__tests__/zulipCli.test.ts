@@ -1,43 +1,109 @@
 import { parseZulipServerRequest } from '../zulipCli';
 import { directives, subCommands } from '../interface';
 
+const sender_email = 'test@gmail.com';
+
 describe('should be able to parse various zulip requests', () => {
   it('should return an error with empty content', () => {
     const fakeZulipRequest = {
       message: {
         type: 'private',
-        sender_email: 'ac@gmail.com',
+        sender_email,
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
         content: ''
       }
     };
 
-    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
-    const expected = {
-      status: 'ERROR',
-      errorType: 'NO VALID DIRECTIVE'
-    };
-    expect(parsedDirective).toMatchObject(expected);
+    let parsedDirective = null;
+    let error = null;
+    try {
+      parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeNull();
+    expect(parsedDirective).toMatchObject({
+      directive: directives.HELP
+    });
   });
 
-  it('should return an error if only DIRECTIVE', () => {
+  it('should return HELP action if thats the only DIRECTIVE', () => {
     const fakeZulipRequest = {
       message: {
         type: 'private',
         sender_email: 'ac@gmail.com',
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: `${directives.CHANGE}`
+        content: `${directives.HELP}`
       }
     };
-    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
-    const expected = {
-      status: 'ERROR',
-      errorType: 'NO VALID SUBCOMMAND'
-    };
 
-    expect(parsedDirective).toMatchObject(expected);
+    let parsedDirective = null;
+    let error = null;
+    try {
+      parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeNull();
+    expect(parsedDirective).toMatchObject({
+      directive: directives.HELP
+    });
+  });
+
+  it('should return an error if given a non-valid DIRECTIVE', () => {
+    const fakeZulipRequest = {
+      message: {
+        type: 'private',
+        sender_email,
+        sender_short_name: 'alancodes',
+        sender_full_name: "Alan Chu (W1'18)",
+        content: `NOT_VALID_DIRECTIVE`
+      }
+    };
+    let parsedDirective = null;
+    let error = null;
+    try {
+      parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toHaveProperty('errorType');
+    expect(error).toMatchObject({
+      senderEmail: sender_email,
+      errorType: 'NOT A VALID DIRECTIVE'
+    });
+    expect(parsedDirective).toBeNull();
+  });
+
+  it('should return an error if give a NON valid SUBCOMMAND', () => {
+    const fakeZulipRequest = {
+      message: {
+        type: 'private',
+        sender_email,
+        sender_short_name: 'alancodes',
+        sender_full_name: "Alan Chu (W1'18)",
+        content: `${directives.CHANGE} NOT_VAL_SUB_CMD`
+      }
+    };
+    let parsedDirective = null;
+    let error = null;
+    try {
+      parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toHaveProperty('errorType');
+    expect(error).toMatchObject({
+      senderEmail: sender_email,
+      errorType: 'NOT A VALID SUBCOMMAND'
+    });
+    expect(parsedDirective).toBeNull();
   });
 
   it('should be valid with DIRECTIVE && SUBCMD', () => {
@@ -50,13 +116,21 @@ describe('should be able to parse various zulip requests', () => {
         content: `${directives.CHANGE} ${subCommands.DAYS}`
       }
     };
-    const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    let parsedDirective = null;
+    let error = null;
+    try {
+      parsedDirective = parseZulipServerRequest(fakeZulipRequest);
+    } catch (e) {
+      error = e;
+    }
+
     const expected = {
       directive: directives.CHANGE,
       subCommand: subCommands.DAYS
     };
 
     expect(parsedDirective).toMatchObject(expected);
+    expect(error).toBeNull();
   });
 
   it('should be valid with DIRECTIVE && SUBCMD with weird spacing', () => {
