@@ -3,10 +3,21 @@
 > Zulip bot that pairs Recursers for coffee chats
 
 ## Introduction
+- Get matched
+- Get Coffee
+- Get Chatty
 
-Coffee Chats are a great way to get matched with someone else at RC to chat about what you'll be doing at RC or what you're doing in life
 
-## TODO
+#### Getting Your Developement Environment Setup
+- `npm i` after cloning the repository to you machine.
+- `mv .templateenv .env` and add all env keys. Chat with a maintainer.
+
+#### Getting The Development Server Running
+- Get a PostGres db running.  If you're using a mac: (Posgres for mac)[https://www.postgresql.org/download/macosx/] and (Postico)[https://eggerapps.at/postico/] are great free tools to interact with PostGres.
+- 
+
+
+## Product Road Map
 
 #### Prep
 
@@ -17,8 +28,8 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
   - [x] setup compiler
   - [x] set up tslint
 - [x] set up jest
-- [ ] Code reorganization: spliting into db, matching algorithm, server/router
-- [ ] Test deploy to now zeit
+- [ ] Code reorganization: splitting into db, matching algorithm, server/router
+- [ ] Test deploy to now Zeit
 - [ ] Design database schema (archive users)
 
 #### RC Hackathon
@@ -39,7 +50,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 
 - [ ] Revisit Matching Algorithm?
 
-  - [ ] don't pair facilitors with each other
+  - [ ] don't pair facilitators with each other
   - [ ] pairing new recursers with continuing recursers (first two weeks?)
   - [ ] allow users to set matching criteria (May be counter to coffee chat intention)
   - [ ] Date handling (use moment.js, date-fns? )
@@ -48,7 +59,7 @@ Coffee Chats are a great way to get matched with someone else at RC to chat abou
 
   - [ ] getting recent logs, if it ran today, will run tomorrow
   - [ ] checking holidays, toggling on and off
-  - [ ] change who the odd match facilitor is
+  - [ ] change who the odd match facilitator is
 
 - [ ] raincheck feature (if you get paired, but don't meet up, remove the matched record so they can be paired later)
 
