@@ -30,7 +30,7 @@ import { directives } from './zulip_coms/interface';
   /// Server
   /////////////////
   const app = express();
-  app.use(bodyParser.json());
+  // app.use(bodyParser.json());
 
   app.get('/', (request, response) => {
     logger.info('this is a test log from the / route');
@@ -46,14 +46,18 @@ import { directives } from './zulip_coms/interface';
     // });
   });
 
-  app.post('/', (request, response) => {
-    console.log('POST REQUEST @ /');
-    console.log('headers ....');
-    console.log(request.header);
-    console.log('body ....');
-    console.log(request.body);
-    response.send('ok received!');
-  });
+  app.post(
+    '/',
+    bodyParser.urlencoded({ extended: true }),
+    (request, response) => {
+      console.log('POST REQUEST @ /');
+      console.log('headers ....');
+      console.log(request.headers);
+      console.log('body ....');
+      console.log(request.body);
+      response.send('ok received!');
+    }
+  );
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', (req, res) => {
