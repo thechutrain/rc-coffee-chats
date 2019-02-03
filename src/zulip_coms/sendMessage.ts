@@ -3,82 +3,79 @@
  * sent from our server --> bot/zulip server
  */
 
-// import * as zulip from 'zulip-js';
-const zulip = require('zulip-js');
-import { IZulipConfig } from './interface';
 import axios from 'axios';
 
 export function sendMessage(toEmail: string, messageContent: string) {
-  const dataString = `type=private\nto=alancodes@gmail.com\ncontent=hellothere`;
-  const prevData = {
+  // const dataString = `type=private\nto=alancodes@gmail.com\ncontent=hellothere`;
+  const data = {
     type: 'private',
     to: 'alancodes@gmail.com',
     content: 'sending message via axios'
   };
 
-  // Version 1
-  // return axios({
-  //   method: 'post',
-  //   baseURL: 'https://recurse.zulipchat.com/api/v1/messages',
-  //   headers: {
-  //     'Content-Type': 'application/json'
-  //   },
-  //   auth: {
-  //     username: process.env.ZULIP_USERNAME,
-  //     password: process.env.ZULIP_API_KEY
-  //   },
-  //   data: prevData
-  // });
+  const baseURL = 'https://recurse.zulipchat.com/api/v1/messages';
 
-  return axios.post('https://recurse.zulipchat.com/api/v1/messages', prevData, {
+  return axios({
+    method: 'post',
+    baseURL,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     auth: {
       username: process.env.ZULIP_USERNAME,
       password: process.env.ZULIP_API_KEY
-    }
+    },
+    data,
+    transformRequest: [
+      defaultData => {
+        const dataQueryString = Object.keys(data)
+          .map(key => `${key}=${defaultData.key}`)
+          .join('&');
+        return dataQueryString;
+      }
+    ]
   });
 }
 
-// TODO: this doesn't need to be async or a promise
-// export function initZulipMessenger(
-//   zulipConfig: IZulipConfig = {}
-// ): {
-//   sendMessage: (toEmail: string | string[], messageContent) => Promise<any>;
-// } {
-//   // const config = {
-//   //   username: zulipConfig.ZULIP_USERNAME || process.env.ZULIP_USERNAME,
-//   //   apiKey: zulipConfig.ZULIP_API_KEY || process.env.ZULIP_API_KEY,
-//   //   realm: zulipConfig.ZULIP_REALM || process.env.ZULIP_REALM
-//   // };
-
-//   const zulipAPI = zulip({
-//     username: process.env.ZULIP_USERNAME,
-//     apiKey: process.env.ZULIP_API_KEY,
-//     realm: process.env.ZULIP_REALM
-//   });
-
-//   // Send a message to a given Zulip user
-//   function sendMessage(toEmail: string, messageContent: string);
-//   function sendMessage(toEmail: string[], messageContent: string);
-//   function sendMessage(
-//     toEmail: string | string[],
-//     messageContent: string
-//   ): Promise<any> {
-//     const emails = toEmail instanceof Array ? toEmail.join(', ') : toEmail;
-
-//     return zulipAPI.messages.send({
-//       to: emails,
-//       type: 'private',
-//       content: messageContent
-//     });
-//   }
-
-//   /////////////////
-//   /// Methods I am exposing
-//   /////////////////
-//   return {
-//     sendMessage
+// export function sendMessage(
+//   toEmail: string | string[],
+//   messageContent: string
+// ) {
+//   const postBodyData = {
+//     type: 'private',
+//     // to: toEmail instanceof Array ? toEmail.join() : toEmail,
+//     to: 'alancodes@gmail.com',
+//     content: 'da faque' // Note: need to url encode?
 //   };
+
+//   // TODO: process the data here:
+//   console.log(postBodyData);
+
+//   // const url = 'https://recurse.zulipchat.com/api/v1/messages';
+//   console.log(process.env.ZULIP_URL_ENDPOINT);
+
+//   return axios({
+//     method: 'post',
+//     baseURL: process.env.ZULIP_URL_ENDPOINT, // NOTE: includes api/v1/messages
+//     // baseURL: url,
+//     headers: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     auth: {
+//       username: process.env.ZULIP_USERNAME,
+//       password: process.env.ZULIP_API_KEY
+//     },
+//     data: postBodyData,
+//     // NOTE: need to process data, to make it analogous to the curl -d
+//     transformRequest: [
+//       rawData => {
+//         const dataQueryString = Object.keys(rawData)
+//           .map(key => `${key}=${rawData[key]}`)
+//           .join('&');
+//         console.log(dataQueryString);
+
+//         return dataQueryString;
+//       }
+//     ]
+//   });
 // }

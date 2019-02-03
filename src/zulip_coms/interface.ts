@@ -1,16 +1,6 @@
 ////////////////////////
-// Messenger
-////////////////////////
-export interface IZulipConfig {
-  ZULIP_USERNAME?: string;
-  ZULIP_API_KEY?: string;
-  ZULIP_REALM?: string;
-}
-
-////////////////////////
 // Zulip Request Object
 ////////////////////////
-
 export interface IZulipRequest {
   // token: string,
   // data: string,

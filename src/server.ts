@@ -35,7 +35,12 @@ import { directives } from './zulip_coms/interface';
   app.get('/', (request, response) => {
     logger.info('this is a test log from the / route');
     sendMessage('alancodes@gmail.com', 'test message').catch(e => {
-      console.log(e);
+      // ERROR OBJECT: of e.response.data
+      // { code: 'BAD_REQUEST',
+      // msg: 'Invalid email \'lancodes@gmail.com\'',
+      // result: 'error' }
+      console.log(e.response.data);
+      // console.log(e);
     });
     response.json({ sent: true });
     // .then(result => {
