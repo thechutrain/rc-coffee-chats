@@ -93,3 +93,5 @@ export function parseZulipServerRequest(
 //       break;
 //   }
 // }
+
+// export function dispatchCliAction(cliAction: ICliAction) {}

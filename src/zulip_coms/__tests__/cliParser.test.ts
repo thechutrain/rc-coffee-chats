@@ -1,6 +1,7 @@
-import { parseZulipServerRequest } from '../zulipCli';
+import { parseZulipServerRequest } from '../cliParser';
 import { directives, subCommands } from '../interface';
 
+// tslint:disable-next-line
 const sender_email = 'test@gmail.com';
 
 describe('should be able to parse various zulip requests', () => {

@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 // import path from 'path';
 import logger from './logger';
 import { initDB } from './db/db';
-import { parseZulipServerRequest } from './zulip_coms/zulipCli';
+import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { initZulipMessenger } from './zulip_coms/sendMessage';
 import { directives } from './zulip_coms/interface';
 
