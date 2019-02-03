@@ -6,17 +6,21 @@
 import {
   IZulipRequest,
   ICliAction,
-  ICliError,
   directives,
-  subCommands
+  subCommands,
+  CliError
 } from './interface';
 import { Util } from '../utils/index';
 
+/**
+ * try to parse the request, return a valid ICliAction or throw an error
+ * @param zulipRequest
+ */
 export function parseZulipServerRequest(
   zulipRequest: IZulipRequest
-): ICliAction | ICliError {
+): ICliAction {
   const {
-    message: { content }
+    message: { content, sender_email: senderEmail }
   } = zulipRequest;
   const trimmedContent = content.replace(/^\s+|\s+$/g, '');
 
@@ -25,9 +29,10 @@ export function parseZulipServerRequest(
     .map(word => word.toUpperCase());
 
   // Case of no content: --> send the default help
-  if (!cliArgumentsArray.length) {
+  if (cliArgumentsArray[0] === '') {
     return {
-      directive: directives.HELP
+      directive: directives.HELP,
+      senderEmail
     };
   }
 
@@ -37,16 +42,17 @@ export function parseZulipServerRequest(
   const directive = cliArgumentsArray[0];
   const validDirective = Util.valueExistsInEnum(directive, directives);
   if (!validDirective) {
-    return {
-      status: 'ERROR',
-      errorType: 'NO VALID DIRECTIVE',
+    throw new CliError({
+      errorType: 'NOT A VALID DIRECTIVE',
       message: `Cli parsing Error: first word must be a valid directive.
-      Directive Received: ${directive}`
-    };
+      Directive Received: ${directive}`,
+      senderEmail: senderEmail
+    });
   } else if (directive === directives.HELP && cliArgumentsArray.length === 1) {
     // Generic Help case: args --> HELP
     return {
-      directive: directives.HELP
+      directive: directives.HELP,
+      senderEmail
     };
   }
 
@@ -54,20 +60,23 @@ export function parseZulipServerRequest(
   // Validate Commands
   ///////////////////////////
   const subCommand = cliArgumentsArray[1];
+  // TODO: case that they don't provide subcommand --> send help for that cmd!
+
   const validSubCmd = Util.valueExistsInEnum(subCommand, subCommands);
   if (!validSubCmd) {
-    return {
-      status: 'ERROR',
-      errorType: 'NO VALID SUBCOMMAND',
+    throw new CliError({
+      errorType: 'NOT A VALID SUBCOMMAND',
       message: `Cli Parsing Error: second word must be a valid subcommand.
-      Received subCommand: ${subCommand}`
-    };
+      Received subCommand: ${subCommand}`,
+      senderEmail: senderEmail
+    });
   }
 
   return {
     directive: directives[directive],
     subCommand: subCommands[subCommand],
-    payload: cliArgumentsArray.slice(2)
+    payload: cliArgumentsArray.slice(2),
+    senderEmail
   };
 }
 
