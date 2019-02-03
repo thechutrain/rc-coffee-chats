@@ -2,9 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 // import path from 'path';
 import logger from './logger';
-import { parseZulipServerRequest } from './zulip_coms/zulipCli';
 import { initDB } from './db/db';
-import { initZulipMessenger } from './zulip_coms/zulipMessenger';
+import { parseZulipServerRequest } from './zulip_coms/zulipCli';
+import { initZulipMessenger } from './zulip_coms/sendMessage';
+import { directives } from './zulip_coms/interface';
 
 (async () => {
   const PORT = process.env.PORT || 3000;
@@ -22,8 +23,7 @@ import { initZulipMessenger } from './zulip_coms/zulipMessenger';
   /////////////////
   /// Zulip COMS
   /////////////////
-
-  const { sendMessage } = await initZulipMessenger();
+  const { sendMessage } = initZulipMessenger();
 
   /////////////////
   /// Server
@@ -38,13 +38,37 @@ import { initZulipMessenger } from './zulip_coms/zulipMessenger';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', (req, res) => {
-    const cliAction = parseZulipServerRequest(req.body);
-    // Distinguishing errors & successful parsing?
-    console.log(`\n ------- new cli action -------`);
+    console.log(`\n ------- /webhooks/zulip -------`);
+    let cliAction;
+    let successMessage;
+    let errorMessage;
+    const senderEmail = req.body.data.message.sender_email;
 
-    const email = sendMessage();
+    /////// Parse Zulip Message ////////
+    try {
+      cliAction = parseZulipServerRequest(req.body);
+    } catch (e) {
+      sendMessage(senderEmail, e.message);
+      return res.json({});
+    }
 
-    res.json(cliAction);
+    console.log(`Switch/Case: ${cliAction.directive}`);
+    switch (cliAction.directive) {
+      case directives.CHANGE:
+        try {
+          // apply the change?
+          successMessage = user.createTable();
+        } catch (e) {
+          errorMessage = e.message;
+        }
+        break;
+      case directives.STATUS:
+        break;
+      case directives.HELP:
+        break;
+    }
+
+    res.json({});
   });
 
   app.post('/cron/run', (request, response) => {
