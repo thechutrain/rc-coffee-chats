@@ -1,4 +1,13 @@
 ////////////////////////
+// Messenger
+////////////////////////
+export interface IZulipConfig {
+  ZULIP_USERNAME?: string;
+  ZULIP_API_KEY?: string;
+  ZULIP_REALM?: string;
+}
+
+////////////////////////
 // Zulip Request Object
 ////////////////////////
 
@@ -23,6 +32,7 @@ export interface IZulipRequest {
 // Cli
 ////////////////////////
 export interface ICliAction {
+  senderEmail: string;
   directive: directives;
   subCommand?: subCommands;
   payload?: string[]; // allow flexibility with payload if no flags passed?
@@ -38,12 +48,28 @@ export enum directives {
 
 export enum subCommands {
   MATCH = 'MATCH',
+  DATES = 'DATES', // handle DATES & DAYS the same?
   DAYS = 'DAYS',
   SKIP = 'SKIP'
 }
 
-export interface ICliError {
-  status: 'ERROR';
-  errorType?: string;
-  message: string;
+////////////////////////
+// Errors
+////////////////////////
+export interface ICliErrorArgs {
+  errorType?: string; // TODO: later make an enum for error types
+  message?: string;
+  senderEmail?: string;
+  sendErrorMessage?: boolean;
+}
+export class CliError extends Error {
+  public type: string;
+  public errorType: string;
+  public senderEmail: string | null;
+
+  constructor(args: ICliErrorArgs) {
+    super(args.message);
+    this.errorType = args.errorType;
+    this.senderEmail = args.senderEmail || null;
+  }
 }
