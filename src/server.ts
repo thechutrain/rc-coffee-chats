@@ -7,7 +7,7 @@ dotenv.config();
 import { initDB } from './db/db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage } from './zulip_coms/sendMessage';
-import { directives } from './zulip_coms/interface';
+import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 
 // TODO: pass in env vars into the IFFE?
 
@@ -32,26 +32,25 @@ import { directives } from './zulip_coms/interface';
 
   // ==== TESTING ====
   app.get('/', async (request, response) => {
-    logger.info('this is a test log from the / route');
-    const zulipMsg = await sendMessage(
-      ['alancodes@gmail.com'],
-      'test message from my local server'
-    )
-      .then(result => {
-        console.log(result);
-        return { error: false };
-      })
-      .catch(e => {
-        // ERROR OBJECT: of e.response.data
-        // { code: 'BAD_REQUEST',
-        // msg: 'Invalid email \'lancodes@gmail.com\'',
-        // result: 'error' }
-        console.log(e.response.data);
-        return { error: true };
-        // console.log(e);
-      });
-
-    response.json(zulipMsg);
+    // logger.info('this is a test log from the / route');
+    // const zulipMsg = await sendMessage(
+    //   ['alancodes@gmail.com'],
+    //   'test message from my local server'
+    // )
+    //   .then(result => {
+    //     console.log(result);
+    //     return { error: false };
+    //   })
+    //   .catch(e => {
+    //     // ERROR OBJECT: of e.response.data
+    //     // { code: 'BAD_REQUEST',
+    //     // msg: 'Invalid email \'lancodes@gmail.com\'',
+    //     // result: 'error' }
+    //     console.log(e.response.data);
+    //     return { error: true };
+    //     // console.log(e);
+    //   });
+    // response.json(zulipMsg);
   });
 
   // ====== USED FOR TESTING =========
@@ -70,8 +69,9 @@ import { directives } from './zulip_coms/interface';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', (req, res) => {
+    res.json({});
     console.log(`\n ------- /webhooks/zulip -------`);
-    let cliAction;
+    let cliAction: ICliAction;
     let successMessage;
     let errorMessage;
     const senderEmail = req.body.data.message.sender_email;
@@ -81,23 +81,40 @@ import { directives } from './zulip_coms/interface';
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
       // sendMessage(senderEmail, e.message);
-      return res.json({});
+      console.log(e);
+      return;
     }
 
     console.log(`Switch/Case: ${cliAction.directive}`);
-    switch (cliAction.directive) {
-      case directives.CHANGE:
-        try {
-          // apply the change?
-          successMessage = user.createTable();
-        } catch (e) {
-          errorMessage = e.message;
-        }
-        break;
-      case directives.STATUS:
-        break;
-      case directives.HELP:
-        break;
+    if (cliAction.directive === directives.CHANGE) {
+      /////////////////////////////////////
+      // CHANGE subcommand switch block
+      /////////////////////////////////////
+      switch (cliAction.subCommand) {
+        case subCommands.DAYS:
+        case subCommands.DATES:
+          console.log(`Try to change days to: ${cliAction.payload}`);
+          break;
+        case subCommands.SKIP:
+          console.log(`Will skip your next match: ${cliAction.payload}`);
+          break;
+        default:
+          console.log(`No handler written for ${cliAction.subCommand}`);
+          break;
+      }
+    } else if (cliAction.directive === directives.STATUS) {
+      /////////////////////////////////////
+      // STATUS subcommand switch block
+      /////////////////////////////////////
+      switch (cliAction.subCommand) {
+        case subCommands.DATES:
+        case subCommands.DAYS:
+          console.log(`Status for my days`);
+          break;
+        default:
+          console.log(`No handler writtern for ${cliAction.subCommand}`);
+          break;
+      }
     }
 
     res.json({});
