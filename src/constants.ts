@@ -1,19 +1,19 @@
 export enum WEEKDAYS {
-  SUNDAY,
-  MONDAY,
-  TUESDAY,
-  WEDNESDAY,
-  THURSDAY,
-  FRIDAY,
-  SATURDAY
+  SUN,
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT
 }
 
-export const DEFAULT_COFFEE_DAYS = [
-  WEEKDAYS.MONDAY,
-  WEEKDAYS.TUESDAY,
-  WEEKDAYS.WEDNESDAY,
-  WEEKDAYS.THURSDAY
-];
+// export const DEFAULT_COFFEE_DAYS = [
+//   WEEKDAYS.MON,
+//   WEEKDAYS.TUE,
+//   WEEKDAYS.WED,
+//   WEEKDAYS.THU
+// ];
 
 // Exception dates can be added in this array,
 //     - the coffee chat bot won't run on these dates
@@ -64,5 +64,3 @@ To subscribe to the warning messages send me a message "warnings on".`,
 
   CANCEL_NEXT: `Hi! You've successfully cancelled your match for coffee tomorrow! Have a nice day!`
 };
-
-export const STREAM_ID = 142655;
