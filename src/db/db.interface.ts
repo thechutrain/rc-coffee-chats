@@ -3,14 +3,14 @@
 //////////////////////
 // TODO: make a SQL error object?
 
-export interface ISqlResponse {
+interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
-  message?: string;
-  payload?: any; // valid model?
 }
 
-export interface ISqlError {
-  status: 'FAILURE';
+export interface ISqlSuccess extends ISqlResponse {
+  payload?: any;
+}
+export interface ISqlError extends ISqlResponse {
   message: string;
 }
 
