@@ -31,8 +31,8 @@ export function initDB(dbFile: string): any {
 
   return {
     user: initUserModel(db),
-    match: initMatchModel(db),
-    closeDb: initCloseDb(db) // probably dont need this
+    match: initMatchModel(db)
+    // closeDb: initCloseDb(db) // probably dont need this
   };
 }
 
@@ -61,13 +61,13 @@ export function initDB(dbFile: string): any {
 // }
 
 // Close DB connection
-function initCloseDb(db): () => ISqlResponse {
-  return () => {
-    try {
-      db.close();
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
-  };
-}
+// function initCloseDb(db): () => ISqlResponse {
+//   return () => {
+//     try {
+//       db.close();
+//     } catch (e) {
+//       return { status: 'FAILURE', message: e };
+//     }
+//     return { status: 'SUCCESS' };
+//   };
+// }
