@@ -74,7 +74,8 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
     let cliAction: ICliAction;
     let successMessage;
     let errorMessage;
-    const senderEmail = req.body.data.message.sender_email;
+    // const senderEmail = req.body.data.message.sender_email;
+    console.log(req.body);
 
     /////// Parse Zulip Message ////////
     try {
