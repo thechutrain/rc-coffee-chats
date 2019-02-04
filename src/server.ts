@@ -6,7 +6,7 @@ dotenv.config();
 
 import { initDB } from './db/db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
-import { sendMessage } from './zulip_coms/sendMessage';
+import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 
 // TODO: pass in env vars into the IFFE?
@@ -72,9 +72,9 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
     res.json({});
     console.log(`\n ------- /webhooks/zulip -------`);
     let cliAction: ICliAction;
-    let successMessage;
-    let errorMessage;
-    // const senderEmail = req.body.data.message.sender_email;
+    let successMessage: string;
+    let errorMessage: string;
+    const senderEmail = req.body.data.message.sender_email;
     console.log(req.body);
 
     /////// Parse Zulip Message ////////
@@ -116,6 +116,17 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
           console.log(`No handler writtern for ${cliAction.subCommand}`);
           break;
       }
+    } else {
+      /////////////////////////////////////
+      // HELP subcommand switch block
+      /////////////////////////////////////
+    }
+
+    // ====== Zulip Message ==========
+    if (errorMessage) {
+      sendErrorMessage(senderEmail, errorMessage);
+    } else if (successMessage) {
+      sendErrorMessage(senderEmail, successMessage);
     }
   });
 

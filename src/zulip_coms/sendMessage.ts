@@ -34,3 +34,12 @@ export function sendMessage(
     data: dataAsQueryParams
   });
 }
+
+export function sendErrorMessage(
+  toEmail: string | string[],
+  errorMessage: string
+) {
+  const messageContent = `ERROR: ${errorMessage}`;
+
+  return sendMessage(toEmail, messageContent);
+}
