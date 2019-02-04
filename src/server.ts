@@ -117,8 +117,6 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
           break;
       }
     }
-
-    res.json({});
   });
 
   app.post('/cron/run', (request, response) => {
