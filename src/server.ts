@@ -68,7 +68,7 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
   // );
 
   // Handle messages received from Zulip outgoing webhooks
-  app.post('/webhooks/zulip', (req, res) => {
+  app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     res.json({});
     console.log(`\n ------- /webhooks/zulip -------`);
     let cliAction: ICliAction;
