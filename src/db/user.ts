@@ -2,12 +2,14 @@ import sqlite from 'better-sqlite3';
 
 import { castBoolInt } from '../utils/index';
 import {
-  IUpdateUserArgs,
-  ISqlResponse,
+  // IUpdateUserArgs,
   IUserDB,
   IUserMatchResult,
-  IAddUserArgs
+  IAddUserArgs,
+  ISqlSuccess,
+  ISqlError
 } from './db.interface';
+import { WEEKDAYS } from '../constants';
 
 // export function initUserModel(db: sqlite): IUserTableMethods {
 export function initUserModel(db: sqlite): any {
@@ -42,20 +44,24 @@ export function initUserModel(db: sqlite): any {
     return numRecord;
   }
 
-  function findUserByEmail(email: string): IUserDB {
+  function findUserByEmail(email: string): IUserDB | null {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
-    return findStmt.get(email);
+    const foundUser = findStmt.get(email);
+    // TODO: convert the coffee_days column from 1234 --> Mon, Tues, Wed, Thurs?
+    // Do that in the print message?
+    return !!foundUser ? foundUser : null;
   }
 
+  // TODO:
   // NOTE: would be nice to also sort via sql by the number of prevMatches
-  function getUsersByCoffeeDay(
-    coffeeDay: number,
-    includePrevMatches: boolean = true
+  function getUsersToMatch(
+    includePrevMatches: boolean = true,
+    dayToMatch?: number
   ): IUserMatchResult[] {
     return [];
   }
 
-  function addUser(userVals: IAddUserArgs): ISqlResponse {
+  function addUser(userVals: IAddUserArgs): ISqlSuccess | ISqlError {
     const insertSQL = db.prepare(
       `INSERT INTO User (email, full_name) VALUES (@email, @full_name)`
     );
@@ -68,69 +74,110 @@ export function initUserModel(db: sqlite): any {
     return { status: 'SUCCESS', payload: newUser };
   }
 
-  function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
-    // Check if the user exists
-    const targetUser = findUserByEmail(targetEmail);
-    if (!targetUser) {
-      throw new Error(
-        `No user found with email "${targetEmail}", insert first`
-      );
+  function updateCoffeeDays(
+    targetEmail: string,
+    coffeeDays: WEEKDAYS[]
+  ): ISqlSuccess | ISqlError {
+    const foundUser = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'FAILURE',
+        message: `No user with email "${targetEmail}" found to update`
+      };
     }
 
-    const colVals = {
-      coffee_days: opts.coffee_days || targetUser.coffee_days,
-      skip_next_match: castBoolInt(
-        opts.skip_next_match || targetUser.skip_next_match
-      ),
-      warning_exceptions: castBoolInt(
-        opts.warning_exception || targetUser.warning_exception
-      ),
-      is_active: castBoolInt(opts.is_active || targetUser.is_active),
-      is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
-      is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
-    };
+    const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
+
     const updateStmt = db.prepare(
-      `UPDATE User SET 
-      coffee_days = ?,
-      skip_next_match = ?,
-      warning_exception = ?,
-      is_active = ?,
-      is_faculty = ?,
-      is_alum = ?
+      `UPDATE User SET
+      coffee_days = ?
       WHERE user_id = ?`
     );
 
-    const queryResults = updateStmt.run(
-      colVals.coffee_days,
-      colVals.skip_next_match,
-      colVals.warning_exceptions,
-      colVals.is_active,
-      colVals.is_faculty,
-      colVals.is_alum,
-      targetUser.user_id
-    );
+    const queryResult = updateStmt.run(coffeeDayStr, foundUser.user_id);
 
-    // Check that you've updated at least one row
-    return queryResults.changes !== 0;
+    return queryResult.changes !== 0
+      ? { status: 'SUCCESS' }
+      : { status: 'FAILURE', message: 'Did not update coffee days' };
   }
 
-  // function dropTable(): ISqlResponse {
-  //   try {
-  //     db.exec(`DROP TABLE User`);
-  //   } catch (e) {
-  //     return { status: 'FAILURE', message: e };
+  // function toggleSkipNextMatch(valToSet?: boolean) {}
+
+  // function toggleWarningException(valToSet?: boolean) {}
+
+  // ======= TODO: make this flexible ===============
+  // Note: add flexibility to overwrite a previous user if they exists?
+  // function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
+  //   // Check if the user exists
+  //   const targetUser = findUserByEmail(targetEmail);
+  //   if (!targetUser) {
+  //     throw new Error(
+  //       `No user found with email "${targetEmail}", insert first`
+  //     );
   //   }
-  //   return { status: 'SUCCESS', message: 'Dropped User table' };
+
+  //   const colVals = {
+  //     coffee_days: opts.coffee_days || targetUser.coffee_days,
+  //     skip_next_match: castBoolInt(
+  //       opts.skip_next_match || targetUser.skip_next_match
+  //     ),
+  //     warning_exceptions: castBoolInt(
+  //       opts.warning_exception || targetUser.warning_exception
+  //     ),
+  //     is_active: castBoolInt(opts.is_active || targetUser.is_active),
+  //     is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
+  //     is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
+  //   };
+  //   const updateStmt = db.prepare(
+  //     `UPDATE User SET
+  //     coffee_days = ?,
+  //     skip_next_match = ?,
+  //     warning_exception = ?,
+  //     is_active = ?,
+  //     is_faculty = ?,
+  //     is_alum = ?
+  //     WHERE user_id = ?`
+  //   );
+
+  //   const queryResults = updateStmt.run(
+  //     colVals.coffee_days,
+  //     colVals.skip_next_match,
+  //     colVals.warning_exceptions,
+  //     colVals.is_active,
+  //     colVals.is_faculty,
+  //     colVals.is_alum,
+  //     targetUser.user_id
+  //   );
+
+  //   // Check that you've updated at least one row
+  //   return queryResults.changes !== 0;
   // }
 
-  // Exposing User table methods
+  function _deleteRecords() {
+    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    dropStmt.run();
+  }
+
   return {
     createTable,
     count,
     find: findUserByEmail,
-    getUsersByCoffeeDay,
+    updateCoffeeDays,
+    // getUsersByCoffeeDay,
     // findUserMatch: findUserWithPrevMatches,
     add: addUser,
-    update: updateUser
+    _deleteRecords
+    // update: updateUser
   };
 }
+
+// ======== DB ==========
+// function dropTable(): ISqlResponse {
+//   try {
+//     db.exec(`DROP TABLE User`);
+//   } catch (e) {
+//     return { status: 'FAILURE', message: e };
+//   }
+//   return { status: 'SUCCESS', message: 'Dropped User table' };
+// }
