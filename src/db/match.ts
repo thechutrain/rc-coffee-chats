@@ -1,26 +1,28 @@
 import sqlite from 'better-sqlite3';
-import { ISqlResponse, ISqlError } from './db';
+
+import {
+  ISqlSuccess,
+  ISqlError,
+  IAddMatchArgs,
+  IMatchDB
+} from './db.interface';
 
 const TABLE_NAME = 'Match';
 
-interface IAddMatchArgs {
-  user_1_id: number;
-  user_2_id: number;
-  date?: string;
-}
-interface IMatchModel {
-  createTable: () => ISqlResponse;
-  cleanTable?: () => ISqlResponse; // TODO: remove this? allow only for testing?
-  count: () => ISqlError | number;
-  find: (targetUserId: number) => ISqlResponse;
-  add: (opts: IAddMatchArgs) => ISqlResponse;
-}
+// interface IMatchModel {
+//   createTable: () => ISqlResponse;
+//   cleanTable?: () => ISqlResponse; // TODO: remove this? allow only for testing?
+//   count: () => ISqlError | number;
+//   find: (targetUserId: number) => ISqlResponse;
+//   add: (opts: IAddMatchArgs) => ISqlResponse;
+// }
 
-export function initMatchModel(db: sqlite): IMatchModel {
+// TODO: update the exposed match model methods later
+export function initMatchModel(db: sqlite): any {
   // Always have a created Table!
   // createTable();
 
-  function createTable(): ISqlResponse {
+  function createTable(): void {
     const query = `CREATE TABLE IF NOT EXISTS Match (
       match_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       user_1_id INTEGER NOT NULL,
@@ -39,23 +41,13 @@ export function initMatchModel(db: sqlite): IMatchModel {
     //   date TEXT NOT NULL
     // )`;
 
-    try {
-      db.exec(query);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
+    db.exec(query);
   }
 
   // Rename to remove all records & use it in the test
-  function cleanTable(): ISqlResponse {
+  function _deleteRecords() {
     const query = `DELETE FROM ${TABLE_NAME} WHERE true`;
-    try {
-      db.exec(query);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
+    db.exec(query);
   }
 
   function count(): number {
@@ -70,47 +62,35 @@ export function initMatchModel(db: sqlite): IMatchModel {
   // - fn: get all matches for particular user?
   // - fn: get match by match_id
 
-  function findAllUserMatches(targetUser: number): IMatchesSqlResponse {
+  function findAllUserMatches(targetUser: number): IMatchDB {
     const findStmt = db.prepare(
       `SELECT * FROM Match WHERE user_1_id = ? OR user_2_id = ?`
     );
-    let matches = [];
-    try {
-      matches = findStmt.all(targetUser, targetUser);
-    } catch (e) {
-      return {
-        status: 'FAILURE',
-        message: e
-      };
-    }
-    return {
-      status: 'SUCCESS',
-      payload: matches
-    };
+    // let matches = [];
+    return findStmt.all(targetUser, targetUser);
   }
 
-  function addMatch(matchArgs: IAddMatchArgs): ISqlResponse {
+  function addMatch(matchArgs: IAddMatchArgs): ISqlSuccess | ISqlError {
     // const insertQuery = db.prepare(`
     // INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, @date)`);
 
     const insertQuery = db.prepare(`
     INSERT INTO Match (user_1_id, user_2_id, date) VALUES (?, ?, ?)`);
 
-    let newMatch;
     // TODO: validate that date is in the right format
     const { user_1_id, user_2_id } = matchArgs;
     const date = matchArgs.date || new Date().toISOString().split('T')[0];
 
+    let queryResult;
     try {
-      newMatch = insertQuery.run(user_1_id, user_2_id, date);
+      queryResult = insertQuery.run(user_1_id, user_2_id, date);
     } catch (e) {
       return { status: 'FAILURE', message: e };
     }
 
-    return {
-      status: 'SUCCESS',
-      payload: newMatch // {changes: 1, lastInsertROWID: 1}
-    };
+    return queryResult.info !== 0
+      ? { status: 'SUCCESS' }
+      : { status: 'FAILURE', message: 'Error: could not add match ' };
   }
 
   // TODO: (LATER) add flexbility to update match by emails?
@@ -119,17 +99,13 @@ export function initMatchModel(db: sqlite): IMatchModel {
   //   user_id_2: number,
   // }
   // function updateMatch()
+
   return {
     createTable,
-    cleanTable,
+    _deleteRecords,
     count,
     find: findAllUserMatches,
     add: addMatch
     // update: updateMatch // TODO: later
   };
-}
-
-// ====== definitions for matches ====
-interface IMatchesSqlResponse extends ISqlResponse {
-  payload?: any[]; // TODO: determine the shape of the user match (just id, user info minus their matches?)
 }

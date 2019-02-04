@@ -47,77 +47,32 @@ beforeAll(() => {
 
   // create Match table
   const { createTable, count } = initMatchModel(db);
-  const { status, message } = createTable();
-  // expect(count()).toBe(0);
-  expect(message).toBeUndefined();
-  expect(status).toBe('SUCCESS');
+  let error = null;
+  try {
+    createTable();
+  } catch (e) {
+    error = e;
+  }
+  expect(error).toBeNull();
+  expect(count()).toBe(0);
 
   db.close();
   expect(db.open).toBe(false);
 });
 
-afterEach(() => {
-  const db = new sqlite(DB_PATH, { fileMustExist: true });
-  expect(db.open).toBe(true);
-
-  // Delete all records
-  const dropStmt = db.prepare(`DELETE FROM Match WHERE true`);
-  dropStmt.run();
-
-  // check that there are no more records
-  const { count } = initUserModel(db);
-  expect(count()).toBe(usersToAdd.length);
-});
-
-// afterAll(() => {
-//   const dbPath = path.join(__dirname, DB_FILE_NAME);
-//   const db = new sqlite(dbPath);
-//   expect(db).toBeDefined();
-//   // Drop the table?
-//   db.close();
-// });
-
-// beforeEach(() => {
-//   const db = new sqlite(DB_PATH, { fileMustExist: true });
-//   expect(db.open).toBe(true);
-//   db.close();
-//   expect(db.open).toBe(false);
-// });
-
 describe('User Model test', () => {
-  it('should pass', () => {
-    expect(true).toBe(true);
-  });
-  // === CREATE table query
-  it('should be able to create an empty table', () => {
+  // it('should pass', () => {
+  //   expect(true).toBe(true);
+  // });
+
+  it('should INSERT a new match', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { createTable, count } = initMatchModel(db);
-    createTable();
-    const numUsers = count();
-    expect(numUsers).toBe(0);
-    const response = createTable();
-    expect(response.status).toBe('SUCCESS');
-    db.close();
-  });
-
-  it('should not be able to find any matches in an empty Match Table', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-    const { find } = initMatchModel(db);
-    const { payload: matchesUser1, status, message } = find(1);
-    expect(message).not.toBeDefined();
-    expect(status).toBe('SUCCESS');
-    expect(matchesUser1).toEqual([]);
-  });
-
-  it('should be able to create a new match', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-
-    const { add, count } = initMatchModel(db);
+    const { add, count, _deleteRecords } = initMatchModel(db);
+    _deleteRecords();
     expect(count()).toBe(0);
+
     const { status } = add({
       user_1_id: 1,
       user_2_id: 2
@@ -127,12 +82,14 @@ describe('User Model test', () => {
     expect(count()).toBe(1);
   });
 
-  it('should be able to create a multiple matches of same users', () => {
+  it('should INSERT many matches for SINGLE user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { add, count } = initMatchModel(db);
+    const { add, count, _deleteRecords } = initMatchModel(db);
+    _deleteRecords();
     expect(count()).toBe(0);
+
     const { status: status1 } = add({
       user_1_id: 1,
       user_2_id: 2,
@@ -151,13 +108,12 @@ describe('User Model test', () => {
     expect(count()).toBe(2);
   });
 
-  // // === INSERT queries ===
-  it('should be able to find a single match to the Match table', () => {
+  it('should FIND recorda in Match', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { add, count, find } = initMatchModel(db);
-
+    const { add, count, find, _deleteRecords } = initMatchModel(db);
+    _deleteRecords();
     expect(count()).toBe(0);
 
     const matchRecord1 = {
@@ -168,24 +124,22 @@ describe('User Model test', () => {
     const { status: status1 } = add(matchRecord1);
     expect(status1).toBe('SUCCESS');
 
-    const { payload: matchesUser1, status, message } = find(1);
+    const foundMatches = find(1);
 
-    expect(message).not.toBeDefined();
-    expect(status).toBe('SUCCESS');
-    expect(matchesUser1).toMatchObject([matchRecord1]);
+    expect(foundMatches).toMatchObject([matchRecord1]);
   });
 
-  it('should be able to add multiple matches on different days', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-    const { add, count } = initMatchModel(db);
+  // it('should be able to add multiple matches on different days', () => {
+  //   const db = new sqlite(DB_PATH, { fileMustExist: true });
+  //   expect(db.open).toBe(true);
+  //   const { add, count } = initMatchModel(db);
 
-    expect(count()).toBe(0);
-    add({ user_1_id: 1, user_2_id: 2, date: '2019-01-31' });
-    expect(count()).toBe(1);
-    add({ user_1_id: 1, user_2_id: 2, date: '2019-01-30' });
-    expect(count()).toBe(2);
-  });
+  //   expect(count()).toBe(0);
+  //   add({ user_1_id: 1, user_2_id: 2, date: '2019-01-31' });
+  //   expect(count()).toBe(1);
+  //   add({ user_1_id: 1, user_2_id: 2, date: '2019-01-30' });
+  //   expect(count()).toBe(2);
+  // });
 
   // OPTIONAL - repetitive?
   // it('should be able to add various different matches for a given user', () => {
@@ -262,3 +216,35 @@ function createUserTable(db: sqlite) {
 
   return Object.freeze(userMap);
 }
+
+////////////////////////
+// Old Jest Hooks
+////////////////////////
+
+// afterEach(() => {
+//   const db = new sqlite(DB_PATH, { fileMustExist: true });
+//   expect(db.open).toBe(true);
+
+//   // Delete all records
+//   const dropStmt = db.prepare(`DELETE FROM Match WHERE true`);
+//   dropStmt.run();
+
+//   // check that there are no more records
+//   const { count } = initUserModel(db);
+//   expect(count()).toBe(usersToAdd.length);
+// });
+
+// afterAll(() => {
+//   const dbPath = path.join(__dirname, DB_FILE_NAME);
+//   const db = new sqlite(dbPath);
+//   expect(db).toBeDefined();
+//   // Drop the table?
+//   db.close();
+// });
+
+// beforeEach(() => {
+//   const db = new sqlite(DB_PATH, { fileMustExist: true });
+//   expect(db.open).toBe(true);
+//   db.close();
+//   expect(db.open).toBe(false);
+// });

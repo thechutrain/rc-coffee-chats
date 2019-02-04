@@ -76,3 +76,19 @@ export interface IUserMatchResult extends IUserDB {
 //   add: (IAddUserArgs) => ISqlResponse;
 //   update: (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse;
 // }
+
+//////////////////////
+// Match Model
+//////////////////////
+export interface IAddMatchArgs {
+  user_1_id: number;
+  user_2_id: number;
+  date?: string;
+}
+
+export interface IMatchDB {
+  match_id: number;
+  user_1_id: number;
+  user_2_id: number;
+  date: string;
+}
