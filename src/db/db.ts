@@ -3,28 +3,12 @@ import * as fs from 'fs';
 import sqlite from 'better-sqlite3';
 
 // Models
-import { initUserModel, IUserTableMethods } from './user';
+import { initUserModel } from './user';
 import { initMatchModel } from './match';
 
-export interface ISqlResponse {
-  status: 'SUCCESS' | 'FAILURE';
-  message?: string;
-  payload?: any; // valid model?
-}
-
-export interface ISqlError {
-  status: 'FAILURE';
-  message: string;
-}
-
-interface IDBMethods {
-  user: IUserTableMethods;
-  match: any; // TODO: update type
-  // createMatchTable: () => ISqlResponse;
-  closeDb: () => ISqlResponse;
-}
-
-export function initDB(dbFile: string): IDBMethods {
+// dbFilePath & connect to new db?
+// export function initDB(dbFilePath: string, fileMustExists = true): IDBMethods {
+export function initDB(dbFile: string): any {
   // NOTE: Should all only reading a new db?
   // Should I make it more strict to create vs connect db?
   const dataDir = path.join(__dirname, '../../', 'data/');
@@ -48,7 +32,7 @@ export function initDB(dbFile: string): IDBMethods {
   return {
     user: initUserModel(db),
     match: initMatchModel(db),
-    closeDb: initCloseDb(db)
+    closeDb: initCloseDb(db) // probably dont need this
   };
 }
 

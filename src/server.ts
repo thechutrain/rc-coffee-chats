@@ -70,14 +70,21 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     res.json({});
-    console.log(`\n ------- /webhooks/zulip -------`);
     let cliAction: ICliAction;
-    let successMessage: string;
-    let errorMessage: string;
+    // let successMessage: string; // SuccessHandler
+    interface ISuccessHandler {
+      log: boolean;
+      sendMessage?: boolean;
+      message: string;
+    }
+    let successHandler;
+    // let errorHandler;
+    let errorMessage: string; // Interface: errorMessage, sendError vs logError
     const senderEmail = req.body.data.message.sender_email;
     console.log(req.body);
 
     /////// Parse Zulip Message ////////
+    // NOTE: Can move this into middle ware of this route?
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
@@ -91,17 +98,26 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
-      switch (cliAction.subCommand) {
-        case subCommands.DAYS:
-        case subCommands.DATES:
-          console.log(`Try to change days to: ${cliAction.payload}`);
-          break;
-        case subCommands.SKIP:
-          console.log(`Will skip your next match: ${cliAction.payload}`);
-          break;
-        default:
-          console.log(`No handler written for ${cliAction.subCommand}`);
-          break;
+      try {
+        switch (cliAction.subCommand) {
+          case subCommands.DAYS:
+          case subCommands.DATES:
+            console.log(`Try to change days to: ${cliAction.payload}`);
+            // TODO: convert MON TUES WED --> 123
+            successHandler = user.update(senderEmail, {
+              coffee_days: cliAction.payload
+            });
+            break;
+          case subCommands.SKIP:
+            console.log(`Will skip your next match: ${cliAction.payload}`);
+            break;
+          default:
+            console.log(`No handler written for ${cliAction.subCommand}`);
+            break;
+        }
+      } catch (e) {
+        // TODO: Error
+        // Can I do E as MyErrrorObject?
       }
     } else if (cliAction.directive === directives.STATUS) {
       /////////////////////////////////////
@@ -111,7 +127,26 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
+          try {
+            // Function:
+            // input --> find user w./ email, columns specify or optional?
+            // successMessage = user.find(senderEmail);
+          } catch (e) {
+            errorMessage = e;
+          }
           break;
+        case subCommands.WARNINGS:
+          console.log('Status for whether warnings or on/off');
+          break;
+        case subCommands.SKIP:
+          console.log(
+            `Status for whether youre going to SKIP next match or not`
+          );
+          break;
+        case subCommands.MATCH:
+          console.log(`Status for who your match is today`);
+          break;
+
         default:
           console.log(`No handler writtern for ${cliAction.subCommand}`);
           break;

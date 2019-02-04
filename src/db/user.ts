@@ -1,59 +1,18 @@
 import sqlite from 'better-sqlite3';
-import { ISqlResponse } from './db';
+
 import { castBoolInt } from '../utils/index';
-import { Interface } from 'readline';
+import {
+  IUpdateUserArgs,
+  ISqlResponse,
+  IUserDB,
+  IUserMatchResult,
+  IAddUserArgs
+} from './db.interface';
 
-interface IAddUserArgs {
-  email: string;
-  full_name: string;
-}
-
-interface IUpdateUserArgs {
-  skip_next_match?: boolean;
-  warning_exception?: boolean;
-  coffee_days?: string;
-  // ==== Admin features? ===
-  is_active?: boolean;
-  is_faculty?: boolean;
-  is_at_rc?: boolean;
-  is_alum?: boolean;
-}
-
-type truthy = boolean | number;
-export interface IUserDB {
-  user_id: number;
-  email: string;
-  full_name: string;
-  coffee_days: string; // coffee_days into an enum
-  skip_next_match: truthy;
-  warning_exception: truthy;
-  is_active: truthy; // Whether they will get any matches or not
-  is_faculty: truthy;
-  is_alum: truthy;
-  // is_admin: truthy; // admin has ability to change other user settings & view logs
-  // in_session: truthy; // Will Deprecate Later
-}
-
-interface IUserSqlResponse extends ISqlResponse {
-  payload?: IUserDB;
-}
-interface IUsersSqlResponse extends ISqlResponse {
-  payload?: IUserDB[];
-}
-export interface IUserTableMethods {
-  // _dropTable: () => ISqlResponse;
-  createTable: () => ISqlResponse; // can I make this chainable?
-  count: () => number;
-  // NOTE: ultimately want to make this find flexible
-  find: (email: string) => IUserSqlResponse;
-  getUsersByCoffeeDay: any;
-  // findUserMatch: (email: string) => IUserSqlResponse;
-  add: (IAddUserArgs) => ISqlResponse;
-  update: (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse;
-}
-
-export function initUserModel(db: sqlite): IUserTableMethods {
-  function createTable(): ISqlResponse {
+// export function initUserModel(db: sqlite): IUserTableMethods {
+export function initUserModel(db: sqlite): any {
+  // function createTable(): ISqlResponse {
+  function createTable(): void {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
     // TODO: check that having checks work!
     const query = `CREATE TABLE IF NOT EXISTS User (
@@ -73,12 +32,7 @@ export function initUserModel(db: sqlite): IUserTableMethods {
       CHECK (warning_exception in (0,1))
     )`;
 
-    try {
-      db.exec(query);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
+    db.exec(query);
   }
 
   function count(): number {
@@ -86,35 +40,13 @@ export function initUserModel(db: sqlite): IUserTableMethods {
 
     const { 'COUNT(user_id)': numRecord } = countQuery.get();
     return numRecord;
-    // const stmt = db.prepare('SELECT * FROM User');
-    // return stmt.all().length;
   }
 
-  function findUserByEmail(email: string): IUserSqlResponse {
+  function findUserByEmail(email: string): IUserDB {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
-    try {
-      const user = findStmt.get(email);
-      return {
-        status: 'SUCCESS',
-        payload: user
-      };
-    } catch (e) {
-      return {
-        status: 'FAILURE',
-        message: e
-      };
-    }
+    return findStmt.get(email);
   }
 
-  // TODO: GREG wanna give this a try?
-  // TODO: fn that gets all the users for the day of the week & their matches
-  interface IPrevMatch {
-    user_id: number;
-    date: string | Date;
-  }
-  interface IUserMatchResult extends IUserDB {
-    prevMatches: IPrevMatch[];
-  }
   // NOTE: would be nice to also sort via sql by the number of prevMatches
   function getUsersByCoffeeDay(
     coffeeDay: number,
@@ -136,21 +68,15 @@ export function initUserModel(db: sqlite): IUserTableMethods {
     return { status: 'SUCCESS', payload: newUser };
   }
 
-  function updateUser(
-    targetEmail: string,
-    opts: IUpdateUserArgs
-  ): IUserSqlResponse {
+  function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
     // Check if the user exists
-    const { payload: targetUser } = findUserByEmail(targetEmail);
+    const targetUser = findUserByEmail(targetEmail);
     if (!targetUser) {
-      return {
-        status: 'FAILURE',
-        message: `No user found with email "${targetEmail}". Could not update User`
-      };
+      throw new Error(
+        `No user found with email "${targetEmail}", insert first`
+      );
     }
 
-    // Created updated User in memory
-    let updatedUser;
     const colVals = {
       coffee_days: opts.coffee_days || targetUser.coffee_days,
       skip_next_match: castBoolInt(
@@ -174,37 +100,28 @@ export function initUserModel(db: sqlite): IUserTableMethods {
       WHERE user_id = ?`
     );
 
-    try {
-      updatedUser = updateStmt.run(
-        colVals.coffee_days,
-        colVals.skip_next_match,
-        colVals.warning_exceptions,
-        colVals.is_active,
-        colVals.is_faculty,
-        colVals.is_alum,
-        targetUser.user_id
-      );
-    } catch (e) {
-      return {
-        status: 'FAILURE',
-        message: e
-      };
-    }
+    const queryResults = updateStmt.run(
+      colVals.coffee_days,
+      colVals.skip_next_match,
+      colVals.warning_exceptions,
+      colVals.is_active,
+      colVals.is_faculty,
+      colVals.is_alum,
+      targetUser.user_id
+    );
 
-    return {
-      status: 'SUCCESS',
-      payload: updatedUser
-    };
+    // Check that you've updated at least one row
+    return queryResults.changes !== 0;
   }
 
-  function dropTable(): ISqlResponse {
-    try {
-      db.exec(`DROP TABLE User`);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS', message: 'Dropped User table' };
-  }
+  // function dropTable(): ISqlResponse {
+  //   try {
+  //     db.exec(`DROP TABLE User`);
+  //   } catch (e) {
+  //     return { status: 'FAILURE', message: e };
+  //   }
+  //   return { status: 'SUCCESS', message: 'Dropped User table' };
+  // }
 
   // Exposing User table methods
   return {

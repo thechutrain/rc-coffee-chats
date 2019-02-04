@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { initUserModel } from '../user';
-import { initMatchModel } from '../match';
+// import { initMatchModel } from '../match';
 import sqlite from 'better-sqlite3';
 
 const DB_PATH = path.join(__dirname, 'user-test.db');

@@ -40,7 +40,8 @@ export enum subCommands {
   MATCH = 'MATCH',
   DATES = 'DATES', // handle DATES & DAYS the same?
   DAYS = 'DAYS',
-  SKIP = 'SKIP'
+  SKIP = 'SKIP',
+  WARNINGS = 'WARNINGS'
 }
 
 ////////////////////////
