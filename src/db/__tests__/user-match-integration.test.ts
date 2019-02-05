@@ -102,7 +102,26 @@ describe('Overall db table integration test', () => {
 
   // ===== MONEY QUERY ======
   it('should FIND all users to match for TODAY & their PREV MATCHES', () => {
-    expect(false).toBe(true);
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    const {
+      createTable,
+      _deleteRecords,
+      add: addMatch,
+      count: countMatch
+    } = initMatchModel(db);
+    createTable();
+    _deleteRecords();
+    expect(countMatch()).toBe(0);
+
+    matchesToAdd.forEach(matchData => {
+      addMatch(matchData);
+    });
+
+    expect(countMatch()).toBe(matchesToAdd.length);
+
+    // Try to find Users by Matches
+    const { getUsersToMatch } = initUserModel(db);
+    expect(getUsersToMatch()).toBe(false);
   });
 
   // it('should be able to find all the previous matches that a User had', () => {

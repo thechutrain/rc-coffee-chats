@@ -122,15 +122,20 @@ export function initUserModel(db: sqlite): any {
   function getUsersToMatch(
     includePrevMatches: boolean = false,
     dayToMatch?: number
-  ): IUserMatchResult[] {
+  ): any {
+    // ): IUserMatchResult[] {
     const findMatches = db.prepare(`
-      SELECT User.email, User.full_name 
+      SELECT User.email, Match.date, Match.id
       FROM User
       LEFT OUTER JOIN User_Match
         ON User.id = User_Match.user_id
       LEFT OUTER JOIN Match
         ON User_Match.match_id = Match.id
+      WHERE true
     `);
+
+    return findMatches.all();
+
     return [];
   }
 
