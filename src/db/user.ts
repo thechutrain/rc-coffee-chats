@@ -12,6 +12,12 @@ import {
 import { WEEKDAYS } from '../constants';
 
 // export function initUserModel(db: sqlite): IUserTableMethods {
+// NOTE: Later Optimization!
+// Abstract common code out:
+// - createTable
+// - count
+// - deleteRecords
+
 export function initUserModel(db: sqlite): any {
   // function createTable(): ISqlResponse {
   function createTable(): void {
@@ -55,7 +61,7 @@ export function initUserModel(db: sqlite): any {
   // TODO:
   // NOTE: would be nice to also sort via sql by the number of prevMatches
   function getUsersToMatch(
-    includePrevMatches: boolean = true,
+    includePrevMatches: boolean = false,
     dayToMatch?: number
   ): IUserMatchResult[] {
     return [];
@@ -164,6 +170,7 @@ export function initUserModel(db: sqlite): any {
     count,
     find: findUserByEmail,
     updateCoffeeDays,
+    getUsersToMatch,
     // getUsersByCoffeeDay,
     // findUserMatch: findUserWithPrevMatches,
     add: addUser,

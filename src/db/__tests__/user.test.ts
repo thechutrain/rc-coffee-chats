@@ -172,19 +172,24 @@ describe('User Model test', () => {
     });
   });
 
-  // // TODO: WRITE TEST TO UPDATE VALUES!!
-  // it('should be able to update a single user in the User table', () => {
-  //   const dbPath = path.join(__dirname, DB_FILE_NAME);
-  //   const db = new sqlite(dbPath);
-  //   expect(db).toBeDefined();
-  //   const { add, find, update } = initUserModel(db);
-  //   const orgUser = { email: 'foo@gmail.com', full_name: 'Foo foo' };
-  //   add(orgUser);
-  //   const { payload: createdUser } = find('foo@gmail.com');
-  //   expect(createdUser).toMatchObject(orgUser);
-  //   const orgWarnings = (createdUser as IUserDB).warning_exception;
-  //   update('foo@gmail.com', { warning_exception: !orgWarnings });
-  //   const { payload: updatedUser } = find('foo@gmail.com');
-  //   expect(updatedUser.warning_exception).toBe(1);
-  // });
+  it('should users to MATCH for given DAY', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { _deleteRecords, count, add, getUsersToMatch } = initUserModel(db);
+    _deleteRecords();
+    count();
+
+    const defaultUser = {
+      email: 'default@gmail.com',
+      full_name: 'default user'
+    };
+    add(defaultUser);
+
+    const usersForSunday = getUsersToMatch(false, 0);
+    expect(usersForSunday.length).toBe(0);
+
+    const usersForMonday = getUsersToMatch(false, 1);
+    expect(usersForMonday.length).toBe(1);
+  });
 });

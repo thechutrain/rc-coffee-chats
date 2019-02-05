@@ -158,11 +158,11 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
     }
 
     // ====== Zulip Message ==========
-    if (errorMessage) {
-      sendErrorMessage(senderEmail, errorMessage);
-    } else if (successMessage) {
-      sendErrorMessage(senderEmail, successMessage);
-    }
+    // if (errorMessage) {
+    //   sendErrorMessage(senderEmail, errorMessage);
+    // } else if (successMessage) {
+    //   sendErrorMessage(senderEmail, successMessage);
+    // }
   });
 
   app.post('/cron/run', (request, response) => {
