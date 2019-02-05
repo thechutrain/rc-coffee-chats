@@ -1,3 +1,5 @@
+import { WEEKDAYS } from '../constants';
+
 //////////////////////
 // General Sql Responses
 //////////////////////
@@ -27,6 +29,8 @@ export interface ISqlError extends ISqlResponse {
 export interface IAddUserArgs {
   email: string;
   full_name: string;
+  coffee_days?: string; // string of numbers TODO: fix this in the addUser fn
+  // coffee_days?: WEEKDAYS[];
 }
 
 export interface IUpdateUserArgs {
@@ -43,7 +47,7 @@ export interface IUpdateUserArgs {
 type truthy = boolean | number;
 
 export interface IUserDB {
-  user_id: number;
+  id: number;
   email: string;
   full_name: string;
   coffee_days: string; // coffee_days into an enum
