@@ -60,7 +60,7 @@ beforeAll(() => {
   expect(db.open).toBe(false);
 });
 
-describe('User Model test', () => {
+xdescribe('Match Model test', () => {
   // it('should pass', () => {
   //   expect(true).toBe(true);
   // });
