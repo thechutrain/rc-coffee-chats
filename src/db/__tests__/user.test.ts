@@ -53,7 +53,7 @@ beforeAll(() => {
 //   expect(count()).toBe(0);
 // });
 
-describe('User Model test', () => {
+xdescribe('User Model test', () => {
   it('should ADD new user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);

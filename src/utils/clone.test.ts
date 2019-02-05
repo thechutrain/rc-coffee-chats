@@ -1,6 +1,6 @@
 import { deepClone, extend } from './clone';
 
-describe('Object cloning and extending', () => {
+xdescribe('Object cloning and extending', () => {
   it('be able to return a new empty object it', () => {
     const originalObj = Object.freeze({});
     const clonedObj = deepClone(originalObj);
