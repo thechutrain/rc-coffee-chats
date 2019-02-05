@@ -119,24 +119,78 @@ export function initUserModel(db: sqlite): any {
   // Most Important Query!
   /////////////////////////////
   // NOTE: would be nice to also sort via sql by the number of prevMatches
-  function getUsersToMatch(
-    includePrevMatches: boolean = false,
-    dayToMatch?: number
-  ): any {
+  function getUsersToMatch(dayToMatch?: number): any {
     // ): IUserMatchResult[] {
-    const findMatches = db.prepare(`
-      SELECT User.email, Match.date, Match.id
-      FROM User
-      LEFT OUTER JOIN User_Match
-        ON User.id = User_Match.user_id
-      LEFT OUTER JOIN Match
-        ON User_Match.match_id = Match.id
-      WHERE true
-    `);
+    // const findMatches = db.prepare(`
+    //   SELECT User.id, User.email, Match.date
+    //   FROM User
+    //   LEFT OUTER JOIN User_Match
+    //     ON User.id = User_Match.user_id
+    //   LEFT OUTER JOIN Match
+    //     ON User_Match.match_id = Match.id
+    //   WHERE User.coffee_days LIKE '%1%'
+    //   AND User_Match.user_id IN
+    //   (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
+    // `);
 
-    return findMatches.all();
+    // TODO: can use this query to get the order of Users. Who ever has the most
+    // amount of previous matches goes first!
+    // const findMatches = db.prepare(`
+    //   SELECT User.id, User.email, Match.date
+    //   FROM User
+    //   LEFT OUTER JOIN User_Match
+    //     ON User.id = User_Match.user_id
+    //   LEFT OUTER JOIN Match
+    //     ON User_Match.match_id = Match.id
+    //   WHERE User.coffee_days LIKE '%1%'
+    //   AND User_Match.user_id IN
+    //   (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
+    //   GROUP BY User.id
+    //   ORDER BY COUNT(User.id) DESC
+    // `);
+
+    // Finding Previous Matches:
 
     return [];
+  }
+
+  // NOTE: using today's date to filter out
+  // TODO: make coffeeDay default, get value later
+  function getUserPrevMatches(targetUserId: number, coffeeDayInt: number) {
+    //   const findMatches = db.prepare(`
+    //   SELECT User_Match.user_id, Match.date
+    //   FROM User
+    //   LEFT OUTER JOIN User_Match
+    //     ON User.id = User_Match.user_id
+    //   LEFT OUTER JOIN Match
+    //     ON User_Match.match_id = Match.id
+    //   WHERE User.id = 1
+    //   AND User.coffee_days LIKE '%1%'
+    //   AND User_Match.user_id IN
+    //   (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
+    // `);
+    const findMatches = db.prepare(`
+  SELECT User.id, User.email, Match.date
+  FROM User
+  LEFT OUTER JOIN User_Match
+    ON User.id = User_Match.user_id
+  LEFT OUTER JOIN Match
+    ON User_Match.match_id = Match.id
+
+  WHERE User_Match.match_id in (SELECT Match.id
+    FROM User
+    LEFT OUTER JOIN User_Match
+      ON User.id = User_Match.user_id
+    LEFT OUTER JOIN Match
+      ON User_Match.match_id = Match.id
+    WHERE User.id = ${targetUserId}
+    AND User.coffee_days LIKE '%${coffeeDayInt}%')
+    AND User_Match.user_id <> ${targetUserId}
+  `);
+
+    // AND User_Match.user_id IN
+    // (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
+    return findMatches.all();
   }
 
   return {
@@ -145,6 +199,7 @@ export function initUserModel(db: sqlite): any {
     find: findUserByEmail,
     updateCoffeeDays,
     getUsersToMatch,
+    getUserPrevMatches,
     // getUsersByCoffeeDay,
     // findUserMatch: findUserWithPrevMatches,
     add: addUser,

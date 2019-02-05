@@ -34,9 +34,9 @@ const matchesToAdd = [
     date: 'DAY 1'
   },
   {
-    user_1_id: 1,
-    user_2_id: 2,
-    date: 'DAY 2'
+    user_1_id: 3,
+    user_2_id: 4,
+    date: 'DAY 1'
   },
   {
     user_1_id: 1,
@@ -101,7 +101,27 @@ describe('Overall db table integration test', () => {
   // it('should FIND prev MATCHES of User');
 
   // ===== MONEY QUERY ======
-  it('should FIND all users to match for TODAY & their PREV MATCHES', () => {
+  it('should find all PREVIOUS MATCHES of a user', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    const {
+      createTable,
+      _deleteRecords,
+      add: addMatch,
+      count: countMatch
+    } = initMatchModel(db);
+    createTable();
+    _deleteRecords();
+    expect(countMatch()).toBe(0);
+
+    matchesToAdd.forEach(matchData => {
+      addMatch(matchData);
+    });
+
+    const { getUserPrevMatches } = initUserModel(db);
+    expect(getUserPrevMatches(1, 1)).toBe(false);
+  });
+
+  it('should FIND all users to match for TODAY', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     const {
       createTable,
