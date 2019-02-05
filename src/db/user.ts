@@ -28,7 +28,7 @@ export function initUserModel(db: sqlite): any {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
     // TODO: check that having checks work!
     const query = `CREATE TABLE IF NOT EXISTS User (
-      user_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+      id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
       coffee_days TEXT DEFAULT 1234,
@@ -48,9 +48,9 @@ export function initUserModel(db: sqlite): any {
   }
 
   function count(): number {
-    const countQuery = db.prepare(`SELECT COUNT(user_id) FROM User`);
+    const countQuery = db.prepare(`SELECT COUNT(id) FROM User`);
 
-    const { 'COUNT(user_id)': numRecord } = countQuery.get();
+    const { 'COUNT(id)': numRecord } = countQuery.get();
     return numRecord;
   }
 
@@ -123,6 +123,14 @@ export function initUserModel(db: sqlite): any {
     includePrevMatches: boolean = false,
     dayToMatch?: number
   ): IUserMatchResult[] {
+    const findMatches = db.prepare(`
+      SELECT User.email, User.full_name 
+      FROM User
+      LEFT OUTER JOIN User_Match
+        ON User.id = User_Match.user_id
+      LEFT OUTER JOIN Match
+        ON User_Match.match_id = Match.id
+    `);
     return [];
   }
 
