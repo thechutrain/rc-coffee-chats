@@ -7,43 +7,43 @@ import { initUserMatchModel } from '../usermatch';
 
 const DB_PATH = path.join(__dirname, 'user-match-integration-test.db');
 // Global Scope:
-let userTable; // obj containaing: k->primary key, v-> single userToAdd obj
-const usersToAdd = [
-  {
-    email: 'a@gmail.com',
-    full_name: 'a user'
-  },
-  {
-    email: 'b@gmail.com',
-    full_name: 'b user'
-  },
-  {
-    email: 'c@gmail.com',
-    full_name: 'c user'
-  },
-  {
-    email: 'd@gmail.com',
-    full_name: 'd user'
-  }
-];
+// const usersToAdd = [
+//   {
+//     email: 'a@gmail.com',
+//     full_name: 'a user'
+//   },
+//   {
+//     email: 'b@gmail.com',
+//     full_name: 'b user'
+//   },
+//   {
+//     email: 'c@gmail.com',
+//     full_name: 'c user'
+//   },
+//   {
+//     email: 'd@gmail.com',
+//     full_name: 'd user',
+//     coffee_days: '0'
+//   }
+// ];
 
-const matchesToAdd = [
-  {
-    user_1_id: 1,
-    user_2_id: 2,
-    date: 'DAY 1'
-  },
-  {
-    user_1_id: 3,
-    user_2_id: 4,
-    date: 'DAY 1'
-  },
-  {
-    user_1_id: 1,
-    user_2_id: 3,
-    date: 'DAY 2'
-  }
-];
+// const matchesToAdd = [
+//   {
+//     user_1_id: 1,
+//     user_2_id: 2,
+//     date: 'Monday'
+//   },
+//   {
+//     user_1_id: 1,
+//     user_2_id: 3,
+//     date: 'Tuesday'
+//   },
+//   {
+//     user_1_id: 3,
+//     user_2_id: 4,
+//     date: 'Monday'
+//   }
+// ];
 
 beforeAll(() => {
   // Ensures that creating brand new .db file
@@ -61,9 +61,8 @@ beforeAll(() => {
   expect(db.open).toBe(true);
 
   // !IMPORTANT: need to create User table first!
-  userTable = createUserTable(db);
-  const { count: countUsers } = initUserModel(db);
-  expect(countUsers()).toBe(usersToAdd.length);
+  const { createTable: createUserTable } = initUserModel(db);
+  createUserTable();
 
   // Create: User_Match Table
   const { createTable: createUserMatchTable } = initUserMatchModel(db);
@@ -72,8 +71,6 @@ beforeAll(() => {
   // Create: Match Table
   const { createTable: createMatchTable } = initMatchModel(db);
   createMatchTable(db);
-  // const { count: countMatches } = initMatchModel(db);
-  // expect(countMatches()).toBe(matchesToAdd.length);
 
   db.close();
   expect(db.open).toBe(false);
@@ -84,24 +81,24 @@ describe('Overall db table integration test', () => {
   //   expect(true).toBe(true);
   // });
 
-  it('should ADD new matches for a User', () => {
+  xit('should ADD new matches for a User', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     const { createTable, _deleteRecords, count, add } = initMatchModel(db);
     createTable();
     _deleteRecords();
     expect(count()).toBe(0);
 
-    matchesToAdd.forEach(matchData => {
-      add(matchData);
-    });
+    // matchesToAdd.forEach(matchData => {
+    //   add(matchData);
+    // });
 
-    expect(count()).toBe(matchesToAdd.length);
+    // expect(count()).toBe(matchesToAdd.length);
   });
 
   // it('should FIND prev MATCHES of User');
 
   // ===== MONEY QUERY ======
-  it('should find all PREVIOUS MATCHES of a user', () => {
+  xit('should find all PREVIOUS MATCHES of a user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     const {
       createTable,
@@ -113,35 +110,27 @@ describe('Overall db table integration test', () => {
     _deleteRecords();
     expect(countMatch()).toBe(0);
 
-    matchesToAdd.forEach(matchData => {
-      addMatch(matchData);
-    });
+    // matchesToAdd.forEach(matchData => {
+    //   addMatch(matchData);
+    // });
+    expect(countMatch()).toBe(3);
+
+    // TODO: Check if the User_Match table is also empty here
 
     const { getUserPrevMatches } = initUserModel(db);
-    expect(getUserPrevMatches(1, 1)).toBe(false);
+    expect(getUserPrevMatches(1, true)).toBe(false);
   });
 
   it('should FIND all users to match for TODAY', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
-    const {
-      createTable,
-      _deleteRecords,
-      add: addMatch,
-      count: countMatch
-    } = initMatchModel(db);
-    createTable();
-    _deleteRecords();
-    expect(countMatch()).toBe(0);
-
-    matchesToAdd.forEach(matchData => {
-      addMatch(matchData);
-    });
-
-    expect(countMatch()).toBe(matchesToAdd.length);
 
     // Try to find Users by Matches
     const { getUsersToMatch } = initUserModel(db);
-    expect(getUsersToMatch()).toBe(false);
+    // Only d-user for Sunday
+    expect(getUsersToMatch(0)).toMatchObject([{ full_name: 'd user' }]);
+
+    // THe other three users for Monday
+    expect(getUsersToMatch(1).length).toBe(3);
   });
 
   // it('should be able to find all the previous matches that a User had', () => {
@@ -158,37 +147,28 @@ describe('Overall db table integration test', () => {
   // });
 });
 
-// ===== helper function to create User table =====
-function createUserTable(db: sqlite) {
-  const { createTable, add } = initUserModel(db);
-  createTable();
+//////////////////////////////////
+// Helper Functions - scaffold Tables
+//////////////////////////////////
+function scaffoldUserTable(db: sqlite, userData: any[]) {
+  const {
+    createTable,
+    _deleteRecords,
+    add: addMatch,
+    count: countMatch
+  } = initMatchModel(db);
 
-  const userMap = {};
-  usersToAdd.forEach(user => {
-    const { status, payload } = add(user);
-    if (status === 'FAILURE') {
-      throw new Error('Error adding users from initUserTable()');
-    }
-    userMap[payload.lastInsertROWID] = user;
+  createTable();
+  _deleteRecords();
+  if (countMatch() !== 0) {
+    throw new Error('scaffolding user table, should NOT BE ANY User record');
+  }
+
+  userData.forEach(user => {
+    addMatch(user);
   });
 
-  return Object.freeze(userMap);
+  if (countMatch() !== userData.length) {
+    throw new Error('Error adding users, mismatch in nuof users trying to add');
+  }
 }
-
-// function createMatchTable(db: sqlite) {
-//   const { createTable, add } = initMatchModel(db);
-//   createTable();
-
-//   //// ====== version 1 ===========
-//   const matchMap = {};
-//   matchesToAdd.forEach(match => {
-//     const { message } = add(match);
-//     if (message) {
-//       console.log(message);
-//       throw new Error('Error adding matches from initMatchTable()');
-//     }
-//     // matchMap[payload.lastInsertROWID] = match;
-//   });
-
-//   return Object.freeze(matchMap);
-// }
