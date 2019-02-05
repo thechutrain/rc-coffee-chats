@@ -1,12 +1,13 @@
+import sqlite from 'better-sqlite3';
 import * as path from 'path';
+
 import { initUserModel } from '../user';
 import { initMatchModel } from '../match';
-import sqlite from 'better-sqlite3';
+import { initUserMatchModel } from '../usermatch';
 
 const DB_PATH = path.join(__dirname, 'user-match-integration-test.db');
 // Global Scope:
 let userTable; // obj containaing: k->primary key, v-> single userToAdd obj
-let matchTable;
 const usersToAdd = [
   {
     email: 'a@gmail.com',
@@ -64,10 +65,14 @@ beforeAll(() => {
   const { count: countUsers } = initUserModel(db);
   expect(countUsers()).toBe(usersToAdd.length);
 
-  // create Match table
-  matchTable = createMatchTable(db);
-  const { count: countMatches } = initMatchModel(db);
-  expect(countMatches()).toBe(matchesToAdd.length);
+  // Create: User_Match Table
+  const { createTable: createUserMatchTable } = initUserMatchModel(db);
+  createUserMatchTable();
+
+  // Create: Match Table
+  createMatchTable(db);
+  // const { count: countMatches } = initMatchModel(db);
+  // expect(countMatches()).toBe(matchesToAdd.length);
 
   db.close();
   expect(db.open).toBe(false);
@@ -77,7 +82,6 @@ describe('Overall db table integration test', () => {
   it('should pass', () => {
     expect(true).toBe(true);
   });
-  // NOTE: GREG this test should fail
   // it('should be able to find all the previous matches that a User had', () => {
   //   const db = new sqlite(DB_PATH, { fileMustExist: true });
   //   expect(db.open).toBe(true);
@@ -113,13 +117,15 @@ function createMatchTable(db: sqlite) {
   const { createTable, add } = initMatchModel(db);
   createTable();
 
+  //// ====== version 1 ===========
   const matchMap = {};
   matchesToAdd.forEach(match => {
-    const { status, payload } = add(match);
-    if (status === 'FAILURE') {
+    const { message } = add(match);
+    if (message) {
+      console.log(message);
       throw new Error('Error adding matches from initMatchTable()');
     }
-    matchMap[payload.lastInsertROWID] = match;
+    // matchMap[payload.lastInsertROWID] = match;
   });
 
   return Object.freeze(matchMap);

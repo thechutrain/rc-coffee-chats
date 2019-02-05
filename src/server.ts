@@ -4,7 +4,7 @@ import logger from './logger';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import { initDB } from './db/db';
+import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';

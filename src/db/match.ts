@@ -6,6 +6,7 @@ import {
   IAddMatchArgs,
   IMatchDB
 } from './db.interface';
+import { initUserMatchModel } from './usermatch';
 
 const TABLE_NAME = 'Match';
 
@@ -61,7 +62,6 @@ export function initMatchModel(db: sqlite): any {
   // - fn: getMatches by day?
   // - fn: get all matches for particular user?
   // - fn: get match by match_id
-
   function findAllUserMatches(targetUser: number): IMatchDB {
     const findStmt = db.prepare(
       `SELECT * FROM Match WHERE user_1_id = ? OR user_2_id = ?`
@@ -70,35 +70,61 @@ export function initMatchModel(db: sqlite): any {
     return findStmt.all(targetUser, targetUser);
   }
 
+  // export interface IAddMatchArgs {
+  //   user_1_id: number;
+  //   user_2_id: number;
+  //   date?: string;
+  // }
+
+  // TODO: (LATER) add flexbility to update match by emails?
   function addMatch(matchArgs: IAddMatchArgs): ISqlSuccess | ISqlError {
     // const insertQuery = db.prepare(`
     // INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, @date)`);
-
-    const insertQuery = db.prepare(`
-    INSERT INTO Match (user_1_id, user_2_id, date) VALUES (?, ?, ?)`);
 
     // TODO: validate that date is in the right format
     const { user_1_id, user_2_id } = matchArgs;
     const date = matchArgs.date || new Date().toISOString().split('T')[0];
 
-    let queryResult;
-    try {
-      queryResult = insertQuery.run(user_1_id, user_2_id, date);
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
+    const insertMatchQuery = db.prepare(`
+    INSERT INTO Match (user_1_id, user_2_id, date) VALUES (?, ?, ?)`);
+    const {
+      changes: rowsChanged,
+      lastInsertROWID: newMatchId
+    } = insertMatchQuery.run(user_1_id, user_2_id, date);
+
+    if (!rowsChanged) {
+      throw new Error(`Could not insert into Match table`);
+      // return {
+      //   status: 'FAILURE',
+      //   message: 'Error: could not insert into Match table'
+      // };
     }
 
-    return queryResult.info !== 0
-      ? { status: 'SUCCESS' }
-      : { status: 'FAILURE', message: 'Error: could not add match ' };
+    // Insert into User_Match Table:
+    const {
+      add: insertUserMatch,
+      createTable: createUserMatchTable
+    } = initUserMatchModel(db);
+    createUserMatchTable();
+    const { status: status1 } = insertUserMatch(user_1_id, newMatchId);
+    const { status: status2 } = insertUserMatch(user_2_id, newMatchId);
+
+    if (status1 === 'SUCCESS' && status2 === 'SUCCESS') {
+      return {
+        status: 'SUCCESS'
+      };
+    } else {
+      return {
+        status: 'FAILURE',
+        message: 'ERROR: failed to add to User_Match'
+      };
+    }
   }
 
-  // TODO: (LATER) add flexbility to update match by emails?
   // interface IupdateMatchArgs {
   //   user_id_1: number,
   //   user_id_2: number,
   // }
-  // function updateMatch()
 
   return {
     createTable,
