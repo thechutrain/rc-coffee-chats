@@ -70,6 +70,7 @@ beforeAll(() => {
   createUserMatchTable();
 
   // Create: Match Table
+  const { createTable: createMatchTable } = initMatchModel(db);
   createMatchTable(db);
   // const { count: countMatches } = initMatchModel(db);
   // expect(countMatches()).toBe(matchesToAdd.length);
@@ -79,9 +80,31 @@ beforeAll(() => {
 });
 
 describe('Overall db table integration test', () => {
-  it('should pass', () => {
-    expect(true).toBe(true);
+  // it('should pass', () => {
+  //   expect(true).toBe(true);
+  // });
+
+  it('should ADD new matches for a User', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    const { createTable, _deleteRecords, count, add } = initMatchModel(db);
+    createTable();
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    matchesToAdd.forEach(matchData => {
+      add(matchData);
+    });
+
+    expect(count()).toBe(matchesToAdd.length);
   });
+
+  // it('should FIND prev MATCHES of User');
+
+  // ===== MONEY QUERY ======
+  it('should FIND all users to match for TODAY & their PREV MATCHES', () => {
+    expect(false).toBe(true);
+  });
+
   // it('should be able to find all the previous matches that a User had', () => {
   //   const db = new sqlite(DB_PATH, { fileMustExist: true });
   //   expect(db.open).toBe(true);
@@ -113,20 +136,20 @@ function createUserTable(db: sqlite) {
   return Object.freeze(userMap);
 }
 
-function createMatchTable(db: sqlite) {
-  const { createTable, add } = initMatchModel(db);
-  createTable();
+// function createMatchTable(db: sqlite) {
+//   const { createTable, add } = initMatchModel(db);
+//   createTable();
 
-  //// ====== version 1 ===========
-  const matchMap = {};
-  matchesToAdd.forEach(match => {
-    const { message } = add(match);
-    if (message) {
-      console.log(message);
-      throw new Error('Error adding matches from initMatchTable()');
-    }
-    // matchMap[payload.lastInsertROWID] = match;
-  });
+//   //// ====== version 1 ===========
+//   const matchMap = {};
+//   matchesToAdd.forEach(match => {
+//     const { message } = add(match);
+//     if (message) {
+//       console.log(message);
+//       throw new Error('Error adding matches from initMatchTable()');
+//     }
+//     // matchMap[payload.lastInsertROWID] = match;
+//   });
 
-  return Object.freeze(matchMap);
-}
+//   return Object.freeze(matchMap);
+// }

@@ -60,7 +60,7 @@ beforeAll(() => {
   expect(db.open).toBe(false);
 });
 
-xdescribe('User Model test', () => {
+describe('User Model test', () => {
   // it('should pass', () => {
   //   expect(true).toBe(true);
   // });
@@ -108,7 +108,7 @@ xdescribe('User Model test', () => {
     expect(count()).toBe(2);
   });
 
-  it('should FIND recorda in Match', () => {
+  it('should FIND record in Match', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
