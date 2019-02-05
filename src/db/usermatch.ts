@@ -6,12 +6,12 @@ const TABLE_NAME = 'User_Match';
 export function initUserMatchModel(db: sqlite): any {
   function createTable(): void {
     const query = `CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
-      user_match_id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+      id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       user_id INTEGER NOT NULL,
       match_id INTEGER NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES User (user_id)
+      FOREIGN KEY (user_id) REFERENCES User (id)
       ON DELETE CASCADE ON UPDATE NO ACTION,
-      FOREIGN KEY (match_id) REFERENCES Match (match_id)
+      FOREIGN KEY (match_id) REFERENCES Match (id)
       ON DELETE CASCADE ON UPDATE NO ACTION
     )`;
 
@@ -24,8 +24,8 @@ export function initUserMatchModel(db: sqlite): any {
   }
 
   function count(): number {
-    const stmt = db.prepare(`SELECT COUNT(user_match_id) FROM ${TABLE_NAME}`);
-    const { 'COUNT(user_match_id)': numRecord } = stmt.get();
+    const stmt = db.prepare(`SELECT COUNT(id) FROM ${TABLE_NAME}`);
+    const { 'COUNT(id)': numRecord } = stmt.get();
     return numRecord;
   }
 
