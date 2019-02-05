@@ -19,6 +19,10 @@ import { WEEKDAYS } from '../constants';
 // - deleteRecords
 
 export function initUserModel(db: sqlite): any {
+  //////////////////////////////
+  // Boilerplate Model Methods
+  /////////////////////////////
+
   // function createTable(): ISqlResponse {
   function createTable(): void {
     // NOTE: should I do this as a prepare() statemnt, and then execute?
@@ -50,21 +54,9 @@ export function initUserModel(db: sqlite): any {
     return numRecord;
   }
 
-  function findUserByEmail(email: string): IUserDB | null {
-    const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
-    const foundUser = findStmt.get(email);
-    // TODO: convert the coffee_days column from 1234 --> Mon, Tues, Wed, Thurs?
-    // Do that in the print message?
-    return !!foundUser ? foundUser : null;
-  }
-
-  // TODO:
-  // NOTE: would be nice to also sort via sql by the number of prevMatches
-  function getUsersToMatch(
-    includePrevMatches: boolean = false,
-    dayToMatch?: number
-  ): IUserMatchResult[] {
-    return [];
+  function _deleteRecords() {
+    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
+    dropStmt.run();
   }
 
   function addUser(userVals: IAddUserArgs): ISqlSuccess | ISqlError {
@@ -78,6 +70,17 @@ export function initUserModel(db: sqlite): any {
       return { status: 'FAILURE', message: e };
     }
     return { status: 'SUCCESS', payload: newUser };
+  }
+
+  //////////////////////////////
+  // Specific Model Methods
+  /////////////////////////////
+  function findUserByEmail(email: string): IUserDB | null {
+    const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
+    const foundUser = findStmt.get(email);
+    // TODO: convert the coffee_days column from 1234 --> Mon, Tues, Wed, Thurs?
+    // Do that in the print message?
+    return !!foundUser ? foundUser : null;
   }
 
   function updateCoffeeDays(
@@ -97,8 +100,8 @@ export function initUserModel(db: sqlite): any {
 
     const updateStmt = db.prepare(
       `UPDATE User SET
-      coffee_days = ?
-      WHERE user_id = ?`
+        coffee_days = ?
+        WHERE user_id = ?`
     );
 
     const queryResult = updateStmt.run(coffeeDayStr, foundUser.user_id);
@@ -112,57 +115,15 @@ export function initUserModel(db: sqlite): any {
 
   // function toggleWarningException(valToSet?: boolean) {}
 
-  // ======= TODO: make this flexible ===============
-  // Note: add flexibility to overwrite a previous user if they exists?
-  // function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
-  //   // Check if the user exists
-  //   const targetUser = findUserByEmail(targetEmail);
-  //   if (!targetUser) {
-  //     throw new Error(
-  //       `No user found with email "${targetEmail}", insert first`
-  //     );
-  //   }
-
-  //   const colVals = {
-  //     coffee_days: opts.coffee_days || targetUser.coffee_days,
-  //     skip_next_match: castBoolInt(
-  //       opts.skip_next_match || targetUser.skip_next_match
-  //     ),
-  //     warning_exceptions: castBoolInt(
-  //       opts.warning_exception || targetUser.warning_exception
-  //     ),
-  //     is_active: castBoolInt(opts.is_active || targetUser.is_active),
-  //     is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
-  //     is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
-  //   };
-  //   const updateStmt = db.prepare(
-  //     `UPDATE User SET
-  //     coffee_days = ?,
-  //     skip_next_match = ?,
-  //     warning_exception = ?,
-  //     is_active = ?,
-  //     is_faculty = ?,
-  //     is_alum = ?
-  //     WHERE user_id = ?`
-  //   );
-
-  //   const queryResults = updateStmt.run(
-  //     colVals.coffee_days,
-  //     colVals.skip_next_match,
-  //     colVals.warning_exceptions,
-  //     colVals.is_active,
-  //     colVals.is_faculty,
-  //     colVals.is_alum,
-  //     targetUser.user_id
-  //   );
-
-  //   // Check that you've updated at least one row
-  //   return queryResults.changes !== 0;
-  // }
-
-  function _deleteRecords() {
-    const dropStmt = db.prepare(`DELETE FROM User WHERE true`);
-    dropStmt.run();
+  //////////////////////////////
+  // Most Important Query!
+  /////////////////////////////
+  // NOTE: would be nice to also sort via sql by the number of prevMatches
+  function getUsersToMatch(
+    includePrevMatches: boolean = false,
+    dayToMatch?: number
+  ): IUserMatchResult[] {
+    return [];
   }
 
   return {
@@ -187,4 +148,52 @@ export function initUserModel(db: sqlite): any {
 //     return { status: 'FAILURE', message: e };
 //   }
 //   return { status: 'SUCCESS', message: 'Dropped User table' };
+// }
+
+// ======= TODO: make this flexible ===============
+// Note: add flexibility to overwrite a previous user if they exists?
+// function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
+//   // Check if the user exists
+//   const targetUser = findUserByEmail(targetEmail);
+//   if (!targetUser) {
+//     throw new Error(
+//       `No user found with email "${targetEmail}", insert first`
+//     );
+//   }
+
+//   const colVals = {
+//     coffee_days: opts.coffee_days || targetUser.coffee_days,
+//     skip_next_match: castBoolInt(
+//       opts.skip_next_match || targetUser.skip_next_match
+//     ),
+//     warning_exceptions: castBoolInt(
+//       opts.warning_exception || targetUser.warning_exception
+//     ),
+//     is_active: castBoolInt(opts.is_active || targetUser.is_active),
+//     is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
+//     is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
+//   };
+//   const updateStmt = db.prepare(
+//     `UPDATE User SET
+//     coffee_days = ?,
+//     skip_next_match = ?,
+//     warning_exception = ?,
+//     is_active = ?,
+//     is_faculty = ?,
+//     is_alum = ?
+//     WHERE user_id = ?`
+//   );
+
+//   const queryResults = updateStmt.run(
+//     colVals.coffee_days,
+//     colVals.skip_next_match,
+//     colVals.warning_exceptions,
+//     colVals.is_active,
+//     colVals.is_faculty,
+//     colVals.is_alum,
+//     targetUser.user_id
+//   );
+
+//   // Check that you've updated at least one row
+//   return queryResults.changes !== 0;
 // }
