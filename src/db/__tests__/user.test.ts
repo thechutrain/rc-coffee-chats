@@ -131,6 +131,23 @@ describe('User Model test', () => {
     expect(foundUser).toMatchObject(fooUser);
   });
 
+  it('should FIND a user that EXISTS', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { count, add, findUserByEmail, _deleteRecords } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
+    add(fooUser);
+    expect(count()).toBe(1);
+
+    const { payload: foundUser } = findUserByEmail('foo@gmail.com');
+
+    expect(foundUser).toMatchObject(fooUser);
+  });
+
   it('should NOT FIND a user that does NOT EXISTS', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);

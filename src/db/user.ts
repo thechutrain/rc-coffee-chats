@@ -102,7 +102,7 @@ export function initUserModel(db: sqlite): any {
     let error;
     try {
       foundUser = findStmt.get(email);
-      if (!foundUser.length) {
+      if (!foundUser) {
         throw new Error(`No email found for ${email}.`);
       }
     } catch (e) {
