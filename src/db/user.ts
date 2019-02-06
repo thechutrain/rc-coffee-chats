@@ -235,16 +235,20 @@ export function initUserModel(db: sqlite): any {
   }
 
   return {
-    createTable,
-    count,
+    // Queries
     find: findUserByEmail,
-    updateCoffeeDays,
     getUsersToMatch,
     getPrevMatches,
     getTodaysMatches,
+
+    // Mutations
     add: addUser,
+    updateCoffeeDays,
+
+    // Basic Table methods
+    createTable,
+    count,
     _deleteRecords
-    // update: updateUser
   };
 }
 

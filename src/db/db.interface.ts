@@ -1,9 +1,19 @@
 import { WEEKDAYS } from '../constants';
 
+///////////////////////////
+// General DB Responses
+//////////////////////////
+// TODO: Make General DB Responses
+// interface ISuccessHandler {
+//   log: boolean;
+//   sendMessage?: boolean;
+//   messageType: string;
+//   messageBody:
+// }
+
 //////////////////////
 // General Sql Responses
 //////////////////////
-// TODO: make a SQL error object?
 
 interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';

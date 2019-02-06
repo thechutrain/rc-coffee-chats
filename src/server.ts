@@ -34,26 +34,8 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
   const app = express();
 
   // ==== TESTING ====
-  app.get('/', async (request, response) => {
-    // logger.info('this is a test log from the / route');
-    // const zulipMsg = await sendMessage(
-    //   ['alancodes@gmail.com'],
-    //   'test message from my local server'
-    // )
-    //   .then(result => {
-    //     console.log(result);
-    //     return { error: false };
-    //   })
-    //   .catch(e => {
-    //     // ERROR OBJECT: of e.response.data
-    //     // { code: 'BAD_REQUEST',
-    //     // msg: 'Invalid email \'lancodes@gmail.com\'',
-    //     // result: 'error' }
-    //     console.log(e.response.data);
-    //     return { error: true };
-    //     // console.log(e);
-    //   });
-    // response.json(zulipMsg);
+  app.get('/', (request, response) => {
+    response.send('There is no home route yo');
   });
 
   // ====== USED FOR TESTING =========
@@ -72,21 +54,41 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-    res.json({});
-    let cliAction: ICliAction;
-    // let successMessage: string; // SuccessHandler
-    // interface ISuccessHandler {
-    //   log: boolean;
-    //   sendMessage?: boolean;
-    //   message: string;
-    // }
-
-    let sqlResult: ISqlSuccess | ISqlError;
     const senderEmail = req.body.data.message.sender_email;
+    let ZulipResponse: {
+      log?: boolean;
+      messageType: 'ERROR' | 'UPDATE';
+      messageData: any;
+    };
+    // Question: Do I even need to end the response?
+    // res.json({});
 
-    /////// Parse Zulip Message ////////
+    ////////////////////////////////////////////////////
+    // TODO: CHECK IF VALID USER / IF THEY ARE SIGNED UP
+    /////////////////////////////////////////////////////
+    // TODO: move to middleware
+    const userExists = db.user.find(senderEmail);
+    if (!userExists) {
+      const { status } = db.user.add(senderEmail);
+      if (status === 'SUCCESS') {
+        sendMessage(
+          senderEmail,
+          'Welcome new user, you have successfully been added to the coffee-chat club. Type HELP to learn more or visit this link'
+        );
+      } else {
+        sendMessage(
+          senderEmail,
+          'Failed to sign you up, please contact the admin for more help.'
+        );
+      }
+      return;
+    }
+
+    ////////////////////////////////////////////////////
+    // Parse ZULIP Message
+    /////////////////////////////////////////////////////
     // TODO: modify parseZulipServerRequest --> make it a middleware
-    // NOTE: Can move this into middle ware of this route?
+    let cliAction: ICliAction;
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
@@ -95,6 +97,9 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
       return;
     }
 
+    ////////////////////////////////////////////////////
+    // Dispatch Action off Zulip CMD
+    /////////////////////////////////////////////////////
     console.log('==== Received Valid cliAction =====');
     console.log(cliAction);
 
@@ -102,7 +107,6 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
-
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
@@ -127,6 +131,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
+          ZulipResponse = db.user.coffee_days;
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
