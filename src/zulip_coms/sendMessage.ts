@@ -5,6 +5,9 @@
 
 import axios from 'axios';
 
+// TODO: make a sendMessage (takes in message type etc.)
+
+// TODO: change sendMessage --> sendGenericMessage
 export function sendMessage(
   toEmail: string | string[],
   messageContent: string
