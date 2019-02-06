@@ -1,6 +1,6 @@
 {
   "name": "rc-coffee-chats",
-  "version": "0.0.1",
+  "version": "2.0.1",
   "description": "A simple Node app with SQLite as a database management system, instantly up and running.",
   "main": "server.js",
   "scripts": {

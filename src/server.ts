@@ -1,3 +1,4 @@
+import * as path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
 import logger from './logger';
@@ -7,51 +8,34 @@ dotenv.config();
 import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
+
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlSuccess, ISqlError } from './db/db.interface';
 
 // TODO: pass in env vars into the IFFE?
-
 (async () => {
   const PORT = process.env.PORT || 3000;
 
   /////////////////
   /// Database
   /////////////////
-  const DB_FILE_NAME =
-    process.env.NODE_ENV === 'production' ? 'prod.db' : 'dev.db';
-  console.log(DB_FILE_NAME);
-  const { user } = initDB(DB_FILE_NAME);
+  const db = (() => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const DB_FILE = isProd ? 'prod.db' : 'dev.db';
+    const fileMustExist = isProd;
+    const DB_PATH = path.join(__dirname, DB_FILE);
 
-  // user.createTable();
+    return initDB(DB_PATH, fileMustExist);
+  })();
 
   /////////////////
   /// Server
   /////////////////
   const app = express();
-  // app.use(bodyParser.json());
 
   // ==== TESTING ====
-  app.get('/', async (request, response) => {
-    // logger.info('this is a test log from the / route');
-    // const zulipMsg = await sendMessage(
-    //   ['alancodes@gmail.com'],
-    //   'test message from my local server'
-    // )
-    //   .then(result => {
-    //     console.log(result);
-    //     return { error: false };
-    //   })
-    //   .catch(e => {
-    //     // ERROR OBJECT: of e.response.data
-    //     // { code: 'BAD_REQUEST',
-    //     // msg: 'Invalid email \'lancodes@gmail.com\'',
-    //     // result: 'error' }
-    //     console.log(e.response.data);
-    //     return { error: true };
-    //     // console.log(e);
-    //   });
-    // response.json(zulipMsg);
+  app.get('/', (request, response) => {
+    response.send('There is no home route yo');
   });
 
   // ====== USED FOR TESTING =========
@@ -70,40 +54,65 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-    res.json({});
-    let cliAction: ICliAction;
-    // let successMessage: string; // SuccessHandler
-    // interface ISuccessHandler {
-    //   log: boolean;
-    //   sendMessage?: boolean;
-    //   message: string;
-    // }
-
-    let sqlResult: ISqlSuccess | ISqlError;
     const senderEmail = req.body.data.message.sender_email;
+    let ZulipResponse: {
+      log?: boolean;
+      messageType: 'ERROR' | 'UPDATE';
+      messageData: any;
+    };
+    // Question: Do I even need to end the response?
+    // res.json({});
 
-    /////// Parse Zulip Message ////////
-    // NOTE: Can move this into middle ware of this route?
+    ////////////////////////////////////////////////////
+    // TODO: CHECK IF VALID USER / IF THEY ARE SIGNED UP
+    /////////////////////////////////////////////////////
+    // TODO: move to middleware
+    const userExists = db.user.find(senderEmail);
+    if (!userExists) {
+      const { status } = db.user.add(senderEmail);
+      if (status === 'SUCCESS') {
+        sendMessage(
+          senderEmail,
+          'Welcome new user, you have successfully been added to the coffee-chat club. Type HELP to learn more or visit this link'
+        );
+      } else {
+        sendMessage(
+          senderEmail,
+          'Failed to sign you up, please contact the admin for more help.'
+        );
+      }
+      return;
+    }
+
+    ////////////////////////////////////////////////////
+    // Parse ZULIP Message
+    /////////////////////////////////////////////////////
+    // TODO: modify parseZulipServerRequest --> make it a middleware
+    let cliAction: ICliAction;
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
-      // sendMessage(senderEmail, e.message);
+      sendMessage(senderEmail, e.message);
       console.log(e);
       return;
     }
 
-    console.log(`Switch/Case: ${cliAction.directive}`);
+    ////////////////////////////////////////////////////
+    // Dispatch Action off Zulip CMD
+    /////////////////////////////////////////////////////
+    console.log('==== Received Valid cliAction =====');
+    console.log(cliAction);
+
     if (cliAction.directive === directives.CHANGE) {
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
-
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
           // TODO: convert MON TUES WED --> 123
-          sqlResult = user.updateCoffeeDays(senderEmail, {
+          sqlResult = db.user.updateCoffeeDays(senderEmail, {
             coffee_days: cliAction.payload
           });
           break;
@@ -122,6 +131,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
+          ZulipResponse = db.user.coffee_days;
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
@@ -190,8 +200,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
   // });
 
   // listen for requests :)
-  const listener = app.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`🌍 is listening on port: ${PORT}`);
-    // logger.info('Your app is listening on port ' + listener.address().port);
   });
 })();
