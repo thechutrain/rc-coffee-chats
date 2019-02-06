@@ -54,14 +54,15 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-    const senderEmail = req.body.data.message.sender_email;
+    console.log(req.body);
+    const senderEmail = req.body.message.sender_email;
     let ZulipResponse: {
       log?: boolean;
       messageType: 'ERROR' | 'UPDATE';
       messageData: any;
     };
     // Question: Do I even need to end the response?
-    // res.json({});
+    res.json({});
 
     ////////////////////////////////////////////////////
     // TODO: CHECK IF VALID USER / IF THEY ARE SIGNED UP

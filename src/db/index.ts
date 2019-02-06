@@ -16,7 +16,12 @@ export function initDB(
   // Initialize Models here:
   const user = initUserModel(db);
   const match = initMatchModel(db);
-  initUserMatchModel(db);
+  const userMatch = initUserMatchModel(db);
+
+  // Ensure Tables have been also created:
+  user.createTable();
+  match.createTable();
+  userMatch.createTable();
 
   return {
     user,
