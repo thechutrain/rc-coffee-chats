@@ -17,6 +17,7 @@ import { WEEKDAYS } from '../constants';
 
 interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
+  payload?: any;
 }
 
 export interface ISqlSuccess extends ISqlResponse {

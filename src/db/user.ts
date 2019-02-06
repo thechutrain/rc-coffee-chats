@@ -118,7 +118,7 @@ export function initUserModel(db: sqlite): any {
     targetEmail: string,
     coffeeDays: WEEKDAYS[]
   ): ISqlSuccess | ISqlError {
-    const foundUser = findUserByEmail(targetEmail);
+    const { payload: foundUser } = findUserByEmail(targetEmail);
 
     if (!foundUser) {
       return {
