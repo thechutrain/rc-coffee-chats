@@ -11,6 +11,7 @@ import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlSuccess, ISqlError } from './db/db.interface';
+import { WEEKDAYS } from './constants';
 
 // TODO: pass in env vars into the IFFE?
 (async () => {
@@ -55,10 +56,11 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     const senderEmail = req.body.message.sender_email;
-    let ZulipResponse: {
+    let zulipHandler: {
       log?: boolean;
-      messageType: 'ERROR' | 'UPDATE';
-      mesageData: any;
+      logData?: any;
+      messageType?: 'ERROR' | 'OK';
+      messageData: any;
     };
     // Question: Do I even need to end the response?
     res.json({});
@@ -77,6 +79,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
       });
 
       if (status === 'SUCCESS') {
+        // TODO: Personalize this message with the full name!
         sendMessage(
           senderEmail,
           'Welcome new user, you have successfully been added to the coffee-chat club. Type HELP to learn more or visit this link'
@@ -114,12 +117,14 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
+      // TODO: have all commands returen ISqlSuccess or ISqlError object
+
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
           // TODO: validate cliAction.payload!! Make sure all strings
-          ZulipResponse = db.user.updateCoffeeDays(
+          zulipHandler = db.user.updateCoffeeDays(
             senderEmail,
             cliAction.payload
           );
@@ -139,7 +144,20 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          ZulipResponse = db.user.coffee_days;
+          const { status, message, payload } = db.user.findUserByEmail(
+            senderEmail
+          );
+          // TODO: convert payload of whole user --> to "Your days for selectd Matches: Mon Tue Wed"
+          if (status === 'FAILURE') {
+            zulipHandler.messageType = 'ERROR';
+            zulipHandler.messageData = message;
+          } else {
+            zulipHandler.messageType = 'OK';
+            const daysAsString = payload.coffee_days
+              .map(dayInt => WEEKDAYS[dayInt])
+              .join(' ');
+            zulipHandler.messageData = `Your coffee day(s) are: ${daysAsString}`;
+          }
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
@@ -161,14 +179,15 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
       /////////////////////////////////////
       // HELP subcommand switch block
       /////////////////////////////////////
+      // TODO: send back message for Help, or additional commands:
     }
 
     // ====== Zulip Message ==========
-    // if (errorMessage) {
-    //   sendErrorMessage(senderEmail, errorMessage);
-    // } else if (successMessage) {
-    //   sendErrorMessage(senderEmail, successMessage);
-    // }
+    if (zulipHandler.messageType) {
+      sendMessage(senderEmail, zulipHandler.messageData);
+    } else if (zulipHandler.log) {
+      logger.info(zulipHandler.messageData);
+    }
   });
 
   app.post('/cron/run', (request, response) => {
