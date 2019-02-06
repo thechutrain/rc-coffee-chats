@@ -1,16 +1,18 @@
+import { WEEKDAYS } from '../constants';
+
 //////////////////////
 // General Sql Responses
 //////////////////////
 // TODO: make a SQL error object?
 
-export interface ISqlResponse {
+interface ISqlResponse {
   status: 'SUCCESS' | 'FAILURE';
-  message?: string;
-  payload?: any; // valid model?
 }
 
-export interface ISqlError {
-  status: 'FAILURE';
+export interface ISqlSuccess extends ISqlResponse {
+  payload?: any;
+}
+export interface ISqlError extends ISqlResponse {
   message: string;
 }
 
@@ -27,6 +29,8 @@ export interface ISqlError {
 export interface IAddUserArgs {
   email: string;
   full_name: string;
+  coffee_days?: string; // string of numbers TODO: fix this in the addUser fn
+  // coffee_days?: WEEKDAYS[];
 }
 
 export interface IUpdateUserArgs {
@@ -43,7 +47,7 @@ export interface IUpdateUserArgs {
 type truthy = boolean | number;
 
 export interface IUserDB {
-  user_id: number;
+  id: number;
   email: string;
   full_name: string;
   coffee_days: string; // coffee_days into an enum
@@ -76,3 +80,19 @@ export interface IUserMatchResult extends IUserDB {
 //   add: (IAddUserArgs) => ISqlResponse;
 //   update: (targetEmail: string, opts: IUpdateUserArgs) => IUserSqlResponse;
 // }
+
+//////////////////////
+// Match Model
+//////////////////////
+export interface IAddMatchArgs {
+  user_1_id: number;
+  user_2_id: number;
+  date?: string;
+}
+
+export interface IMatchDB {
+  match_id: number;
+  user_1_id: number;
+  user_2_id: number;
+  date: string;
+}

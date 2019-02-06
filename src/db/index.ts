@@ -5,6 +5,7 @@ import sqlite from 'better-sqlite3';
 // Models
 import { initUserModel } from './user';
 import { initMatchModel } from './match';
+import { initUserMatchModel } from './usermatch';
 
 // dbFilePath & connect to new db?
 // export function initDB(dbFilePath: string, fileMustExists = true): IDBMethods {
@@ -29,10 +30,15 @@ export function initDB(dbFile: string): any {
   // Note: can set readonly, fileMustExist, timeout etc
   const db = new sqlite(fullDbPath, { verbose: console.log });
 
+  // Initialize Models here:
+  const user = initUserModel(db);
+  const match = initMatchModel(db);
+  initUserMatchModel(db);
+
   return {
-    user: initUserModel(db),
-    match: initMatchModel(db),
-    closeDb: initCloseDb(db) // probably dont need this
+    user,
+    match
+    // closeDb: initCloseDb(db) // probably dont need this
   };
 }
 
@@ -61,13 +67,13 @@ export function initDB(dbFile: string): any {
 // }
 
 // Close DB connection
-function initCloseDb(db): () => ISqlResponse {
-  return () => {
-    try {
-      db.close();
-    } catch (e) {
-      return { status: 'FAILURE', message: e };
-    }
-    return { status: 'SUCCESS' };
-  };
-}
+// function initCloseDb(db): () => ISqlResponse {
+//   return () => {
+//     try {
+//       db.close();
+//     } catch (e) {
+//       return { status: 'FAILURE', message: e };
+//     }
+//     return { status: 'SUCCESS' };
+//   };
+// }
