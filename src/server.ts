@@ -1,3 +1,4 @@
+import * as path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
 import logger from './logger';
@@ -7,29 +8,30 @@ dotenv.config();
 import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
+
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlSuccess, ISqlError } from './db/db.interface';
 
 // TODO: pass in env vars into the IFFE?
-
 (async () => {
   const PORT = process.env.PORT || 3000;
 
   /////////////////
   /// Database
   /////////////////
-  const DB_FILE_NAME =
-    process.env.NODE_ENV === 'production' ? 'prod.db' : 'dev.db';
-  console.log(DB_FILE_NAME);
-  const { user } = initDB(DB_FILE_NAME);
+  const db = (() => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const DB_FILE = isProd ? 'prod.db' : 'dev.db';
+    const fileMustExist = isProd;
+    const DB_PATH = path.join(__dirname, DB_FILE);
 
-  // user.createTable();
+    return initDB(DB_PATH, fileMustExist);
+  })();
 
   /////////////////
   /// Server
   /////////////////
   const app = express();
-  // app.use(bodyParser.json());
 
   // ==== TESTING ====
   app.get('/', async (request, response) => {
@@ -83,16 +85,19 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
     const senderEmail = req.body.data.message.sender_email;
 
     /////// Parse Zulip Message ////////
+    // TODO: modify parseZulipServerRequest --> make it a middleware
     // NOTE: Can move this into middle ware of this route?
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
-      // sendMessage(senderEmail, e.message);
+      sendMessage(senderEmail, e.message);
       console.log(e);
       return;
     }
 
-    console.log(`Switch/Case: ${cliAction.directive}`);
+    console.log('==== Received Valid cliAction =====');
+    console.log(cliAction);
+
     if (cliAction.directive === directives.CHANGE) {
       /////////////////////////////////////
       // CHANGE subcommand switch block
@@ -103,7 +108,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
           // TODO: convert MON TUES WED --> 123
-          sqlResult = user.updateCoffeeDays(senderEmail, {
+          sqlResult = db.user.updateCoffeeDays(senderEmail, {
             coffee_days: cliAction.payload
           });
           break;
@@ -190,8 +195,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
   // });
 
   // listen for requests :)
-  const listener = app.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`🌍 is listening on port: ${PORT}`);
-    // logger.info('Your app is listening on port ' + listener.address().port);
   });
 })();
