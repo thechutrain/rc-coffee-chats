@@ -144,10 +144,23 @@ export function initUserModel(db: sqlite): any {
     const queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
 
     return queryResult.changes !== 0
-      ? { status: 'SUCCESS', payload: coffeeDays }
+      ? { status: 'SUCCESS', payload: coffeeDays.join(' ') }
       : { status: 'FAILURE', message: 'Did not update coffee days' };
   }
 
+  function updateWarningExceptions(
+    targetEmail: string,
+    warningException: boolean
+  ): ISqlSuccess | ISqlError {
+    return { status: 'SUCCESS' };
+  }
+
+  function updateSkipNextMatch(
+    targetEmail: string,
+    warningException: boolean
+  ): ISqlSuccess | ISqlError {
+    return { status: 'SUCCESS' };
+  }
   // function toggleSkipNextMatch(valToSet?: boolean) {}
 
   // function toggleWarningException(valToSet?: boolean) {}
@@ -271,6 +284,8 @@ export function initUserModel(db: sqlite): any {
     // Mutations
     add: addUser,
     updateCoffeeDays,
+    updateSkipNextMatch,
+    updateWarningExceptions,
 
     // Basic Table methods
     createTable,
