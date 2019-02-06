@@ -59,7 +59,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
     let ZulipResponse: {
       log?: boolean;
       messageType: 'ERROR' | 'UPDATE';
-      messageData: any;
+      mesageData: any;
     };
     // Question: Do I even need to end the response?
     res.json({});
@@ -70,7 +70,13 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
     // TODO: move to middleware
     const userExists = db.user.find(senderEmail);
     if (!userExists) {
-      const { status } = db.user.add(senderEmail);
+      const { sender_full_name } = req.body.message;
+
+      const { status } = db.user.add({
+        email: senderEmail,
+        full_name: sender_full_name
+      });
+
       if (status === 'SUCCESS') {
         sendMessage(
           senderEmail,

@@ -59,6 +59,7 @@ export function initUserModel(db: sqlite): any {
     dropStmt.run();
   }
 
+  // TODO: define fn signature on initUserModel return type
   function addUser(userVals: IAddUserArgs): ISqlSuccess | ISqlError {
     let insertSQL;
     if (userVals.coffee_days) {
