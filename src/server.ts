@@ -54,7 +54,6 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-    console.log(req.body);
     const senderEmail = req.body.message.sender_email;
     let ZulipResponse: {
       log?: boolean;
