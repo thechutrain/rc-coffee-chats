@@ -154,7 +154,9 @@ import { WEEKDAYS } from './constants';
               messageData: message
             };
           } else {
+            // TODO: make this a util (convert string of int --> weekdays?)
             const daysAsString = payload.coffee_days
+              .split('')
               .map(dayInt => WEEKDAYS[dayInt])
               .join(' ');
             zulipHandler = {
