@@ -164,82 +164,192 @@ describe('Overall db table integration test', () => {
     //////////////////////////////
     // Testing
     //////////////////////////////
-    const { getUserPrevMatches } = initUserModel(db);
-    const prevMatches_user1_monday = getUserPrevMatches(1, false, WEEKDAYS.MON);
+    const { getPrevMatches } = initUserModel(db);
+    const prevMatches_user1_monday = getPrevMatches(1, false, WEEKDAYS.MON);
 
     expect(prevMatches_user1_monday).toMatchObject([
       { full_name: 'b test' },
       { full_name: 'c test' }
     ]);
 
-    const prevMatches_user1_tuesday = getUserPrevMatches(
-      1,
-      false,
-      WEEKDAYS.TUE
-    );
+    const prevMatches_user1_tuesday = getPrevMatches(1, false, WEEKDAYS.TUE);
     expect(prevMatches_user1_tuesday).toMatchObject([{ full_name: 'c test' }]);
 
-    const prevMatches_user1_tuesday_all = getUserPrevMatches(
-      1,
-      true,
-      WEEKDAYS.TUE
-    );
+    const prevMatches_user1_tuesday_all = getPrevMatches(1, true, WEEKDAYS.TUE);
     expect(prevMatches_user1_monday).toMatchObject([
       { full_name: 'b test' },
       { full_name: 'c test' }
     ]);
   });
 
-  // it('should FIND prev MATCHES of User');
-
-  // ===== MONEY QUERY ======
-  xit('should find all PREVIOUS MATCHES of a user', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    const {
-      createTable,
-      _deleteRecords,
-      add: addMatch,
-      count: countMatch
-    } = initMatchModel(db);
-    createTable();
-    _deleteRecords();
-    expect(countMatch()).toBe(0);
-
-    // matchesToAdd.forEach(matchData => {
-    //   addMatch(matchData);
-    // });
-    expect(countMatch()).toBe(3);
-
-    // TODO: Check if the User_Match table is also empty here
-
-    const { getUserPrevMatches } = initUserModel(db);
-    expect(getUserPrevMatches(1, true)).toBe(false);
-  });
-
-  xit('should FIND all users to match for TODAY', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-
-    // Try to find Users by Matches
-    const { getUsersToMatch } = initUserModel(db);
-    // Only d-user for Sunday
-    expect(getUsersToMatch(0)).toMatchObject([{ full_name: 'd user' }]);
-
-    // THe other three users for Monday
-    expect(getUsersToMatch(1).length).toBe(3);
-  });
-
-  // it('should be able to find all the previous matches that a User had', () => {
+  // xit('should FIND all users to match for TODAY', () => {
   //   const db = new sqlite(DB_PATH, { fileMustExist: true });
-  //   expect(db.open).toBe(true);
 
-  //   const { getUsersByCoffeeDay } = initUserModel(db);
-  //   const userSearchResult = getUsersByCoffeeDay(1);
+  //   // Try to find Users by Matches
+  //   const { getUsersToMatch } = initUserModel(db);
+  //   // Only d-user for Sunday
+  //   expect(getUsersToMatch(0)).toMatchObject([{ full_name: 'd user' }]);
 
-  //   expect(userSearchResult.length).toBe(usersToAdd.length);
-  //   userSearchResult.forEach(userResult => {
-  //     expect(userResult).toHaveProperty('prevMatches');
-  //   });
+  //   // THe other three users for Monday
+  //   expect(getUsersToMatch(1).length).toBe(3);
   // });
+
+  it('should FIND all users to match for GIVEN DAY', () => {
+    //////////////////////////////
+    // Data & Table Scaffolding
+    //////////////////////////////
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+
+    const users = [
+      {
+        email: 'A_@_rc.com',
+        full_name: 'a test'
+      },
+      {
+        email: 'B_@_rc.com',
+        full_name: 'b test',
+        coffee_days: `${WEEKDAYS.MON}`
+      },
+      {
+        email: 'C_@_rc.com',
+        full_name: 'c test'
+      },
+      {
+        email: 'D_@_rc.com',
+        full_name: 'd test'
+      }
+    ];
+    const matches = [
+      {
+        user_1_id: 1,
+        user_2_id: 2,
+        date: '2019-01-03'
+      },
+      {
+        user_1_id: 1,
+        user_2_id: 3,
+        date: '2019-01-04'
+      }
+    ];
+
+    // Scaffold users table
+    scaffoldUserTable(db, users);
+    scaffoldMatchTable(db, matches);
+
+    //////////////////////////////
+    // Testing
+    //////////////////////////////
+    const { getUsersToMatch } = initUserModel(db);
+    const mondayMatches = getUsersToMatch(WEEKDAYS.MON);
+
+    expect(mondayMatches).toMatchObject([
+      { full_name: 'a test', num_matches: 2 },
+      { full_name: 'b test', num_matches: 1 },
+      { full_name: 'c test', num_matches: 1 },
+      { full_name: 'd test', num_matches: 0 }
+    ]);
+
+    const sundayMatches = getUsersToMatch(WEEKDAYS.SUN);
+    expect(sundayMatches).toMatchObject([]);
+
+    const tuesdayMatches = getUsersToMatch(WEEKDAYS.TUE);
+    expect(tuesdayMatches).toMatchObject([
+      { full_name: 'a test' },
+      { full_name: 'c test' },
+      { full_name: 'd test' }
+    ]);
+
+    // TODO: check if its excluding users who have skipped matches
+  });
+
+  // MOST IMPORTANT TEST:
+  it('should get TODAYS matches and their PREVIOUS MATCHES', () => {
+    //////////////////////////////
+    // Data & Table Scaffolding
+    //////////////////////////////
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+
+    const users = [
+      {
+        email: 'A_@_rc.com',
+        full_name: 'a test'
+      },
+      {
+        email: 'B_@_rc.com',
+        full_name: 'b test',
+        coffee_days: `${WEEKDAYS.MON}`
+      },
+      {
+        email: 'C_@_rc.com',
+        full_name: 'c test'
+      },
+      {
+        email: 'D_@_rc.com',
+        full_name: 'd test'
+      },
+      {
+        email: 'E_@_rc.com',
+        full_name: 'e test'
+      }
+    ];
+    const matches = [
+      {
+        user_1_id: 1,
+        user_2_id: 2,
+        date: '2019-01-03'
+      },
+      {
+        user_1_id: 1,
+        user_2_id: 3,
+        date: '2019-01-04'
+      },
+      {
+        user_1_id: 1,
+        user_2_id: 4,
+        date: '2019-01-05'
+      },
+      {
+        user_1_id: 2,
+        user_2_id: 4,
+        date: '2019-01-06'
+      }
+    ];
+
+    // Scaffold users table
+    scaffoldUserTable(db, users);
+    scaffoldMatchTable(db, matches);
+
+    //////////////////////////////
+    // Testing
+    //////////////////////////////
+    const { getTodaysMatches } = initUserModel(db);
+    const mondayMatches = getTodaysMatches(WEEKDAYS.MON);
+
+    expect(mondayMatches).toMatchObject([
+      {
+        full_name: 'a test',
+        num_matches: 3
+      },
+      {
+        full_name: 'b test',
+        num_matches: 2
+      },
+      {
+        full_name: 'd test',
+        num_matches: 2
+      },
+      {
+        full_name: 'c test',
+        num_matches: 1
+      },
+      {
+        full_name: 'e test',
+        num_matches: 0
+      }
+    ]);
+
+    // TODO: check if its excluding users who have skipped matches
+  });
 });
 
 //////////////////////////////////

@@ -163,7 +163,7 @@ export function initUserModel(db: sqlite): any {
 
   // NOTE: using today's date to filter out
   // TODO: make coffeeDay default, get value later
-  function getUserPrevMatches(
+  function getPrevMatches(
     targetUserId: number,
     includeAllMatches = false,
     coffeeDay?: number
@@ -171,10 +171,10 @@ export function initUserModel(db: sqlite): any {
     let findMatches;
     if (includeAllMatches) {
       findMatches = db.prepare(`
-      SELECT User.*, User_Match.user_id as Other_ID
-      FROM User
+      SELECT U.id, U.email, U.full_name, Match.date
+      FROM User U
       LEFT Join User_Match
-        ON User.id = User_Match.user_id
+        ON U.id = User_Match.user_id
       LEFT JOIN Match
         ON User_Match.match_id = Match.id
       WHERE User_Match.user_id <> ${targetUserId}
@@ -192,15 +192,15 @@ export function initUserModel(db: sqlite): any {
       const coffeeDayInt = coffeeDay ? coffeeDay : new Date().getDay();
 
       findMatches = db.prepare(`
-      SELECT User.*
-      FROM User
+      SELECT U.id, U.email, U.full_name, Match.date
+      FROM User U
       LEFT Join User_Match
-        ON User.id = User_Match.user_id
+        ON U.id = User_Match.user_id
       LEFT JOIN Match
         ON User_Match.match_id = Match.id
       WHERE User_Match.user_id <> 1
-      AND User.coffee_days LIKE '%${coffeeDayInt}%'
-      AND User.skip_next_match <> ${targetUserId}
+      AND U.coffee_days LIKE '%${coffeeDayInt}%'
+      AND U.skip_next_match <> ${targetUserId}
       AND User_Match.match_id in (
         SELECT Match.id
         FROM User
@@ -216,15 +216,32 @@ export function initUserModel(db: sqlite): any {
     return findMatches.all();
   }
 
+  ///////////////////////
+  // Main Query: MakeMatches
+  //////////////////////
+  function getTodaysMatches(dayToMatch?: WEEKDAYS) {
+    const todaysMatches = getUsersToMatch(dayToMatch);
+    // complete matches:
+    const todayCompleteMatches = todaysMatches.map(userObj => {
+      const { id } = userObj;
+      const prevMatches = getPrevMatches(id, false, dayToMatch);
+      return {
+        ...userObj,
+        prevMatches
+      };
+    });
+
+    return todayCompleteMatches;
+  }
+
   return {
     createTable,
     count,
     find: findUserByEmail,
     updateCoffeeDays,
     getUsersToMatch,
-    getUserPrevMatches,
-    // getUsersByCoffeeDay,
-    // findUserMatch: findUserWithPrevMatches,
+    getPrevMatches,
+    getTodaysMatches,
     add: addUser,
     _deleteRecords
     // update: updateUser
