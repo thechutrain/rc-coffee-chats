@@ -149,14 +149,18 @@ import { WEEKDAYS } from './constants';
           );
           // TODO: convert payload of whole user --> to "Your days for selectd Matches: Mon Tue Wed"
           if (status === 'FAILURE') {
-            zulipHandler.messageType = 'ERROR';
-            zulipHandler.messageData = message;
+            zulipHandler = {
+              messageType: 'ERROR',
+              messageData: message
+            };
           } else {
-            zulipHandler.messageType = 'OK';
             const daysAsString = payload.coffee_days
               .map(dayInt => WEEKDAYS[dayInt])
               .join(' ');
-            zulipHandler.messageData = `Your coffee day(s) are: ${daysAsString}`;
+            zulipHandler = {
+              messageType: 'OK',
+              messageData: `Your coffee day(s) are: ${daysAsString}`
+            };
           }
           break;
         case subCommands.WARNINGS:
