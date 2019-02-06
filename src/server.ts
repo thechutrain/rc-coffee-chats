@@ -112,7 +112,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
           // TODO: convert MON TUES WED --> 123
-          sqlResult = db.user.updateCoffeeDays(senderEmail, {
+          ZulipResponse = db.user.updateCoffeeDays(senderEmail, {
             coffee_days: cliAction.payload
           });
           break;
