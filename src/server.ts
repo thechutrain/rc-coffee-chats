@@ -73,6 +73,7 @@ import { WEEKDAYS } from './constants';
     if (!userExists) {
       const { sender_full_name } = req.body.message;
 
+      // TODO: ask user to type: SIGNUP to sign up to register.
       const { status } = db.user.add({
         email: senderEmail,
         full_name: sender_full_name
@@ -118,16 +119,28 @@ import { WEEKDAYS } from './constants';
       // CHANGE subcommand switch block
       /////////////////////////////////////
       // TODO: have all commands returen ISqlSuccess or ISqlError object
-
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
-          // TODO: validate cliAction.payload!! Make sure all strings
-          zulipHandler = db.user.updateCoffeeDays(
-            senderEmail,
-            cliAction.payload
-          );
+          (() => {
+            const { status, message, payload } = db.user.updateCoffeeDays(
+              senderEmail,
+              cliAction.payload
+            );
+            if (status === 'FAILURE') {
+              zulipHandler = {
+                messageType: 'ERROR',
+                messageData: message
+              };
+            } else {
+              // TODO: make this a util (convert string of int --> weekdays?)
+              zulipHandler = {
+                messageType: 'OK',
+                messageData: `You've successfully set your coffee day(s) to: ${payload}`
+              };
+            }
+          })();
           break;
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
@@ -182,7 +195,7 @@ import { WEEKDAYS } from './constants';
               const warningsText = payload.warning_exception ? 'ON' : 'OFF';
               zulipHandler = {
                 messageType: 'OK',
-                messageData: `Your warning excpetions are: ${warningsText}`
+                messageData: `Your warning exceptions are: ${warningsText}`
               };
             }
           })();
@@ -191,6 +204,7 @@ import { WEEKDAYS } from './constants';
           console.log(
             `Status for whether youre going to SKIP next match or not`
           );
+          // TODO: Feature, be cool to determine when you're next match is.
           (() => {
             const { status, message, payload } = db.user.findUserByEmail(
               senderEmail

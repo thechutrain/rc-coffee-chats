@@ -144,7 +144,7 @@ export function initUserModel(db: sqlite): any {
     const queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
 
     return queryResult.changes !== 0
-      ? { status: 'SUCCESS' }
+      ? { status: 'SUCCESS', payload: coffeeDays }
       : { status: 'FAILURE', message: 'Did not update coffee days' };
   }
 

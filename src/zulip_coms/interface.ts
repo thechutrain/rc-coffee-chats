@@ -30,9 +30,14 @@ export interface ICliAction {
 
 // NOTE: string enums are not reverse mapped
 export enum directives {
-  CHANGE = 'CHANGE', // updates your weekday
+  // UPDATE COMMANDS:
+  CHANGE = 'CHANGE',
+  UPDATE = 'UPDATE',
+  // STATUS
   STATUS = 'STATUS',
+  // HELP
   HELP = 'HELP',
+  // ADMIN
   ADMIN = 'ADMIN' // for admin features
 }
 
