@@ -146,14 +146,14 @@ export function initUserModel(db: sqlite): any {
     // TODO: can use this query to get the order of Users. Who ever has the most
     // amount of previous matches goes first!
     const findMatches = db.prepare(`
-      SELECT U.*, count (U.email) as num_matches FROM User U
+      SELECT U.*, count (UM.user_id) as num_matches FROM User U
         LEFT JOIN User_Match UM
         ON U.id = UM.user_id
         LEFT JOIN Match M 
         ON UM.match_id = M.id
         WHERE U.coffee_days LIKE '%${coffee_day}%'
         AND U.skip_next_match <> 1
-        GROUP BY U.email
+        GROUP BY UM.user_id
         ORDER BY num_matches desc
     `);
     // NOTE: no semicolon at the end of the string SQL or ERROR with better-sqlite3
