@@ -186,26 +186,4 @@ describe('User Model test', () => {
     const foundUser = find('b@foo.com');
     expect(foundUser.coffee_days).toBe('06');
   });
-
-  it('should GET users to MATCH for given DAY', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-
-    const { _deleteRecords, count, add, getUsersToMatch } = initUserModel(db);
-    _deleteRecords();
-    count();
-
-    const defaultUser = {
-      email: 'default@gmail.com',
-      full_name: 'default user'
-    };
-    add(defaultUser);
-
-    const usersForSunday = getUsersToMatch(WEEKDAYS.SUN);
-    expect(usersForSunday.length).toBe(0);
-    // expect(usersForSunday).toBe([]);
-
-    const usersForMonday = getUsersToMatch(WEEKDAYS.MON);
-    expect(usersForMonday.length).toBe(1);
-  });
 });
