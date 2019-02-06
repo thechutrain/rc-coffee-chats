@@ -8,6 +8,7 @@ import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
+import { ISqlSuccess, ISqlError } from './db/db.interface';
 
 // TODO: pass in env vars into the IFFE?
 
@@ -72,16 +73,14 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
     res.json({});
     let cliAction: ICliAction;
     // let successMessage: string; // SuccessHandler
-    interface ISuccessHandler {
-      log: boolean;
-      sendMessage?: boolean;
-      message: string;
-    }
-    let successHandler;
-    // let errorHandler;
-    let errorMessage: string; // Interface: errorMessage, sendError vs logError
+    // interface ISuccessHandler {
+    //   log: boolean;
+    //   sendMessage?: boolean;
+    //   message: string;
+    // }
+
+    let sqlResult: ISqlSuccess | ISqlError;
     const senderEmail = req.body.data.message.sender_email;
-    console.log(req.body);
 
     /////// Parse Zulip Message ////////
     // NOTE: Can move this into middle ware of this route?
@@ -98,26 +97,22 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
-      try {
-        switch (cliAction.subCommand) {
-          case subCommands.DAYS:
-          case subCommands.DATES:
-            console.log(`Try to change days to: ${cliAction.payload}`);
-            // TODO: convert MON TUES WED --> 123
-            successHandler = user.update(senderEmail, {
-              coffee_days: cliAction.payload
-            });
-            break;
-          case subCommands.SKIP:
-            console.log(`Will skip your next match: ${cliAction.payload}`);
-            break;
-          default:
-            console.log(`No handler written for ${cliAction.subCommand}`);
-            break;
-        }
-      } catch (e) {
-        // TODO: Error
-        // Can I do E as MyErrrorObject?
+
+      switch (cliAction.subCommand) {
+        case subCommands.DAYS:
+        case subCommands.DATES:
+          console.log(`Try to change days to: ${cliAction.payload}`);
+          // TODO: convert MON TUES WED --> 123
+          sqlResult = user.updateCoffeeDays(senderEmail, {
+            coffee_days: cliAction.payload
+          });
+          break;
+        case subCommands.SKIP:
+          console.log(`Will skip your next match: ${cliAction.payload}`);
+          break;
+        default:
+          console.log(`No handler written for ${cliAction.subCommand}`);
+          break;
       }
     } else if (cliAction.directive === directives.STATUS) {
       /////////////////////////////////////
@@ -127,13 +122,6 @@ import { directives, ICliAction, subCommands } from './zulip_coms/interface';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          try {
-            // Function:
-            // input --> find user w./ email, columns specify or optional?
-            // successMessage = user.find(senderEmail);
-          } catch (e) {
-            errorMessage = e;
-          }
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');

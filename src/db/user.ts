@@ -130,32 +130,34 @@ export function initUserModel(db: sqlite): any {
   // Most Important Query!
   /////////////////////////////
   // NOTE: would be nice to also sort via sql by the number of prevMatches
+  /**
+   * Gets all the users to match, order by users with the most number of matches!
+   * NOTE: number of matches is the absolute sum of previous matches (not matches of * other users that are being paired today)
+   * TODO: fix this so we're only counting matches for other users selected today as * well
+   * @param dayToMatch
+   */
   function getUsersToMatch(dayToMatch?: WEEKDAYS): any {
     // ): IUserMatchResult[] {
-    // const findMatches = db.prepare(`
-    //   SELECT User.id, User.email, Match.date
-    //   FROM User
-    //   LEFT JOIN User_Match
-    //     ON User.id = User_Match.user_id
-    //   LEFT JOIN Match
-    //     ON User_Match.match_id = Match.id
-    //   WHERE User.coffee_days LIKE '%1%'
-    //   AND User_Match.user_id IN
-    //   (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
-    // `);
     const coffee_day =
-      dayToMatch !== undefined // WEEKDAYS have value of 0-6, so must check if undefined
-        ? WEEKDAYS[WEEKDAYS[dayToMatch]] // Pass in MON -->
+      dayToMatch !== undefined // Value of 0 is falsey, must check undefined
+        ? WEEKDAYS[WEEKDAYS[dayToMatch]] // Pass in MON --> 1
         : new Date().getDay();
 
     // TODO: can use this query to get the order of Users. Who ever has the most
     // amount of previous matches goes first!
     const findMatches = db.prepare(`
-      SELECT *
-      FROM User
-      WHERE User.coffee_days LIKE '%${coffee_day}%'
-      AND User.skip_next_match <> 1
+      SELECT U.*, count (U.email) as num_matches FROM User U
+        LEFT JOIN User_Match UM
+        ON U.id = UM.user_id
+        LEFT JOIN Match M 
+        ON UM.match_id = M.id
+        WHERE U.coffee_days LIKE '%${coffee_day}%'
+        AND U.skip_next_match <> 1
+        GROUP BY U.email
+        ORDER BY num_matches desc
     `);
+    // NOTE: no semicolon at the end of the string SQL or ERROR with better-sqlite3
+
     return findMatches.all();
   }
 
@@ -166,62 +168,51 @@ export function initUserModel(db: sqlite): any {
     includeAllMatches = false,
     coffeeDay?: number
   ) {
-    //   const findMatches = db.prepare(`
-    //   SELECT User_Match.user_id, Match.date
-    //   FROM User
-    //   LEFT OUTER JOIN User_Match
-    //     ON User.id = User_Match.user_id
-    //   LEFT OUTER JOIN Match
-    //     ON User_Match.match_id = Match.id
-    //   WHERE User.id = 1
-    //   AND User.coffee_days LIKE '%1%'
-    //   AND User_Match.user_id IN
-    //   (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
-    // `);
     let findMatches;
     if (includeAllMatches) {
       findMatches = db.prepare(`
-      SELECT User.id, User.email, Match.date
+      SELECT User.*, User_Match.user_id as Other_ID
       FROM User
-      LEFT OUTER JOIN User_Match
+      LEFT Join User_Match
         ON User.id = User_Match.user_id
-      LEFT OUTER JOIN Match
+      LEFT JOIN Match
         ON User_Match.match_id = Match.id
-    
-      WHERE User_Match.match_id in (SELECT Match.id
+      WHERE User_Match.user_id <> ${targetUserId}
+      AND User_Match.match_id in (
+        SELECT Match.id
         FROM User
-        LEFT OUTER JOIN User_Match
+        LEFT JOIN User_Match
           ON User.id = User_Match.user_id
-        LEFT OUTER JOIN Match
+        LEFT JOIN Match
           ON User_Match.match_id = Match.id
         WHERE User.id = ${targetUserId}
-        AND User_Match.user_id <> ${targetUserId}`);
+       )`);
     } else {
-      // EXCLUDES: matches if the other user has not selected today as their day to match
+      //   // EXCLUDES: matches if the other user has not selected today as their day to match
       const coffeeDayInt = coffeeDay ? coffeeDay : new Date().getDay();
 
       findMatches = db.prepare(`
-    SELECT User.id, User.email, Match.date
-    FROM User
-    LEFT OUTER JOIN User_Match
-      ON User.id = User_Match.user_id
-    LEFT OUTER JOIN Match
-      ON User_Match.match_id = Match.id
-  
-    WHERE User_Match.match_id in (SELECT Match.id
+      SELECT User.*
       FROM User
-      LEFT OUTER JOIN User_Match
+      LEFT Join User_Match
         ON User.id = User_Match.user_id
-      LEFT OUTER JOIN Match
+      LEFT JOIN Match
         ON User_Match.match_id = Match.id
-      WHERE User.id = ${targetUserId}
-      AND User.coffee_days LIKE '%${coffeeDayInt}%')
-      AND User_Match.user_id <> ${targetUserId}
-    `);
+      WHERE User_Match.user_id <> 1
+      AND User.coffee_days LIKE '%${coffeeDayInt}%'
+      AND User.skip_next_match <> ${targetUserId}
+      AND User_Match.match_id in (
+        SELECT Match.id
+        FROM User
+        LEFT JOIN User_Match
+          ON User.id = User_Match.user_id
+        LEFT JOIN Match
+          ON User_Match.match_id = Match.id
+        WHERE User.id = ${targetUserId}
+       )
+      `);
     }
 
-    // AND User_Match.user_id IN
-    // (SELECT User.id FROM User WHERE User.coffee_days LIKE '%1%')
     return findMatches.all();
   }
 

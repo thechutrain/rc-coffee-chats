@@ -4,6 +4,8 @@ import * as path from 'path';
 import { initUserModel } from '../user';
 import { initMatchModel } from '../match';
 import { initUserMatchModel } from '../usermatch';
+import { IAddUserArgs, IAddMatchArgs } from '../db.interface';
+import { WEEKDAYS } from '../../constants';
 
 const DB_PATH = path.join(__dirname, 'user-match-integration-test.db');
 // Global Scope:
@@ -77,22 +79,115 @@ beforeAll(() => {
 });
 
 describe('Overall db table integration test', () => {
-  // it('should pass', () => {
-  //   expect(true).toBe(true);
-  // });
-
-  xit('should ADD new matches for a User', () => {
+  xit('should SCAFFOLD user and match tables', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
-    const { createTable, _deleteRecords, count, add } = initMatchModel(db);
-    createTable();
-    _deleteRecords();
-    expect(count()).toBe(0);
+    const users = [
+      {
+        email: 'A_@_rc.com',
+        full_name: 'a test'
+      },
+      {
+        email: 'B_@_rc.com',
+        full_name: 'b test',
+        coffee_days: '1'
+      }
+    ];
+    const matches = [
+      {
+        user_1_id: 1,
+        user_2_id: 2,
+        date: '2019-01-03'
+      }
+    ];
 
-    // matchesToAdd.forEach(matchData => {
-    //   add(matchData);
-    // });
+    // Scaffold users table
+    scaffoldUserTable(db, users);
+    scaffoldMatchTable(db, matches);
 
-    // expect(count()).toBe(matchesToAdd.length);
+    // test that scaffolding worked right:
+    const {
+      count: countUser,
+      _deleteRecords: deleteUserRecords
+    } = initUserModel(db);
+    const {
+      count: countMatch,
+      _deleteRecords: deleteMatchRecords
+    } = initMatchModel(db);
+    expect(countMatch()).toBe(matches.length);
+    expect(countUser()).toBe(users.length);
+
+    deleteUserRecords();
+    deleteMatchRecords();
+
+    expect(countMatch()).toBe(0);
+    expect(countUser()).toBe(0);
+  });
+
+  it('should FIND previous Matches of User', () => {
+    //////////////////////////////
+    // Data & Table Scaffolding
+    //////////////////////////////
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+
+    const users = [
+      {
+        email: 'A_@_rc.com',
+        full_name: 'a test'
+      },
+      {
+        email: 'B_@_rc.com',
+        full_name: 'b test',
+        coffee_days: `${WEEKDAYS.MON}`
+      },
+      {
+        email: 'C_@_rc.com',
+        full_name: 'c test'
+      }
+    ];
+    const matches = [
+      {
+        user_1_id: 1,
+        user_2_id: 2,
+        date: '2019-01-03'
+      },
+      {
+        user_1_id: 1,
+        user_2_id: 3,
+        date: '2019-01-04'
+      }
+    ];
+
+    // Scaffold users table
+    scaffoldUserTable(db, users);
+    scaffoldMatchTable(db, matches);
+
+    //////////////////////////////
+    // Testing
+    //////////////////////////////
+    const { getUserPrevMatches } = initUserModel(db);
+    const prevMatches_user1_monday = getUserPrevMatches(1, false, WEEKDAYS.MON);
+
+    expect(prevMatches_user1_monday).toMatchObject([
+      { full_name: 'b test' },
+      { full_name: 'c test' }
+    ]);
+
+    const prevMatches_user1_tuesday = getUserPrevMatches(
+      1,
+      false,
+      WEEKDAYS.TUE
+    );
+    expect(prevMatches_user1_tuesday).toMatchObject([{ full_name: 'c test' }]);
+
+    const prevMatches_user1_tuesday_all = getUserPrevMatches(
+      1,
+      true,
+      WEEKDAYS.TUE
+    );
+    expect(prevMatches_user1_monday).toMatchObject([
+      { full_name: 'b test' },
+      { full_name: 'c test' }
+    ]);
   });
 
   // it('should FIND prev MATCHES of User');
@@ -121,7 +216,7 @@ describe('Overall db table integration test', () => {
     expect(getUserPrevMatches(1, true)).toBe(false);
   });
 
-  it('should FIND all users to match for TODAY', () => {
+  xit('should FIND all users to match for TODAY', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
 
     // Try to find Users by Matches
@@ -150,7 +245,30 @@ describe('Overall db table integration test', () => {
 //////////////////////////////////
 // Helper Functions - scaffold Tables
 //////////////////////////////////
-function scaffoldUserTable(db: sqlite, userData: any[]) {
+function scaffoldUserTable(db: sqlite, userData: IAddUserArgs[]) {
+  const {
+    createTable,
+    _deleteRecords,
+    add: addUser,
+    count: countUser
+  } = initUserModel(db);
+
+  createTable();
+  _deleteRecords();
+  if (countUser() !== 0) {
+    throw new Error('scaffolding user table, should NOT BE ANY User record');
+  }
+
+  userData.forEach(user => {
+    addUser(user);
+  });
+
+  if (countUser() !== userData.length) {
+    throw new Error('Error adding users, mismatch in nuof users trying to add');
+  }
+}
+
+function scaffoldMatchTable(db: sqlite, matchData: IAddMatchArgs[]) {
   const {
     createTable,
     _deleteRecords,
@@ -164,11 +282,11 @@ function scaffoldUserTable(db: sqlite, userData: any[]) {
     throw new Error('scaffolding user table, should NOT BE ANY User record');
   }
 
-  userData.forEach(user => {
+  matchData.forEach(user => {
     addMatch(user);
   });
 
-  if (countMatch() !== userData.length) {
+  if (countMatch() !== matchData.length) {
     throw new Error('Error adding users, mismatch in nuof users trying to add');
   }
 }
