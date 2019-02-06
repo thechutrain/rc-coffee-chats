@@ -98,6 +98,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
+      // TODO: add more to the error message: help for that subcommands?
       sendMessage(senderEmail, e.message);
       console.log(e);
       return;
@@ -117,10 +118,11 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
         case subCommands.DAYS:
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
-          // TODO: convert MON TUES WED --> 123
-          ZulipResponse = db.user.updateCoffeeDays(senderEmail, {
-            coffee_days: cliAction.payload
-          });
+          // TODO: validate cliAction.payload!! Make sure all strings
+          ZulipResponse = db.user.updateCoffeeDays(
+            senderEmail,
+            cliAction.payload
+          );
           break;
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
