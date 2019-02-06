@@ -23,7 +23,7 @@ import { ISqlSuccess, ISqlError } from './db/db.interface';
     const isProd = process.env.NODE_ENV === 'production';
     const DB_FILE = isProd ? 'prod.db' : 'dev.db';
     const fileMustExist = isProd;
-    const DB_PATH = path.join(__dirname, DB_FILE);
+    const DB_PATH = path.join(__dirname, '../', 'data/', DB_FILE);
 
     return initDB(DB_PATH, fileMustExist);
   })();
