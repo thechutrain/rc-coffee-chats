@@ -114,7 +114,10 @@ import { WEEKDAYS } from './constants';
     console.log('==== Received Valid cliAction =====');
     console.log(cliAction);
 
-    if (cliAction.directive === directives.CHANGE) {
+    if (
+      cliAction.directive === directives.CHANGE ||
+      cliAction.directive === directives.UPDATE
+    ) {
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
@@ -144,6 +147,34 @@ import { WEEKDAYS } from './constants';
           break;
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
+          // try {
+          //   zulipHandler = somequery();
+          // } catch (e) {
+          //   // sendErrorMessage();
+          // }
+          (() => {
+            const {
+              status,
+              message,
+              payload
+            } = db.user.updateWarningExceptions(senderEmail);
+            if (status === 'FAILURE') {
+              zulipHandler = {
+                messageType: 'ERROR',
+                messageData: message
+              };
+            } else {
+              // TODO: make this a util (convert string of int --> weekdays?)
+              const daysAsString = payload.coffee_days
+                .split('')
+                .map(dayInt => WEEKDAYS[dayInt])
+                .join(' ');
+              zulipHandler = {
+                messageType: 'OK',
+                messageData: `Your coffee day(s) are: ${daysAsString}`
+              };
+            }
+          })();
           break;
         default:
           console.log(`No handler written for ${cliAction.subCommand}`);
