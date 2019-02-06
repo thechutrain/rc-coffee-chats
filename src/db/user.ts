@@ -17,6 +17,12 @@ import { WEEKDAYS } from '../constants';
 // - createTable
 // - count
 // - deleteRecords
+interface IUserResult extends ISqlSuccess {
+  payload?: IUserDB;
+}
+interface IUserModel {
+  findUserByEmail: (email: string) => IUserResult | ISqlError;
+}
 
 export function initUserModel(db: sqlite): any {
   //////////////////////////////
@@ -96,7 +102,7 @@ export function initUserModel(db: sqlite): any {
   }
 
   // TODO: update the function signature to match ISqlSuccess | ISqlError
-  function findUserByEmail(email: string): ISqlSuccess | ISqlError {
+  function findUserByEmail(email: string): IUserResult | ISqlError {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     let foundUser;
     let error;
