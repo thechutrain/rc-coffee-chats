@@ -86,13 +86,32 @@ export function initUserModel(db: sqlite): any {
   //////////////////////////////
   // Specific Model Methods
   /////////////////////////////
-  // TODO: update the function signature to match ISqlSuccess | ISqlError
-  function findUserByEmail(email: string): IUserDB | null {
+  // TODO: remove this function & clean up tests
+  function find(email: string): IUserDB | null {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     const foundUser = findStmt.get(email);
     // TODO: convert the coffee_days column from 1234 --> Mon, Tues, Wed, Thurs?
     // Do that in the print message?
     return !!foundUser ? foundUser : null;
+  }
+
+  // TODO: update the function signature to match ISqlSuccess | ISqlError
+  function findUserByEmail(email: string): ISqlSuccess | ISqlError {
+    const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
+    let foundUser;
+    let error;
+    try {
+      foundUser = findStmt.get(email);
+      if (!foundUser.length) {
+        throw new Error(`No email found for ${email}.`);
+      }
+    } catch (e) {
+      error = e;
+    }
+
+    return error
+      ? { status: 'FAILURE', message: error }
+      : { status: 'SUCCESS', payload: foundUser };
   }
 
   function updateCoffeeDays(
@@ -237,7 +256,8 @@ export function initUserModel(db: sqlite): any {
 
   return {
     // Queries
-    find: findUserByEmail,
+    find,
+    findUserByEmail,
     getUsersToMatch,
     getPrevMatches,
     getTodaysMatches,
@@ -252,61 +272,3 @@ export function initUserModel(db: sqlite): any {
     _deleteRecords
   };
 }
-
-// ======== DB ==========
-// function dropTable(): ISqlResponse {
-//   try {
-//     db.exec(`DROP TABLE User`);
-//   } catch (e) {
-//     return { status: 'FAILURE', message: e };
-//   }
-//   return { status: 'SUCCESS', message: 'Dropped User table' };
-// }
-
-// ======= TODO: make this flexible ===============
-// Note: add flexibility to overwrite a previous user if they exists?
-// function updateUser(targetEmail: string, opts: IUpdateUserArgs): boolean {
-//   // Check if the user exists
-//   const targetUser = findUserByEmail(targetEmail);
-//   if (!targetUser) {
-//     throw new Error(
-//       `No user found with email "${targetEmail}", insert first`
-//     );
-//   }
-
-//   const colVals = {
-//     coffee_days: opts.coffee_days || targetUser.coffee_days,
-//     skip_next_match: castBoolInt(
-//       opts.skip_next_match || targetUser.skip_next_match
-//     ),
-//     warning_exceptions: castBoolInt(
-//       opts.warning_exception || targetUser.warning_exception
-//     ),
-//     is_active: castBoolInt(opts.is_active || targetUser.is_active),
-//     is_faculty: castBoolInt(opts.is_faculty || targetUser.is_faculty),
-//     is_alum: castBoolInt(opts.is_alum || targetUser.is_alum)
-//   };
-//   const updateStmt = db.prepare(
-//     `UPDATE User SET
-//     coffee_days = ?,
-//     skip_next_match = ?,
-//     warning_exception = ?,
-//     is_active = ?,
-//     is_faculty = ?,
-//     is_alum = ?
-//     WHERE user_id = ?`
-//   );
-
-//   const queryResults = updateStmt.run(
-//     colVals.coffee_days,
-//     colVals.skip_next_match,
-//     colVals.warning_exceptions,
-//     colVals.is_active,
-//     colVals.is_faculty,
-//     colVals.is_alum,
-//     targetUser.user_id
-//   );
-
-//   // Check that you've updated at least one row
-//   return queryResults.changes !== 0;
-// }
