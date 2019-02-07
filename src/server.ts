@@ -10,7 +10,8 @@ import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import {
   messageType,
   zulipMsgSender,
-  sendGenericMessage
+  sendGenericMessage,
+  IMsgSenderArgs
 } from './zulip_coms/msgSender';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
@@ -41,42 +42,28 @@ import { WEEKDAYS } from './constants';
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     const senderEmail = req.body.message.sender_email;
-    let zulipMsgHandler;
-    // {
-    //   // log?: boolean;
-    //   // logData?: any;
-    //   messageType?: 'ERROR' | 'OK'; // TODO: move to enum
-    //   messageData: any;
-    // };
-    // Question: Do I even need to end the response?
+    let zulipMsgOpts: IMsgSenderArgs;
     res.json({});
 
     ////////////////////////////////////////////////////
-    // TODO: CHECK IF VALID USER / IF THEY ARE SIGNED UP
+    // CHECK IF VALID USER / IF THEY ARE SIGNED UP
     /////////////////////////////////////////////////////
-    // TODO: move to middleware
+    // TODO: move to middleware eventually?
     const userExists = db.user.find(senderEmail);
     if (!userExists) {
       const { sender_full_name } = req.body.message;
+      // TODO: check if the first word in message is signup!
 
-      // TODO: ask user to type: SIGNUP to sign up to register.
       const { status } = db.user.add({
         email: senderEmail,
         full_name: sender_full_name
       });
 
-      if (status === 'SUCCESS') {
-        // TODO: Personalize this message with the full name!
-        sendMessage(
-          senderEmail,
-          'Welcome new user, you have successfully been added to the coffee-chat club. Type HELP to learn more or visit this link'
-        );
-      } else {
-        sendMessage(
-          senderEmail,
-          'Failed to sign you up, please contact the admin for more help.'
-        );
-      }
+      zulipMsgSender({
+        toEmail: senderEmail,
+        status,
+        messageType: messageType.SIGNUP
+      });
       return;
     }
 
@@ -88,8 +75,8 @@ import { WEEKDAYS } from './constants';
     try {
       cliAction = parseZulipServerRequest(req.body);
     } catch (e) {
-      // TODO: add more to the error message: help for that subcommands?
-      sendMessage(senderEmail, e.message);
+      // TODO: update this to use zulipMsgSender
+      sendGenericMessage(senderEmail, e.message);
       console.log(e);
       return;
     }
@@ -117,42 +104,42 @@ import { WEEKDAYS } from './constants';
             cliAction.payload
           );
 
-          zulipMsgHandler = {
+          zulipMsgOpts = {
+            toEmail: senderEmail,
             status,
-            messageType: 'UPDATE_DAYS',
+            messageType: messageType.UPDATE_DAYS,
             payload,
             message,
             cliAction
           };
-
           break;
 
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
-          
-          (() => {
-            const {
-              status,
-              message,
-              payload
-            } = db.user.updateWarningExceptions(senderEmail);
-            if (status === 'FAILURE') {
-              zulipHandler = {
-                messageType: 'ERROR',
-                messageData: message
-              };
-            } else {
-              // TODO: make this a util (convert string of int --> weekdays?)
-              const daysAsString = payload.coffee_days
-                .split('')
-                .map(dayInt => WEEKDAYS[dayInt])
-                .join(' ');
-              zulipHandler = {
-                messageType: 'OK',
-                messageData: `Your coffee day(s) are: ${daysAsString}`
-              };
-            }
-          })();
+
+          // (() => {
+          //   const {
+          //     status,
+          //     message,
+          //     payload
+          //   } = db.user.updateWarningExceptions(senderEmail);
+          //   if (status === 'FAILURE') {
+          //     zulipHandler = {
+          //       messageType: 'ERROR',
+          //       messageData: message
+          //     };
+          //   } else {
+          //     // TODO: make this a util (convert string of int --> weekdays?)
+          //     const daysAsString = payload.coffee_days
+          //       .split('')
+          //       .map(dayInt => WEEKDAYS[dayInt])
+          //       .join(' ');
+          //     zulipHandler = {
+          //       messageType: 'OK',
+          //       messageData: `Your coffee day(s) are: ${daysAsString}`
+          //     };
+          //   }
+          // })();
           break;
         default:
           console.log(`No handler written for ${cliAction.subCommand}`);
@@ -166,18 +153,18 @@ import { WEEKDAYS } from './constants';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          try {
-            const sqlResult = db.user.getCoffeeDays();
-            zulipMsgHandler = {
-              messageType: 'OK_GET_COFFEE_DAYS',
-              data: sqlResult.payload
-            };
-          } catch (e) {
-            zulipMsgHandler = {
-              messageType: 'ERROR_MSG',
-              errorMsg: e
-            };
-          }
+          // try {
+          //   const sqlResult = db.user.getCoffeeDays();
+          //   zulipMsgHandler = {
+          //     messageType: 'OK_GET_COFFEE_DAYS',
+          //     data: sqlResult.payload
+          //   };
+          // } catch (e) {
+          //   zulipMsgHandler = {
+          //     messageType: 'ERROR_MSG',
+          //     errorMsg: e
+          //   };
+          // }
 
           // (() => {
           //   const { status, message, payload } = db.user.findUserByEmail(
@@ -203,48 +190,48 @@ import { WEEKDAYS } from './constants';
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
-          (() => {
-            const { status, message, payload } = db.user.findUserByEmail(
-              senderEmail
-            );
-            if (status === 'FAILURE') {
-              zulipHandler = {
-                messageType: 'ERROR',
-                messageData: message
-              };
-            } else {
-              // TODO: make this a util (convert string of int --> weekdays?)
-              const warningsText = payload.warning_exception ? 'ON' : 'OFF';
-              zulipHandler = {
-                messageType: 'OK',
-                messageData: `Your warning exceptions are: ${warningsText}`
-              };
-            }
-          })();
+          // (() => {
+          //   const { status, message, payload } = db.user.findUserByEmail(
+          //     senderEmail
+          //   );
+          //   if (status === 'FAILURE') {
+          //     zulipHandler = {
+          //       messageType: 'ERROR',
+          //       messageData: message
+          //     };
+          //   } else {
+          //     // TODO: make this a util (convert string of int --> weekdays?)
+          //     const warningsText = payload.warning_exception ? 'ON' : 'OFF';
+          //     zulipHandler = {
+          //       messageType: 'OK',
+          //       messageData: `Your warning exceptions are: ${warningsText}`
+          //     };
+          //   }
+          // })();
           break;
         case subCommands.SKIP:
           console.log(
             `Status for whether youre going to SKIP next match or not`
           );
           // TODO: Feature, be cool to determine when you're next match is.
-          (() => {
-            const { status, message, payload } = db.user.findUserByEmail(
-              senderEmail
-            );
-            if (status === 'FAILURE') {
-              zulipHandler = {
-                messageType: 'ERROR',
-                messageData: message
-              };
-            } else {
-              // TODO: make this a util (convert string of int --> weekdays?)
-              const skipNextMatch = payload.skip_next_match ? 'ON' : 'OFF';
-              zulipHandler = {
-                messageType: 'OK',
-                messageData: `Skip next match: ${skipNextMatch}`
-              };
-            }
-          })();
+          // (() => {
+          //   const { status, message, payload } = db.user.findUserByEmail(
+          //     senderEmail
+          //   );
+          //   if (status === 'FAILURE') {
+          //     zulipHandler = {
+          //       messageType: 'ERROR',
+          //       messageData: message
+          //     };
+          //   } else {
+          //     // TODO: make this a util (convert string of int --> weekdays?)
+          //     const skipNextMatch = payload.skip_next_match ? 'ON' : 'OFF';
+          //     zulipHandler = {
+          //       messageType: 'OK',
+          //       messageData: `Skip next match: ${skipNextMatch}`
+          //     };
+          //   }
+          // })();
           break;
         // case subCommands.MATCH:
         //   console.log(`Status for who your match is today`);
@@ -262,11 +249,7 @@ import { WEEKDAYS } from './constants';
     }
 
     // ====== Zulip Message ==========
-    if (zulipHandler.messageType) {
-      sendMessage(senderEmail, zulipHandler.messageData);
-    } else if (zulipHandler.log) {
-      logger.info(zulipHandler.messageData);
-    }
+    zulipMsgSender(zulipMsgOpts);
   });
 
   app.post('/cron/run', (request, response) => {

@@ -11,7 +11,7 @@ export enum messageType {
   'SIGNUP',
   'UPDATE_DAYS'
 }
-interface IMsgSenderArgs {
+export interface IMsgSenderArgs {
   toEmail: string | string[];
   status: 'OK' | 'ERROR';
   messageType: messageType;
