@@ -16,6 +16,8 @@ import { Util } from '../utils/index';
  * try to parse the request, return a valid ICliAction or throw an error
  * @param zulipRequest
  */
+// TODO: modularize / separate functionality here
+// parsing vs. validating
 export function parseZulipServerRequest(
   zulipRequest: IZulipRequest
 ): ICliAction {

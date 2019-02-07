@@ -94,7 +94,7 @@ describe('User Model test', () => {
     // Should not be able to add same user twice
     const errResponse = add(fooUser);
     expect(count()).toBe(1);
-    expect(errResponse.status).toBe('FAILURE');
+    expect(errResponse.status).toBe('ERROR');
   });
 
   it('should add MULIT different users to the User table', () => {

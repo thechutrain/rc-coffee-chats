@@ -40,7 +40,7 @@ export function initUserMatchModel(db: sqlite): any {
       return { status: 'OK', payload: { lastInsertRowid } };
     } else {
       return {
-        status: 'FAILURE',
+        status: 'ERROR',
         message: 'ERROR: could not add to User_Match'
       };
     }

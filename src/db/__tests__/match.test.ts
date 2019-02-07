@@ -208,7 +208,7 @@ function createUserTable(db: sqlite) {
   const userMap = {};
   usersToAdd.forEach(user => {
     const { status, payload } = add(user);
-    if (status === 'FAILURE') {
+    if (status === 'ERROR') {
       throw new Error('Error adding users from initUserTable()');
     }
     userMap[payload.lastInsertROWID] = user;

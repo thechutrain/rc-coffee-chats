@@ -51,19 +51,28 @@ import { WEEKDAYS } from './constants';
     // TODO: move to middleware eventually?
     const userExists = db.user.find(senderEmail);
     if (!userExists) {
-      const { sender_full_name } = req.body.message;
       // TODO: check if the first word in message is signup!
+      const wantsToSignUp = req.body.data.search(/signup/gi);
 
-      const { status } = db.user.add({
-        email: senderEmail,
-        full_name: sender_full_name
-      });
+      if (wantsToSignUp) {
+        const { status } = db.user.add({
+          email: senderEmail,
+          full_name: req.body.message.sender_full_name
+        });
 
-      zulipMsgSender({
-        toEmail: senderEmail,
-        status,
-        messageType: messageType.SIGNUP
-      });
+        zulipMsgSender({
+          toEmail: senderEmail,
+          status,
+          messageType: messageType.SIGNUP
+        });
+      } else {
+        zulipMsgSender({
+          toEmail: senderEmail,
+          status: 'OK',
+          messageType: messageType.PROMPT_SIGNUP
+        });
+      }
+
       return;
     }
 

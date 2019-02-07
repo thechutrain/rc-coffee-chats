@@ -86,7 +86,7 @@ export function initMatchModel(db: sqlite): any {
     if (!rowsChanged) {
       throw new Error(`Could not insert into Match table`);
       // return {
-      //   status: 'FAILURE',
+      //   status: 'ERROR',
       //   message: 'Error: could not insert into Match table'
       // };
     }
@@ -106,7 +106,7 @@ export function initMatchModel(db: sqlite): any {
       };
     } else {
       return {
-        status: 'FAILURE',
+        status: 'ERROR',
         message: 'ERROR: failed to add to User_Match'
       };
     }

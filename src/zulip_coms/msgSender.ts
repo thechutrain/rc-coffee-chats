@@ -8,6 +8,7 @@ import { ICliAction } from './interface';
 
 // TODO: make a sendMessage (takes in message type etc.)
 export enum messageType {
+  'PROMPT_SIGNUP',
   'SIGNUP',
   'UPDATE_DAYS'
 }
@@ -29,6 +30,7 @@ export function zulipMsgSender(msgOpt: IMsgSenderArgs): void {
       } else {
         messageContent = `Failed to sign you up`;
       }
+      break;
 
     default:
       messageContent = `Status: ${msgOpt.status}

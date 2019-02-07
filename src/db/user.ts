@@ -81,13 +81,13 @@ export function initUserModel(db: sqlite): any {
     try {
       queryResult = insertSQL.run(userVals);
     } catch (e) {
-      return { status: 'FAILURE', message: e };
+      return { status: 'ERROR', message: e };
     }
 
     const { changes, lastInsertROWID } = queryResult;
     return changes !== 0
       ? { status: 'OK', payload: { id: lastInsertROWID } }
-      : { status: 'FAILURE', message: 'Did not create a new user' };
+      : { status: 'ERROR', message: 'Did not create a new user' };
   }
   //////////////////////////////
   // Specific Model Methods
@@ -116,7 +116,7 @@ export function initUserModel(db: sqlite): any {
     }
 
     return error
-      ? { status: 'FAILURE', message: error }
+      ? { status: 'ERROR', message: error }
       : { status: 'OK', payload: foundUser };
   }
 
@@ -128,7 +128,7 @@ export function initUserModel(db: sqlite): any {
 
     if (!foundUser) {
       return {
-        status: 'FAILURE',
+        status: 'ERROR',
         message: `No user with email "${targetEmail}" found to update`
       };
     }
@@ -145,7 +145,7 @@ export function initUserModel(db: sqlite): any {
 
     return queryResult.changes !== 0
       ? { status: 'OK', payload: coffeeDays.join(' ') }
-      : { status: 'FAILURE', message: 'Did not update coffee days' };
+      : { status: 'ERROR', message: 'Did not update coffee days' };
   }
 
   function updateWarningExceptions(
