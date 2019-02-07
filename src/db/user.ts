@@ -65,6 +65,9 @@ export function initUserModel(db: sqlite): any {
     dropStmt.run();
   }
 
+  //////////////////////////////
+  // Insertions
+  /////////////////////////////
   // TODO: define fn signature on initUserModel return type
   function addUser(userVals: IAddUserArgs): ISqlOk | ISqlError {
     let insertSQL;
@@ -89,10 +92,12 @@ export function initUserModel(db: sqlite): any {
       ? { status: 'OK', payload: { id: lastInsertROWID } }
       : { status: 'ERROR', message: 'Did not create a new user' };
   }
-  //////////////////////////////
-  // Specific Model Methods
+
+  /////////////////////////////
+  // Find & Get column vals
   /////////////////////////////
   // TODO: remove this function & clean up tests
+
   function find(email: string): IUserDB | null {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     const foundUser = findStmt.get(email);
@@ -120,6 +125,46 @@ export function initUserModel(db: sqlite): any {
       : { status: 'OK', payload: foundUser };
   }
 
+  function getCoffeeDays(targetEmail: string): ISqlOk | ISqlError {
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'ERROR',
+        message: `No user with email "${targetEmail}" found to update`
+      };
+    } else {
+      return {
+        status: 'OK',
+        payload: foundUser.coffee_days.map(day => WEEKDAYS[day])
+      };
+    }
+  }
+
+  function getWarningStatus(targetEmail: string): ISqlOk | ISqlError {
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'ERROR',
+        message: `No user with email "${targetEmail}" found to update`
+      };
+    }
+  }
+
+  function getNextStatus(targetEmail: string): ISqlOk | ISqlError {
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'ERROR',
+        message: `No user with email "${targetEmail}" found to update`
+      };
+    }
+  }
+  /////////////////////////////
+  // Update functions
+  /////////////////////////////
   function updateCoffeeDays(
     targetEmail: string,
     coffeeDays: WEEKDAYS[]
@@ -274,12 +319,17 @@ export function initUserModel(db: sqlite): any {
   }
 
   return {
-    // Queries
+    // Important
+    getPrevMatches,
+    getTodaysMatches,
+
+    // Basic Queries
     find,
     findUserByEmail,
     getUsersToMatch,
-    getPrevMatches,
-    getTodaysMatches,
+    getCoffeeDays,
+    getWarningStatus,
+    getNextStatus,
 
     // Mutations
     add: addUser,
