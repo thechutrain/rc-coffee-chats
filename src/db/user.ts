@@ -136,7 +136,7 @@ export function initUserModel(db: sqlite): any {
     } else {
       return {
         status: 'OK',
-        payload: foundUser.coffee_days.map(day => WEEKDAYS[day])
+        payload: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
       };
     }
   }
