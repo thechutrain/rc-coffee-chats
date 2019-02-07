@@ -7,10 +7,14 @@ dotenv.config();
 
 import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
-import { sendMessage, sendErrorMessage } from './zulip_coms/sendMessage';
+import {
+  messageType,
+  zulipMsgSender,
+  sendGenericMessage
+} from './zulip_coms/msgSender';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
-import { ISqlSuccess, ISqlError } from './db/db.interface';
+import { ISqlOk, ISqlError } from './db/db.interface';
 import { WEEKDAYS } from './constants';
 
 // TODO: pass in env vars into the IFFE?

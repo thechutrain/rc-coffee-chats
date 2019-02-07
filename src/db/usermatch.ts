@@ -1,5 +1,5 @@
 import sqlite from 'better-sqlite3';
-import { ISqlOK, ISqlError } from './db.interface';
+import { ISqlOk, ISqlError } from './db.interface';
 
 const TABLE_NAME = 'User_Match';
 
@@ -29,7 +29,7 @@ export function initUserMatchModel(db: sqlite): any {
     return numRecord;
   }
 
-  function add(user_id: string, match_id: string): ISqlOK | ISqlError {
+  function add(user_id: string, match_id: string): ISqlOk | ISqlError {
     const insertSQL = db.prepare(
       `INSERT INTO ${TABLE_NAME} (user_id, match_id) VALUES (?, ?)`
     );

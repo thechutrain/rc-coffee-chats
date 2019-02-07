@@ -20,7 +20,7 @@ interface ISqlResponse {
   payload?: any;
 }
 
-export interface ISqlOK extends ISqlResponse {
+export interface ISqlOk extends ISqlResponse {
   payload?: any;
 }
 export interface ISqlError extends ISqlResponse {

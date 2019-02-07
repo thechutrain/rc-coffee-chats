@@ -1,11 +1,6 @@
 import sqlite from 'better-sqlite3';
 
-import {
-  ISqlOK,
-  ISqlError,
-  IAddMatchArgs,
-  IMatchDB
-} from './db.interface';
+import { ISqlOk, ISqlError, IAddMatchArgs, IMatchDB } from './db.interface';
 import { initUserMatchModel } from './usermatch';
 
 const TABLE_NAME = 'Match';
@@ -73,7 +68,7 @@ export function initMatchModel(db: sqlite): any {
   // }
 
   // TODO: (LATER) add flexbility to update match by emails?
-  function addMatch(matchArgs: IAddMatchArgs): ISqlOK | ISqlError {
+  function addMatch(matchArgs: IAddMatchArgs): ISqlOk | ISqlError {
     // const insertQuery = db.prepare(`
     // INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, @date)`);
 

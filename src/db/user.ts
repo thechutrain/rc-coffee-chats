@@ -6,7 +6,7 @@ import {
   IUserDB,
   IUserMatchResult,
   IAddUserArgs,
-  ISqlOK,
+  ISqlOk,
   ISqlError
 } from './db.interface';
 import { WEEKDAYS } from '../constants';
@@ -17,7 +17,7 @@ import { WEEKDAYS } from '../constants';
 // - createTable
 // - count
 // - deleteRecords
-interface IUserResult extends ISqlOK {
+interface IUserResult extends ISqlOk {
   payload?: IUserDB;
 }
 interface IUserModel {
@@ -66,7 +66,7 @@ export function initUserModel(db: sqlite): any {
   }
 
   // TODO: define fn signature on initUserModel return type
-  function addUser(userVals: IAddUserArgs): ISqlOK | ISqlError {
+  function addUser(userVals: IAddUserArgs): ISqlOk | ISqlError {
     let insertSQL;
     if (userVals.coffee_days) {
       insertSQL = db.prepare(
@@ -101,7 +101,7 @@ export function initUserModel(db: sqlite): any {
     return !!foundUser ? foundUser : null;
   }
 
-  // TODO: update the function signature to match ISqlOK | ISqlError
+  // TODO: update the function signature to match ISqlOk | ISqlError
   function findUserByEmail(email: string): IUserResult | ISqlError {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     let foundUser;
@@ -123,7 +123,7 @@ export function initUserModel(db: sqlite): any {
   function updateCoffeeDays(
     targetEmail: string,
     coffeeDays: WEEKDAYS[]
-  ): ISqlOK | ISqlError {
+  ): ISqlOk | ISqlError {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 
     if (!foundUser) {
@@ -151,14 +151,14 @@ export function initUserModel(db: sqlite): any {
   function updateWarningExceptions(
     targetEmail: string,
     warningException: boolean
-  ): ISqlOK | ISqlError {
+  ): ISqlOk | ISqlError {
     return { status: 'OK' };
   }
 
   function updateSkipNextMatch(
     targetEmail: string,
     warningException: boolean
-  ): ISqlOK | ISqlError {
+  ): ISqlOk | ISqlError {
     return { status: 'OK' };
   }
   // function toggleSkipNextMatch(valToSet?: boolean) {}
