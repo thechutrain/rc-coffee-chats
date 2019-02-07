@@ -26,11 +26,12 @@ export function zulipMsgSender(msgOpt: IMsgSenderArgs): void {
   switch (msgOpt.messageType) {
     case messageType.PROMPT_SIGNUP:
       messageContent = `You are not currently signed up as a user of coffee chats
-      Type in SIGNUP to join`;
+      Type SIGNUP to join`;
       break;
     case messageType.SIGNUP:
       if (msgOpt.status === 'OK') {
-        messageContent = `You've successfully been added to coffee chat!`;
+        messageContent = `You've successfully been added to coffee chat!
+        Type HELP or learn more at []()`;
       } else {
         messageContent = `Failed to sign you up`;
       }

@@ -134,7 +134,7 @@ export function initUserModel(db: sqlite): any {
     }
 
     const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
-
+    console.log(coffeeDayStr);
     const updateStmt = db.prepare(
       `UPDATE User SET
         coffee_days = ?
