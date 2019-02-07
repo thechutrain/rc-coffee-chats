@@ -52,7 +52,7 @@ import { WEEKDAYS } from './constants';
     const userExists = db.user.find(senderEmail);
     if (!userExists) {
       // TODO: check if the first word in message is signup!
-      const wantsToSignUp = req.body.data.search(/signup/gi);
+      const wantsToSignUp = req.body.data.match(/signup/gi);
 
       if (wantsToSignUp) {
         const { status } = db.user.add({
