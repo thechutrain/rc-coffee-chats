@@ -10,10 +10,18 @@ import { ICliAction } from './interface';
 export enum messageType {
   'PROMPT_SIGNUP',
   'SIGNUP',
-  'UPDATE_DAYS'
+
+  // CLI Update-related cmds
+  'UPDATE_DAYS',
+  'UPDATE_SKIP',
+  'UPDATE_WARNINGS',
+
+  // CLI Get-related cmds
+  'STATUS_DAYS',
+  'STATUS_SKIP',
+  'STATUS_WARNINGS'
 }
 export interface IMsgSenderArgs {
-  toEmail: string | string[];
   status: 'OK' | 'ERROR';
   messageType: messageType;
   payload?: any;
@@ -21,7 +29,10 @@ export interface IMsgSenderArgs {
   cliAction?: ICliAction;
 }
 
-export function zulipMsgSender(msgOpt: IMsgSenderArgs): void {
+export function zulipMsgSender(
+  toEmail: string | string[],
+  msgOpt: IMsgSenderArgs
+): void {
   let messageContent;
   switch (msgOpt.messageType) {
     case messageType.PROMPT_SIGNUP:
