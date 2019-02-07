@@ -181,7 +181,7 @@ describe('User Model test', () => {
 
     const newDays = ['SUN', 'WED'];
     const sqlStatus = updateCoffeeDays(defaultUser.email, newDays);
-    expect(sqlStatus.status).toBe('SUCCESS');
+    expect(sqlStatus.status).toBe('OK');
 
     // Check that they've been successfully changed
     expect(find(defaultUser.email)).toMatchObject({

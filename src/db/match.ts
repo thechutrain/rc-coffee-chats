@@ -1,7 +1,7 @@
 import sqlite from 'better-sqlite3';
 
 import {
-  ISqlSuccess,
+  ISqlOK,
   ISqlError,
   IAddMatchArgs,
   IMatchDB
@@ -73,7 +73,7 @@ export function initMatchModel(db: sqlite): any {
   // }
 
   // TODO: (LATER) add flexbility to update match by emails?
-  function addMatch(matchArgs: IAddMatchArgs): ISqlSuccess | ISqlError {
+  function addMatch(matchArgs: IAddMatchArgs): ISqlOK | ISqlError {
     // const insertQuery = db.prepare(`
     // INSERT INTO ${TABLE_NAME} (user_1_id, user_2_id, date) VALUES (@user_1_id, @user_2_id, @date)`);
 
@@ -105,9 +105,9 @@ export function initMatchModel(db: sqlite): any {
     const { status: status1 } = insertUserMatch(user_1_id, newMatchId);
     const { status: status2 } = insertUserMatch(user_2_id, newMatchId);
 
-    if (status1 === 'SUCCESS' && status2 === 'SUCCESS') {
+    if (status1 === 'OK' && status2 === 'OK') {
       return {
-        status: 'SUCCESS'
+        status: 'OK'
       };
     } else {
       return {

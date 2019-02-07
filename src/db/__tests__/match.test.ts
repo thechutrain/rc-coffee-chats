@@ -77,7 +77,7 @@ xdescribe('Match Model test', () => {
       user_1_id: 1,
       user_2_id: 2
     });
-    expect(status).toBe('SUCCESS');
+    expect(status).toBe('OK');
 
     expect(count()).toBe(1);
   });
@@ -95,7 +95,7 @@ xdescribe('Match Model test', () => {
       user_2_id: 2,
       date: '2019-01-31'
     });
-    expect(status1).toBe('SUCCESS');
+    expect(status1).toBe('OK');
 
     const { status: status2 } = add({
       user_1_id: 1,
@@ -103,7 +103,7 @@ xdescribe('Match Model test', () => {
       date: '2019-02-31'
     });
 
-    expect(status2).toBe('SUCCESS');
+    expect(status2).toBe('OK');
 
     expect(count()).toBe(2);
   });
@@ -122,7 +122,7 @@ xdescribe('Match Model test', () => {
       date: '2019-01-31'
     };
     const { status: status1 } = add(matchRecord1);
-    expect(status1).toBe('SUCCESS');
+    expect(status1).toBe('OK');
 
     const foundMatches = find(1);
 
@@ -174,7 +174,7 @@ xdescribe('Match Model test', () => {
   //   add(fooUser);
   //   expect(count()).toBe(1);
   //   const findResult = find('foo@gmail.com');
-  //   expect(findResult.status).toBe('SUCCESS');
+  //   expect(findResult.status).toBe('OK');
   //   expect(findResult.payload).toBeDefined();
   //   expect(findResult.payload).toMatchObject(fooUser);
   // });

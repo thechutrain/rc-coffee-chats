@@ -6,7 +6,7 @@ import {
   IUserDB,
   IUserMatchResult,
   IAddUserArgs,
-  ISqlSuccess,
+  ISqlOK,
   ISqlError
 } from './db.interface';
 import { WEEKDAYS } from '../constants';
@@ -17,7 +17,7 @@ import { WEEKDAYS } from '../constants';
 // - createTable
 // - count
 // - deleteRecords
-interface IUserResult extends ISqlSuccess {
+interface IUserResult extends ISqlOK {
   payload?: IUserDB;
 }
 interface IUserModel {
@@ -66,7 +66,7 @@ export function initUserModel(db: sqlite): any {
   }
 
   // TODO: define fn signature on initUserModel return type
-  function addUser(userVals: IAddUserArgs): ISqlSuccess | ISqlError {
+  function addUser(userVals: IAddUserArgs): ISqlOK | ISqlError {
     let insertSQL;
     if (userVals.coffee_days) {
       insertSQL = db.prepare(
@@ -86,7 +86,7 @@ export function initUserModel(db: sqlite): any {
 
     const { changes, lastInsertROWID } = queryResult;
     return changes !== 0
-      ? { status: 'SUCCESS', payload: { id: lastInsertROWID } }
+      ? { status: 'OK', payload: { id: lastInsertROWID } }
       : { status: 'FAILURE', message: 'Did not create a new user' };
   }
   //////////////////////////////
@@ -101,7 +101,7 @@ export function initUserModel(db: sqlite): any {
     return !!foundUser ? foundUser : null;
   }
 
-  // TODO: update the function signature to match ISqlSuccess | ISqlError
+  // TODO: update the function signature to match ISqlOK | ISqlError
   function findUserByEmail(email: string): IUserResult | ISqlError {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     let foundUser;
@@ -117,13 +117,13 @@ export function initUserModel(db: sqlite): any {
 
     return error
       ? { status: 'FAILURE', message: error }
-      : { status: 'SUCCESS', payload: foundUser };
+      : { status: 'OK', payload: foundUser };
   }
 
   function updateCoffeeDays(
     targetEmail: string,
     coffeeDays: WEEKDAYS[]
-  ): ISqlSuccess | ISqlError {
+  ): ISqlOK | ISqlError {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 
     if (!foundUser) {
@@ -144,22 +144,22 @@ export function initUserModel(db: sqlite): any {
     const queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
 
     return queryResult.changes !== 0
-      ? { status: 'SUCCESS', payload: coffeeDays.join(' ') }
+      ? { status: 'OK', payload: coffeeDays.join(' ') }
       : { status: 'FAILURE', message: 'Did not update coffee days' };
   }
 
   function updateWarningExceptions(
     targetEmail: string,
     warningException: boolean
-  ): ISqlSuccess | ISqlError {
-    return { status: 'SUCCESS' };
+  ): ISqlOK | ISqlError {
+    return { status: 'OK' };
   }
 
   function updateSkipNextMatch(
     targetEmail: string,
     warningException: boolean
-  ): ISqlSuccess | ISqlError {
-    return { status: 'SUCCESS' };
+  ): ISqlOK | ISqlError {
+    return { status: 'OK' };
   }
   // function toggleSkipNextMatch(valToSet?: boolean) {}
 
