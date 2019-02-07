@@ -39,6 +39,7 @@ export function zulipMsgSender(
       messageContent = `You are not currently signed up as a user of coffee chats
       Type SIGNUP to join`;
       break;
+
     case messageType.SIGNUP:
       if (msgOpt.status === 'OK') {
         messageContent = `You've successfully been added to coffee chat!
@@ -48,10 +49,25 @@ export function zulipMsgSender(
       }
       break;
 
+    case messageType.STATUS_DAYS:
+      const daysAsString = msgOpt.payload.join(' ');
+      messageContent = `You've successfully set your days to be: ${daysAsString}`;
+      break;
+
     default:
-      messageContent = `Status: ${msgOpt.status}
-      payload: ${msgOpt.payload}
-      message: ${msgOpt.message}`;
+      if (msgOpt.status === 'ERROR') {
+        messageContent = `ERROR: 
+        payload: ${msgOpt.payload}
+        message: ${msgOpt.message}
+        cli: ${msgOpt.cliAction}
+        `;
+      } else {
+        messageContent = `OK: 
+        payload: ${msgOpt.payload}
+        message: ${msgOpt.message}
+        `;
+      }
+
       break;
   }
 
