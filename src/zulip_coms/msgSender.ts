@@ -24,7 +24,7 @@ export interface IMsgSenderArgs {
 export function zulipMsgSender(msgOpt: IMsgSenderArgs): void {
   let messageContent;
   switch (msgOpt.messageType) {
-    case messageContent.PROMPT_SIGNUP:
+    case messageType.PROMPT_SIGNUP:
       messageContent = `You are not currently signed up as a user of coffee chats
       Type in SIGNUP to join`;
       break;
