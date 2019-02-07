@@ -71,7 +71,7 @@ export function zulipMsgSender(
       break;
   }
 
-  sendGenericMessage(msgOpt.toEmail, messageContent);
+  sendGenericMessage(toEmail, messageContent);
 }
 
 export function sendGenericMessage(
