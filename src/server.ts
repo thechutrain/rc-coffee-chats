@@ -34,34 +34,16 @@ import { WEEKDAYS } from './constants';
   /////////////////
   const app = express();
 
-  // ==== TESTING ====
-  app.get('/', (request, response) => {
-    response.send('There is no home route yo');
-  });
-
-  // ====== USED FOR TESTING =========
-  // app.post(
-  //   '/',
-  //   bodyParser.urlencoded({ extended: true }),
-  //   (request, response) => {
-  //     console.log('POST REQUEST @ /');
-  //     console.log('headers ....');
-  //     console.log(request.headers);
-  //     console.log('body ....');
-  //     console.log(request.body);
-  //     response.send('ok received!');
-  //   }
-  // );
-
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     const senderEmail = req.body.message.sender_email;
-    let zulipHandler: {
-      log?: boolean;
-      logData?: any;
-      messageType?: 'ERROR' | 'OK';
-      messageData: any;
-    };
+    let zulipMsgHandler;
+    // {
+    //   // log?: boolean;
+    //   // logData?: any;
+    //   messageType?: 'ERROR' | 'OK'; // TODO: move to enum
+    //   messageData: any;
+    // };
     // Question: Do I even need to end the response?
     res.json({});
 
@@ -121,37 +103,29 @@ import { WEEKDAYS } from './constants';
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
-      // TODO: have all commands returen ISqlSuccess or ISqlError object
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
           console.log(`Try to change days to: ${cliAction.payload}`);
-          (() => {
-            const { status, message, payload } = db.user.updateCoffeeDays(
-              senderEmail,
-              cliAction.payload
-            );
-            if (status === 'FAILURE') {
-              zulipHandler = {
-                messageType: 'ERROR',
-                messageData: message
-              };
-            } else {
-              // TODO: make this a util (convert string of int --> weekdays?)
-              zulipHandler = {
-                messageType: 'OK',
-                messageData: `You've successfully set your coffee day(s) to: ${payload}`
-              };
-            }
-          })();
+
+          let { status, message, payload } = db.user.updateCoffeeDays(
+            senderEmail,
+            cliAction.payload
+          );
+
+          zulipMsgHandler = {
+            status,
+            messageType: 'UPDATE_DAYS',
+            payload,
+            message,
+            cliAction
+          };
+
           break;
+
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
-          // try {
-          //   zulipHandler = somequery();
-          // } catch (e) {
-          //   // sendErrorMessage();
-          // }
+          
           (() => {
             const {
               status,
@@ -188,27 +162,40 @@ import { WEEKDAYS } from './constants';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          (() => {
-            const { status, message, payload } = db.user.findUserByEmail(
-              senderEmail
-            );
-            if (status === 'FAILURE') {
-              zulipHandler = {
-                messageType: 'ERROR',
-                messageData: message
-              };
-            } else {
-              // TODO: make this a util (convert string of int --> weekdays?)
-              const daysAsString = payload.coffee_days
-                .split('')
-                .map(dayInt => WEEKDAYS[dayInt])
-                .join(' ');
-              zulipHandler = {
-                messageType: 'OK',
-                messageData: `Your coffee day(s) are: ${daysAsString}`
-              };
-            }
-          })();
+          try {
+            const sqlResult = db.user.getCoffeeDays();
+            zulipMsgHandler = {
+              messageType: 'OK_GET_COFFEE_DAYS',
+              data: sqlResult.payload
+            };
+          } catch (e) {
+            zulipMsgHandler = {
+              messageType: 'ERROR_MSG',
+              errorMsg: e
+            };
+          }
+
+          // (() => {
+          //   const { status, message, payload } = db.user.findUserByEmail(
+          //     senderEmail
+          //   );
+          //   if (status === 'FAILURE') {
+          //     zulipHandler = {
+          //       messageType: 'ERROR',
+          //       messageData: message
+          //     };
+          //   } else {
+          //     // TODO: make this a util (convert string of int --> weekdays?)
+          //     const daysAsString = payload.coffee_days
+          //       .split('')
+          //       .map(dayInt => WEEKDAYS[dayInt])
+          //       .join(' ');
+          //     zulipHandler = {
+          //       messageType: 'OK',
+          //       messageData: `Your coffee day(s) are: ${daysAsString}`
+          //     };
+          //   }
+          // })();
           break;
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
