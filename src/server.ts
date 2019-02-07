@@ -60,14 +60,12 @@ import { WEEKDAYS } from './constants';
           full_name: req.body.message.sender_full_name
         });
 
-        zulipMsgSender({
-          toEmail: senderEmail,
+        zulipMsgSender(senderEmail, {
           status,
           messageType: messageType.SIGNUP
         });
       } else {
-        zulipMsgSender({
-          toEmail: senderEmail,
+        zulipMsgSender(senderEmail, {
           status: 'OK',
           messageType: messageType.PROMPT_SIGNUP
         });
@@ -114,7 +112,6 @@ import { WEEKDAYS } from './constants';
           );
 
           zulipMsgOpts = {
-            toEmail: senderEmail,
             status,
             messageType: messageType.UPDATE_DAYS,
             payload,
@@ -162,41 +159,17 @@ import { WEEKDAYS } from './constants';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          // try {
-          //   const sqlResult = db.user.getCoffeeDays();
-          //   zulipMsgHandler = {
-          //     messageType: 'OK_GET_COFFEE_DAYS',
-          //     data: sqlResult.payload
-          //   };
-          // } catch (e) {
-          //   zulipMsgHandler = {
-          //     messageType: 'ERROR_MSG',
-          //     errorMsg: e
-          //   };
-          // }
 
-          // (() => {
-          //   const { status, message, payload } = db.user.findUserByEmail(
-          //     senderEmail
-          //   );
-          //   if (status === 'FAILURE') {
-          //     zulipHandler = {
-          //       messageType: 'ERROR',
-          //       messageData: message
-          //     };
-          //   } else {
-          //     // TODO: make this a util (convert string of int --> weekdays?)
-          //     const daysAsString = payload.coffee_days
-          //       .split('')
-          //       .map(dayInt => WEEKDAYS[dayInt])
-          //       .join(' ');
-          //     zulipHandler = {
-          //       messageType: 'OK',
-          //       messageData: `Your coffee day(s) are: ${daysAsString}`
-          //     };
-          //   }
-          // })();
+          let { status, message, payload } = db.user.getCoffeeDays(senderEmail);
+
+          zulipMsgOpts = {
+            status,
+            messageType: messageType.STATUS_DAYS,
+            message, // ignored for now
+            payload // ignored for now
+          };
           break;
+
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
           // (() => {
@@ -258,7 +231,7 @@ import { WEEKDAYS } from './constants';
     }
 
     // ====== Zulip Message ==========
-    zulipMsgSender(zulipMsgOpts);
+    zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
   });
 
   app.post('/cron/run', (request, response) => {
