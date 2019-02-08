@@ -51,7 +51,7 @@ export function zulipMsgSender(
 
     case messageType.STATUS_DAYS:
       const daysAsString = msgOpt.payload.join(' ');
-      messageContent = `You've successfully set your days to be: ${daysAsString}`;
+      messageContent = `You are currently set to have coffee chats on the following days: ${daysAsString}`;
       break;
 
     default:

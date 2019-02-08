@@ -53,7 +53,24 @@ beforeAll(() => {
 //   expect(count()).toBe(0);
 // });
 
+// Unnecessary?
+// it('should NOT recreate table if a table has been created already', () => {
+//   const db = new sqlite(DB_PATH, { fileMustExist: true });
+//   expect(db.open).toBe(true);
+
+//   const { add, count, createTable } = initUserModel(db);
+//   expect(count()).toBe(0);
+//   const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
+//   add(fooUser);
+//   expect(count()).toBe(1);
+//   createTable();
+//   expect(count()).toBe(1);
+// });
+
 describe('User Model test', () => {
+  ///////////////
+  // ADDING a user
+  ////////////////
   it('should ADD new user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
@@ -64,20 +81,6 @@ describe('User Model test', () => {
     add(fooUser);
     expect(count()).toBe(1);
   });
-
-  // Unnecessary?
-  // it('should NOT recreate table if a table has been created already', () => {
-  //   const db = new sqlite(DB_PATH, { fileMustExist: true });
-  //   expect(db.open).toBe(true);
-
-  //   const { add, count, createTable } = initUserModel(db);
-  //   expect(count()).toBe(0);
-  //   const fooUser = { email: 'foo@gmail.com', full_name: 'Foo Foo' };
-  //   add(fooUser);
-  //   expect(count()).toBe(1);
-  //   createTable();
-  //   expect(count()).toBe(1);
-  // });
 
   it('should NOT add DUPLICATE users', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
@@ -114,6 +117,24 @@ describe('User Model test', () => {
     expect(count()).toBe(2);
   });
 
+  it('should ADD user with given Coffee Day preference', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { count, add, find, _deleteRecords } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    // Clean Table:
+    add({ email: 'b@foo.com', full_name: 'only weekends', coffee_days: '06' });
+
+    const foundUser = find('b@foo.com');
+    expect(foundUser.coffee_days).toBe('06');
+  });
+
+  //////////////////
+  // FINDING User / vals
+  /////////////////
   it('should FIND a user that EXISTS', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
@@ -161,6 +182,9 @@ describe('User Model test', () => {
     expect(notfoundUser).toBeNull();
   });
 
+  ////////////////////
+  // UPDATE
+  ////////////////////
   it('should UPDATE coffee days of a user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
@@ -187,20 +211,5 @@ describe('User Model test', () => {
     expect(find(defaultUser.email)).toMatchObject({
       coffee_days: '03'
     });
-  });
-
-  it('should ADD user with given Coffee Day preference', () => {
-    const db = new sqlite(DB_PATH, { fileMustExist: true });
-    expect(db.open).toBe(true);
-
-    const { count, add, find, _deleteRecords } = initUserModel(db);
-    _deleteRecords();
-    expect(count()).toBe(0);
-
-    // Clean Table:
-    add({ email: 'b@foo.com', full_name: 'only weekends', coffee_days: '06' });
-
-    const foundUser = find('b@foo.com');
-    expect(foundUser.coffee_days).toBe('06');
   });
 });
