@@ -24,7 +24,7 @@ interface IUserModel {
   findUserByEmail: (email: string) => IUserResult | ISqlError;
 }
 
-export function initUserModel(db: sqlite): any {
+export function initUserModel(db: sqlite) {
   //////////////////////////////
   // Boilerplate Model Methods
   /////////////////////////////
@@ -167,7 +167,7 @@ export function initUserModel(db: sqlite): any {
   /////////////////////////////
   function updateCoffeeDays(
     targetEmail: string,
-    coffeeDays: WEEKDAYS[]
+    coffeeDays: string[]
   ): ISqlOk | ISqlError {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 

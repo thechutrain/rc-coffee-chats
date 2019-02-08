@@ -133,7 +133,7 @@ describe('User Model test', () => {
   });
 
   //////////////////
-  // FINDING User / vals
+  // FINDING User
   /////////////////
   it('should FIND a user that EXISTS', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
@@ -180,6 +180,48 @@ describe('User Model test', () => {
     const notfoundUser = find('foo@gmail.com');
 
     expect(notfoundUser).toBeNull();
+  });
+
+  ////////////////////
+  // GET column values
+  ////////////////////
+  it('should get COFFEE DAYS for a given user', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { count, getCoffeeDays, add, _deleteRecords } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    const defaultUser = {
+      email: 'test@gmail.com',
+      full_name: 'test user'
+    };
+    add(defaultUser);
+
+    const coffeeDays = getCoffeeDays('test@gmail.com');
+
+    expect(coffeeDays).toMatchObject({
+      status: 'OK',
+      payload: ['MON', 'TUE', 'WED', 'THU']
+    });
+  });
+  it('should get WARNING STATUS for a given user', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { count, find, _deleteRecords } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+  });
+
+  it('should get NEXT STATUS for a given user', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const { count, find, _deleteRecords } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
   });
 
   ////////////////////
