@@ -13,6 +13,7 @@ import {
   sendGenericMessage,
   IMsgSenderArgs
 } from './zulip_coms/msgSender';
+import { parseTruthy } from './utils/parseTruthy';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
@@ -100,6 +101,10 @@ import { WEEKDAYS } from './constants';
       cliAction.directive === directives.CHANGE ||
       cliAction.directive === directives.UPDATE
     ) {
+      // TODO: validate that all of the change / update have at least one element in the subcommand.
+
+      // Validate that payloads?
+
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
@@ -112,22 +117,38 @@ import { WEEKDAYS } from './constants';
 
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
-          console.log(cliAction.payload);
-          sqlResult = db.user.updateSkipNextMatch(
-            senderEmail,
-            cliAction.payload[0]
-          );
           messageType = messageTypeEnum.UPDATE_SKIP;
+          try {
+            console.log(cliAction.payload);
+            const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
+            console.log(parsedTruthyVal);
+            sqlResult = db.user.updateSkipNextMatch(
+              senderEmail,
+              cliAction.payload[0]
+            );
+          } catch (e) {
+            sendGenericMessage(senderEmail, e);
+            return;
+          }
           break;
 
         case subCommands.WARNINGS:
           console.log('Will change your warnings ...');
-          console.log(cliAction.payload);
-          sqlResult = db.user.updateWarningException(
-            senderEmail,
-            cliAction.payload[0]
-          );
           messageType = messageTypeEnum.UPDATE_WARNINGS;
+          try {
+            console.log(cliAction.payload);
+            const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
+            console.log(parsedTruthyVal);
+            sqlResult = db.user.updateWarningException(
+              senderEmail,
+              parsedTruthyVal
+            );
+          } catch (e) {
+            // will only catch an error from parsing truthy part:
+            // Send error message & return
+            sendGenericMessage(senderEmail, e);
+            return;
+          }
           break;
 
         default:
