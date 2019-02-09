@@ -61,7 +61,7 @@ export function zulipMsgSender(
     // STATUS messages
     ////////////////////////
     case messageTypeEnum.STATUS_DAYS:
-      const daysAsString = msgOpt.payload.join(' ');
+      const daysAsString = msgOpt.payload.coffeeDays.join(' ');
       messageContent = `You are currently set to have coffee chats on the following days: ${daysAsString}`;
       break;
 
