@@ -118,7 +118,7 @@ export function zulipMsgSender(
       messageContent = `${headerText} 
         payload: ${msgOpt.payload}
         message: ${msgOpt.message}
-        cli: ${msgOpt.cliAction}
+        cli: ${JSON.stringify(msgOpt.cliAction)}
         `;
 
       break;

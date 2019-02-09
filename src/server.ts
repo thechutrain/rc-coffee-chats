@@ -107,10 +107,27 @@ import { WEEKDAYS } from './constants';
         case subCommands.DAYS:
         case subCommands.DATES:
           sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
+          messageType = messageTypeEnum.UPDATE_DAYS;
           break;
 
         case subCommands.SKIP:
           console.log(`Will skip your next match: ${cliAction.payload}`);
+          console.log(cliAction.payload);
+          sqlResult = db.user.updateSkipNextMatch(
+            senderEmail,
+            cliAction.payload[0]
+          );
+          messageType = messageTypeEnum.UPDATE_SKIP;
+          break;
+
+        case subCommands.WARNINGS:
+          console.log('Will change your warnings ...');
+          console.log(cliAction.payload);
+          sqlResult = db.user.updateWarningException(
+            senderEmail,
+            cliAction.payload[0]
+          );
+          messageType = messageTypeEnum.UPDATE_WARNINGS;
           break;
 
         default:
