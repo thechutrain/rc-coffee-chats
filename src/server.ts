@@ -1,7 +1,7 @@
 import * as path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
-import logger from './logger';
+// import logger from './logger';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
@@ -17,7 +17,6 @@ import { parseStrAsBool, validatePayload } from './utils/';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
-import { WEEKDAYS } from './constants';
 
 // TODO: pass in env vars into the IFFE?
 (async () => {
@@ -116,7 +115,7 @@ import { WEEKDAYS } from './constants';
           try {
             validatePayload(cliAction.payload);
             const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
-            console.log(parsedBooleanVal);
+
             sqlResult = db.user.updateSkipNextMatch(
               senderEmail,
               parsedBooleanVal
@@ -154,7 +153,7 @@ import { WEEKDAYS } from './constants';
       switch (cliAction.subCommand) {
         case subCommands.DATES:
         case subCommands.DAYS:
-          console.log(`Status for my days`);
+          // console.log(`Status for my days`);
           sqlResult = db.user.getCoffeeDays(senderEmail);
           messageType = messageTypeEnum.STATUS_DAYS;
           break;
@@ -167,9 +166,9 @@ import { WEEKDAYS } from './constants';
           break;
 
         case subCommands.SKIP:
-          console.log(
-            `Status for whether youre going to SKIP next match or not`
-          );
+          // console.log(
+          //   `Status for whether youre going to SKIP next match or not`
+          // );
           // TODO: Feature, be cool to determine when you're next match is.
           sqlResult = db.user.getNextStatus(senderEmail);
           messageType = messageTypeEnum.STATUS_SKIP;
