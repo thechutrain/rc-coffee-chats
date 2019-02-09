@@ -116,15 +116,12 @@ import { WEEKDAYS } from './constants';
           break;
 
         case subCommands.SKIP:
-          console.log(`Will skip your next match: ${cliAction.payload}`);
           messageType = messageTypeEnum.UPDATE_SKIP;
           try {
-            console.log(cliAction.payload);
             const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
-            console.log(parsedTruthyVal);
             sqlResult = db.user.updateSkipNextMatch(
               senderEmail,
-              cliAction.payload[0]
+              parsedTruthyVal
             );
           } catch (e) {
             sendGenericMessage(senderEmail, e);
@@ -133,19 +130,14 @@ import { WEEKDAYS } from './constants';
           break;
 
         case subCommands.WARNINGS:
-          console.log('Will change your warnings ...');
           messageType = messageTypeEnum.UPDATE_WARNINGS;
           try {
-            console.log(cliAction.payload);
             const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
-            console.log(parsedTruthyVal);
             sqlResult = db.user.updateWarningException(
               senderEmail,
               parsedTruthyVal
             );
           } catch (e) {
-            // will only catch an error from parsing truthy part:
-            // Send error message & return
             sendGenericMessage(senderEmail, e);
             return;
           }
