@@ -203,16 +203,33 @@ describe('User Model test', () => {
 
     expect(coffeeDays).toMatchObject({
       status: 'OK',
-      payload: ['MON', 'TUE', 'WED', 'THU']
+      payload: {
+        coffeeDays: ['MON', 'TUE', 'WED', 'THU']
+      }
     });
   });
+
   it('should get WARNING STATUS for a given user', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { count, find, _deleteRecords } = initUserModel(db);
+    const { count, add, getWarningStatus, _deleteRecords } = initUserModel(db);
     _deleteRecords();
     expect(count()).toBe(0);
+
+    const defaultUser = {
+      email: 'test@gmail.com',
+      full_name: 'test user'
+    };
+    add(defaultUser);
+
+    const warningStatus = getWarningStatus('test@gmail.com');
+    expect(warningStatus).toMatchObject({
+      status: 'OK',
+      payload: {
+        warningException: false
+      }
+    });
   });
 
   it('should get NEXT STATUS for a given user', () => {

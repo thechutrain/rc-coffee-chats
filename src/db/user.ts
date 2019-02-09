@@ -136,7 +136,9 @@ export function initUserModel(db: sqlite) {
     } else {
       return {
         status: 'OK',
-        payload: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
+        payload: {
+          coffeeDays: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
+        }
       };
     }
   }
@@ -148,6 +150,13 @@ export function initUserModel(db: sqlite) {
       return {
         status: 'ERROR',
         message: `No user with email "${targetEmail}" found to update`
+      };
+    } else {
+      return {
+        status: 'OK',
+        payload: {
+          warningException: foundUser.warning_exception ? true : false
+        }
       };
     }
   }
