@@ -61,7 +61,7 @@ const getEmailsForDay = ({ emails, userConfigs, day }) => {
   });
 };
 
-export function parseTruthy(truthyStr: string): boolean {
+export function parseStrAsBool(truthyStr: string): boolean {
   // NOTE: refactor this? should only parse Truthy here, validate if there's a value or not else where
   if (!truthyStr) {
     throw new Error(`No truthy value provided. Please use "true" or "false"`);
@@ -72,19 +72,24 @@ export function parseTruthy(truthyStr: string): boolean {
   switch (truthyStrCaps) {
     case '1':
     case 'TRUE':
+    case 'T':
     case 'YES':
-    case 'y':
+    case 'Y':
       booleanVal = true;
       break;
     case '0':
     case 'FALSE':
+    case 'F':
     case 'NO':
-    case 'n':
+    case 'N':
       booleanVal = false;
       break;
     default:
       throw new Error(
-        `Error parsing "${truthyStr}" as a boolean value. Please use "true" "yes" or "1" for truthy values and "false", "no", or "0" for falsey values.`
+        `Could not parse "${truthyStr}" as a boolean value. 
+        
+        Valid truthy values include: "true", "t", "yes", "y" or "1" 
+        Valid falsey values include: "false", "f", "no", "n" or "0"`
       );
   }
 

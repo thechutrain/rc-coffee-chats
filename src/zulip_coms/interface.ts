@@ -45,6 +45,7 @@ export enum directives {
 
 export enum subCommands {
   MATCH = 'MATCH',
+  // Alias for Coffee chat days
   DATES = 'DATES', // handle DATES & DAYS the same?
   DAYS = 'DAYS',
   SKIP = 'SKIP',

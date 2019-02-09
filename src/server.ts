@@ -13,7 +13,7 @@ import {
   sendGenericMessage,
   IMsgSenderArgs
 } from './zulip_coms/msgSender';
-import { parseTruthy, validatePayload } from './utils/';
+import { parseStrAsBool, validatePayload } from './utils/';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
@@ -115,11 +115,11 @@ import { WEEKDAYS } from './constants';
           messageType = messageTypeEnum.UPDATE_SKIP;
           try {
             validatePayload(cliAction.payload);
-            const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
-
+            const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
+            console.log(parsedBooleanVal);
             sqlResult = db.user.updateSkipNextMatch(
               senderEmail,
-              parsedTruthyVal
+              parsedBooleanVal
             );
           } catch (e) {
             sendGenericMessage(senderEmail, e);
@@ -131,11 +131,11 @@ import { WEEKDAYS } from './constants';
           messageType = messageTypeEnum.UPDATE_WARNINGS;
           try {
             validatePayload(cliAction.payload);
-            const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
+            const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
 
             sqlResult = db.user.updateWarningException(
               senderEmail,
-              parsedTruthyVal
+              parsedBooleanVal
             );
           } catch (e) {
             sendGenericMessage(senderEmail, e);

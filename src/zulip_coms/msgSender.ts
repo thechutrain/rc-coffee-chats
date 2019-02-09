@@ -79,9 +79,10 @@ export function zulipMsgSender(
 
     case messageTypeEnum.UPDATE_SKIP:
       if (msgOpt.status === 'OK') {
-        const skipping = msgOpt.payload.skip_next_match ? '' : ' NOT';
-        messageContent = `You've successfully updated your "skip_next_match" settings. You will${skipping} be skipping your next match. This setting gets cleared
-      warnings exceptions are set to be ${skipping}`;
+        const skipping = msgOpt.payload.skip_next_match ? ' NOT' : '';
+        messageContent = `You've successfully updated your "skip_next_match" settings. 
+        
+        You will${skipping} be skipping your next match.`;
       } else {
         messageContent = `Sorry there was an error updating your settings. If this is a bug, please fill out an issue @ [${
           process.env.GITHUB_URL
