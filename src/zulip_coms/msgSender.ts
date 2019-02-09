@@ -55,7 +55,39 @@ export function zulipMsgSender(
     ////////////////////////
     // CHANGE messages
     ////////////////////////
-    // TODO: write these messages
+    case messageTypeEnum.UPDATE_DAYS:
+      if (msgOpt.status === 'OK') {
+        messageContent = `You have successfully updated your coffee chat days.`;
+      } else {
+        messageContent = `Sorry there was an error updating your coffee chat day. If this is a bug, please fill out an issue @ [${
+          process.env.GITHUB_URL
+        }](${process.env.GITHUB_URL})`;
+      }
+      break;
+
+    case messageTypeEnum.UPDATE_WARNINGS:
+      if (msgOpt.status === 'OK') {
+        const warningsOnOff = msgOpt.payload.warning_exception ? 'ON' : 'OFF';
+        messageContent = `You've successfully updated your warning settings.
+        warnings exceptions are set to be ${warningsOnOff}`;
+      } else {
+        messageContent = `Sorry there was an error updating your settings. If this is a bug, please fill out an issue @ [${
+          process.env.GITHUB_URL
+        }](${process.env.GITHUB_URL})`;
+      }
+      break;
+
+    case messageTypeEnum.UPDATE_SKIP:
+      if (msgOpt.status === 'OK') {
+        const skipping = msgOpt.payload.skip_next_match ? '' : ' NOT';
+        messageContent = `You've successfully updated your "skip_next_match" settings. You will${skipping} be skipping your next match. This setting gets cleared
+      warnings exceptions are set to be ${skipping}`;
+      } else {
+        messageContent = `Sorry there was an error updating your settings. If this is a bug, please fill out an issue @ [${
+          process.env.GITHUB_URL
+        }](${process.env.GITHUB_URL})`;
+      }
+      break;
 
     ////////////////////////
     // STATUS messages
@@ -80,18 +112,14 @@ export function zulipMsgSender(
       break;
 
     default:
-      if (msgOpt.status === 'ERROR') {
-        messageContent = `ERROR: 
+      const headerText =
+        msgOpt.status === 'ERROR' ? 'DEFAULT ERROR MSG: ' : 'DEFAULT OK MSG: ';
+
+      messageContent = `${headerText} 
         payload: ${msgOpt.payload}
         message: ${msgOpt.message}
         cli: ${msgOpt.cliAction}
         `;
-      } else {
-        messageContent = `OK: 
-        payload: ${msgOpt.payload}
-        message: ${msgOpt.message}
-        `;
-      }
 
       break;
   }
