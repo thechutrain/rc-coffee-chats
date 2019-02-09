@@ -107,7 +107,7 @@ export function initUserModel(db: sqlite) {
   }
 
   // TODO: update the function signature to match ISqlOk | ISqlError
-  function findUserByEmail(email: string): IUserResult | ISqlError {
+  function findUserByEmail(email: string): ISqlOk | ISqlError {
     const findStmt = db.prepare('SELECT * FROM User WHERE email = ?');
     let foundUser;
     let error;
@@ -196,7 +196,6 @@ export function initUserModel(db: sqlite) {
     }
 
     const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
-    console.log(coffeeDayStr);
     const updateStmt = db.prepare(
       `UPDATE User SET
         coffee_days = ?

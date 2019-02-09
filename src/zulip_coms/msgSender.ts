@@ -35,6 +35,9 @@ export function zulipMsgSender(
 ): void {
   let messageContent;
   switch (msgOpt.messageType) {
+    ////////////////////////
+    // Messages related to non-signed up users
+    ////////////////////////
     case messageType.PROMPT_SIGNUP:
       messageContent = `You are not currently signed up as a user of coffee chats
       Type SIGNUP to join`;
@@ -43,15 +46,37 @@ export function zulipMsgSender(
     case messageType.SIGNUP:
       if (msgOpt.status === 'OK') {
         messageContent = `You've successfully been added to coffee chat!
-        Type HELP or learn more at []()`;
+        Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`;
       } else {
         messageContent = `Failed to sign you up`;
       }
       break;
 
+    ////////////////////////
+    // CHANGE messages
+    ////////////////////////
+    // TODO: write these messages
+
+    ////////////////////////
+    // STATUS messages
+    ////////////////////////
     case messageType.STATUS_DAYS:
       const daysAsString = msgOpt.payload.join(' ');
       messageContent = `You are currently set to have coffee chats on the following days: ${daysAsString}`;
+      break;
+
+    case messageType.STATUS_WARNINGS:
+      // TODO: handle errors?
+      const warningsText = msgOpt.payload.warningException ? 'ON' : 'OFF';
+      // const willOrWillNot = msgOpt.payload.warningException ? 'WILL' : 'WILL NOT'
+      messageContent = `Your reminder warnings are currently set to be: ${warningsText}`;
+      break;
+
+    case messageType.STATUS_SKIP:
+      const { skipNext } = msgOpt.payload;
+      messageContent = `You will ${
+        skipNext ? '' : 'NOT'
+      } be skipping your next match. `;
       break;
 
     default:

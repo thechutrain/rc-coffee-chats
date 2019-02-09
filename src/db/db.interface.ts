@@ -17,7 +17,11 @@ import { WEEKDAYS } from '../constants';
 
 interface ISqlResponse {
   status: 'OK' | 'ERROR';
-  payload?: any;
+  payload?: {
+    skipNext?: boolean;
+    coffeeDays?: string[];
+    warning_exception?: boolean;
+  };
 }
 
 export interface ISqlOk extends ISqlResponse {
