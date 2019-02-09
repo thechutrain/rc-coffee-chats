@@ -41,13 +41,11 @@ import { WEEKDAYS } from './constants';
 
   // Handle messages received from Zulip outgoing webhooks
   app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-    const senderEmail = req.body.message.sender_email;
-    let zulipMsgOpts: IMsgSenderArgs;
-    let status;
-    let messageType;
-    let payload;
-    let customMessage; // used for error messages
     res.json({});
+
+    const senderEmail = req.body.message.sender_email;
+    let sqlResult: ISqlOk | ISqlError;
+    let messageType: messageTypeEnum;
 
     ////////////////////////////////////////////////////
     // CHECK IF VALID USER / IF THEY ARE SIGNED UP
@@ -59,13 +57,13 @@ import { WEEKDAYS } from './constants';
       const wantsToSignUp = req.body.data.match(/signup/gi);
 
       if (wantsToSignUp) {
-        const { status } = db.user.add({
+        sqlResult = db.user.add({
           email: senderEmail,
           full_name: req.body.message.sender_full_name
         });
 
         zulipMsgSender(senderEmail, {
-          status,
+          status: sqlResult.status,
           messageType: messageTypeEnum.SIGNUP
         });
       } else {
@@ -108,20 +106,7 @@ import { WEEKDAYS } from './constants';
       switch (cliAction.subCommand) {
         case subCommands.DAYS:
         case subCommands.DATES:
-          console.log(`Try to change days to: ${cliAction.payload}`);
-
-          let { status, message, payload } = db.user.updateCoffeeDays(
-            senderEmail,
-            cliAction.payload
-          );
-
-          zulipMsgOpts = {
-            status,
-            messageType: messageTypeEnum.UPDATE_DAYS,
-            payload,
-            message,
-            cliAction
-          };
+          sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
           break;
 
         case subCommands.SKIP:
@@ -140,53 +125,24 @@ import { WEEKDAYS } from './constants';
         case subCommands.DATES:
         case subCommands.DAYS:
           console.log(`Status for my days`);
-          (() => {
-            const { status, message, payload } = db.user.getCoffeeDays(
-              senderEmail
-            );
-
-            zulipMsgOpts = {
-              status,
-              messageType: messageTypeEnum.STATUS_DAYS,
-              message, // ignored for now
-              payload // ignored for now
-            };
-          })();
+          sqlResult = db.user.getCoffeeDays(senderEmail);
+          messageType = messageTypeEnum.STATUS_DAYS;
           break;
 
         case subCommands.WARNINGS:
           console.log('Status for whether warnings or on/off');
-          (() => {
-            const { status, message, payload } = db.user.getWarningStatus(
-              senderEmail
-            );
+          sqlResult = db.user.getWarningStatus(senderEmail);
+          messageType = messageTypeEnum.STATUS_WARNINGS;
 
-            zulipMsgOpts = {
-              status,
-              messageType: messageTypeEnum.STATUS_WARNINGS,
-              message,
-              payload
-            };
-          })();
           break;
 
         case subCommands.SKIP:
           console.log(
             `Status for whether youre going to SKIP next match or not`
           );
-          (() => {
-            // TODO: Feature, be cool to determine when you're next match is.
-            const { status, message, payload } = db.user.getNextStatus(
-              senderEmail
-            );
-
-            zulipMsgOpts = {
-              status,
-              messageType: messageTypeEnum.STATUS_SKIP,
-              message,
-              payload
-            };
-          })();
+          // TODO: Feature, be cool to determine when you're next match is.
+          sqlResult = db.user.getNextStatus(senderEmail);
+          messageType = messageTypeEnum.STATUS_SKIP;
 
           break;
         // case subCommands.MATCH:
@@ -205,6 +161,13 @@ import { WEEKDAYS } from './constants';
     }
 
     // ====== Zulip Message ==========
+    const zulipMsgOpts: IMsgSenderArgs = {
+      messageType,
+      status: sqlResult.status,
+      payload: sqlResult.payload,
+      message: sqlResult.message,
+      cliAction
+    };
     zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
   });
 

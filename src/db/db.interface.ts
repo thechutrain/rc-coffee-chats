@@ -17,6 +17,7 @@ import { WEEKDAYS } from '../constants';
 
 interface ISqlResponse {
   status: 'OK' | 'ERROR';
+  message?: string;
   payload?: {
     skipNext?: boolean;
     coffeeDays?: string[];
