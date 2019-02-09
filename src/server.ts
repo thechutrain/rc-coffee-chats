@@ -172,11 +172,7 @@ import { ISqlOk, ISqlError } from './db/db.interface';
           // TODO: Feature, be cool to determine when you're next match is.
           sqlResult = db.user.getNextStatus(senderEmail);
           messageType = messageTypeEnum.STATUS_SKIP;
-
           break;
-        // case subCommands.MATCH:
-        //   console.log(`Status for who your match is today`);
-        //   break;
 
         default:
           console.log(`No handler writtern for ${cliAction.subCommand}`);
@@ -207,25 +203,6 @@ import { ISqlOk, ISqlError } from './db/db.interface';
     }
     response.status(200).json({ status: 'ok' });
   });
-
-  //////////////////////////
-  // TESTING DATABASE ACCESS
-  //////////////////////////
-  // app.get('/user/add/:name', (request, response) => {
-  //   logger.info('received /user/add/:name');
-  //   const { status } = user.add({
-  //     email: `${request.params.name}`,
-  //     full_name: 'test name'
-  //   });
-  //   response.send(status);
-  // });
-
-  // app.get('/user/find/:name', (request, response) => {
-  //   logger.info('received /user/find');
-  //   console.log(request.params.name);
-  //   const { payload } = user.find(`${request.params.name}`);
-  //   response.json(payload);
-  // });
 
   // app.post('/cron/run/warnings', (request, response) => {
   //   // logger.info('Sending warning messages about tomorrow matches');
