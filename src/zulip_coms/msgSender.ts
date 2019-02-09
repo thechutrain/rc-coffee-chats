@@ -23,7 +23,7 @@ export enum messageTypeEnum {
 }
 export interface IMsgSenderArgs {
   status: 'OK' | 'ERROR';
-  messageType: messageType;
+  messageType: messageTypeEnum;
   payload?: any;
   message?: string;
   cliAction?: ICliAction;
