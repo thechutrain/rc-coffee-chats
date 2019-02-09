@@ -236,9 +236,23 @@ describe('User Model test', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { count, find, _deleteRecords } = initUserModel(db);
+    const { count, getNextStatus, add, _deleteRecords } = initUserModel(db);
     _deleteRecords();
     expect(count()).toBe(0);
+
+    const defaultUser = {
+      email: 'test@gmail.com',
+      full_name: 'test user'
+    };
+    add(defaultUser);
+
+    const nextStatus = getNextStatus('test@gmail.com');
+    expect(nextStatus).toMatchObject({
+      status: 'OK',
+      payload: {
+        skipNext: false
+      }
+    });
   });
 
   ////////////////////
@@ -248,7 +262,14 @@ describe('User Model test', () => {
     const db = new sqlite(DB_PATH, { fileMustExist: true });
     expect(db.open).toBe(true);
 
-    const { count, find, add, updateCoffeeDays } = initUserModel(db);
+    const {
+      count,
+      find,
+      add,
+      updateCoffeeDays,
+      _deleteRecords
+    } = initUserModel(db);
+    _deleteRecords();
     expect(count()).toBe(0);
 
     const defaultUser = {

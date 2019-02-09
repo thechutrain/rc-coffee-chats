@@ -169,6 +169,14 @@ export function initUserModel(db: sqlite) {
         status: 'ERROR',
         message: `No user with email "${targetEmail}" found to update`
       };
+    } else {
+      // TODO: Determine the next match of the user (todays date etc.)
+      return {
+        status: 'OK',
+        payload: {
+          skipNext: foundUser.skip_next_match ? true : false
+        }
+      };
     }
   }
   /////////////////////////////
