@@ -13,7 +13,7 @@ import {
   sendGenericMessage,
   IMsgSenderArgs
 } from './zulip_coms/msgSender';
-import { parseTruthy } from './utils/parseTruthy';
+import { parseTruthy, validatePayload } from './utils/';
 
 import { directives, ICliAction, subCommands } from './zulip_coms/interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
@@ -101,10 +101,6 @@ import { WEEKDAYS } from './constants';
       cliAction.directive === directives.CHANGE ||
       cliAction.directive === directives.UPDATE
     ) {
-      // TODO: validate that all of the change / update have at least one element in the subcommand.
-
-      // Validate that payloads?
-
       /////////////////////////////////////
       // CHANGE subcommand switch block
       /////////////////////////////////////
@@ -118,7 +114,9 @@ import { WEEKDAYS } from './constants';
         case subCommands.SKIP:
           messageType = messageTypeEnum.UPDATE_SKIP;
           try {
+            validatePayload(cliAction.payload);
             const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
+
             sqlResult = db.user.updateSkipNextMatch(
               senderEmail,
               parsedTruthyVal
@@ -132,7 +130,9 @@ import { WEEKDAYS } from './constants';
         case subCommands.WARNINGS:
           messageType = messageTypeEnum.UPDATE_WARNINGS;
           try {
+            validatePayload(cliAction.payload);
             const parsedTruthyVal = parseTruthy(cliAction.payload[0]);
+
             sqlResult = db.user.updateWarningException(
               senderEmail,
               parsedTruthyVal
