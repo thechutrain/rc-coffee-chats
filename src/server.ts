@@ -8,7 +8,7 @@ dotenv.config();
 import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import {
-  messageType,
+  messageTypeEnum,
   zulipMsgSender,
   sendGenericMessage,
   IMsgSenderArgs
@@ -66,12 +66,12 @@ import { WEEKDAYS } from './constants';
 
         zulipMsgSender(senderEmail, {
           status,
-          messageType: messageType.SIGNUP
+          messageType: messageTypeEnum.SIGNUP
         });
       } else {
         zulipMsgSender(senderEmail, {
           status: 'OK',
-          messageType: messageType.PROMPT_SIGNUP
+          messageType: messageTypeEnum.PROMPT_SIGNUP
         });
       }
 
@@ -117,7 +117,7 @@ import { WEEKDAYS } from './constants';
 
           zulipMsgOpts = {
             status,
-            messageType: messageType.UPDATE_DAYS,
+            messageType: messageTypeEnum.UPDATE_DAYS,
             payload,
             message,
             cliAction
@@ -147,7 +147,7 @@ import { WEEKDAYS } from './constants';
 
             zulipMsgOpts = {
               status,
-              messageType: messageType.STATUS_DAYS,
+              messageType: messageTypeEnum.STATUS_DAYS,
               message, // ignored for now
               payload // ignored for now
             };
@@ -163,7 +163,7 @@ import { WEEKDAYS } from './constants';
 
             zulipMsgOpts = {
               status,
-              messageType: messageType.STATUS_WARNINGS,
+              messageType: messageTypeEnum.STATUS_WARNINGS,
               message,
               payload
             };
@@ -182,7 +182,7 @@ import { WEEKDAYS } from './constants';
 
             zulipMsgOpts = {
               status,
-              messageType: messageType.STATUS_SKIP,
+              messageType: messageTypeEnum.STATUS_SKIP,
               message,
               payload
             };

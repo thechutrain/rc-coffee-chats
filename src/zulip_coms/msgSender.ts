@@ -7,7 +7,7 @@ import axios from 'axios';
 import { ICliAction } from './interface';
 
 // TODO: make a sendMessage (takes in message type etc.)
-export enum messageType {
+export enum messageTypeEnum {
   'PROMPT_SIGNUP',
   'SIGNUP',
 
@@ -38,12 +38,12 @@ export function zulipMsgSender(
     ////////////////////////
     // Messages related to non-signed up users
     ////////////////////////
-    case messageType.PROMPT_SIGNUP:
+    case messageTypeEnum.PROMPT_SIGNUP:
       messageContent = `You are not currently signed up as a user of coffee chats
       Type SIGNUP to join`;
       break;
 
-    case messageType.SIGNUP:
+    case messageTypeEnum.SIGNUP:
       if (msgOpt.status === 'OK') {
         messageContent = `You've successfully been added to coffee chat!
         Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`;
@@ -60,19 +60,19 @@ export function zulipMsgSender(
     ////////////////////////
     // STATUS messages
     ////////////////////////
-    case messageType.STATUS_DAYS:
+    case messageTypeEnum.STATUS_DAYS:
       const daysAsString = msgOpt.payload.join(' ');
       messageContent = `You are currently set to have coffee chats on the following days: ${daysAsString}`;
       break;
 
-    case messageType.STATUS_WARNINGS:
+    case messageTypeEnum.STATUS_WARNINGS:
       // TODO: handle errors?
       const warningsText = msgOpt.payload.warningException ? 'ON' : 'OFF';
       // const willOrWillNot = msgOpt.payload.warningException ? 'WILL' : 'WILL NOT'
       messageContent = `Your reminder warnings are currently set to be: ${warningsText}`;
       break;
 
-    case messageType.STATUS_SKIP:
+    case messageTypeEnum.STATUS_SKIP:
       const { skipNext } = msgOpt.payload;
       messageContent = `You will ${
         skipNext ? '' : 'NOT'
