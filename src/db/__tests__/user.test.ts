@@ -1,8 +1,9 @@
 import * as path from 'path';
+import sqlite from 'better-sqlite3';
+
 import { initUserModel } from '../user';
 // import { initMatchModel } from '../match';
-import sqlite from 'better-sqlite3';
-import { WEEKDAYS } from '../../constants';
+// import { WEEKDAYS } from '../../constants';
 
 const DB_PATH = path.join(__dirname, 'user-test.db');
 
@@ -24,7 +25,6 @@ beforeAll(() => {
   // creates new DB
   const db = new sqlite(DB_PATH);
   expect(db.open).toBe(true);
-
   // create User table
   const { createTable, count } = initUserModel(db);
   let error = null;
@@ -290,6 +290,74 @@ describe('User Model test', () => {
     // Check that they've been successfully changed
     expect(find(defaultUser.email)).toMatchObject({
       coffee_days: '03'
+    });
+  });
+
+  it('should UPDATE warning_exception of a given User', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const {
+      count,
+      find,
+      add,
+      updateWarningException,
+      _deleteRecords
+    } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    const email = 'default@gmail.com';
+    const defaultUser = {
+      email,
+      full_name: 'default user'
+    };
+    add(defaultUser);
+
+    // Check that the default days are correct
+    expect(find(email)).toMatchObject({
+      warning_exception: 0
+    });
+
+    const { status } = updateWarningException('default@gmail.com', true);
+
+    expect(status).toBe('OK');
+    expect(find(email)).toMatchObject({
+      warning_exception: 1
+    });
+  });
+
+  it('should UPDATE skip_next_match of a given User', () => {
+    const db = new sqlite(DB_PATH, { fileMustExist: true });
+    expect(db.open).toBe(true);
+
+    const {
+      count,
+      find,
+      add,
+      updateSkipNextMatch,
+      _deleteRecords
+    } = initUserModel(db);
+    _deleteRecords();
+    expect(count()).toBe(0);
+
+    const email = 'default@gmail.com';
+    const defaultUser = {
+      email,
+      full_name: 'default user'
+    };
+    add(defaultUser);
+
+    // Check that the default days are correct
+    expect(find(email)).toMatchObject({
+      skip_next_match: 0
+    });
+
+    const { status } = updateSkipNextMatch('default@gmail.com', true);
+
+    expect(status).toBe('OK');
+    expect(find(email)).toMatchObject({
+      skip_next_match: 1
     });
   });
 });

@@ -209,18 +209,72 @@ export function initUserModel(db: sqlite) {
       : { status: 'ERROR', message: 'Did not update coffee days' };
   }
 
-  function updateWarningExceptions(
+  function updateWarningException(
     targetEmail: string,
     warningException: boolean
   ): ISqlOk | ISqlError {
-    return { status: 'OK' };
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'ERROR',
+        message: `No user with email "${targetEmail}" found to update`
+      };
+    }
+
+    const updateStmt = db.prepare(
+      `UPDATE User SET
+      warning_exception = ?
+      WHERE email = ?` // Note: using email, since I will remove id primary key
+    );
+    const warningsAsInt = warningException ? '1' : '0';
+    const queryResult = updateStmt.run(warningsAsInt, targetEmail);
+
+    return queryResult.changes !== 0
+      ? {
+          status: 'OK',
+          payload: {
+            warning_exception: warningsAsInt === '1' ? true : false
+          }
+        }
+      : {
+          status: 'ERROR',
+          message: `Error: could not update warning exceptions`
+        };
   }
 
   function updateSkipNextMatch(
     targetEmail: string,
     warningException: boolean
   ): ISqlOk | ISqlError {
-    return { status: 'OK' };
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      return {
+        status: 'ERROR',
+        message: `No user with email "${targetEmail}" found to update`
+      };
+    }
+
+    const updateStmt = db.prepare(
+      `UPDATE User SET
+      skip_next_match = ?
+      WHERE email = ?` // Note: using email, since I will remove id primary key
+    );
+    const skipAsInt = warningException ? '1' : '0';
+    const queryResult = updateStmt.run(skipAsInt, targetEmail);
+
+    return queryResult.changes !== 0
+      ? {
+          status: 'OK',
+          payload: {
+            warning_exception: skipAsInt === '1' ? true : false
+          }
+        }
+      : {
+          status: 'ERROR',
+          message: `Error: could not update warning exceptions`
+        };
   }
   // function toggleSkipNextMatch(valToSet?: boolean) {}
 
@@ -351,7 +405,7 @@ export function initUserModel(db: sqlite) {
     add: addUser,
     updateCoffeeDays,
     updateSkipNextMatch,
-    updateWarningExceptions,
+    updateWarningException,
 
     // Basic Table methods
     createTable,
