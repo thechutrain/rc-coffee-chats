@@ -9,5 +9,5 @@ winston.log
 .python-version
 
 # Data
-.data/**
 **.db
+data/migrations/activeUsers.js
