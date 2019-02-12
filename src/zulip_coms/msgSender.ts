@@ -126,7 +126,6 @@ export function zulipMsgSender(
       * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
       * <SKIP> - TRUE | FALSE
       * <WARNINGS> - TRUE | FALSE
-       
       See more @ [docs](${process.env.HELP_URL})
       `;
       break;
