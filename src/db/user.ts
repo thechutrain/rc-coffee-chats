@@ -340,7 +340,8 @@ export function initUserModel(db: sqlite) {
         LEFT JOIN Match
           ON User_Match.match_id = Match.id
         WHERE User.id = ${targetUserId}
-       )`);
+       )
+       ORDER BY Match.date`);
     } else {
       //   // EXCLUDES: matches if the other user has not selected today as their day to match
       const coffeeDayInt = coffeeDay ? coffeeDay : new Date().getDay();
@@ -352,7 +353,7 @@ export function initUserModel(db: sqlite) {
         ON U.id = User_Match.user_id
       LEFT JOIN Match
         ON User_Match.match_id = Match.id
-      WHERE User_Match.user_id <> 1
+      WHERE User_Match.user_id <> ${targetUserId}
       AND U.coffee_days LIKE '%${coffeeDayInt}%'
       AND U.skip_next_match <> ${targetUserId}
       AND User_Match.match_id in (
@@ -364,6 +365,7 @@ export function initUserModel(db: sqlite) {
           ON User_Match.match_id = Match.id
         WHERE User.id = ${targetUserId}
        )
+       ORDER BY Match.date
       `);
     }
 
