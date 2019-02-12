@@ -47,13 +47,19 @@ export function parseZulipServerRequest(
     throw new CliError({
       errorType: 'NOT A VALID DIRECTIVE',
       message: `Cli parsing Error: first word must be a valid directive.
-      Directive Received: ${directive}`,
+      Valid Directives include: UPDATE | STATUS | HELP
+      `,
       senderEmail
     });
   } else if (directive === directives.HELP && cliArgumentsArray.length === 1) {
     // Generic Help case: args --> HELP
     return {
       directive: directives.HELP,
+      senderEmail
+    };
+  } else if (cliArgumentsArray.length === 1) {
+    return {
+      directive: directives[directive],
       senderEmail
     };
   }
@@ -68,8 +74,10 @@ export function parseZulipServerRequest(
   if (!validSubCmd) {
     throw new CliError({
       errorType: 'NOT A VALID SUBCOMMAND',
-      message: `Cli Parsing Error: second word must be a valid subcommand.
-      Received subCommand: ${subCommand}`,
+      message: `Cli Parsing Error: NOT A VALID SUBCOMMAND.
+      Type: "HELP ${directive}"
+      or go to [help docs](${process.env.HELP_URL})
+      `,
       senderEmail
     });
   }

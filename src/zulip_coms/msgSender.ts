@@ -19,7 +19,12 @@ export enum messageTypeEnum {
   // CLI Get-related cmds
   'STATUS_DAYS',
   'STATUS_SKIP',
-  'STATUS_WARNINGS'
+  'STATUS_WARNINGS',
+
+  // HELP
+  'HELP_CHANGE',
+  'HELP_STATUS',
+  'HELP'
 }
 export interface IMsgSenderArgs {
   status: 'OK' | 'ERROR';
