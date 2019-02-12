@@ -121,8 +121,8 @@ export function zulipMsgSender(
     // HELP messages
     ////////////////////////
     case messageTypeEnum.HELP_UPDATE:
-      messageContent = `
-      Valid update commands: UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
+      messageContent = `Valid **update** commands: :smile: 
+      UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
       * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
       * <SKIP> - TRUE | FALSE
       * <WARNINGS> - TRUE | FALSE
