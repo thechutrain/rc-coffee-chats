@@ -372,15 +372,16 @@ export function initUserModel(db: sqlite) {
     return findMatches.all();
   }
 
-  ///////////////////////
+  //////////////////////////////
   // Main Query: MakeMatches
-  //////////////////////
+  //////////////////////////////
   function getTodaysMatches(dayToMatch?: WEEKDAYS) {
     const todaysMatches = getUsersToMatch(dayToMatch);
     // complete matches:
     const todayCompleteMatches = todaysMatches.map(userObj => {
       const { id } = userObj;
       const prevMatches = getPrevMatches(id, false, dayToMatch);
+
       return {
         ...userObj,
         prevMatches
@@ -390,10 +391,41 @@ export function initUserModel(db: sqlite) {
     return todayCompleteMatches;
   }
 
+  // TODO: fix this!
+  // raw SQL works, but not the same expected object when using better-sql api
+  // emails are not being populated
+  function getTodaysUsersWithPrevMatches(dayToMatch?: WEEKDAYS) {
+    const sqlQuery = db.prepare(`
+    with todayMatches as (SELECT U.*,  U.id as u_id, count (UM.user_id) as num_matches, M.id as mid FROM User U
+        LEFT JOIN User_Match UM
+        ON U.id = UM.user_id
+        LEFT JOIN Match M
+        ON UM.match_id = M.id
+        WHERE U.coffee_days LIKE '%1%'
+        AND U.skip_next_match <> 1
+        GROUP BY UM.user_id
+        ORDER BY num_matches desc),
+
+    totalMatches as (select * from todayMatches TM2
+        INNER JOIN User_Match UM2
+        ON TM2.id = UM2.user_id
+        INNER JOIN Match M2
+        ON UM2.match_id = M2.id)
+    SELECT * FROM totalMatches TM3
+      INNER JOIN totalMatches TM4
+      ON TM3.match_id = TM4.match_id
+      AND TM3.user_id != TM4.user_id
+      ORDER BY TM3.email, TM3.date
+    `);
+
+    return sqlQuery.all();
+  }
+
   return {
     // Important
     getPrevMatches,
     getTodaysMatches,
+    // getTodaysUsersWithPrevMatches,
 
     // Basic Queries
     find,
