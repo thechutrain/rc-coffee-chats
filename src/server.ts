@@ -194,9 +194,9 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   // ====== Zulip Message ==========
   const zulipMsgOpts: IMsgSenderArgs = {
     messageType,
-    status: sqlResult.status,
-    payload: sqlResult.payload,
-    message: sqlResult.message,
+    status: sqlResult ? sqlResult.status : 'OK',
+    payload: sqlResult ? sqlResult.payload : null,
+    message: sqlResult ? sqlResult.message : null,
     cliAction
   };
   zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
