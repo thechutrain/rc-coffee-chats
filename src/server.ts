@@ -162,7 +162,6 @@ import { ISqlOk, ISqlError } from './db/db.interface';
           console.log('Status for whether warnings or on/off');
           sqlResult = db.user.getWarningStatus(senderEmail);
           messageType = messageTypeEnum.STATUS_WARNINGS;
-
           break;
 
         case subCommands.SKIP:
@@ -178,6 +177,20 @@ import { ISqlOk, ISqlError } from './db/db.interface';
           console.log(`No handler writtern for ${cliAction.subCommand}`);
           break;
       }
+    } else if (cliAction.directive === directives.ADMIN) {
+      // TODO: check if admin, #TEMP: only my email
+      if (senderEmail !== 'alancodes@gmail.com') {
+        sendGenericMessage(
+          senderEmail,
+          `Sorry admin features are reserved for the current maintainer only.`
+        );
+        return;
+      }
+      // TODO:
+      // active users
+      // matches for today
+      // totally users who used coffee chat bot:
+      // total matches, given a day? month? etc?
     } else {
       /////////////////////////////////////
       // HELP subcommand switch block
