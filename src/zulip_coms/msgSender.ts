@@ -22,7 +22,7 @@ export enum messageTypeEnum {
   'STATUS_WARNINGS',
 
   // HELP
-  'HELP_CHANGE',
+  'HELP_UPDATE',
   'HELP_STATUS',
   'HELP'
 }
@@ -117,6 +117,28 @@ export function zulipMsgSender(
       } be skipping your next match. `;
       break;
 
+    ////////////////////////
+    // HELP messages
+    ////////////////////////
+    case messageTypeEnum.HELP_UPDATE:
+      messageContent = `
+      Valid update commands: UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
+      * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
+      * <SKIP> - TRUE | FALSE
+      * <WARNINGS> - TRUE | FALSE
+       
+      See more @ [docs](${process.env.HELP_URL})
+      `;
+      break;
+
+    case messageTypeEnum.HELP_STATUS:
+      messageContent = ``;
+      break;
+
+    case messageTypeEnum.HELP:
+      messageContent = ``;
+      break;
+
     default:
       const headerText =
         msgOpt.status === 'ERROR' ? 'DEFAULT ERROR MSG: ' : 'DEFAULT OK MSG: ';
@@ -126,7 +148,6 @@ export function zulipMsgSender(
         message: ${msgOpt.message}
         cli: ${JSON.stringify(msgOpt.cliAction)}
         `;
-
       break;
   }
 

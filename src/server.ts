@@ -141,7 +141,7 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
         break;
 
       default:
-        console.log(`No handler written for ${cliAction.subCommand}`);
+        messageType = messageTypeEnum.HELP_UPDATE;
         break;
     }
   } else if (cliAction.directive === directives.STATUS) {
@@ -188,6 +188,7 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     // HELP subcommand switch block
     /////////////////////////////////////
     // TODO: send back message for Help, or additional commands:
+    messageType = messageTypeEnum.HELP;
   }
 
   // ====== Zulip Message ==========
