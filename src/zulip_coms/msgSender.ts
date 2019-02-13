@@ -124,7 +124,7 @@ export function zulipMsgSender(
     // HELP messages
     ////////////////////////
     case messageTypeEnum.HELP_UPDATE:
-      messageContent = `Valid **update** commands: :smile: 
+      messageContent = `Valid **update** commands:
       UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
       * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
         --> update the days that you plan on having coffee chats
@@ -151,8 +151,15 @@ export function zulipMsgSender(
       break;
 
     case messageTypeEnum.HELP:
-      messageContent = `Valid commands begin with: UPDATE | STATUS | HELP
-      See more @ [docs](${process.env.HELP_URL})
+      messageContent = `Hi! I'm :coffee: bot and I'm here to help! 
+      To talk to me, enter a valid command that begins with the following: 
+        
+      UPDATE | STATUS | HELP
+
+      I'm also open-sourced, so you can help contribute and make me better :smile:
+      You can see find my inner workings @ [github](${
+        process.env.HELP_URL
+      }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
       `;
       break;
 
