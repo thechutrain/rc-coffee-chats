@@ -97,7 +97,7 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   ////////////////////////////////////////////////////
   // Dispatch Action off Zulip CMD
   /////////////////////////////////////////////////////
-  console.log('==== Received Valid cliAction =====');
+  console.log('\n==== Received Valid cliAction =====');
   console.log(cliAction);
 
   if (
@@ -196,9 +196,17 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     /////////////////////////////////////
     // HELP subcommand switch block
     /////////////////////////////////////
-    // TODO: send back message for Help, or additional commands:
-    messageType = messageTypeEnum.HELP;
-    console.log('send help message');
+    switch (cliAction.subCommand) {
+      case HelpSubCommands.UPDATE:
+        messageType = messageTypeEnum.HELP_UPDATE;
+        break;
+      case HelpSubCommands.STATUS:
+        messageType = messageTypeEnum.HELP_STATUS;
+        break;
+      default:
+        messageType = messageTypeEnum.HELP;
+        break;
+    }
   }
 
   // ====== Zulip Message ==========
