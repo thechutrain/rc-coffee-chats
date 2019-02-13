@@ -39,6 +39,9 @@ export function zulipMsgSender(
   msgOpt: IMsgSenderArgs
 ): void {
   let messageContent;
+  console.log('=========== ZulipMsgSender ==========');
+  console.log(msgOpt);
+
   switch (msgOpt.messageType) {
     ////////////////////////
     // Messages related to non-signed up users
@@ -131,11 +134,11 @@ export function zulipMsgSender(
       break;
 
     case messageTypeEnum.HELP_STATUS:
-      messageContent = ``;
+      messageContent = `Help Status`;
       break;
 
     case messageTypeEnum.HELP:
-      messageContent = ``;
+      messageContent = `Generic Help command`;
       break;
 
     default:

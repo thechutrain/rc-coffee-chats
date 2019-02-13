@@ -176,6 +176,9 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
         break;
     }
   } else if (cliAction.directive === directives.ADMIN) {
+    /////////////////////////////////////
+    // ADMIN
+    /////////////////////////////////////
     // TODO: check if admin, #TEMP: only my email
     if (senderEmail !== 'alancodes@gmail.com') {
       sendGenericMessage(
@@ -189,12 +192,13 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     // matches for today
     // totally users who used coffee chat bot:
     // total matches, given a day? month? etc?
-  } else {
+  } else if (cliAction.directive === directives.HELP) {
     /////////////////////////////////////
     // HELP subcommand switch block
     /////////////////////////////////////
     // TODO: send back message for Help, or additional commands:
     messageType = messageTypeEnum.HELP;
+    console.log('send help message');
   }
 
   // ====== Zulip Message ==========
