@@ -127,18 +127,33 @@ export function zulipMsgSender(
       messageContent = `Valid **update** commands: :smile: 
       UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
       * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
+        --> update the days that you plan on having coffee chats
       * <SKIP> - TRUE | FALSE
+        --> skip your next match
       * <WARNINGS> - TRUE | FALSE
+        --> updates whether you will receive warnings the night before about skipping your match or not
+      * <ACTIVE> - TRUE | FALSE
+        --> updates whether you are active on coffee chats or not
       See more @ [docs](${process.env.HELP_URL})
       `;
       break;
 
     case messageTypeEnum.HELP_STATUS:
-      messageContent = `Help Status`;
+      messageContent = `Valid **status** commands: 
+      STATUS <DAYS | SKIP | WARNINGS> [... list of optional args]
+      * <DAYS>
+        --> returns the days that you are signed up for
+      * <SKIP>
+        --> returns boolean of whether you will skip your next match or not
+      * <WARNINGS>
+        --> returns boolean of whether you will get warnings or not 
+      See more @ [docs](${process.env.HELP_URL})`;
       break;
 
     case messageTypeEnum.HELP:
-      messageContent = `Generic Help command`;
+      messageContent = `Valid commands begin with: UPDATE | STATUS | HELP
+      See more @ [docs](${process.env.HELP_URL})
+      `;
       break;
 
     default:
