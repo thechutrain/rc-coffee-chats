@@ -17,7 +17,13 @@ import {
 import { parseStrAsBool, validatePayload } from './utils/';
 
 // ==== TypeScript Interfaces =====
-import { directives, ICliAction, subCommands } from './zulip_coms/interface';
+import {
+  directives,
+  ICliAction,
+  UpdateSubCommands,
+  StatusSubCommands,
+  HelpSubCommands
+} from './zulip_coms/interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
 
 /////////////////
@@ -102,13 +108,13 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     // CHANGE/UPDATE
     /////////////////////////////////////
     switch (cliAction.subCommand) {
-      case subCommands.DAYS:
-      case subCommands.DATES:
+      case UpdateSubCommands.DAYS:
+      case UpdateSubCommands.DATES:
         sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
         messageType = messageTypeEnum.UPDATE_DAYS;
         break;
 
-      case subCommands.SKIP:
+      case UpdateSubCommands.SKIP:
         messageType = messageTypeEnum.UPDATE_SKIP;
         try {
           validatePayload(cliAction.payload);
@@ -124,7 +130,7 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
         }
         break;
 
-      case subCommands.WARNINGS:
+      case UpdateSubCommands.WARNINGS:
         messageType = messageTypeEnum.UPDATE_WARNINGS;
         try {
           validatePayload(cliAction.payload);
@@ -149,18 +155,18 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
     // STATUS
     /////////////////////////////////////
     switch (cliAction.subCommand) {
-      case subCommands.DATES:
-      case subCommands.DAYS:
+      case StatusSubCommands.DATES:
+      case StatusSubCommands.DAYS:
         sqlResult = db.user.getCoffeeDays(senderEmail);
         messageType = messageTypeEnum.STATUS_DAYS;
         break;
 
-      case subCommands.WARNINGS:
+      case StatusSubCommands.WARNINGS:
         sqlResult = db.user.getWarningStatus(senderEmail);
         messageType = messageTypeEnum.STATUS_WARNINGS;
         break;
 
-      case subCommands.SKIP:
+      case StatusSubCommands.SKIP:
         sqlResult = db.user.getNextStatus(senderEmail);
         messageType = messageTypeEnum.STATUS_SKIP;
         break;

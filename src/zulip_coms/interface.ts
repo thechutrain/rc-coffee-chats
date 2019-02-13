@@ -32,29 +32,57 @@ export interface ICliAction {
 export enum directives {
   // SIGNUP
   SIGNUP = 'SIGNUP',
+
   // UPDATE COMMANDS:
   CHANGE = 'CHANGE',
   UPDATE = 'UPDATE',
+
   // STATUS
   STATUS = 'STATUS',
+
   // HELP
   HELP = 'HELP',
+
   // ADMIN
   ADMIN = 'ADMIN' // for admin features
 }
 
-export enum subCommands {
+///////////////////////
+// Sub Commands: Update, Status, Help
+///////////////////////
+export type subCommands =
+  | UpdateSubCommands
+  | StatusSubCommands
+  | HelpSubCommands;
+
+export enum UpdateSubCommands {
+  // Alias for Coffee chat days
+  DATES = 'DATES', // handle DATES & DAYS the same?
+  DAYS = 'DAYS',
+
+  SKIP = 'SKIP',
+  WARNINGS = 'WARNINGS'
+}
+
+export enum StatusSubCommands {
   MATCH = 'MATCH',
   // Alias for Coffee chat days
   DATES = 'DATES', // handle DATES & DAYS the same?
   DAYS = 'DAYS',
+
   SKIP = 'SKIP',
   WARNINGS = 'WARNINGS'
+}
+
+export enum HelpSubCommands {
+  UPDATE = 'UPDATE',
+  STATUS = 'STATUS'
 }
 
 ////////////////////////
 // Errors
 ////////////////////////
+// NOTE: Not necessary? Overkill
 export interface ICliErrorArgs {
   errorType?: string; // TODO: later make an enum for error types
   message?: string;

@@ -7,8 +7,10 @@ import {
   IZulipRequest,
   ICliAction,
   directives,
-  subCommands,
-  CliError
+  CliError,
+  UpdateSubCommands,
+  StatusSubCommands,
+  HelpSubCommands
 } from './interface';
 import { Util } from '../utils/index';
 
@@ -57,9 +59,12 @@ export function parseZulipServerRequest(
       directive: directives.HELP,
       senderEmail
     };
-  } else if (cliArgumentsArray.length === 1) {
+  } else if (directive === directives.HELP) {
+    const helpSubCommand = HelpSubCommands[cliArgumentsArray[1]] || null; // Note:
+
     return {
       directive: directives[directive],
+      subCommand: helpSubCommand,
       senderEmail
     };
   }
@@ -67,15 +72,18 @@ export function parseZulipServerRequest(
   ///////////////////////////
   // Validate Commands
   ///////////////////////////
-  const subCommand = cliArgumentsArray[1];
-  // TODO: case that they don't provide subcommand --> send help for that cmd!
+  const strSubCmd = cliArgumentsArray[1];
+  const subCommand =
+    UpdateSubCommands[strSubCmd] ||
+    StatusSubCommands[strSubCmd] ||
+    HelpSubCommands[strSubCmd] ||
+    null;
 
-  const validSubCmd = Util.valueExistsInEnum(subCommand, subCommands);
-  if (!validSubCmd) {
+  if (!subCommand) {
     throw new CliError({
       errorType: 'NOT A VALID SUBCOMMAND',
       message: `Cli Parsing Error: NOT A VALID SUBCOMMAND.
-      Type: "HELP ${directive}"
+      Type: "HELP"
       or go to [help docs](${process.env.HELP_URL})
       `,
       senderEmail
@@ -84,7 +92,7 @@ export function parseZulipServerRequest(
 
   return {
     directive: directives[directive],
-    subCommand: subCommands[subCommand],
+    subCommand,
     payload: cliArgumentsArray.slice(2),
     senderEmail
   };
