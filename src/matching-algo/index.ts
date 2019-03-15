@@ -23,7 +23,7 @@ const db = initDB(pathToDb, true);
 const usersToMatchToday = db.user.getTodaysMatches(new Date().getDay());
 
 const NUM_USERS_TO_MATCH = usersToMatchToday.length;
-
+console.log(NUM_USERS_TO_MATCH);
 // ==== testing ====
 // console.log(NUM_USERS_TO_MATCH);
 // console.log(JSON.stringify(usersToMatchToday[NUM_USERS_TO_MATCH - 1]));
