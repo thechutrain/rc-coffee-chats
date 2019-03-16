@@ -11,3 +11,6 @@ winston.log
 # Data
 **.db
 data/migrations/activeUsers.js
+
+# Logs
+nohup.out
