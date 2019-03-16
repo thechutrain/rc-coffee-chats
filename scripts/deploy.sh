@@ -1,11 +1,8 @@
 #!/bin/sh
 
-echo "pulling from github ..."
-git pull origin master
-
-echo "installing new npm modules"
-npm install
-
-npm run tsc 
-
-npm run dev
+ssh root@104.248.227.146 << EOF
+  cd ~/rc-coffee-chats
+  git pull
+  npm run build
+  pm2 start npm -- start
+EOF
