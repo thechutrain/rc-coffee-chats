@@ -5,15 +5,16 @@
   "main": "server.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon",
-    "start": "cross-env NODE_ENV=production ts-node src/server.ts",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "_start": "cross-env NODE_ENV=production ts-node src/server.ts",
     "format": "prettier --write \"./**/*.{ts,js,json,md}\"",
-    "tsc": "npm run clean && tsc",
     "tslint": "tslint --format stylish --project tsconfig.json",
     "test:db": "cross-env DB_FILE=test.db DEBUG=1 ts-node ./src/db/",
+    "clean": "rm -rf dist",
     "clean:db": "rimraf .data/test.db",
     "pretest": "rimraf src/db/__tests__/*.db",
     "test": "cross-env DB_FILE=test.db jest",
-    "build": "tsc"
+    "build": "npm run clean && tsc"
   },
   "dependencies": {
     "axios": "^0.18.0",
