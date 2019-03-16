@@ -43,6 +43,7 @@ const db = (() => {
 /////////////////
 const app = express();
 
+console.log('nooooo');
 // Handle messages received from Zulip outgoing webhooks
 app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   res.json({});
