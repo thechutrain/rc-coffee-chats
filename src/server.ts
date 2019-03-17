@@ -86,7 +86,6 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   /////////////////////////////////////////////////////
   // TODO: modify parseZulipServerRequest --> make it a middleware
   let cliAction: ICliAction;
-  console.log(req.body);
   try {
     cliAction = parseZulipServerRequest(req.body);
   } catch (e) {
@@ -102,13 +101,13 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   console.log('\n==== Received Valid cliAction =====');
   console.log(cliAction);
 
+  /////////////////////////////////////
+  // CHANGE/UPDATE
+  /////////////////////////////////////
   if (
     cliAction.directive === directives.CHANGE ||
     cliAction.directive === directives.UPDATE
   ) {
-    /////////////////////////////////////
-    // CHANGE/UPDATE
-    /////////////////////////////////////
     switch (cliAction.subCommand) {
       case UpdateSubCommands.DAYS:
       case UpdateSubCommands.DATES:
@@ -177,23 +176,6 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
         messageType = messageTypeEnum.HELP_STATUS;
         break;
     }
-  } else if (cliAction.directive === directives.ADMIN) {
-    /////////////////////////////////////
-    // ADMIN
-    /////////////////////////////////////
-    // TODO: check if admin, #TEMP: only my email
-    if (senderEmail !== 'alancodes@gmail.com') {
-      sendGenericMessage(
-        senderEmail,
-        `Sorry admin features are reserved for the current maintainer only.`
-      );
-      return;
-    }
-    // TODO:
-    // active users
-    // matches for today
-    // totally users who used coffee chat bot:
-    // total matches, given a day? month? etc?
   } else if (cliAction.directive === directives.HELP) {
     /////////////////////////////////////
     // HELP subcommand switch block
