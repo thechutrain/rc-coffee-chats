@@ -23,7 +23,7 @@ import {
   UpdateSubCommands,
   StatusSubCommands,
   HelpSubCommands
-} from './zulip_coms/interface';
+} from './zulip_coms/cli.interface';
 import { ISqlOk, ISqlError } from './db/db.interface';
 
 /////////////////

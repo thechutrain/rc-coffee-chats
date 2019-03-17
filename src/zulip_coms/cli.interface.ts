@@ -21,6 +21,7 @@ export interface IZulipRequest {
 ////////////////////////
 // Cli
 ////////////////////////
+// Note: Cli action to be taken after parsing Zulip Message
 export interface ICliAction {
   senderEmail: string;
   directive: directives;

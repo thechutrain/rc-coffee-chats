@@ -1,5 +1,5 @@
 import { parseZulipServerRequest } from '../cliParser';
-import { directives, subCommands } from '../interface';
+import { directives, subCommands, UpdateSubCommands } from '../cli.interface';
 
 // tslint:disable-next-line
 const sender_email = 'test@gmail.com';
@@ -114,7 +114,7 @@ describe('should be able to parse various zulip requests', () => {
         sender_email: 'ac@gmail.com',
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: `${directives.CHANGE} ${subCommands.DAYS}`
+        content: `${directives.CHANGE} ${UpdateSubCommands.DAYS}`
       }
     };
     let parsedDirective = null;
@@ -127,7 +127,7 @@ describe('should be able to parse various zulip requests', () => {
 
     const expected = {
       directive: directives.CHANGE,
-      subCommand: subCommands.DAYS
+      subCommand: UpdateSubCommands.DAYS
     };
 
     expect(parsedDirective).toMatchObject(expected);
@@ -142,13 +142,13 @@ describe('should be able to parse various zulip requests', () => {
         sender_email: 'ac@gmail.com',
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: `  ${directives.CHANGE}      ${subCommands.DAYS}  `
+        content: `  ${directives.CHANGE}      ${UpdateSubCommands.DAYS}  `
       }
     };
     const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
     const expected = {
       directive: directives.CHANGE,
-      subCommand: subCommands.DAYS
+      subCommand: UpdateSubCommands.DAYS
     };
 
     expect(parsedDirective).toMatchObject(expected);
@@ -161,13 +161,13 @@ describe('should be able to parse various zulip requests', () => {
         sender_email: 'ac@gmail.com',
         sender_short_name: 'alancodes',
         sender_full_name: "Alan Chu (W1'18)",
-        content: `  ${directives.CHANGE}   ${subCommands.DAYS} a b `
+        content: `  ${directives.CHANGE}   ${UpdateSubCommands.DAYS} a b `
       }
     };
     const parsedDirective = parseZulipServerRequest(fakeZulipRequest);
     const expected = {
       directive: directives.CHANGE,
-      subCommand: subCommands.DAYS,
+      subCommand: UpdateSubCommands.DAYS,
       payload: ['A', 'B']
     };
 
