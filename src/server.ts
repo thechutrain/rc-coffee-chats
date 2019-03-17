@@ -86,6 +86,7 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   /////////////////////////////////////////////////////
   // TODO: modify parseZulipServerRequest --> make it a middleware
   let cliAction: ICliAction;
+  console.log(req.body);
   try {
     cliAction = parseZulipServerRequest(req.body);
   } catch (e) {
