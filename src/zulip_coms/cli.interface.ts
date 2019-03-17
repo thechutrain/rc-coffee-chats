@@ -80,11 +80,6 @@ export enum HelpSubCommands {
   STATUS = 'STATUS'
 }
 
-export enum AdminSubCommands {
-  STATUS = 'STATUS',
-  STATS = 'STATS'
-}
-
 ////////////////////////
 // Errors
 ////////////////////////

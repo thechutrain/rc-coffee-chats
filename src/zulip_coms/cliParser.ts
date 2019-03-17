@@ -11,8 +11,7 @@ import {
   CliError,
   UpdateSubCommands,
   StatusSubCommands,
-  HelpSubCommands,
-  AdminSubCommands
+  HelpSubCommands
 } from './cli.interface';
 import { Util } from '../utils/index';
 
@@ -80,7 +79,6 @@ export function parseZulipServerRequest(
     UpdateSubCommands[strSubCmd] ||
     StatusSubCommands[strSubCmd] ||
     HelpSubCommands[strSubCmd] ||
-    AdminSubCommands[strSubCmd] ||
     null;
 
   if (!subCommand) {
