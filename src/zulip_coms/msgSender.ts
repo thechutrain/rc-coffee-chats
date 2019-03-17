@@ -34,6 +34,18 @@ export interface IMsgSenderArgs {
   cliAction?: ICliAction;
 }
 
+function createMsgContent(msgType) {
+  const strVars = {
+    foo: 'bar'
+  };
+  const MESSAGE_TEMPLATES = {
+    [messageTypeEnum.PROMPT_SIGNUP]: `I am a variable ${
+      strVars.foo
+    } You are not currently signed up as a user of coffee chats Type SIGNUP to join`
+  };
+  return MESSAGE_TEMPLATES[msgType];
+}
+
 export function zulipMsgSender(
   toEmail: string | string[],
   msgOpt: IMsgSenderArgs
@@ -47,8 +59,9 @@ export function zulipMsgSender(
     // Messages related to non-signed up users
     ////////////////////////
     case messageTypeEnum.PROMPT_SIGNUP:
-      messageContent = `You are not currently signed up as a user of coffee chats
-      Type SIGNUP to join`;
+      // messageContent = `You are not currently signed up as a user of coffee chats
+      // Type SIGNUP to join`;
+      messageContent = createMsgContent(messageTypeEnum.PROMPT_SIGNUP);
       break;
 
     case messageTypeEnum.SIGNUP:
