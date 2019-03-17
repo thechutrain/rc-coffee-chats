@@ -12,7 +12,8 @@ import {
   messageTypeEnum,
   zulipMsgSender,
   sendGenericMessage,
-  IMsgSenderArgs
+  IMsgSenderArgs,
+  MsgStatus
 } from './zulip_coms/msgSender';
 import { parseStrAsBool, validatePayload } from './utils/';
 
@@ -67,12 +68,12 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
       });
 
       zulipMsgSender(senderEmail, {
-        status: sqlResult.status,
+        status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
         messageType: messageTypeEnum.SIGNUP
       });
     } else {
       zulipMsgSender(senderEmail, {
-        status: 'OK',
+        status: MsgStatus.OK,
         messageType: messageTypeEnum.PROMPT_SIGNUP
       });
     }
@@ -212,7 +213,8 @@ app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
   // ====== Zulip Message ==========
   const zulipMsgOpts: IMsgSenderArgs = {
     messageType,
-    status: sqlResult ? sqlResult.status : 'OK',
+    // status: sqlResult ? sqlResult.status : 'OK',
+    status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
     payload: sqlResult ? sqlResult.payload : null,
     message: sqlResult ? sqlResult.message : null,
     cliAction
