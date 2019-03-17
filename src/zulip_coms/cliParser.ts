@@ -46,6 +46,7 @@ export function parseZulipServerRequest(
   ///////////////////////////
   const directive = cliArgumentsArray[0];
   const validDirective = Util.valueExistsInEnum(directive, directives);
+  console.log(`Directive given: ${directive}`);
   if (!validDirective) {
     throw new CliError({
       errorType: 'NOT A VALID DIRECTIVE',
