@@ -47,8 +47,9 @@ export function zulipMsgSender(
     // Messages related to non-signed up users
     ////////////////////////
     case messageTypeEnum.PROMPT_SIGNUP:
-      messageContent = `UPPPPPPP You are not currently signed up as a user of coffee chats
-      Type SIGNUP to join`;
+      messageContent = `Hi B`;
+      // messageContent = `You are not currently signed up as a user of coffee chats
+      // Type SIGNUP to join`;
       break;
 
     case messageTypeEnum.SIGNUP:
