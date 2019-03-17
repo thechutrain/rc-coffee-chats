@@ -11,7 +11,8 @@ import {
   CliError,
   UpdateSubCommands,
   StatusSubCommands,
-  HelpSubCommands
+  HelpSubCommands,
+  AdminSubCommands
 } from './cli.interface';
 import { Util } from '../utils/index';
 
@@ -46,7 +47,6 @@ export function parseZulipServerRequest(
   ///////////////////////////
   const directive = cliArgumentsArray[0];
   const validDirective = Util.valueExistsInEnum(directive, directives);
-  console.log(`Directive given: ${directive}`);
   if (!validDirective) {
     throw new CliError({
       errorType: 'NOT A VALID DIRECTIVE',
@@ -75,10 +75,12 @@ export function parseZulipServerRequest(
   // Validate Commands
   ///////////////////////////
   const strSubCmd = cliArgumentsArray[1];
+  // TODO: FIX, this takes priority of UpdateSubCommands or the first listed option. There could be conflicting sub commands
   const subCommand =
     UpdateSubCommands[strSubCmd] ||
     StatusSubCommands[strSubCmd] ||
     HelpSubCommands[strSubCmd] ||
+    AdminSubCommands[strSubCmd] ||
     null;
 
   if (!subCommand) {
