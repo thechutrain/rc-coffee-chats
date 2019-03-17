@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { ICliAction } from './interface';
+import { ICliAction } from './cli.interface';
 
 // TODO: make a sendMessage (takes in message type etc.)
 export enum messageTypeEnum {

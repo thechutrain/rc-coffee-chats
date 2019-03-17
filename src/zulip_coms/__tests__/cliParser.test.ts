@@ -1,5 +1,5 @@
 import { parseZulipServerRequest } from '../cliParser';
-import { directives, subCommands, UpdateSubCommands } from '../interface';
+import { directives, subCommands, UpdateSubCommands } from '../cli.interface';
 
 // tslint:disable-next-line
 const sender_email = 'test@gmail.com';

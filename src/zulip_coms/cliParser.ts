@@ -1,4 +1,5 @@
 /**
+ * Parsers zulip messages:
  * This module is responsible for handling all commands
  * sent from bot/zulip server --> our server
  */
@@ -11,7 +12,7 @@ import {
   UpdateSubCommands,
   StatusSubCommands,
   HelpSubCommands
-} from './interface';
+} from './cli.interface';
 import { Util } from '../utils/index';
 
 /**
@@ -60,7 +61,7 @@ export function parseZulipServerRequest(
       senderEmail
     };
   } else if (directive === directives.HELP) {
-    const helpSubCommand = HelpSubCommands[cliArgumentsArray[1]] || null; // Note:
+    const helpSubCommand = HelpSubCommands[cliArgumentsArray[1]] || null;
 
     return {
       directive: directives[directive],
