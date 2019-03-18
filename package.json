@@ -16,17 +16,6 @@
     "test": "cross-env DB_FILE=test.db jest",
     "build": "npm run clean && tsc"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/*.ts": [
-      "npm run format",
-      "git add"
-    ]
-  },
   "dependencies": {
     "axios": "^0.18.0",
     "better-sqlite3": "^4.2.0",
