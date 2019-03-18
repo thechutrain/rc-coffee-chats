@@ -40,45 +40,14 @@ const db = (() => {
 })();
 
 /////////////////
+/// Middleware
+/////////////////
+import { initCheckRegistered } from './middleware/registered';
+
+/////////////////
 /// Server
 /////////////////
 const app = express();
-
-function initCheckRegistered(db, msgSender) {
-  return function isRegistered(req, res, next) {
-    const senderEmail = req.body.message.sender_email;
-    const userExists = db.user.find(senderEmail);
-
-    console.log(`USER EXISTS: ${!!userExists}`);
-
-    if (userExists) {
-      next();
-      return;
-    }
-    console.log('Only runs if user is registered');
-
-    const wantsToSignUp = req.body.data.match(/signup/gi);
-
-    if (wantsToSignUp) {
-      const sqlResult = db.user.add({
-        email: senderEmail,
-        full_name: req.body.message.sender_full_name
-      });
-
-      msgSender(senderEmail, {
-        status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-        messageType: messageTypeEnum.SIGNUP
-      });
-    } else {
-      msgSender(senderEmail, {
-        status: MsgStatus.OK,
-        messageType: messageTypeEnum.PROMPT_SIGNUP
-      });
-    }
-
-    res.json({});
-  };
-}
 
 // Handle messages received from Zulip outgoing webhooks
 app.post(
@@ -92,35 +61,6 @@ app.post(
     const senderEmail = req.body.message.sender_email;
     let sqlResult: ISqlOk | ISqlError;
     let messageType: messageTypeEnum;
-
-    ////////////////////////////////////////////////////
-    // CHECK IF VALID USER / IF THEY ARE SIGNED UP
-    /////////////////////////////////////////////////////
-    // TODO: move to middleware eventually?
-    // const userExists = db.user.find(senderEmail);
-    // if (!userExists) {
-    //   // TODO: check if the first word in message is signup!
-    //   const wantsToSignUp = req.body.data.match(/signup/gi);
-
-    //   if (wantsToSignUp) {
-    //     sqlResult = db.user.add({
-    //       email: senderEmail,
-    //       full_name: req.body.message.sender_full_name
-    //     });
-
-    //     zulipMsgSender(senderEmail, {
-    //       status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-    //       messageType: messageTypeEnum.SIGNUP
-    //     });
-    //   } else {
-    //     zulipMsgSender(senderEmail, {
-    //       status: MsgStatus.OK,
-    //       messageType: messageTypeEnum.PROMPT_SIGNUP
-    //     });
-    //   }
-
-    //   return;
-    // }
 
     ////////////////////////////////////////////////////
     // Parse ZULIP Message
