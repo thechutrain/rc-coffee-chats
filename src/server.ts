@@ -44,34 +44,47 @@ const db = (() => {
 /////////////////
 const app = express();
 
-// function preBodyParser(req, res, next) {
-//   console.log('PRE body parser');
-//   console.log(req.body);
-//   next();
-// }
+function initCheckRegistered(db, msgSender) {
+  return function isRegistered(req, res, next) {
+    const senderEmail = req.body.message.sender_email;
+    const userExists = db.user.find(senderEmail);
 
-// function postBodyParser(req, res, next) {
-//   console.log('POST body parser');
-//   console.log(req.body);
-//   next();
-// }
+    console.log(`USER EXISTS: ${!!userExists}`);
 
-function initAuthMiddleware(database) {
-  return function authenticate(req, res, next) {
-    console.log('middleware');
-    const userEmail = req.body.message.sender_email;
-    const registeredUser = database.user.find(userEmail);
-    req.user = { userEmail, valid: true, registeredUser };
-    next();
+    if (userExists) {
+      next();
+      return;
+    }
+    console.log('Only runs if user is registered');
+
+    const wantsToSignUp = req.body.data.match(/signup/gi);
+
+    if (wantsToSignUp) {
+      const sqlResult = db.user.add({
+        email: senderEmail,
+        full_name: req.body.message.sender_full_name
+      });
+
+      msgSender(senderEmail, {
+        status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
+        messageType: messageTypeEnum.SIGNUP
+      });
+    } else {
+      msgSender(senderEmail, {
+        status: MsgStatus.OK,
+        messageType: messageTypeEnum.PROMPT_SIGNUP
+      });
+    }
+
+    res.json({});
   };
 }
 
 // Handle messages received from Zulip outgoing webhooks
 app.post(
   '/webhooks/zulip',
-
   bodyParser.json(),
-  initAuthMiddleware(db),
+  initCheckRegistered(db, zulipMsgSender),
   (req, res) => {
     console.log(req.user);
     res.json({});
@@ -84,30 +97,30 @@ app.post(
     // CHECK IF VALID USER / IF THEY ARE SIGNED UP
     /////////////////////////////////////////////////////
     // TODO: move to middleware eventually?
-    const userExists = db.user.find(senderEmail);
-    if (!userExists) {
-      // TODO: check if the first word in message is signup!
-      const wantsToSignUp = req.body.data.match(/signup/gi);
+    // const userExists = db.user.find(senderEmail);
+    // if (!userExists) {
+    //   // TODO: check if the first word in message is signup!
+    //   const wantsToSignUp = req.body.data.match(/signup/gi);
 
-      if (wantsToSignUp) {
-        sqlResult = db.user.add({
-          email: senderEmail,
-          full_name: req.body.message.sender_full_name
-        });
+    //   if (wantsToSignUp) {
+    //     sqlResult = db.user.add({
+    //       email: senderEmail,
+    //       full_name: req.body.message.sender_full_name
+    //     });
 
-        zulipMsgSender(senderEmail, {
-          status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-          messageType: messageTypeEnum.SIGNUP
-        });
-      } else {
-        zulipMsgSender(senderEmail, {
-          status: MsgStatus.OK,
-          messageType: messageTypeEnum.PROMPT_SIGNUP
-        });
-      }
+    //     zulipMsgSender(senderEmail, {
+    //       status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
+    //       messageType: messageTypeEnum.SIGNUP
+    //     });
+    //   } else {
+    //     zulipMsgSender(senderEmail, {
+    //       status: MsgStatus.OK,
+    //       messageType: messageTypeEnum.PROMPT_SIGNUP
+    //     });
+    //   }
 
-      return;
-    }
+    //   return;
+    // }
 
     ////////////////////////////////////////////////////
     // Parse ZULIP Message
