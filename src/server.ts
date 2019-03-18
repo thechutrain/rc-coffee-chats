@@ -44,25 +44,36 @@ const db = (() => {
 /////////////////
 const app = express();
 
-function preBodyParser(req, res, next) {
-  console.log('PRE body parser');
-  console.log(req.body);
-  next();
-}
+// function preBodyParser(req, res, next) {
+//   console.log('PRE body parser');
+//   console.log(req.body);
+//   next();
+// }
 
-function postBodyParser(req, res, next) {
-  console.log('POST body parser');
-  console.log(req.body);
-  next();
+// function postBodyParser(req, res, next) {
+//   console.log('POST body parser');
+//   console.log(req.body);
+//   next();
+// }
+
+function initAuthMiddleware(database) {
+  return function authenticate(req, res, next) {
+    console.log('middleware');
+    const userEmail = req.body.message.sender_email;
+    const registeredUser = database.user.find(userEmail);
+    req.user = { userEmail, valid: true, registeredUser };
+    req.next();
+  };
 }
 
 // Handle messages received from Zulip outgoing webhooks
 app.post(
   '/webhooks/zulip',
-  preBodyParser,
+
   bodyParser.json(),
-  postBodyParser,
+  initAuthMiddleware(db),
   (req, res) => {
+    console.log(req.user);
     res.json({});
 
     const senderEmail = req.body.message.sender_email;
