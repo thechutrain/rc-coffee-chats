@@ -62,7 +62,7 @@ function initAuthMiddleware(database) {
     const userEmail = req.body.message.sender_email;
     const registeredUser = database.user.find(userEmail);
     req.user = { userEmail, valid: true, registeredUser };
-    req.next();
+    next();
   };
 }
 
