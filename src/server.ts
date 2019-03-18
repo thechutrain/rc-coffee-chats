@@ -44,166 +44,184 @@ const db = (() => {
 /////////////////
 const app = express();
 
+function preBodyParser(req, res, next) {
+  console.log('PRE body parser');
+  console.log(req.body);
+  next();
+}
+
+function postBodyParser(req, res, next) {
+  console.log('POST body parser');
+  console.log(req.body);
+  next();
+}
+
 // Handle messages received from Zulip outgoing webhooks
-app.post('/webhooks/zulip', bodyParser.json(), (req, res) => {
-  res.json({});
+app.post(
+  '/webhooks/zulip',
+  preBodyParser,
+  bodyParser.json(),
+  postBodyParser,
+  (req, res) => {
+    res.json({});
 
-  const senderEmail = req.body.message.sender_email;
-  let sqlResult: ISqlOk | ISqlError;
-  let messageType: messageTypeEnum;
+    const senderEmail = req.body.message.sender_email;
+    let sqlResult: ISqlOk | ISqlError;
+    let messageType: messageTypeEnum;
 
-  ////////////////////////////////////////////////////
-  // CHECK IF VALID USER / IF THEY ARE SIGNED UP
-  /////////////////////////////////////////////////////
-  // TODO: move to middleware eventually?
-  const userExists = db.user.find(senderEmail);
-  if (!userExists) {
-    // TODO: check if the first word in message is signup!
-    const wantsToSignUp = req.body.data.match(/signup/gi);
+    ////////////////////////////////////////////////////
+    // CHECK IF VALID USER / IF THEY ARE SIGNED UP
+    /////////////////////////////////////////////////////
+    // TODO: move to middleware eventually?
+    const userExists = db.user.find(senderEmail);
+    if (!userExists) {
+      // TODO: check if the first word in message is signup!
+      const wantsToSignUp = req.body.data.match(/signup/gi);
 
-    if (wantsToSignUp) {
-      sqlResult = db.user.add({
-        email: senderEmail,
-        full_name: req.body.message.sender_full_name
-      });
+      if (wantsToSignUp) {
+        sqlResult = db.user.add({
+          email: senderEmail,
+          full_name: req.body.message.sender_full_name
+        });
 
-      zulipMsgSender(senderEmail, {
-        status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-        messageType: messageTypeEnum.SIGNUP
-      });
-    } else {
-      zulipMsgSender(senderEmail, {
-        status: MsgStatus.OK,
-        messageType: messageTypeEnum.PROMPT_SIGNUP
-      });
+        zulipMsgSender(senderEmail, {
+          status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
+          messageType: messageTypeEnum.SIGNUP
+        });
+      } else {
+        zulipMsgSender(senderEmail, {
+          status: MsgStatus.OK,
+          messageType: messageTypeEnum.PROMPT_SIGNUP
+        });
+      }
+
+      return;
     }
 
-    return;
+    ////////////////////////////////////////////////////
+    // Parse ZULIP Message
+    /////////////////////////////////////////////////////
+    // TODO: modify parseZulipServerRequest --> make it a middleware
+    let cliAction: ICliAction;
+    try {
+      cliAction = parseZulipServerRequest(req.body);
+    } catch (e) {
+      // TODO: update this to use zulipMsgSender
+      sendGenericMessage(senderEmail, e.message);
+      console.log(e.message);
+      return;
+    }
+
+    ////////////////////////////////////////////////////
+    // Dispatch Action off Zulip CMD
+    /////////////////////////////////////////////////////
+    console.log('\n==== Received Valid cliAction =====');
+    console.log(cliAction);
+
+    /////////////////////////////////////
+    // CHANGE/UPDATE
+    /////////////////////////////////////
+    if (
+      cliAction.directive === directives.CHANGE ||
+      cliAction.directive === directives.UPDATE
+    ) {
+      switch (cliAction.subCommand) {
+        case UpdateSubCommands.DAYS:
+        case UpdateSubCommands.DATES:
+          sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
+          messageType = messageTypeEnum.UPDATE_DAYS;
+          break;
+
+        case UpdateSubCommands.SKIP:
+          messageType = messageTypeEnum.UPDATE_SKIP;
+          try {
+            validatePayload(cliAction.payload);
+            const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
+
+            sqlResult = db.user.updateSkipNextMatch(
+              senderEmail,
+              parsedBooleanVal
+            );
+          } catch (e) {
+            sendGenericMessage(senderEmail, e);
+            return;
+          }
+          break;
+
+        case UpdateSubCommands.WARNINGS:
+          messageType = messageTypeEnum.UPDATE_WARNINGS;
+          try {
+            validatePayload(cliAction.payload);
+            const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
+
+            sqlResult = db.user.updateWarningException(
+              senderEmail,
+              parsedBooleanVal
+            );
+          } catch (e) {
+            sendGenericMessage(senderEmail, e);
+            return;
+          }
+          break;
+
+        default:
+          messageType = messageTypeEnum.HELP_UPDATE;
+          break;
+      }
+    } else if (cliAction.directive === directives.STATUS) {
+      /////////////////////////////////////
+      // STATUS
+      /////////////////////////////////////
+      switch (cliAction.subCommand) {
+        case StatusSubCommands.DATES:
+        case StatusSubCommands.DAYS:
+          sqlResult = db.user.getCoffeeDays(senderEmail);
+          messageType = messageTypeEnum.STATUS_DAYS;
+          break;
+
+        case StatusSubCommands.WARNINGS:
+          sqlResult = db.user.getWarningStatus(senderEmail);
+          messageType = messageTypeEnum.STATUS_WARNINGS;
+          break;
+
+        case StatusSubCommands.SKIP:
+          sqlResult = db.user.getNextStatus(senderEmail);
+          messageType = messageTypeEnum.STATUS_SKIP;
+          break;
+
+        default:
+          messageType = messageTypeEnum.HELP_STATUS;
+          break;
+      }
+    } else if (cliAction.directive === directives.HELP) {
+      /////////////////////////////////////
+      // HELP subcommand switch block
+      /////////////////////////////////////
+      switch (cliAction.subCommand) {
+        case HelpSubCommands.UPDATE:
+          messageType = messageTypeEnum.HELP_UPDATE;
+          break;
+        case HelpSubCommands.STATUS:
+          messageType = messageTypeEnum.HELP_STATUS;
+          break;
+        default:
+          messageType = messageTypeEnum.HELP;
+          break;
+      }
+    }
+
+    // ====== Zulip Message ==========
+    const zulipMsgOpts: IMsgSenderArgs = {
+      messageType,
+      // status: sqlResult ? sqlResult.status : 'OK',
+      status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
+      payload: sqlResult ? sqlResult.payload : null,
+      message: sqlResult ? sqlResult.message : null,
+      cliAction
+    };
+    zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
   }
-
-  ////////////////////////////////////////////////////
-  // Parse ZULIP Message
-  /////////////////////////////////////////////////////
-  // TODO: modify parseZulipServerRequest --> make it a middleware
-  let cliAction: ICliAction;
-  try {
-    cliAction = parseZulipServerRequest(req.body);
-  } catch (e) {
-    // TODO: update this to use zulipMsgSender
-    sendGenericMessage(senderEmail, e.message);
-    console.log(e.message);
-    return;
-  }
-
-  ////////////////////////////////////////////////////
-  // Dispatch Action off Zulip CMD
-  /////////////////////////////////////////////////////
-  console.log('\n==== Received Valid cliAction =====');
-  console.log(cliAction);
-
-  /////////////////////////////////////
-  // CHANGE/UPDATE
-  /////////////////////////////////////
-  if (
-    cliAction.directive === directives.CHANGE ||
-    cliAction.directive === directives.UPDATE
-  ) {
-    switch (cliAction.subCommand) {
-      case UpdateSubCommands.DAYS:
-      case UpdateSubCommands.DATES:
-        sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
-        messageType = messageTypeEnum.UPDATE_DAYS;
-        break;
-
-      case UpdateSubCommands.SKIP:
-        messageType = messageTypeEnum.UPDATE_SKIP;
-        try {
-          validatePayload(cliAction.payload);
-          const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
-
-          sqlResult = db.user.updateSkipNextMatch(
-            senderEmail,
-            parsedBooleanVal
-          );
-        } catch (e) {
-          sendGenericMessage(senderEmail, e);
-          return;
-        }
-        break;
-
-      case UpdateSubCommands.WARNINGS:
-        messageType = messageTypeEnum.UPDATE_WARNINGS;
-        try {
-          validatePayload(cliAction.payload);
-          const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
-
-          sqlResult = db.user.updateWarningException(
-            senderEmail,
-            parsedBooleanVal
-          );
-        } catch (e) {
-          sendGenericMessage(senderEmail, e);
-          return;
-        }
-        break;
-
-      default:
-        messageType = messageTypeEnum.HELP_UPDATE;
-        break;
-    }
-  } else if (cliAction.directive === directives.STATUS) {
-    /////////////////////////////////////
-    // STATUS
-    /////////////////////////////////////
-    switch (cliAction.subCommand) {
-      case StatusSubCommands.DATES:
-      case StatusSubCommands.DAYS:
-        sqlResult = db.user.getCoffeeDays(senderEmail);
-        messageType = messageTypeEnum.STATUS_DAYS;
-        break;
-
-      case StatusSubCommands.WARNINGS:
-        sqlResult = db.user.getWarningStatus(senderEmail);
-        messageType = messageTypeEnum.STATUS_WARNINGS;
-        break;
-
-      case StatusSubCommands.SKIP:
-        sqlResult = db.user.getNextStatus(senderEmail);
-        messageType = messageTypeEnum.STATUS_SKIP;
-        break;
-
-      default:
-        messageType = messageTypeEnum.HELP_STATUS;
-        break;
-    }
-  } else if (cliAction.directive === directives.HELP) {
-    /////////////////////////////////////
-    // HELP subcommand switch block
-    /////////////////////////////////////
-    switch (cliAction.subCommand) {
-      case HelpSubCommands.UPDATE:
-        messageType = messageTypeEnum.HELP_UPDATE;
-        break;
-      case HelpSubCommands.STATUS:
-        messageType = messageTypeEnum.HELP_STATUS;
-        break;
-      default:
-        messageType = messageTypeEnum.HELP;
-        break;
-    }
-  }
-
-  // ====== Zulip Message ==========
-  const zulipMsgOpts: IMsgSenderArgs = {
-    messageType,
-    // status: sqlResult ? sqlResult.status : 'OK',
-    status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-    payload: sqlResult ? sqlResult.payload : null,
-    message: sqlResult ? sqlResult.message : null,
-    cliAction
-  };
-  zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
-});
+);
 
 app.post('/cron/run', (request, response) => {
   // logger.info('Running the matcher and sending out matches');
