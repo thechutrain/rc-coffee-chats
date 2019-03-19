@@ -50,7 +50,9 @@ const checkRegistered = initCheckRegistered(db, zulipMsgSender);
 const app = express();
 
 app.use((req: types.IZulipRequest, res, next) => {
-  req.local = {};
+  req.local = {
+    errors: []
+  };
   next();
 });
 

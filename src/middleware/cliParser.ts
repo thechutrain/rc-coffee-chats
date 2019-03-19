@@ -26,12 +26,23 @@ export function simpleParser(messageContent: string): types.IParsedCli {
   };
 }
 
+// export function isValidCli(cli: types.IParsedCli): boolean {
+//   return true;
+// }
+
 export function cliParser(req: types.IZulipRequest, res, next) {
   const {
     message: { content }
   } = req.body;
 
-  req.local.cli = simpleParser(content);
+  const parsedCli = simpleParser(content);
+  // QUESTION: validate here? or just go with it and throw an error later
+  // req.local.cli = {
+  //   ...parsedCli,
+  //   isValid: isValidCli(parsedCli)
+  // };
+
+  req.local.cli = parsedCli;
   next();
 }
 // TODO: modularize / separate functionality here
