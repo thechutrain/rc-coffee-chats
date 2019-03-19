@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 import { initDB } from './db';
 import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import {
-  messageTypeEnum,
+  msgType,
   zulipMsgSender,
   sendGenericMessage,
   IMsgSenderArgs,
@@ -55,12 +55,13 @@ app.post(
   bodyParser.json(),
   initCheckRegistered(db, zulipMsgSender),
   (req, res) => {
-    console.log(req.user);
     res.json({});
-
+    // TODO: extend Express.Request type, so that I can store
+    // user info on the req object
     const senderEmail = req.body.message.sender_email;
+
     let sqlResult: ISqlOk | ISqlError;
-    let messageType: messageTypeEnum;
+    let messageType: msgType;
 
     ////////////////////////////////////////////////////
     // Parse ZULIP Message
@@ -93,11 +94,11 @@ app.post(
         case UpdateSubCommands.DAYS:
         case UpdateSubCommands.DATES:
           sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
-          messageType = messageTypeEnum.UPDATE_DAYS;
+          messageType = msgType.UPDATE_DAYS;
           break;
 
         case UpdateSubCommands.SKIP:
-          messageType = messageTypeEnum.UPDATE_SKIP;
+          messageType = msgType.UPDATE_SKIP;
           try {
             validatePayload(cliAction.payload);
             const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
@@ -113,7 +114,7 @@ app.post(
           break;
 
         case UpdateSubCommands.WARNINGS:
-          messageType = messageTypeEnum.UPDATE_WARNINGS;
+          messageType = msgType.UPDATE_WARNINGS;
           try {
             validatePayload(cliAction.payload);
             const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
@@ -129,7 +130,7 @@ app.post(
           break;
 
         default:
-          messageType = messageTypeEnum.HELP_UPDATE;
+          messageType = msgType.HELP_UPDATE;
           break;
       }
     } else if (cliAction.directive === directives.STATUS) {
@@ -140,21 +141,21 @@ app.post(
         case StatusSubCommands.DATES:
         case StatusSubCommands.DAYS:
           sqlResult = db.user.getCoffeeDays(senderEmail);
-          messageType = messageTypeEnum.STATUS_DAYS;
+          messageType = msgType.STATUS_DAYS;
           break;
 
         case StatusSubCommands.WARNINGS:
           sqlResult = db.user.getWarningStatus(senderEmail);
-          messageType = messageTypeEnum.STATUS_WARNINGS;
+          messageType = msgType.STATUS_WARNINGS;
           break;
 
         case StatusSubCommands.SKIP:
           sqlResult = db.user.getNextStatus(senderEmail);
-          messageType = messageTypeEnum.STATUS_SKIP;
+          messageType = msgType.STATUS_SKIP;
           break;
 
         default:
-          messageType = messageTypeEnum.HELP_STATUS;
+          messageType = msgType.HELP_STATUS;
           break;
       }
     } else if (cliAction.directive === directives.HELP) {
@@ -163,13 +164,13 @@ app.post(
       /////////////////////////////////////
       switch (cliAction.subCommand) {
         case HelpSubCommands.UPDATE:
-          messageType = messageTypeEnum.HELP_UPDATE;
+          messageType = msgType.HELP_UPDATE;
           break;
         case HelpSubCommands.STATUS:
-          messageType = messageTypeEnum.HELP_STATUS;
+          messageType = msgType.HELP_STATUS;
           break;
         default:
-          messageType = messageTypeEnum.HELP;
+          messageType = msgType.HELP;
           break;
       }
     }
@@ -187,22 +188,9 @@ app.post(
   }
 );
 
-app.post('/cron/run', (request, response) => {
-  // logger.info('Running the matcher and sending out matches');
-  if (request.headers.secret === process.env.RUN_SECRET) {
-    console.log('Run the main function here');
-  }
-  response.status(200).json({ status: 'ok' });
+app.get('/test', (req, res) => {
+  res.send('hi');
 });
-
-// app.post('/cron/run/warnings', (request, response) => {
-//   // logger.info('Sending warning messages about tomorrow matches');
-//   if (request.headers.secret === process.env.RUN_SECRET) {
-//     console.log('run warning messages here');
-//     // runWarningMessages();
-//   }
-//   response.status(200).json({ status: 'ok' });
-// });
 
 // listen for requests :)
 app.listen(PORT, () => {

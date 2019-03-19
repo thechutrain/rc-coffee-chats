@@ -7,7 +7,7 @@ import axios from 'axios';
 import { ICliAction } from './cli.interface';
 
 // TODO: make a sendMessage (takes in message type etc.)
-export enum messageTypeEnum {
+export enum msgType {
   'PROMPT_SIGNUP',
   'SIGNUP',
 
@@ -26,6 +26,8 @@ export enum messageTypeEnum {
   'HELP_STATUS',
   'HELP'
 }
+
+
 export enum MsgStatus {
   OK,
   ERROR
@@ -33,7 +35,7 @@ export enum MsgStatus {
 export interface IMsgSenderArgs {
   // status: 'OK' | 'ERROR';
   status: MsgStatus;
-  messageType: messageTypeEnum;
+  messageType: msgType;
   payload?: any;
   message?: string;
   cliAction?: ICliAction;
@@ -61,13 +63,13 @@ export function zulipMsgSender(
       ////////////////////////
       // Messages related to non-signed up users
       ////////////////////////
-      case messageTypeEnum.PROMPT_SIGNUP:
+      case msgType.PROMPT_SIGNUP:
         messageContent = `Hello there! I'm :coffee: bot!
         You are not currently registered as a user of coffee chats
         Type SIGNUP to join`;
         break;
 
-      case messageTypeEnum.SIGNUP:
+      case msgType.SIGNUP:
         messageContent = `You've successfully been added to coffee chat!
           Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`;
 
@@ -76,18 +78,18 @@ export function zulipMsgSender(
       ////////////////////////
       // CHANGE messages
       ////////////////////////
-      case messageTypeEnum.UPDATE_DAYS:
+      case msgType.UPDATE_DAYS:
         messageContent = `You have successfully updated your coffee chat days.`;
         break;
 
-      case messageTypeEnum.UPDATE_WARNINGS:
+      case msgType.UPDATE_WARNINGS:
         const warningsOnOff = msgOpt.payload.warning_exception ? 'ON' : 'OFF';
         messageContent = `You've successfully updated your warning settings.
           warnings exceptions are set to be ${warningsOnOff}`;
 
         break;
 
-      case messageTypeEnum.UPDATE_SKIP:
+      case msgType.UPDATE_SKIP:
         const skipping = msgOpt.payload.skip_next_match ? ' NOT' : '';
         messageContent = `You've successfully updated your "skip_next_match" settings. 
           
@@ -97,19 +99,19 @@ export function zulipMsgSender(
       ////////////////////////
       // STATUS messages
       ////////////////////////
-      case messageTypeEnum.STATUS_DAYS:
+      case msgType.STATUS_DAYS:
         const daysAsString = msgOpt.payload.coffeeDays.join(' ');
         messageContent = `You are currently set to have coffee chats on the following days: ${daysAsString}`;
         break;
 
-      case messageTypeEnum.STATUS_WARNINGS:
+      case msgType.STATUS_WARNINGS:
         // TODO: handle errors?
         const warningsText = msgOpt.payload.warningException ? 'ON' : 'OFF';
         // const willOrWillNot = msgOpt.payload.warningException ? 'WILL' : 'WILL NOT'
         messageContent = `Your reminder warnings are currently set to be: ${warningsText}`;
         break;
 
-      case messageTypeEnum.STATUS_SKIP:
+      case msgType.STATUS_SKIP:
         const { skipNext } = msgOpt.payload;
         messageContent = `You will ${
           skipNext ? '' : 'NOT'
@@ -119,7 +121,7 @@ export function zulipMsgSender(
       ////////////////////////
       // HELP messages
       ////////////////////////
-      case messageTypeEnum.HELP_UPDATE:
+      case msgType.HELP_UPDATE:
         messageContent = `Valid **update** commands:
         UPDATE <DAYS | SKIP | WARNINGS> [... list of args]
         * <DAYS> - [MON, TUE, WED, THU, FRI, SAT, SUN]
@@ -134,7 +136,7 @@ export function zulipMsgSender(
         `;
         break;
 
-      case messageTypeEnum.HELP_STATUS:
+      case msgType.HELP_STATUS:
         messageContent = `Valid **status** commands: 
         STATUS <DAYS | SKIP | WARNINGS> [... list of optional args]
         * <DAYS>
@@ -146,7 +148,7 @@ export function zulipMsgSender(
         See more @ [docs](${process.env.HELP_URL})`;
         break;
 
-      case messageTypeEnum.HELP:
+      case msgType.HELP:
         messageContent = `Hi! I'm :coffee: bot and I'm here to help! 
         To talk to me, enter a valid command that begins with the following: 
         \`\`\`UPDATE | STATUS | HELP\`\`\`
@@ -205,7 +207,7 @@ export function sendGenericMessage(
 //     foo: 'bar'
 //   };
 //   const MESSAGE_TEMPLATES = {
-//     [messageTypeEnum.PROMPT_SIGNUP]: `I am a variable ${
+//     [msgType.PROMPT_SIGNUP]: `I am a variable ${
 //       strVars.foo
 //     } You are not currently signed up as a user of coffee chats Type SIGNUP to join`
 //   };

@@ -3,14 +3,14 @@
  * prompts user to signup if not registered
  */
 
-import { MsgStatus, messageTypeEnum } from '../zulip_coms/msgSender';
+import { MsgStatus, msgType } from '../zulip_coms/msgSender';
 
 export function initCheckRegistered(db, msgSender) {
   return function isRegistered(req, res, next) {
     const senderEmail = req.body.message.sender_email;
-    const userExists = db.user.find(senderEmail);
+    const user = db.user.find(senderEmail);
 
-    if (userExists) {
+    if (user) {
       next();
       return;
     }
@@ -25,12 +25,12 @@ export function initCheckRegistered(db, msgSender) {
 
       msgSender(senderEmail, {
         status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-        messageType: messageTypeEnum.SIGNUP
+        messageType: msgType.SIGNUP
       });
     } else {
       msgSender(senderEmail, {
         status: MsgStatus.OK,
-        messageType: messageTypeEnum.PROMPT_SIGNUP
+        messageType: msgType.PROMPT_SIGNUP
       });
     }
 
