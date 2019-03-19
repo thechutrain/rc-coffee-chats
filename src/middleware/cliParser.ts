@@ -31,8 +31,6 @@ export function cliParser(req: types.IZulipRequest, res, next) {
     message: { content }
   } = req.body;
 
-  const result = simpleParser(content);
-  console.log(result);
   req.local.cli = simpleParser(content);
   next();
 }
