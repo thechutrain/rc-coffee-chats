@@ -11,13 +11,18 @@ export function initCheckRegistered(db, msgSender) {
     const senderEmail = req.body.message.sender_email;
     const user = db.user.find(senderEmail);
 
+    // CASE: already registered user --> proceed
     if (user) {
       console.log(`Found a registered user: ${user.email}`);
-      req.local.user = user;
+      console.log(req.local);
+      req.local = {};
+      console.log(req.local);
+      // req.local.user = user.email;
       next();
       return;
     }
 
+    // CASE: not a registered user
     const wantsToSignUp = req.body.data.match(/signup/gi);
 
     if (wantsToSignUp) {
