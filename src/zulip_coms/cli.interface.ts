@@ -22,12 +22,12 @@ export interface IZulipRequest {
 // Cli
 ////////////////////////
 // Note: Cli action to be taken after parsing Zulip Message
-export interface ICliAction {
-  senderEmail: string;
-  directive: directives;
-  subCommand?: subCommands;
-  payload?: string[]; // allow flexibility with payload if no flags passed?
-}
+// export interface ICliAction {
+//   senderEmail: string;
+//   directive: directives;
+//   subCommand?: subCommands;
+//   payload?: string[]; // allow flexibility with payload if no flags passed?
+// }
 
 // NOTE: string enums are not reverse mapped
 export enum directives {
