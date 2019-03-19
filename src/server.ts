@@ -7,13 +7,11 @@ const PORT = process.env.PORT || 3000;
 
 // ===== My Custom Modules =====
 import { initDB } from './db';
-import { parseZulipServerRequest } from './zulip_coms/cliParser';
+// import { parseZulipServerRequest } from './zulip_coms/cliParser';
 import {
   msgType,
   zulipMsgSender,
-  sendGenericMessage,
-  IMsgSenderArgs,
-  MsgStatus
+  sendMessage as sendGenericMessage
 } from './zulip_coms/msgSender';
 import { parseStrAsBool, validatePayload } from './utils/';
 
@@ -62,20 +60,22 @@ app.post(
 
     let sqlResult: ISqlOk | ISqlError;
     let messageType: msgType;
+    const messageOverloadArgs = {};
 
     ////////////////////////////////////////////////////
     // Parse ZULIP Message
     /////////////////////////////////////////////////////
     // TODO: modify parseZulipServerRequest --> make it a middleware
     let cliAction: ICliAction;
-    try {
-      cliAction = parseZulipServerRequest(req.body);
-    } catch (e) {
-      // TODO: update this to use zulipMsgSender
-      sendGenericMessage(senderEmail, e.message);
-      console.log(e.message);
-      return;
-    }
+    // const cliAction = {directive: };
+    // try {
+    //   cliAction = parseZulipServerRequest(req.body);
+    // } catch (e) {
+    //   // TODO: update this to use zulipMsgSender
+    //   sendGenericMessage(senderEmail, e.message);
+    //   console.log(e.message);
+    //   return;
+    // }
 
     ////////////////////////////////////////////////////
     // Dispatch Action off Zulip CMD
@@ -94,11 +94,11 @@ app.post(
         case UpdateSubCommands.DAYS:
         case UpdateSubCommands.DATES:
           sqlResult = db.user.updateCoffeeDays(senderEmail, cliAction.payload);
-          messageType = msgType.UPDATE_DAYS;
+          messageType = msgType.UPDATED_DAYS;
           break;
 
         case UpdateSubCommands.SKIP:
-          messageType = msgType.UPDATE_SKIP;
+          messageType = msgType.UPDATED_SKIP;
           try {
             validatePayload(cliAction.payload);
             const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
@@ -114,7 +114,7 @@ app.post(
           break;
 
         case UpdateSubCommands.WARNINGS:
-          messageType = msgType.UPDATE_WARNINGS;
+          messageType = msgType.UPDATED_WARNINGS;
           try {
             validatePayload(cliAction.payload);
             const parsedBooleanVal = parseStrAsBool(cliAction.payload[0]);
@@ -176,20 +176,21 @@ app.post(
     }
 
     // ====== Zulip Message ==========
-    const zulipMsgOpts: IMsgSenderArgs = {
-      messageType,
-      // status: sqlResult ? sqlResult.status : 'OK',
-      status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
-      payload: sqlResult ? sqlResult.payload : null,
-      message: sqlResult ? sqlResult.message : null,
-      cliAction
-    };
-    zulipMsgSender(senderEmail, { ...zulipMsgOpts, cliAction });
+    // const zulipMsgOpts: IMsgSenderArgs = {
+    //   messageType,
+    //   // status: sqlResult ? sqlResult.status : 'OK',
+    //   status: sqlResult.status === 'OK' ? MsgStatus.OK : MsgStatus.ERROR,
+    //   payload: sqlResult ? sqlResult.payload : null,
+    //   message: sqlResult ? sqlResult.message : null,
+    //   cliAction
+    // };
+    zulipMsgSender(senderEmail, messageType, messageOverloadArgs);
   }
 );
 
 app.get('/test', (req, res) => {
   res.send('hi');
+  zulipMsgSender('alancodes@gmail.com', msgType.HELP, {});
 });
 
 // listen for requests :)
