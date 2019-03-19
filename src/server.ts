@@ -50,7 +50,7 @@ const dispatchCmd = initCliActionDispatcher(db);
 /////////////////
 const app = express();
 
-app.use((req: types.IZulipRequest, res, next) => {
+app.use((req: types.ILocalsReq, res, next) => {
   req.local = {
     errors: []
   };

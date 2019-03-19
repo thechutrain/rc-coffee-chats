@@ -1,5 +1,3 @@
-import { debug } from 'util';
-
 export class Status {
   private db: any;
 
@@ -7,7 +5,7 @@ export class Status {
     this.db = db;
   }
 
-  public dispatch(subCommand: string, args: any[]) {
+  public dispatch(subCommand: string | null, args: any[]) {
     // Get All the dispatchable methods:
     const nonDispatchableMethods = ['constructor', 'dispatch'];
     const proto = Reflect.getPrototypeOf(this);
@@ -15,15 +13,15 @@ export class Status {
       (f: string) => nonDispatchableMethods.indexOf(f) === -1
     );
 
-    // Check if subCmd is valid
-    const subCmd = subCommand.toLowerCase();
+    // TEMP: no subCmd given --> get all info
+    const subCmd = subCommand === null ? 'days' : subCommand.toLowerCase();
     const isValidSubCmd = dispatchableMethods.indexOf(subCmd) !== -1;
 
     // Case: valid subcommand
     if (isValidSubCmd) {
       let dispatchResult;
       try {
-        dispatchResult = this[subCmd]();
+        dispatchResult = this[subCmd].call(this, args);
       } catch (e) {
         console.log(`Error trying to invoke: ${subCmd}`);
         // dispatchResult = {

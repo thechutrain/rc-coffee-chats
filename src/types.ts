@@ -1,9 +1,13 @@
 //////////////
 // Request
 //////////////
+export interface ILocalsReq extends Express.Request {
+  body: any;
+  local?: any;
+}
 export interface IZulipRequest extends Express.Request {
   body: any;
-  local?: {
+  local: {
     user?: {
       email: string;
     };
@@ -37,6 +41,11 @@ export interface IParsedCli {
 export interface IValidatedCli extends IParsedCli {
   isValid: boolean;
 }
+
+// export enum StatusSubCmds {
+//   'days' = 'days',
+//   'all' = 'all'
+// }
 
 //////////////
 // Messaging

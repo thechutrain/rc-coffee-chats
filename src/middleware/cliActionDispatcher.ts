@@ -16,12 +16,19 @@ export function initCliActionDispatcher(db) {
     // If there are errors do not attempt to dispatch action
     if (req.local.errors.length !== 0) next();
 
-    const { directive, subcommand, args } = req.local.cli;
-    if (!(directive in types.CliDirectives)) {
+    const { directive: rawDirective, subcommand, args } = req.local
+      .cli as types.IParsedCli;
+    let directive = rawDirective;
+
+    if (rawDirective === null) {
+      directive = types.CliDirectives.HELP;
+    } else if (!(rawDirective in types.CliDirectives)) {
       req.local.errors.push({
         msgType: types.ErrorMessages.NOT_VALID_DIRECTIVE,
-        customMessage: `${req.local.cli.directive} is not a valid directive`
+        customMessage: `${rawDirective} is not a valid directive`
       });
+
+      next();
     }
 
     /////////////

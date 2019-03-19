@@ -90,14 +90,14 @@ export interface ICliErrorArgs {
   senderEmail?: string;
   sendErrorMessage?: boolean;
 }
-export class CliError extends Error {
-  public type: string;
-  public errorType: string;
-  public senderEmail: string | null;
+// export class CliError extends Error {
+//   public type: string;
+//   public errorType: string;
+//   public senderEmail: string | null;
 
-  constructor(args: ICliErrorArgs) {
-    super(args.message);
-    this.errorType = args.errorType;
-    this.senderEmail = args.senderEmail || null;
-  }
-}
+//   constructor(args: ICliErrorArgs) {
+//     super(args.message);
+//     this.errorType = args.errorType;
+//     this.senderEmail = args.senderEmail || null;
+//   }
+// }
