@@ -41,8 +41,9 @@ const db = (() => {
 /////////////////
 import { initCheckRegistered } from './middleware/registered';
 import { cliParser } from './middleware/cliParser';
-
+import { initCliActionDispatcher } from './middleware/cliActionDispatcher';
 const checkRegistered = initCheckRegistered(db, zulipMsgSender);
+const dispatchCmd = initCliActionDispatcher(db);
 
 /////////////////
 /// Server
@@ -62,8 +63,8 @@ app.post(
   bodyParser.json(),
   checkRegistered,
   cliParser,
+  dispatchCmd,
   (req: types.IZulipRequest, res) => {
-    console.log(req.local.cli);
     res.json({});
 
     // TODO: extend Express.Request type, so that I can store

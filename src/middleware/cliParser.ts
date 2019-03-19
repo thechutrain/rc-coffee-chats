@@ -43,6 +43,8 @@ export function cliParser(req: types.IZulipRequest, res, next) {
   // };
 
   req.local.cli = parsedCli;
+  console.log('Parsed Cli Successfully:');
+  console.log(req.local.cli);
   next();
 }
 // TODO: modularize / separate functionality here
