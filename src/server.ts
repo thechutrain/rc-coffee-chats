@@ -49,7 +49,10 @@ const checkRegistered = initCheckRegistered(db, zulipMsgSender);
 /////////////////
 const app = express();
 
-// TEMP: move this to a definition file
+app.use((req: types.IZulipRequest, res, next) => {
+  req.local = {};
+  next();
+});
 
 // Handle messages received from Zulip outgoing webhooks
 app.post(
@@ -58,7 +61,6 @@ app.post(
   checkRegistered,
   cliParser,
   (req: types.IZulipRequest, res) => {
-    console.log('final route:');
     console.log(req.local.cli);
     res.json({});
 

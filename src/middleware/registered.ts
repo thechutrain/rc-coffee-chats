@@ -13,11 +13,7 @@ export function initCheckRegistered(db, msgSender) {
 
     // CASE: already registered user --> proceed
     if (user) {
-      console.log(`Found a registered user: ${user.email}`);
-      console.log(req.local);
-      req.local = {};
-      console.log(req.local);
-      // req.local.user = user.email;
+      req.local.user = user;
       next();
       return;
     }

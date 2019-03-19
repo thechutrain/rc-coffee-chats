@@ -7,21 +7,11 @@
 import * as types from '../types';
 import { Util } from '../utils/index';
 
-interface IParsedCli {
-  directive: string | null;
-  subcommand: string | null;
-  args: string[];
-}
-
-interface IValidatedCli extends IParsedCli {
-  isValid: boolean;
-}
-
 /**
  * Given a message string, will try to parse it into directive, subcommand, arguments object
  *
  */
-export function simpleParser(messageContent: string): IParsedCli {
+export function simpleParser(messageContent: string): types.IParsedCli {
   const trimmedContent = messageContent.replace(/^\s+|\s+$/g, '');
 
   const tokenizedArgs = trimmedContent
@@ -37,16 +27,13 @@ export function simpleParser(messageContent: string): IParsedCli {
 }
 
 export function cliParser(req: types.IZulipRequest, res, next) {
-  console.log('calling cliParser ...');
   const {
     message: { content }
   } = req.body;
-  console.log('CLI PARSER MIDDLEAARE:');
-  console.log(content);
 
   const result = simpleParser(content);
   console.log(result);
-  // req.local.cli = simpleParser(content);
+  req.local.cli = simpleParser(content);
   next();
 }
 // TODO: modularize / separate functionality here

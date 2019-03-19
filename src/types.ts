@@ -15,8 +15,14 @@ export interface IZulipRequest extends Express.Request {
 }
 
 //////////////
-// Cli Action
+// Cli
 //////////////
-export interface ICliAction {
-  test: boolean;
+export interface IParsedCli {
+  directive: string | null;
+  subcommand: string | null;
+  args: string[];
+}
+
+export interface IValidatedCli extends IParsedCli {
+  isValid: boolean;
 }
