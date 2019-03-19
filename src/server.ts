@@ -58,6 +58,7 @@ app.post(
   checkRegistered,
   parserMiddleware,
   (req: types.IZulipRequest, res) => {
+    console.log('final route:');
     console.log(req.local.cli);
     res.json({});
 

@@ -40,6 +40,8 @@ export function parserMiddleware(req: types.IZulipRequest, res, next) {
   const {
     message: { content }
   } = req.body;
+  console.log('CLI PARSER MIDDLEAARE:');
+  console.log(content);
 
   req.local.cli = simpleParser(content);
   next();
