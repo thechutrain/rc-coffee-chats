@@ -36,7 +36,8 @@ export function simpleParser(messageContent: string): IParsedCli {
   };
 }
 
-export function parserMiddleware(req: types.IZulipRequest, res, next) {
+export function cliParser(req: types.IZulipRequest, res, next) {
+  console.log('calling cliParser ...');
   const {
     message: { content }
   } = req.body;

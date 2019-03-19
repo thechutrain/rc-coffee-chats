@@ -40,7 +40,7 @@ const db = (() => {
 /// Middleware
 /////////////////
 import { initCheckRegistered } from './middleware/registered';
-import { parserMiddleware } from './middleware/parseCli';
+import { cliParser } from './middleware/cliParser';
 
 const checkRegistered = initCheckRegistered(db, zulipMsgSender);
 
@@ -56,7 +56,7 @@ app.post(
   '/webhooks/zulip',
   bodyParser.json(),
   checkRegistered,
-  parserMiddleware,
+  cliParser,
   (req: types.IZulipRequest, res) => {
     console.log('final route:');
     console.log(req.local.cli);
