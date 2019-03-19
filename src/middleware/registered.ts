@@ -12,6 +12,8 @@ export function initCheckRegistered(db, msgSender) {
     const user = db.user.find(senderEmail);
 
     if (user) {
+      console.log(`Found a registered user: ${user.email}`);
+      req.local.user.email = user.email;
       next();
       return;
     }

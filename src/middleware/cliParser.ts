@@ -44,7 +44,9 @@ export function cliParser(req: types.IZulipRequest, res, next) {
   console.log('CLI PARSER MIDDLEAARE:');
   console.log(content);
 
-  req.local.cli = simpleParser(content);
+  const result = simpleParser(content);
+  console.log(result);
+  // req.local.cli = simpleParser(content);
   next();
 }
 // TODO: modularize / separate functionality here

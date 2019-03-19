@@ -4,6 +4,9 @@
 export interface IZulipRequest extends Express.Request {
   body: any;
   local?: {
+    user?: {
+      email: string;
+    };
     cli?: any;
     errors?: any;
     sqlResult?: any;
