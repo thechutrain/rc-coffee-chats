@@ -41,10 +41,12 @@ export interface IParsedCmd {
 export interface IValidatedCmd extends IParsedCmd {
   isValid: boolean;
   action: Action;
+  currentUser: string;
+  targetUser: string;
 }
 
 //////////////
-// Commands
+// Dispatch, Action, Commands
 //////////////
 export enum Action {
   'UPDATE_DAYS' = 'UPDATE_DAYS',
@@ -63,6 +65,11 @@ export interface IReqArg {
   name: string;
   type: string;
 }
+
+// TODO: rethink how to shape the action handler:
+/**
+ * reqKeys: must have these keys, && each key needs to pass this validator
+ */
 export interface IActionHandler {
   fn?: string;
   reqArgs?: IReqArg[];
@@ -70,6 +77,25 @@ export interface IActionHandler {
 }
 
 export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
+
+//////////////
+// Dispatch Results
+//////////////
+
+export interface IDispatchArgs {
+  currentUser: string;
+  targetUser: string;
+  userInput?: any;
+}
+export type DispatchResult = IOkDispatchResult | IErrorDispatchResult;
+
+export interface IOkDispatchResult {
+  status: 'OK';
+}
+export interface IErrorDispatchResult {
+  status: 'ERROR';
+  errorMessage: string;
+}
 
 //////////////
 // Messaging

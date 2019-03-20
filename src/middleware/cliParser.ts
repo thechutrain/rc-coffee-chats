@@ -28,7 +28,13 @@ export function cliParser(req: types.IZulipRequest, res, next) {
 
   try {
     const action = validateCli(parsedCli);
-    req.local.cli = { ...parsedCli, isValid: true, action };
+    req.local.cli = {
+      ...parsedCli,
+      currentUser: req.local.user.email,
+      targetUser: req.local.user.email,
+      isValid: true,
+      action
+    };
   } catch (e) {
     req.local.errors.push({
       errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,

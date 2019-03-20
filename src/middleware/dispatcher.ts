@@ -3,6 +3,7 @@
  */
 
 import * as types from '../types';
+import { type } from 'os';
 
 export const ActionHandlerMap: types.ActionHandlerMap = {
   UPDATE_DAYS: {
@@ -29,31 +30,56 @@ export function initDispatcher(db) {
       return;
     }
 
-    const currUser = req.local.user.email;
-    // const targetUser = currUser;
-    const fn = ActionHandlerMap[action].fn;
-    console.log(`FN: ${fn}`);
+    const { currentUser, targetUser, args: userInput } = req.local.cli;
+    const dispatchArgs: types.IDispatchArgs = {
+      currentUser,
+      targetUser,
+      userInput
+    };
+
+    const fnToDispatch = ActionHandlerMap[action].fn;
+
     let dispatchResult;
+
     try {
-      dispatchResult = dispatcher[`${fn}`](currUser);
+      dispatchResult = dispatcher[`${fnToDispatch}`](dispatchArgs);
     } catch (e) {
       console.log('could not dispatch action');
     }
 
+    // Check if dispatch Result has an error
+    if (dispatchResult.status === 'ERROR') {
+      console.log('ERROR: failed to dispatch action');
+      req.local.errors.push({
+        errorType: types.ErrorTypes.FAILED_DISPATCHED_ACTION,
+        customMessage: dispatchResult.errorMessage
+      });
+    }
+
     console.log(dispatchResult);
+    req.local.msgInfo = {
+      sendToEmail: currentUser,
+      msgType: types.okMessages.HELP
+    };
+    console.log('====== end of dispatch middleware ========');
     next();
   };
 }
 
 export class Dispatcher {
   private db: any;
+  // private currUser: string;
+  // private targetUser: string;
 
   constructor(db) {
     this.db = db;
+    // this.currUser = currUser;
+    // this.targetUser = targetUser || currUser;
   }
 
-  public updateDays(targetUser) {
-    console.log(targetUser);
-    return 'updated days!';
+  public updateDays(args: types.IDispatchArgs): types.DispatchResult {
+    const { targetUser, userInput } = args;
+
+    return this.db.user.updateCoffeeDays(targetUser, userInput);
   }
 }

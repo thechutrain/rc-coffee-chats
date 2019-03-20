@@ -42,11 +42,10 @@ const db = (() => {
 import { cliParser } from './middleware/cliParser';
 import { initCheckRegistered } from './middleware/registered';
 import { initDispatcher } from './middleware/dispatcher';
-// import { initCliActionDispatcher } from './middleware/_cliActionDispatcher';
+import { sendMessageHandler } from './middleware/messaging';
 
 const checkRegistered = initCheckRegistered(db, zulipMsgSender);
 const dispatchAction = initDispatcher(db);
-// const dispatchCmd = initCliActionDispatcher(db);
 
 /////////////////
 /// Server
@@ -67,6 +66,7 @@ app.post(
   checkRegistered,
   cliParser,
   dispatchAction,
+  sendMessageHandler,
   (req: types.IZulipRequest, res) => {
     res.json({});
 
