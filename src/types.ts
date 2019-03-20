@@ -52,6 +52,8 @@ export interface IParsedCmd {
 // Dispatch, Action, Commands
 ////////////////////////////
 export enum Action {
+  'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
+  'REGISTER' = 'REGISTER',
   'UPDATE_DAYS' = 'UPDATE_DAYS',
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
