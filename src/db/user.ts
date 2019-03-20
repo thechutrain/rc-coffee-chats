@@ -70,6 +70,8 @@ export function initUserModel(db: sqlite) {
   /////////////////////////////
   // TODO: define fn signature on initUserModel return type
   function addUser(userVals: IAddUserArgs): ISqlOk | ISqlError {
+    return { status: 'ERROR', message: 'testing purpose' };
+
     let insertSQL;
     if (userVals.coffee_days) {
       insertSQL = db.prepare(
