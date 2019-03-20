@@ -25,8 +25,6 @@ export function initRegisteredHandler(db) {
       isRegistered: !!user
     };
 
-    console.log(req.local.user);
-    console.log('===== END registeredMiddleware =====');
     next();
     return;
   };

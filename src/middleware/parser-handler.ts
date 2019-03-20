@@ -18,7 +18,6 @@ export function parserHandler(req: types.IZulipRequest, res, next) {
   } = req.body;
 
   req.local.cmd = _parseContent(content);
-  console.log('===== END of parser-handler middleware ====');
   next();
   return;
 }
