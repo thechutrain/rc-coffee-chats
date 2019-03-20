@@ -24,38 +24,10 @@ export function initRegisteredHandler(db) {
       email: senderEmail,
       isRegistered: !!user
     };
+
     console.log(req.local.user);
     console.log('===== END registeredMiddleware =====');
     next();
     return;
-
-    // // CASE: already registered user --> proceed
-    // if (user) {
-    //   req.local.user = {
-    //     email: senderEmail,
-    //     isRegistered: true
-    //   };
-    //   next();
-    //   return;
-    // }
-
-    // // CASE: not a registered user
-    // const wantsToSignUp = req.body.data.match(/signup/gi);
-
-    // if (wantsToSignUp) {
-    //   const sqlResult = db.user.add({
-    //     email: senderEmail,
-    //     full_name: req.body.message.sender_full_name
-    //   });
-
-    //   // TODO: check if sql result was successful or not
-    //   // right now assuming that is was successful
-    //   // TODO: decouple this message sender or make it more generic
-    //   msgSender(senderEmail, types.okMsg.SIGNED_UP);
-    // } else {
-    //   msgSender(senderEmail, types.okMsg.PROMPT_SIGNUP);
-    // }
-
-    // res.json({});
   };
 }
