@@ -14,12 +14,12 @@ export interface IZulipRequest extends Express.Request {
     cli: IValidatedCmd;
     errors: IError[];
     sqlResult?: any;
-    msgInfo?: IMsg;
+    msgInfo?: MsgInfo;
   };
 }
 
 export interface IError {
-  errorType: ErrorTypes;
+  errorType: Errors;
   customMessage?: string;
 }
 
@@ -103,10 +103,18 @@ export interface IErrorDispatchResult {
 ////////////////////////////
 // TODO: remove from msgSender
 // interface
-export interface IMsg {
+export type MsgInfo = IOkMsg | IErrMsg;
+
+export interface IOkMsg {
   sendToEmail: string;
   msgType: okMsg | errMsg;
   msgArgs?: any;
+}
+
+export interface IErrMsg {
+  sendToEmail: string;
+  msgType: errMsg;
+  errType: Errors;
 }
 
 // Required Variables & Types for each msg type
@@ -142,7 +150,7 @@ export enum errMsg {
   'GENERIC_ERROR' = 'GENERIC_ERROR'
 }
 
-export enum ErrorTypes {
+export enum Errors {
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
   'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',

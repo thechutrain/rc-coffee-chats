@@ -32,7 +32,7 @@ export function initDispatcher(db) {
       next();
       return;
     } else if (!(action in types.Action)) {
-      req.local.errors.push({ errorType: types.ErrorTypes.NO_VALID_ACTION });
+      req.local.errors.push({ errorType: types.Errors.NO_VALID_ACTION });
       next();
       return;
     }
@@ -51,11 +51,22 @@ export function initDispatcher(db) {
       dispatchResult = dispatcher[`${fn}`](dispatchArgs);
     } catch (e) {
       console.warn(`Function: ${fn} does not exist on the dispatch class.`);
+      const errorMessage = `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is not method handler for this function. Please alert the maintainer of this or create a github issue.`;
 
-      req.local.errors.push({
-        errorType: types.ErrorTypes.DISPATCH_ACTION_DOES_NOT_EXIST,
-        customMessage: `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is not method handler for this function. Please alert the maintainer of this or create a github issue.`
-      });
+      // QUESTION: push directly to errors or to msgInfo?
+      // req.local.errors.push({
+      //   errorType: types.ErrorTypes.DISPATCH_ACTION_DOES_NOT_EXIST,
+      //   customMessage: errorMessage
+      // });
+
+      req.local.msgInfo = {
+        sendToEmail: currentUser, // TODO: make this an array so admin gets a copy too!
+        msgType: types.errMsg.GENERIC_ERROR,
+        msgArgs: {
+          errorType: types.Errors.DISPATCH_ACTION_DOES_NOT_EXIST,
+          message: errorMessage
+        }
+      };
 
       next();
       return;
