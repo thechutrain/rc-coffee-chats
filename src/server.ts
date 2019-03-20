@@ -8,12 +8,6 @@ const PORT = process.env.PORT || 3000;
 // ===== My Custom Modules =====
 import * as types from './types';
 import { initDB } from './db';
-// import { parseZulipServerRequest } from './zulip_coms/cliParser';
-import {
-  msgType,
-  zulipMsgSender,
-  sendMessage as sendGenericMessage
-} from './zulip_coms/msgSender';
 import { parseStrAsBool, validatePayload } from './utils/';
 
 import {
@@ -22,11 +16,16 @@ import {
   StatusSubCommands,
   HelpSubCommands
 } from './zulip_coms/cli.interface';
-import { ISqlOk, ISqlError } from './db/db.interface';
 
-/////////////////
+// import { ISqlOk, ISqlError } from './db/db.interface';
+//////////////////////////////////
+// Messaging Services
+//////////////////////////////////
+import { templateMessageSender } from './zulip-messenger/msg-sender';
+
+//////////////////////////////////
 /// Database
-/////////////////
+//////////////////////////////////
 const db = (() => {
   const isProd = process.env.NODE_ENV === 'production';
   const DB_FILE = isProd ? 'prod.db' : 'dev.db';
@@ -39,12 +38,13 @@ const db = (() => {
 /////////////////
 /// Middleware
 /////////////////
-import { cliParser } from './middleware/cliParser';
-import { initCheckRegistered } from './middleware/registered';
-import { initDispatcher } from './middleware/dispatcher';
-import { sendMessageHandler } from './middleware/messaging';
+import { initRegisteredHandler } from './middleware/registered-handler';
+import { initParserHandler } from './middleware/parser-handler';
+import { initDispatcher } from './middleware/action-handler';
+import { sendMessageHandler } from './middleware/message-handler';
 
-const checkRegistered = initCheckRegistered(db, zulipMsgSender);
+const registerHandler = initRegisteredHandler(db, templateMessageSender);
+const parserHandler = initParserHandler();
 const dispatchAction = initDispatcher(db);
 
 /////////////////
@@ -63,8 +63,9 @@ app.use((req: types.ILocalsReq, res, next) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
-  checkRegistered,
-  cliParser,
+  registerHandler,
+  parserHandler,
+
   dispatchAction,
   sendMessageHandler,
   (req: types.IZulipRequest, res) => {

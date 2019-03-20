@@ -1,13 +1,22 @@
-/**
+/** ==== Middleware fn that checks registration ====
  * Checks if a given user is registered in the database &
  * prompts user to signup if not registered
  */
 
-// type msgSender = (email: string, options: {}) => void;
-import { msgType } from '../zulip_coms/msgSender';
+/** TODO:
+ * 1) simplify: either user exists or doesn't
+ * case: user exists --> req.local.user && call next
+ * case: user does not exist --> req.local.user with flag of not registered && call next
+ *
+ */
 
-export function initCheckRegistered(db, msgSender) {
-  return function isRegistered(req, res, next) {
+import * as types from '../types';
+
+// TODO: make a generic interface for this msg sender!
+// seperate the concerns so it can handle three events: onSuccessfulSignup, onFailedSignup, promptSignup
+
+export function initRegisteredHandler(db, msgSender) {
+  return (req, res, next) => {
     const senderEmail = req.body.message.sender_email;
     const user = db.user.find(senderEmail);
 
@@ -26,11 +35,13 @@ export function initCheckRegistered(db, msgSender) {
         email: senderEmail,
         full_name: req.body.message.sender_full_name
       });
+
       // TODO: check if sql result was successful or not
       // right now assuming that is was successful
-      msgSender(senderEmail, msgType.SIGNED_UP);
+      // TODO: decouple this message sender or make it more generic
+      msgSender(senderEmail, types.okMsg.SIGNED_UP);
     } else {
-      msgSender(senderEmail, msgType.PROMPT_SIGNUP);
+      msgSender(senderEmail, types.okMsg.PROMPT_SIGNUP);
     }
 
     res.json({});
