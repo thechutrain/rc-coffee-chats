@@ -17,7 +17,7 @@ export interface IZulipRequest extends Express.Request {
     action: IAction;
     errors: IError[];
     sqlResult?: any;
-    msgInfo?: MsgInfo;
+    msgInfo?: IMsgInfo;
   };
 }
 
@@ -59,11 +59,11 @@ export enum Action {
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-  'SHOW_DAYS' = 'SHOW_DAYS'
+  'SHOW_DAYS' = 'SHOW_DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
-  // 'HELP' = 'HELP'
+  'SHOW_HELP' = 'SHOW_HELP'
 }
 
 export interface IAction {
@@ -82,10 +82,10 @@ export interface IReqArg {
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 export interface IActionHandler {
-  fn?: string;
+  fn: string;
   reqArgs?: IReqArg[];
-  okMsg: okMsg;
-  errMsg?: errMsg;
+  // okMsg?: okMsg;
+  // errMsg?: errMsg;
 }
 
 export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
@@ -112,20 +112,13 @@ export interface IErrorDispatchResult {
 ////////////////////////////
 // Messaging
 ////////////////////////////
-// TODO: remove from msgSender
-// interface
-export type MsgInfo = IOkMsg | IErrMsg;
 
-export interface IOkMsg {
-  sendToEmail: string;
-  msgType: okMsg | errMsg;
+export interface IMsg {
+  msgType: msgTemplate;
   msgArgs?: any;
 }
-
-export interface IErrMsg {
+export interface IMsgInfo extends IMsg {
   sendToEmail: string;
-  msgType: errMsg;
-  errType: Errors;
 }
 
 // Required Variables & Types for each msg type
@@ -136,7 +129,8 @@ export interface IErrMsg {
 //   }
 // };
 
-export enum okMsg {
+// TODO: rename okMsg --> msgTemplate? (include error messages?)
+export enum msgTemplate {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
@@ -154,17 +148,18 @@ export enum okMsg {
   // HELP
   'HELP_UPDATE' = 'HELP_UPDATE',
   'HELP_STATUS' = 'HELP_STATUS',
-  'HELP' = 'HELP'
+  'HELP' = 'HELP',
+
+  // Error
+  'ERROR' = 'ERROR'
 }
 
-export enum errMsg {
-  'GENERIC_ERROR' = 'GENERIC_ERROR'
-}
-
+// REMOVE THIS:
 export enum Errors {
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
   'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',
   'NO_VALID_ACTION' = 'NO_VALID_ACTION',
-  'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST'
+  'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST',
+  'NOPE' = 'NOPE' // TODO: temp
 }
