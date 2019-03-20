@@ -5,13 +5,24 @@
 import * as types from '../types';
 
 export const ActionHandlerMap: types.ActionHandlerMap = {
+  PROMPT_SIGNUP: {
+    fn: 'promptSignUp'
+    // okMsg: types.okMsg.PROMPT_SIGNUP
+  },
+  REGISTER: {
+    fn: 'register'
+    // okMsg: types.okMsg.SIGNED_UP
+  },
   UPDATE_DAYS: {
-    fn: 'updateDays',
-    okMsg: types.okMsg.UPDATED_DAYS
+    fn: 'updateDays'
+    // okMsg: types.okMsg.UPDATED_DAYS
   },
   SHOW_DAYS: {
-    fn: 'showDays',
-    okMsg: types.okMsg.STATUS_DAYS
+    fn: 'showDays'
+    // okMsg: types.okMsg.STATUS_DAYS
+  },
+  SHOW_HELP: {
+    fn: 'showHelp'
   }
   // HELP: {}
 };
@@ -20,22 +31,16 @@ export function initDispatcher(db) {
   const dispatcher = new Dispatcher(db);
 
   return (req: types.IZulipRequest, res, next) => {
-    if (req.local.errors.length !== 0) {
+    // Case: errors are already present, skip the dispatcher middleware
+    // Case: no action specified, skip this middleware
+    if (req.local.errors.length !== 0 || req.local.action.type === null) {
       next();
       return;
     }
 
     const { type: actionType, currentUser, targetUser } = req.local.action;
 
-    if (actionType === null) {
-      next();
-      return;
-    } else if (!(actionType in types.Action)) {
-      req.local.errors.push({ errorType: types.Errors.NO_VALID_ACTION });
-      next();
-      return;
-    }
-
+    const { fn } = ActionHandlerMap[actionType];
     const { args: userInput } = req.local.cmd;
     const dispatchArgs: types.IDispatchArgs = {
       currentUser,
@@ -43,54 +48,63 @@ export function initDispatcher(db) {
       userInput
     };
 
-    const { fn, okMsg, errMsg } = ActionHandlerMap[actionType];
-    let dispatchResult: types.DispatchResult;
+    // if (!(actionType in types.Action)) {
+    //   req.local.errors.push({ errorType: types.Errors.NO_VALID_ACTION });
+    //   next();
+    //   return;
+    // }
 
+    // let promisedMsg: Promise<types.IMsg>;
+    let promisedMsg: Promise<types.IMsg>;
     try {
-      dispatchResult = dispatcher[`${fn}`](dispatchArgs);
+      // QUESTION: is this hacky?
+      promisedMsg = dispatcher[`${fn}`](dispatchArgs);
     } catch (e) {
-      console.warn(`Function: ${fn} does not exist on the dispatch class.`);
       const errorMessage = `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is not method handler for this function. Please alert the maintainer of this or create a github issue.`;
+      console.warn(errorMessage);
 
-      // QUESTION: push directly to errors or to msgInfo?
-      // req.local.errors.push({
-      //   errorType: types.ErrorTypes.DISPATCH_ACTION_DOES_NOT_EXIST,
-      //   customMessage: errorMessage
-      // });
+      req.local.errors.push({
+        errorType: types.Errors.DISPATCH_ACTION_DOES_NOT_EXIST,
+        customMessage: errorMessage
+      });
 
       req.local.msgInfo = {
         sendToEmail: currentUser, // TODO: make this an array so admin gets a copy too!
-        msgType: types.errMsg.GENERIC_ERROR,
+        msgType: types.msgTemplate.ERROR,
         msgArgs: {
           errorType: types.Errors.DISPATCH_ACTION_DOES_NOT_EXIST,
           message: errorMessage
         }
       };
-
+      console.log(req.local.msgInfo);
       next();
       return;
     }
 
-    // Case: error dispatching result
-    if (dispatchResult.status === 'OK') {
-      req.local.msgInfo = {
-        sendToEmail: currentUser,
-        msgType: okMsg,
-        msgArgs: dispatchResult
-      };
-    } else {
-      console.log('ERROR: failed to dispatch action');
-      req.local.msgInfo = {
-        sendToEmail: currentUser,
-        msgType: errMsg || types.errMsg.GENERIC_ERROR
-      };
-    }
-    console.log('====== end of dispatch middleware ========');
-    next();
-    return;
+    promisedMsg
+      .then((msgInfo: types.IMsg) => {
+        req.local.msgInfo = { ...msgInfo, sendToEmail: currentUser };
+        console.log(req.local.msgInfo);
+        console.log('====== end of dispatch middleware ========');
+        next();
+      })
+      .catch(error => {
+        req.local.msgInfo = {
+          sendToEmail: currentUser,
+          msgType: types.msgTemplate.ERROR,
+          msgArgs: {
+            errorType: types.Errors.NOPE,
+            message: error
+          }
+        };
+        console.log(req.local.msgInfo);
+        console.log('====== end of dispatch middleware ========');
+        next();
+      });
   };
 }
 
+// NOTE: make all dispatch methods a promise that once they are resolved, create a message with payload:
 export class Dispatcher {
   private db: any;
   // private currUser: string;
@@ -102,9 +116,30 @@ export class Dispatcher {
     // this.targetUser = targetUser || currUser;
   }
 
-  public updateDays(args: types.IDispatchArgs): types.DispatchResult {
-    const { targetUser, userInput } = args;
+  public promptSignUp(args: types.IDispatchArgs): Promise<types.IMsg> {
+    return new Promise(resolve => {
+      resolve({
+        msgType: types.msgTemplate.PROMPT_SIGNUP
+      });
+    });
+  }
 
-    return this.db.user.updateCoffeeDays(targetUser, userInput);
+  public showHelp(args: types.IDispatchArgs): Promise<types.IMsg> {
+    return new Promise(resolve => {
+      resolve({
+        msgType: types.msgTemplate.HELP
+      });
+    });
+  }
+
+  public updateDays(args: types.IDispatchArgs): Promise<types.IMsg> {
+    return new Promise((resolve, reject) => {
+      const { targetUser, userInput } = args;
+      // this.db.user.updateCoffeeDays(targetUser, userInput);
+
+      resolve({
+        msgType: types.msgTemplate.UPDATED_DAYS
+      });
+    });
   }
 }
