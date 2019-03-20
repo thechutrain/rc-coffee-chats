@@ -40,7 +40,7 @@ export interface IParsedCmd {
 
 export interface IValidatedCmd extends IParsedCmd {
   isValid: boolean;
-  action: Action;
+  action: Action | null;
   currentUser: string;
   targetUser: string;
 }

@@ -25,22 +25,37 @@ export function cliParser(req: types.IZulipRequest, res, next) {
   };
 
   const parsedCli = content === '' ? defaultCmd : simpleParser(content);
+  const isValid = isValidCli(parsedCli);
 
-  try {
-    const action = validateCli(parsedCli);
-    req.local.cli = {
-      ...parsedCli,
-      currentUser: req.local.user.email,
-      targetUser: req.local.user.email,
-      isValid: true,
-      action
-    };
-  } catch (e) {
+  req.local.cli = {
+    ...parsedCli,
+    currentUser: req.local.user.email,
+    targetUser: req.local.user.email,
+    isValid,
+    action: isValid ? getAction(parsedCli) : null
+  };
+
+  if (!isValid) {
     req.local.errors.push({
-      errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,
-      customMessage: `${e}`
+      errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION
     });
   }
+
+  // try {
+  //   const action = validateCli(parsedCli);
+  //   req.local.cli = {
+  //     ...parsedCli,
+  //     currentUser: req.local.user.email,
+  //     targetUser: req.local.user.email,
+  //     isValid: true,
+  //     action
+  //   };
+  // } catch (e) {
+  //   req.local.errors.push({
+  //     errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,
+  //     customMessage: `${e}`
+  //   });
+  // }
 
   console.log(req.local.cli);
   console.log(`--- END of cliParser middleware ---`);
@@ -74,7 +89,7 @@ export function isValidCli(cli: types.IParsedCmd): boolean {
   return command in types.Action;
 }
 
-export function validateCli(cli: types.IParsedCmd): types.Action {
+export function getAction(cli: types.IParsedCmd): types.Action {
   const command = cli.subcommand
     ? `${cli.directive}_${cli.subcommand}`
     : `${cli.directive}`;

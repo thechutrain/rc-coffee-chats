@@ -24,7 +24,10 @@ export function initDispatcher(db) {
 
     const action = req.local.cli.action;
 
-    if (!(action in types.Action)) {
+    if (action === null) {
+      next();
+      return;
+    } else if (!(action in types.Action)) {
       req.local.errors.push({ errorType: types.ErrorTypes.NO_VALID_ACTION });
       next();
       return;
