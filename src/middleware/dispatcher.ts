@@ -7,10 +7,14 @@ import { type } from 'os';
 
 export const ActionHandlerMap: types.ActionHandlerMap = {
   UPDATE_DAYS: {
-    fn: 'updateDays'
+    fn: 'updateDays',
+    okMsg: types.okMsg.UPDATED_DAYS
   },
-  SHOW_DAYS: {},
-  HELP: {}
+  SHOW_DAYS: {
+    fn: 'showDays',
+    okMsg: types.okMsg.STATUS_DAYS
+  }
+  // HELP: {}
 };
 
 export function initDispatcher(db) {
@@ -40,32 +44,40 @@ export function initDispatcher(db) {
       userInput
     };
 
-    const fnToDispatch = ActionHandlerMap[action].fn;
-
-    let dispatchResult;
+    const { fn, okMsg, errMsg } = ActionHandlerMap[action];
+    let dispatchResult: types.DispatchResult;
 
     try {
-      dispatchResult = dispatcher[`${fnToDispatch}`](dispatchArgs);
+      dispatchResult = dispatcher[`${fn}`](dispatchArgs);
     } catch (e) {
-      console.log('could not dispatch action');
-    }
+      console.warn(`Function: ${fn} does not exist on the dispatch class.`);
 
-    // Check if dispatch Result has an error
-    if (dispatchResult.status === 'ERROR') {
-      console.log('ERROR: failed to dispatch action');
       req.local.errors.push({
-        errorType: types.ErrorTypes.FAILED_DISPATCHED_ACTION,
-        customMessage: dispatchResult.errorMessage
+        errorType: types.ErrorTypes.DISPATCH_ACTION_DOES_NOT_EXIST,
+        customMessage: `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is not method handler for this function. Please alert the maintainer of this or create a github issue.`
       });
+
+      next();
+      return;
     }
 
-    console.log(dispatchResult);
-    req.local.msgInfo = {
-      sendToEmail: currentUser,
-      msgType: types.okMessages.HELP
-    };
+    // Case: error dispatching result
+    if (dispatchResult.status === 'OK') {
+      req.local.msgInfo = {
+        sendToEmail: currentUser,
+        msgType: okMsg,
+        msgArgs: dispatchResult
+      };
+    } else {
+      console.log('ERROR: failed to dispatch action');
+      req.local.msgInfo = {
+        sendToEmail: currentUser,
+        msgType: errMsg || types.errMsg.GENERIC_ERROR
+      };
+    }
     console.log('====== end of dispatch middleware ========');
     next();
+    return;
   };
 }
 
