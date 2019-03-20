@@ -9,12 +9,6 @@ import {
 import * as types from '../types';
 
 export function messageHandler(req: types.IZulipRequest, res, next) {
-  console.log(`======== TEST ===========`);
-  templateMessageSender(req.local.user.email, types.msgTemplate.ERROR, {
-    errorMessage: 'I am an error message yooooo'
-  });
-  next();
-  return;
   console.log(`======== send message handler ===========`);
   const { currentUser, targetUser } = req.local.action;
   const { errors } = req.local;
@@ -31,13 +25,11 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
         console.warn(`Error trying to sendGenericMEssage: ${e}`);
       }
     });
-    // next();
-    res.json({});
+    next();
     return;
   }
 
   // Case: given a msgType
-  // TEMP:
   const { msgType, sendToEmail, msgArgs } = req.local.msgInfo;
   if (msgType in types.msgTemplate) {
     templateMessageSender(sendToEmail, msgType, msgArgs);
@@ -45,6 +37,5 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
     const msg = JSON.stringify(req.local.msgInfo);
     sendGenericMessage(currentUser, `Req.local.msgInfo: ${msg}`);
   }
-
   next();
 }
