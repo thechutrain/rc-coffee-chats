@@ -11,7 +11,8 @@ export interface IZulipRequest extends Express.Request {
     user: {
       email: string;
     };
-    cli: IValidatedCmd;
+    cli: IParsedCmd;
+    action: IAction;
     errors: IError[];
     sqlResult?: any;
     msgInfo?: MsgInfo;
@@ -38,12 +39,12 @@ export interface IParsedCmd {
   args: string[];
 }
 
-export interface IValidatedCmd extends IParsedCmd {
-  isValid: boolean;
-  action: Action | null;
-  currentUser: string;
-  targetUser: string;
-}
+// export interface IValidatedCmd extends IParsedCmd {
+//   isValid: boolean;
+//   action: Action | null;
+//   currentUser: string;
+//   targetUser: string;
+// }
 
 ////////////////////////////
 // Dispatch, Action, Commands
@@ -59,6 +60,12 @@ export enum Action {
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
   // 'HELP' = 'HELP'
+}
+
+export interface IAction {
+  type: Action | null;
+  currentUser: string;
+  targetUser: string;
 }
 
 export interface IReqArg {

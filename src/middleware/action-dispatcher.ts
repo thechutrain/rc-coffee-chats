@@ -3,7 +3,6 @@
  */
 
 import * as types from '../types';
-import { type } from 'os';
 
 export const ActionHandlerMap: types.ActionHandlerMap = {
   UPDATE_DAYS: {
@@ -26,25 +25,25 @@ export function initDispatcher(db) {
       return;
     }
 
-    const action = req.local.cli.action;
+    const { type: actionType, currentUser, targetUser } = req.local.action;
 
-    if (action === null) {
+    if (actionType === null) {
       next();
       return;
-    } else if (!(action in types.Action)) {
+    } else if (!(actionType in types.Action)) {
       req.local.errors.push({ errorType: types.Errors.NO_VALID_ACTION });
       next();
       return;
     }
 
-    const { currentUser, targetUser, args: userInput } = req.local.cli;
+    const { args: userInput } = req.local.cli;
     const dispatchArgs: types.IDispatchArgs = {
       currentUser,
       targetUser,
       userInput
     };
 
-    const { fn, okMsg, errMsg } = ActionHandlerMap[action];
+    const { fn, okMsg, errMsg } = ActionHandlerMap[actionType];
     let dispatchResult: types.DispatchResult;
 
     try {

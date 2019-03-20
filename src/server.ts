@@ -39,13 +39,13 @@ const db = (() => {
 /// Middleware
 /////////////////
 import { initRegisteredHandler } from './middleware/registered-handler';
-import { initParserHandler } from './middleware/parser-handler';
-import { initDispatcher } from './middleware/action-handler';
-import { sendMessageHandler } from './middleware/message-handler';
+import { parserHandler } from './middleware/parser-handler';
+import { actionCreater } from './middleware/action-creater';
+import { initDispatcher } from './middleware/action-dispatcher';
+import { messageHandler } from './middleware/message-handler';
 
 const registerHandler = initRegisteredHandler(db, templateMessageSender);
-const parserHandler = initParserHandler();
-const dispatchAction = initDispatcher(db);
+const dispatchHandler = initDispatcher(db);
 
 /////////////////
 /// Server
@@ -65,9 +65,9 @@ app.post(
   bodyParser.json(),
   registerHandler,
   parserHandler,
-
-  dispatchAction,
-  sendMessageHandler,
+  actionCreater,
+  dispatchHandler,
+  messageHandler,
   (req: types.IZulipRequest, res) => {
     res.json({});
 

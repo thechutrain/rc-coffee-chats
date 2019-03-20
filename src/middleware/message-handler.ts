@@ -1,10 +1,11 @@
-/**
- * middleware for checking if there is a msg & sending it
+/** ==== middleware for managing the sending of messages
+ * checks req.local.msgInfo & sends message accordingly
+ *
  */
 import { sendGenericMessage } from '../zulip-messenger/msg-sender';
 import * as types from '../types';
 
-export function sendMessageHandler(req: types.IZulipRequest, res, next) {
+export function messageHandler(req: types.IZulipRequest, res, next) {
   console.log(`======== send message handler ===========`);
   const { currentUser } = req.local.cli;
   const { errors } = req.local;

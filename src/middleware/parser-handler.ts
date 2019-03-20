@@ -13,8 +13,7 @@ import { Util } from '../utils/index';
  * @param res
  * @param next
  */
-export function initParserHandler() {
-  return (req: types.IZulipRequest, res, next) => {
+export function parserHandler(req: types.IZulipRequest, res, next) {
     const {
       message: { content }
     } = req.body;
@@ -30,10 +29,10 @@ export function initParserHandler() {
 
     req.local.cli = {
       ...parsedCli,
-      currentUser: req.local.user.email,
-      targetUser: req.local.user.email,
-      isValid,
-      action: isValid ? getAction(parsedCli) : null
+      // currentUser: req.local.user.email,
+      // targetUser: req.local.user.email,
+      // isValid,
+      // action: isValid ? getAction(parsedCli) : null
     };
 
     if (!isValid) {
