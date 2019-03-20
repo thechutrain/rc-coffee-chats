@@ -40,21 +40,22 @@ export interface IParsedCmd {
 
 export interface IValidatedCmd extends IParsedCmd {
   isValid: boolean;
+  action?: Action;
 }
 
 //////////////
 // Commands
 //////////////
-export enum Commands {
+export enum Action {
   'UPDATE_DAYS' = 'UPDATE_DAYS',
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-  'STATUS_DAYS' = 'STATUS_DAYS',
-  // 'STATUS_PREV' = 'STATUS_PREVg',
-  // 'STATUS_SKIP' = 'STATUS_SKIP',
-  // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
+  'SHOW_DAYS' = 'SHOW_DAYS',
+  // 'SHOW_PREV' = 'SHOW_PREVg',
+  // 'SHOW_SKIP' = 'SHOW_SKIP',
+  // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
   'HELP' = 'HELP'
 }
 
@@ -63,12 +64,12 @@ export interface IReqArg {
   type: string;
 }
 export interface IActionHandler {
-  function: string;
-  reqArgs: IReqArg[];
-  onSuccessMsg: okMessages;
+  fn?: string;
+  reqArgs?: IReqArg[];
+  onSuccessMsg?: okMessages;
 }
 
-export type CommandToAction = Record<keyof typeof Commands, IActionHandler>;
+export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
 
 //////////////
 // Messaging
@@ -76,7 +77,7 @@ export type CommandToAction = Record<keyof typeof Commands, IActionHandler>;
 // TODO: remove from msgSender
 export interface IMsg {
   sendToEmail: string;
-  msgType: okMessages | ErrorMessages;
+  msgType: okMessages;
   msgArgs?: any;
 }
 
@@ -107,5 +108,6 @@ export enum okMessages {
 export enum ErrorTypes {
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
+  'NO_VALID_ACTION' = 'NO_VALID_ACTION',
   'FAILED_DISPATCHED_ACTION' = 'FAILED_DISPATCHED_ACTION'
 }

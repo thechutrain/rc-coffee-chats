@@ -25,11 +25,12 @@ export function cliParser(req: types.IZulipRequest, res, next) {
   };
 
   const parsedCli = content === '' ? defaultCmd : simpleParser(content);
-  const isValid = isValidCli(parsedCli);
-  req.local.cli = { ...parsedCli, isValid };
-
-  if (!isValid) {
-    req.local.errors.push({ errorType: types.ErrorTypes.NOT_VALID_COMMAND });
+  // const isValid = isValidCli(parsedCli);
+  try {
+    const action = validateCli(parsedCli);
+    req.local.cli = { ...parsedCli, isValid: true, action };
+  } catch (e) {
+    req.local.cli = { ...parsedCli, isValid: false };
   }
 
   console.log(req.local.cli);
@@ -61,7 +62,18 @@ export function isValidCli(cli: types.IParsedCmd): boolean {
     ? `${cli.directive}_${cli.subcommand}`
     : `${cli.directive}`;
 
-  return command in types.Commands;
+  return command in types.Action;
+}
+
+export function validateCli(cli: types.IParsedCmd): types.Action {
+  const command = cli.subcommand
+    ? `${cli.directive}_${cli.subcommand}`
+    : `${cli.directive}`;
+
+  if (command in types.Action) {
+    return types.Action[command];
+  }
+  throw new Error('Not a valid aciont');
 }
 
 // export function validateCmd(cmd: types.IParsedCmd) {}
@@ -161,4 +173,4 @@ export function isValidCli(cli: types.IParsedCmd): boolean {
 //   }
 // }
 
-// export function dispatchCliAction(cliAction: ICliAction) {}
+// export function dispatchCliAction(cliAction: ICliAction
