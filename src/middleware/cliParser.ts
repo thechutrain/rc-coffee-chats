@@ -7,11 +7,32 @@
 import * as types from '../types';
 import { Util } from '../utils/index';
 
+/** CLI parser middleware
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+export function cliParser(req: types.IZulipRequest, res, next) {
+  const {
+    message: { content }
+  } = req.body;
+
+  const parsedCli = simpleParser(content);
+  const isValid = isValidCli(parsedCli);
+
+  console.log('is it a valid command?');
+  console.log(isValid);
+
+  req.local.cli = parsedCli;
+  next();
+}
+
 /**
  * Given a message string, will try to parse it into directive, subcommand, arguments object
  *
  */
-export function simpleParser(messageContent: string): types.IParsedCli {
+export function simpleParser(messageContent: string): types.IParsedCmd {
   const trimmedContent = messageContent.replace(/^\s+|\s+$/g, '');
 
   const tokenizedArgs = trimmedContent
@@ -26,27 +47,16 @@ export function simpleParser(messageContent: string): types.IParsedCli {
   };
 }
 
-// export function isValidCli(cli: types.IParsedCli): boolean {
-//   return true;
-// }
+export function isValidCli(cli: types.IParsedCmd): boolean {
+  const command = cli.subcommand
+    ? `${cli.directive}_${cli.subcommand}`
+    : `${cli.directive}`;
 
-export function cliParser(req: types.IZulipRequest, res, next) {
-  const {
-    message: { content }
-  } = req.body;
-
-  const parsedCli = simpleParser(content);
-  // QUESTION: validate here? or just go with it and throw an error later
-  // req.local.cli = {
-  //   ...parsedCli,
-  //   isValid: isValidCli(parsedCli)
-  // };
-
-  req.local.cli = parsedCli;
-  console.log('Parsed Cli Successfully:');
-  console.log(req.local.cli);
-  next();
+  return command in types.Commands;
 }
+
+// export function validateCmd(cmd: types.IParsedCmd) {}
+
 // TODO: modularize / separate functionality here
 // parsing vs. validating
 // export function parseZulipServerRequest(

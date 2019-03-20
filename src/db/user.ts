@@ -125,20 +125,32 @@ export function initUserModel(db: sqlite) {
       : { status: 'OK', payload: foundUser };
   }
 
-  function getCoffeeDays(targetEmail: string): ISqlOk | ISqlError {
+  // function getCoffeeDays(targetEmail: string): ISqlOk | ISqlError {
+  //   const { payload: foundUser } = findUserByEmail(targetEmail);
+
+  //   if (!foundUser) {
+  //     return {
+  //       status: 'ERROR',
+  //       message: `No user with email "${targetEmail}" found to update`
+  //     };
+  //   } else {
+  //     return {
+  //       status: 'OK',
+  //       payload: {
+  //         coffeeDays: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
+  //       }
+  //     };
+  //   }
+  // }
+
+  function getCoffeeDays(targetEmail: string): { coffeeDays: number[] } {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 
     if (!foundUser) {
-      return {
-        status: 'ERROR',
-        message: `No user with email "${targetEmail}" found to update`
-      };
+      throw new Error(`No user with email "${targetEmail}" found to update`);
     } else {
       return {
-        status: 'OK',
-        payload: {
-          coffeeDays: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
-        }
+        coffeeDays: foundUser.coffee_days.split('').map(day => WEEKDAYS[day])
       };
     }
   }

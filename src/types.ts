@@ -11,10 +11,10 @@ export interface IZulipRequest extends Express.Request {
     user?: {
       email: string;
     };
-    cli?: IParsedCli;
+    cli?: IParsedCmd;
     errors: IError[];
     sqlResult?: any;
-    msgInfo?: any;
+    msgInfo?: IMsg;
   };
 }
 
@@ -32,26 +32,55 @@ export enum CliDirectives {
   HELP = 'HELP'
 }
 
-export interface IParsedCli {
+export interface IParsedCmd {
   directive: string | null;
   subcommand: string | null;
   args: string[];
 }
 
-export interface IValidatedCli extends IParsedCli {
+export interface IValidatedCmd extends IParsedCmd {
   isValid: boolean;
 }
 
-// export enum StatusSubCmds {
-//   'days' = 'days',
-//   'all' = 'all'
-// }
+//////////////
+// Commands
+//////////////
+export enum Commands {
+  'UPDATE_DAYS' = 'UPDATE_DAYS',
+  // 'UPDATE_SKIP' = 'UPDATE_SKIP',
+  // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
+  // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
+  // ===== NOTE: change status to show!
+  'STATUS_DAYS' = 'STATUS_DAYS',
+  // 'STATUS_PREV' = 'STATUS_PREVg',
+  // 'STATUS_SKIP' = 'STATUS_SKIP',
+  // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
+  'HELP' = 'HELP'
+}
+
+export interface IReqArg {
+  name: string;
+  type: string;
+}
+export interface IActionHandler {
+  function: string;
+  reqArgs: IReqArg[];
+  onSuccessMsg: okMessages;
+}
+
+export type CommandToAction = Record<keyof typeof Commands, IActionHandler>;
 
 //////////////
 // Messaging
 //////////////
 // TODO: remove from msgSender
-export enum msgType {
+export interface IMsg {
+  sendToEmail: string;
+  msgType: okMessages | ErrorMessages;
+  msgArgs?: any;
+}
+
+export enum okMessages {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
@@ -76,5 +105,6 @@ export enum msgType {
 }
 
 export enum ErrorMessages {
-  'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE'
+  'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
+  'FAILED_DISPATCHED_ACTION' = 'FAILED_DISPATCHED_ACTION'
 }

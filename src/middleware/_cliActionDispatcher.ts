@@ -16,6 +16,7 @@ export function initCliActionDispatcher(db) {
     // If there are errors do not attempt to dispatch action
     if (req.local.errors.length !== 0) next();
 
+    // const email = req.local.user.email;
     const { directive: rawDirective, subcommand, args } = req.local
       .cli as types.IParsedCli;
     let directive = rawDirective;
@@ -40,7 +41,7 @@ export function initCliActionDispatcher(db) {
       switch (directive) {
         case types.CliDirectives.STATUS:
           console.log('Received STATUS request');
-          StatusHandler.dispatch(subcommand, args);
+          StatusHandler.dispatch(subcommand, args, email);
           break;
         case types.CliDirectives.UPDATE:
           console.log('Received UPDATE request');
@@ -63,6 +64,11 @@ export function initCliActionDispatcher(db) {
       //   msgType: types.ErrorMessages.
       // })
     }
+
+    req.local.msgInfo = {
+      sendMsg: true
+      // msgType: types.msg
+    };
 
     next();
   };

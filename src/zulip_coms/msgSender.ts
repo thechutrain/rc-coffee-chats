@@ -69,7 +69,7 @@ const msgTypeRules: msgTypeEnum = {
 export function sendMessage(
   toEmail: string | string[],
   messageContent: string
-): Promise<any> {
+) {
   const rawData = {
     type: 'private',
     to: toEmail instanceof Array ? toEmail.join(', ') : toEmail,

@@ -1,3 +1,5 @@
+import * as types from '../types';
+
 export class Status {
   private db: any;
 
@@ -5,7 +7,11 @@ export class Status {
     this.db = db;
   }
 
-  public dispatch(subCommand: string | null, args: any[]) {
+  public dispatch(
+    subCommand: string | null,
+    args: any[],
+    targetEmail?: string
+  ): any {
     // Get All the dispatchable methods:
     const nonDispatchableMethods = ['constructor', 'dispatch'];
     const proto = Reflect.getPrototypeOf(this);
@@ -13,24 +19,21 @@ export class Status {
       (f: string) => nonDispatchableMethods.indexOf(f) === -1
     );
 
-    // TEMP: no subCmd given --> get all info
+    // TEMP:
     const subCmd = subCommand === null ? 'days' : subCommand.toLowerCase();
     const isValidSubCmd = dispatchableMethods.indexOf(subCmd) !== -1;
 
+    // let messageType;
+    let messageContent;
+
     // Case: valid subcommand
     if (isValidSubCmd) {
-      let dispatchResult;
       try {
-        dispatchResult = this[subCmd].call(this, args);
+        messageContent = this[subCmd].call(this, args);
       } catch (e) {
-        console.log(`Error trying to invoke: ${subCmd}`);
-        // dispatchResult = {
-        //   error: true,
-        //   errorMsg: ''
-        // };
+        messageContent = `Error trying to invoke: ${subCmd}`;
+        console.log(messageContent);
       }
-
-      return dispatchResult;
     }
     // else if (this.defaultSubCmd) {
     //   console.log('doing the default sub command');
@@ -41,13 +44,18 @@ export class Status {
     }
   }
 
-  public days(): string {
-    // debug.user.find()
+  public days(rawArgs, targetUser) {
+    const userDays = this.db.user.getCofeeDays(targetUser);
+
     console.log('days was invoked!!');
     return 'MON TUE WED';
   }
-}
 
-// new Status('db');
-// const s = new Status();
-// s.dispatch('DAY');
+  public warnings() {
+    console.log('warnings was invoked');
+  }
+
+  public skip() {
+    console.log('skip was invoked');
+  }
+}
