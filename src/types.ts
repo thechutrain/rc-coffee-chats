@@ -11,7 +11,7 @@ export interface IZulipRequest extends Express.Request {
     user?: {
       email: string;
     };
-    cli?: IParsedCmd;
+    cli?: IValidatedCmd;
     errors: IError[];
     sqlResult?: any;
     msgInfo?: IMsg;
@@ -19,8 +19,8 @@ export interface IZulipRequest extends Express.Request {
 }
 
 export interface IError {
-  msgType: ErrorMessages;
-  customMessage: string;
+  errorType: ErrorTypes;
+  customMessage?: string;
 }
 
 //////////////
@@ -104,7 +104,8 @@ export enum okMessages {
   'ERROR' = 'ERROR'
 }
 
-export enum ErrorMessages {
+export enum ErrorTypes {
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
+  'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
   'FAILED_DISPATCHED_ACTION' = 'FAILED_DISPATCHED_ACTION'
 }

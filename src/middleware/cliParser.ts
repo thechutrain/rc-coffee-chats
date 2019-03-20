@@ -18,13 +18,22 @@ export function cliParser(req: types.IZulipRequest, res, next) {
     message: { content }
   } = req.body;
 
-  const parsedCli = simpleParser(content);
+  const defaultCmd: types.IParsedCmd = {
+    directive: types.CliDirectives.HELP,
+    subcommand: null,
+    args: []
+  };
+
+  const parsedCli = content === '' ? defaultCmd : simpleParser(content);
   const isValid = isValidCli(parsedCli);
+  req.local.cli = { ...parsedCli, isValid };
 
-  console.log('is it a valid command?');
-  console.log(isValid);
+  if (!isValid) {
+    req.local.errors.push({ errorType: types.ErrorTypes.NOT_VALID_COMMAND });
+  }
 
-  req.local.cli = parsedCli;
+  console.log(req.local.cli);
+  console.log(`--- END of cliParser middleware ---`);
   next();
 }
 
