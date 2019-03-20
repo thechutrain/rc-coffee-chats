@@ -23,8 +23,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     currentUser: email
   };
 
+  console.log('req.local.action: ');
   console.log(req.local.action);
-  console.log('========= END of actionCreater middleware ==========');
+  console.log('========= END of actionCreater middleware ==========\n\n');
   next();
 }
 
