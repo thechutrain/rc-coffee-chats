@@ -30,9 +30,12 @@ export function initDispatcher(db) {
     }
 
     const currUser = req.local.user.email;
+    // const targetUser = currUser;
+    const fn = ActionHandlerMap[action].fn;
+    console.log(`FN: ${fn}`);
     let dispatchResult;
     try {
-      dispatchResult = dispatcher[`${action}`](currUser);
+      dispatchResult = dispatcher[`${fn}`](currUser);
     } catch (e) {
       console.log('could not dispatch action');
     }
