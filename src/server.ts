@@ -36,7 +36,7 @@ import { actionCreater } from './middleware/action-creater';
 import { initDispatcher } from './middleware/action-dispatcher';
 import { messageHandler } from './middleware/message-handler';
 
-const registerHandler = initRegisteredHandler(db, templateMessageSender);
+const registerHandler = initRegisteredHandler(db);
 const dispatchHandler = initDispatcher(db);
 
 /////////////////
