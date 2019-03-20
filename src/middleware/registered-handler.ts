@@ -20,9 +20,21 @@ export function initRegisteredHandler(db, msgSender) {
     const senderEmail = req.body.message.sender_email;
     const user = db.user.find(senderEmail);
 
+    req.local.user = {
+      email: senderEmail,
+      isRegistered: !!user
+    };
+    console.log(req.local.user);
+    console.log('===== END registeredMiddleware =====');
+    next();
+    return;
+
     // CASE: already registered user --> proceed
     if (user) {
-      req.local.user = user;
+      req.local.user = {
+        email: senderEmail,
+        isRegistered: true
+      };
       next();
       return;
     }

@@ -10,6 +10,8 @@ export interface IZulipRequest extends Express.Request {
   local: {
     user: {
       email: string;
+      isRegistered: boolean;
+      // is admin?
     };
     cli: IParsedCmd;
     action: IAction;
@@ -65,7 +67,7 @@ export enum Action {
 export interface IAction {
   type: Action | null;
   currentUser: string;
-  targetUser: string;
+  targetUser?: string;
 }
 
 export interface IReqArg {

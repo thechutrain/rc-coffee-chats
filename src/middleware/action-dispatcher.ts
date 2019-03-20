@@ -39,7 +39,7 @@ export function initDispatcher(db) {
     const { args: userInput } = req.local.cli;
     const dispatchArgs: types.IDispatchArgs = {
       currentUser,
-      targetUser,
+      targetUser: targetUser || currentUser,
       userInput
     };
 
