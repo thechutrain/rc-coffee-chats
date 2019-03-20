@@ -15,9 +15,6 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
       ? types.Action.REGISTER
       : types.Action.PROMPT_SIGNUP;
   } else {
-    // Case: registered user
-    // 1) valid command
-    // 2) not valid command
     actionType = getAction(req.local.cmd);
   }
 
@@ -31,14 +28,7 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   next();
 }
 
-// export function isValidCli(cli: types.IParsedCmd): boolean {
-//   const command = cli.subcommand
-//     ? `${cli.directive}_${cli.subcommand}`
-//     : `${cli.directive}`;
-
-//   return command in types.Action;
-// }
-
+// NOTE: will never return null action, by default will return HELP action
 export function getAction(cli: types.IParsedCmd): types.Action | null {
   const command = cli.subcommand
     ? `${cli.directive}_${cli.subcommand}`
@@ -47,6 +37,6 @@ export function getAction(cli: types.IParsedCmd): types.Action | null {
   if (command in types.Action) {
     return types.Action[command];
   } else {
-    return null;
+    return types.Action.SHOW_HELP;
   }
 }
