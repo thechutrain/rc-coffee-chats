@@ -18,7 +18,7 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     // Case: registered user
     // 1) valid command
     // 2) not valid command
-    actionType = getAction(req.local.cli);
+    actionType = getAction(req.local.cmd);
   }
 
   req.local.action = {

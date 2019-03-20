@@ -13,7 +13,7 @@ export interface IZulipRequest extends Express.Request {
       isRegistered: boolean;
       // is admin?
     };
-    cli: IParsedCmd;
+    cmd: IParsedCmd;
     action: IAction;
     errors: IError[];
     sqlResult?: any;

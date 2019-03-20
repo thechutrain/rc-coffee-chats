@@ -17,7 +17,7 @@ export function parserHandler(req: types.IZulipRequest, res, next) {
     message: { content }
   } = req.body;
 
-  req.local.cli = simpleParser(content);
+  req.local.cmd = _parseContent(content);
   console.log('===== END of parser-handler middleware ====');
   next();
   return;

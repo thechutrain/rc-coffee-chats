@@ -36,7 +36,7 @@ export function initDispatcher(db) {
       return;
     }
 
-    const { args: userInput } = req.local.cli;
+    const { args: userInput } = req.local.cmd;
     const dispatchArgs: types.IDispatchArgs = {
       currentUser,
       targetUser: targetUser || currentUser,
