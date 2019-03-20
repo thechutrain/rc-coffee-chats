@@ -50,7 +50,7 @@ export function sendGenericMessage(
  */
 export function templateMessageSender(
   toEmail: string | string[],
-  messageType: types.okMsg,
+  messageType: types.msgTemplate,
   msgOpt: any = {}
 ) {
   const messageContent = createMessageContent(messageType, msgOpt);
@@ -63,7 +63,7 @@ export function templateMessageSender(
  * @param overloadArgs
  */
 export function createMessageContent(
-  messageType: types.okMsg,
+  messageType: types.msgTemplate,
   overloadArgs = {}
 ): string {
   let content = '';
@@ -72,26 +72,26 @@ export function createMessageContent(
   // TODO: Validate that for each msgType, required parameters are there
 
   switch (messageType) {
-    case types.okMsg.PROMPT_SIGNUP:
+    case types.msgTemplate.PROMPT_SIGNUP:
       content = `Hello there! I'm :coffee: bot!
       You are not currently registered as a user of coffee chats
       Type SIGNUP to join`;
       break;
 
-    case types.okMsg.SIGNED_UP:
+    case types.msgTemplate.SIGNED_UP:
       content = `You've successfully been added to coffee chat!
       Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`;
       break;
     ////////////////////////
     // UPDATE messages
     ////////////////////////
-    case types.okMsg.UPDATED_DAYS:
+    case types.msgTemplate.UPDATED_DAYS:
       content = `You have successfully updated your coffee chat days to: ${strVars.days.join(
         ' '
       )}`;
       break;
 
-    case types.okMsg.UPDATED_WARNINGS:
+    case types.msgTemplate.UPDATED_WARNINGS:
       content = `You have successfully updated your warning settings to be: ${
         strVars.warnings ? 'ON' : 'OFF'
       }`;
@@ -100,23 +100,23 @@ export function createMessageContent(
     ////////////////////////
     // STATUS messages
     ////////////////////////
-    case types.okMsg.STATUS:
+    case types.msgTemplate.STATUS:
       content = `You have had ${strVars.num_of_chats} number of chats so far`;
       break;
 
-    case types.okMsg.STATUS_DAYS:
+    case types.msgTemplate.STATUS_DAYS:
       content = `You are currently set to have coffee chats on the following days: ${
         strVars.days
       }`;
       break;
 
-    case types.okMsg.STATUS_WARNINGS:
+    case types.msgTemplate.STATUS_WARNINGS:
       content = `Your reminder warnings are currently set to be: ${
         strVars.warnings
       }`;
       break;
 
-    case types.okMsg.STATUS_SKIP:
+    case types.msgTemplate.STATUS_SKIP:
       content = `You will ${
         strVars.skipNext ? '' : 'NOT'
       } be skipping your next match. `;
@@ -125,7 +125,7 @@ export function createMessageContent(
     ////////////////////////
     // HELP messages
     ////////////////////////
-    case types.okMsg.HELP:
+    case types.msgTemplate.HELP:
       content = `Hi! I'm :coffee: bot and I'm here to help! 
       To talk to me, enter a valid command that begins with the following: 
       \`\`\`UPDATE | STATUS | HELP\`\`\`
@@ -137,7 +137,9 @@ export function createMessageContent(
       break;
 
     default:
-      content = `${types.okMsg[messageType]} custom message not yet defined`;
+      content = `${
+        types.msgTemplate[messageType]
+      } custom message not yet defined`;
       break;
   }
 
