@@ -49,18 +49,16 @@ export function sendMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
-  return axios(
-    JSON.stringify({
-      method: 'post',
-      baseURL: process.env.ZULIP_URL_ENDPOINT,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      auth: {
-        username: process.env.ZULIP_BOT_USERNAME,
-        password: process.env.ZULIP_BOT_API_KEY
-      },
-      data: dataAsQueryParams
-    })
-  );
+  return axios({
+    method: 'post',
+    baseURL: process.env.ZULIP_URL_ENDPOINT,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    auth: {
+      username: process.env.ZULIP_BOT_USERNAME,
+      password: process.env.ZULIP_BOT_API_KEY
+    },
+    data: dataAsQueryParams
+  });
 }
