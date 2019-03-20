@@ -13,6 +13,10 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   // Case: registered user
   // 1) valid command
   // 2) not valid command
+  req.local.action = {
+    type: null,
+    currentUser: req.local.user.email
+  };
   console.log('========= END of actionCreater middleware ==========');
   next();
 }

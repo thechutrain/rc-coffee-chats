@@ -10,14 +10,6 @@ import * as types from './types';
 import { initDB } from './db';
 import { parseStrAsBool, validatePayload } from './utils/';
 
-import {
-  directives,
-  UpdateSubCommands,
-  StatusSubCommands,
-  HelpSubCommands
-} from './zulip_coms/cli.interface';
-
-// import { ISqlOk, ISqlError } from './db/db.interface';
 //////////////////////////////////
 // Messaging Services
 //////////////////////////////////
