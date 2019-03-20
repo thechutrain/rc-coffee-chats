@@ -14,53 +14,52 @@ import { Util } from '../utils/index';
  * @param next
  */
 export function parserHandler(req: types.IZulipRequest, res, next) {
-    const {
-      message: { content }
-    } = req.body;
+  const {
+    message: { content }
+  } = req.body;
 
-    const defaultCmd: types.IParsedCmd = {
-      directive: types.CliDirectives.HELP,
-      subcommand: null,
-      args: []
-    };
-
-    const parsedCli = content === '' ? defaultCmd : simpleParser(content);
-    const isValid = isValidCli(parsedCli);
-
-    req.local.cli = {
-      ...parsedCli,
-      // currentUser: req.local.user.email,
-      // targetUser: req.local.user.email,
-      // isValid,
-      // action: isValid ? getAction(parsedCli) : null
-    };
-
-    if (!isValid) {
-      req.local.errors.push({
-        errorType: types.Errors.COULD_NOT_VALIDATE_ACTION
-      });
-    }
-
-    // try {
-    //   const action = validateCli(parsedCli);
-    //   req.local.cli = {
-    //     ...parsedCli,
-    //     currentUser: req.local.user.email,
-    //     targetUser: req.local.user.email,
-    //     isValid: true,
-    //     action
-    //   };
-    // } catch (e) {
-    //   req.local.errors.push({
-    //     errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,
-    //     customMessage: `${e}`
-    //   });
-    // }
-
-    console.log(req.local.cli);
-    console.log(`--- END of cliParser middleware ---`);
-    next();
+  const defaultCmd: types.IParsedCmd = {
+    directive: types.CliDirectives.HELP,
+    subcommand: null,
+    args: []
   };
+
+  const parsedCli = content === '' ? defaultCmd : simpleParser(content);
+  const isValid = isValidCli(parsedCli);
+
+  req.local.cli = {
+    ...parsedCli
+    // currentUser: req.local.user.email,
+    // targetUser: req.local.user.email,
+    // isValid,
+    // action: isValid ? getAction(parsedCli) : null
+  };
+
+  if (!isValid) {
+    req.local.errors.push({
+      errorType: types.Errors.COULD_NOT_VALIDATE_ACTION
+    });
+  }
+
+  // try {
+  //   const action = validateCli(parsedCli);
+  //   req.local.cli = {
+  //     ...parsedCli,
+  //     currentUser: req.local.user.email,
+  //     targetUser: req.local.user.email,
+  //     isValid: true,
+  //     action
+  //   };
+  // } catch (e) {
+  //   req.local.errors.push({
+  //     errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,
+  //     customMessage: `${e}`
+  //   });
+  // }
+
+  console.log(req.local.cli);
+  console.log(`--- END of cliParser middleware ---`);
+  next();
 }
 
 /**

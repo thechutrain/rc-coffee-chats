@@ -7,7 +7,7 @@ import * as types from '../types';
 
 export function messageHandler(req: types.IZulipRequest, res, next) {
   console.log(`======== send message handler ===========`);
-  const { currentUser } = req.local.cli;
+  const { currentUser, targetUser } = req.local.action;
   const { errors } = req.local;
 
   // Case: handle error messages
@@ -17,7 +17,11 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
         ? `ERROR: ${err.customMessage}`
         : `Error`;
       console.log('there was an error, sending error message ....');
-      sendGenericMessage(currentUser, messageContent);
+      try {
+        sendGenericMessage(currentUser, messageContent);
+      } catch (e) {
+        console.warn(`Error trying to sendGenericMEssage: ${e}`);
+      }
     });
     // next();
     res.json({});
