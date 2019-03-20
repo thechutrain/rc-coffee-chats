@@ -8,10 +8,10 @@ export interface ILocalsReq extends Express.Request {
 export interface IZulipRequest extends Express.Request {
   body: any;
   local: {
-    user?: {
+    user: {
       email: string;
     };
-    cli?: IValidatedCmd;
+    cli: IValidatedCmd;
     errors: IError[];
     sqlResult?: any;
     msgInfo?: IMsg;
@@ -40,7 +40,7 @@ export interface IParsedCmd {
 
 export interface IValidatedCmd extends IParsedCmd {
   isValid: boolean;
-  action?: Action;
+  action: Action;
 }
 
 //////////////
@@ -108,6 +108,7 @@ export enum okMessages {
 export enum ErrorTypes {
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
+  'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',
   'NO_VALID_ACTION' = 'NO_VALID_ACTION',
   'FAILED_DISPATCHED_ACTION' = 'FAILED_DISPATCHED_ACTION'
 }

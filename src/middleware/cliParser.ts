@@ -25,13 +25,17 @@ export function cliParser(req: types.IZulipRequest, res, next) {
   };
 
   const parsedCli = content === '' ? defaultCmd : simpleParser(content);
-  // const isValid = isValidCli(parsedCli);
+  let action;
   try {
-    const action = validateCli(parsedCli);
-    req.local.cli = { ...parsedCli, isValid: true, action };
+    action = validateCli(parsedCli);
   } catch (e) {
-    req.local.cli = { ...parsedCli, isValid: false };
+    req.local.errors.push({
+      errorType: types.ErrorTypes.COULD_NOT_VALIDATE_ACTION,
+      customMessage: `${e}`
+    });
   }
+
+  req.local.cli = { ...parsedCli, isValid: true, action };
 
   console.log(req.local.cli);
   console.log(`--- END of cliParser middleware ---`);
