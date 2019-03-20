@@ -60,7 +60,7 @@ export function initDispatcher(db) {
       // QUESTION: is this hacky?
       promisedMsg = dispatcher[`${fn}`](dispatchArgs);
     } catch (e) {
-      const errorMessage = `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is not method handler for this function. Please alert the maintainer of this or create a github issue.`;
+      const errorMessage = `Error: ${fn}() does not exist on the dispatcher class. This is a valid action, but there is no method handler for this function. Please alert the maintainer of this or create a github issue.`;
       console.warn(errorMessage);
 
       req.local.errors.push({
@@ -117,6 +117,14 @@ export class Dispatcher {
   }
 
   public promptSignUp(args: types.IDispatchArgs): Promise<types.IMsg> {
+    return new Promise(resolve => {
+      resolve({
+        msgType: types.msgTemplate.PROMPT_SIGNUP
+      });
+    });
+  }
+
+  public register(args: types.IDispatchArgs): Promise<types.IMsg> {
     return new Promise(resolve => {
       resolve({
         msgType: types.msgTemplate.PROMPT_SIGNUP
