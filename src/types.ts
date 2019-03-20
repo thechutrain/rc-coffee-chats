@@ -1,6 +1,6 @@
-//////////////
+////////////////////////////
 // Request
-//////////////
+////////////////////////////
 export interface ILocalsReq extends Express.Request {
   body: any;
   local?: any;
@@ -23,9 +23,9 @@ export interface IError {
   customMessage?: string;
 }
 
-//////////////
+////////////////////////////
 // Cli
-//////////////
+////////////////////////////
 export enum CliDirectives {
   UPDATE = 'UPDATE',
   STATUS = 'STATUS',
@@ -45,20 +45,20 @@ export interface IValidatedCmd extends IParsedCmd {
   targetUser: string;
 }
 
-//////////////
+////////////////////////////
 // Dispatch, Action, Commands
-//////////////
+////////////////////////////
 export enum Action {
   'UPDATE_DAYS' = 'UPDATE_DAYS',
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-  'SHOW_DAYS' = 'SHOW_DAYS',
-  // 'SHOW_PREV' = 'SHOW_PREVg',
+  'SHOW_DAYS' = 'SHOW_DAYS'
+  // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
-  'HELP' = 'HELP'
+  // 'HELP' = 'HELP'
 }
 
 export interface IReqArg {
@@ -73,14 +73,15 @@ export interface IReqArg {
 export interface IActionHandler {
   fn?: string;
   reqArgs?: IReqArg[];
-  onSuccessMsg?: okMessages;
+  okMsg: okMsg;
+  errMsg?: errMsg;
 }
 
 export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
 
-//////////////
+////////////////////////////
 // Dispatch Results
-//////////////
+////////////////////////////
 
 export interface IDispatchArgs {
   currentUser: string;
@@ -97,17 +98,26 @@ export interface IErrorDispatchResult {
   errorMessage: string;
 }
 
-//////////////
+////////////////////////////
 // Messaging
-//////////////
+////////////////////////////
 // TODO: remove from msgSender
+// interface
 export interface IMsg {
   sendToEmail: string;
-  msgType: okMessages;
+  msgType: okMsg | errMsg;
   msgArgs?: any;
 }
 
-export enum okMessages {
+// Required Variables & Types for each msg type
+// TODO: add-in the required variable types
+// type msgTypeEnum = {
+//   [k in okMsg]: {
+//     reqVars: string[];
+//   }
+// };
+
+export enum okMsg {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
@@ -125,10 +135,11 @@ export enum okMessages {
   // HELP
   'HELP_UPDATE' = 'HELP_UPDATE',
   'HELP_STATUS' = 'HELP_STATUS',
-  'HELP' = 'HELP',
+  'HELP' = 'HELP'
+}
 
-  // ERROR
-  'ERROR' = 'ERROR'
+export enum errMsg {
+  'GENERIC_ERROR' = 'GENERIC_ERROR'
 }
 
 export enum ErrorTypes {
@@ -136,5 +147,5 @@ export enum ErrorTypes {
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
   'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',
   'NO_VALID_ACTION' = 'NO_VALID_ACTION',
-  'FAILED_DISPATCHED_ACTION' = 'FAILED_DISPATCHED_ACTION'
+  'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST'
 }
