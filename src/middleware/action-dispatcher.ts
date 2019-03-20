@@ -126,7 +126,7 @@ export class Dispatcher {
 
   public register(args: types.IDispatchArgs): Promise<types.IMsg> {
     return new Promise(resolve => {
-      const { status } = this.db.user.addUser({
+      const { status } = this.db.user.add({
         email: args.currentUser,
         full_name: args.currentUser // TODO: get this from req.body.message ...
       });
