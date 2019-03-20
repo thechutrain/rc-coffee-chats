@@ -126,9 +126,23 @@ export class Dispatcher {
 
   public register(args: types.IDispatchArgs): Promise<types.IMsg> {
     return new Promise(resolve => {
-      resolve({
-        msgType: types.msgTemplate.PROMPT_SIGNUP
+      const { status } = this.db.user.addUser({
+        email: args.currentUser,
+        full_name: args.currentUser // TODO: get this from req.body.message ...
       });
+
+      if (status === 'OK') {
+        resolve({
+          msgType: types.msgTemplate.SIGNED_UP
+        });
+      } else {
+        resolve({
+          msgType: types.msgTemplate.ERROR,
+          msgArgs: {
+            errorMessage: `Could not register new user`
+          }
+        });
+      }
     });
   }
 
