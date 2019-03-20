@@ -2,10 +2,19 @@
  * checks req.local.msgInfo & sends message accordingly
  *
  */
-import { sendGenericMessage } from '../zulip-messenger/msg-sender';
+import {
+  sendGenericMessage,
+  templateMessageSender
+} from '../zulip-messenger/msg-sender';
 import * as types from '../types';
 
 export function messageHandler(req: types.IZulipRequest, res, next) {
+  console.log(`======== TEST ===========`);
+  templateMessageSender(req.local.user.email, types.msgTemplate.ERROR, {
+    errorMessage: 'I am an error message yooooo'
+  });
+  next();
+  return;
   console.log(`======== send message handler ===========`);
   const { currentUser, targetUser } = req.local.action;
   const { errors } = req.local;
@@ -16,7 +25,6 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
       const messageContent = err.customMessage
         ? `ERROR: ${err.customMessage}`
         : `Error`;
-      console.log('there was an error, sending error message ....');
       try {
         sendGenericMessage(currentUser, messageContent);
       } catch (e) {
@@ -30,7 +38,13 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
 
   // Case: given a msgType
   // TEMP:
-  const msg = JSON.stringify(req.local.msgInfo);
-  sendGenericMessage(currentUser, `Req.local.msgInfo: ${msg}`);
+  const { msgType, sendToEmail, msgArgs } = req.local.msgInfo;
+  if (msgType in types.msgTemplate) {
+    templateMessageSender(sendToEmail, msgType, msgArgs);
+  } else {
+    const msg = JSON.stringify(req.local.msgInfo);
+    sendGenericMessage(currentUser, `Req.local.msgInfo: ${msg}`);
+  }
+
   next();
 }

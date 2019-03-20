@@ -140,14 +140,14 @@ export class Dispatcher {
     });
   }
 
-  public updateDays(args: types.IDispatchArgs): Promise<types.IMsg> {
-    return new Promise((resolve, reject) => {
-      const { targetUser, userInput } = args;
-      // this.db.user.updateCoffeeDays(targetUser, userInput);
+  // public updateDays(args: types.IDispatchArgs): Promise<types.IMsg> {
+  //   return new Promise((resolve, reject) => {
+  //     const { targetUser, userInput } = args;
+  //     // this.db.user.updateCoffeeDays(targetUser, userInput);
 
-      resolve({
-        msgType: types.msgTemplate.UPDATED_DAYS
-      });
-    });
-  }
+  //     resolve({
+  //       msgType: types.msgTemplate.UPDATED_DAYS
+  //     });
+  //   });
+  // }
 }

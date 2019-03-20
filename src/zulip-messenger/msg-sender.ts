@@ -67,7 +67,37 @@ export function createMessageContent(
   overloadArgs = {}
 ): string {
   let content = '';
-  const strVars: any = overloadArgs;
+  const vars: any = overloadArgs;
+
+  const msgCreaterMap: types.msgCreaterMap = {
+    PROMPT_SIGNUP: {
+      template: `Hello there! I'm :coffee: bot!
+      You are not currently registered as a user of coffee chats
+      Type SIGNUP to join`
+    },
+    SIGNED_UP: {
+      template: `You've successfully been added to coffee chat!
+      Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
+    },
+    HELP: {
+      template: `Hi! I'm :coffee: bot and I'm here to help! 
+      To talk to me, enter a valid command that begins with the following: 
+      \`\`\`UPDATE | STATUS | HELP\`\`\`
+      I'm also open-sourced, so you can help contribute and make me better :smile:
+      You can see find my inner workings @ [github](${
+        process.env.HELP_URL
+      }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
+      `
+    },
+    ERROR: {
+      template: `Error! \n ${vars.errorMessage}`,
+      reqVars: {
+        errorMessage: String
+      }
+    }
+  };
+
+  return msgCreaterMap[messageType].template;
 
   // TODO: Validate that for each msgType, required parameters are there
 
@@ -85,42 +115,42 @@ export function createMessageContent(
     ////////////////////////
     // UPDATE messages
     ////////////////////////
-    case types.msgTemplate.UPDATED_DAYS:
-      content = `You have successfully updated your coffee chat days to: ${strVars.days.join(
-        ' '
-      )}`;
-      break;
+    // case types.msgTemplate.UPDATED_DAYS:
+    //   content = `You have successfully updated your coffee chat days to: ${strVars.days.join(
+    //     ' '
+    //   )}`;
+    //   break;
 
-    case types.msgTemplate.UPDATED_WARNINGS:
-      content = `You have successfully updated your warning settings to be: ${
-        strVars.warnings ? 'ON' : 'OFF'
-      }`;
-      break;
+    // case types.msgTemplate.UPDATED_WARNINGS:
+    //   content = `You have successfully updated your warning settings to be: ${
+    //     strVars.warnings ? 'ON' : 'OFF'
+    //   }`;
+    //   break;
 
     ////////////////////////
     // STATUS messages
     ////////////////////////
-    case types.msgTemplate.STATUS:
-      content = `You have had ${strVars.num_of_chats} number of chats so far`;
-      break;
+    // case types.msgTemplate.STATUS:
+    //   content = `You have had ${strVars.num_of_chats} number of chats so far`;
+    //   break;
 
-    case types.msgTemplate.STATUS_DAYS:
-      content = `You are currently set to have coffee chats on the following days: ${
-        strVars.days
-      }`;
-      break;
+    // case types.msgTemplate.STATUS_DAYS:
+    //   content = `You are currently set to have coffee chats on the following days: ${
+    //     strVars.days
+    //   }`;
+    //   break;
 
-    case types.msgTemplate.STATUS_WARNINGS:
-      content = `Your reminder warnings are currently set to be: ${
-        strVars.warnings
-      }`;
-      break;
+    // case types.msgTemplate.STATUS_WARNINGS:
+    //   content = `Your reminder warnings are currently set to be: ${
+    //     strVars.warnings
+    //   }`;
+    //   break;
 
-    case types.msgTemplate.STATUS_SKIP:
-      content = `You will ${
-        strVars.skipNext ? '' : 'NOT'
-      } be skipping your next match. `;
-      break;
+    // case types.msgTemplate.STATUS_SKIP:
+    //   content = `You will ${
+    //     strVars.skipNext ? '' : 'NOT'
+    //   } be skipping your next match. `;
+    //   break;
 
     ////////////////////////
     // HELP messages

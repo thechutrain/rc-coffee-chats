@@ -17,7 +17,7 @@ export interface IZulipRequest extends Express.Request {
     action: IAction;
     errors: IError[];
     sqlResult?: any;
-    msgInfo?: IMsgInfo;
+    msgInfo: IMsgInfo;
   };
 }
 
@@ -129,30 +129,34 @@ export interface IMsgInfo extends IMsg {
 //   }
 // };
 
-// TODO: rename okMsg --> msgTemplate? (include error messages?)
 export enum msgTemplate {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
   // CLI Update-related cmds
-  'UPDATED_DAYS' = 'UPDATED_DAYS',
-  'UPDATED_SKIP' = 'UPDATED_SKIP',
-  'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
+  // 'UPDATED_DAYS' = 'UPDATED_DAYS',
+  // 'UPDATED_SKIP' = 'UPDATED_SKIP',
+  // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
   // CLI Get-related cmds
-  'STATUS' = 'STATUS',
-  'STATUS_DAYS' = 'STATUS_DAYS',
-  'STATUS_SKIP' = 'STATUS_SKIP',
-  'STATUS_WARNINGS' = 'STATUS_WARNINGS',
+  // 'STATUS' = 'STATUS',
+  // 'STATUS_DAYS' = 'STATUS_DAYS',
+  // 'STATUS_SKIP' = 'STATUS_SKIP',
+  // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 
   // HELP
-  'HELP_UPDATE' = 'HELP_UPDATE',
-  'HELP_STATUS' = 'HELP_STATUS',
+  // 'HELP_UPDATE' = 'HELP_UPDATE',
+  // 'HELP_STATUS' = 'HELP_STATUS',
   'HELP' = 'HELP',
 
   // Error
   'ERROR' = 'ERROR'
 }
+
+export type msgCreaterMap = Record<
+  keyof typeof msgTemplate,
+  { template: string; reqVars?: any }
+>;
 
 // REMOVE THIS:
 export enum Errors {
