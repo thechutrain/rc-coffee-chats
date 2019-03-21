@@ -48,13 +48,15 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
     fn(actionArgs) {
+      return { coffeeDays: `MON TUE ...fake data :)` };
+      // TODO: come back to this after I update the models/database
       // QUESTION: should db function just try to validate?
-      const { coffeeDays } = this.db.user.updateCoffeeDays(
-        this.originUser,
-        actionArgs
-      );
+      // const { coffeeDays } = this.db.user.updateCoffeeDays(
+      //   this.originUser,
+      //   actionArgs
+      // );
 
-      return { coffeeDays: `${coffeeDays.join(' ')}` };
+      // return { coffeeDays: `${coffeeDays.join(' ')}` };
     }
   },
   HELP: {
