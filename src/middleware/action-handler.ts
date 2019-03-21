@@ -16,10 +16,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     // tslint:disable-next-line:object-literal-shorthand
     fn(actionArgs) {
       console.log('WHAT DOES THIS look like???');
-      console.log(JSON.stringify(this));
+      console.log(this);
 
       console.log('WHAT DOES this.user look like??');
-      console.log(JSON.stringify(this.user));
+      console.log(this.user);
       // const db = JSON.stringify(ctx);
       // console.log(db);
       // console.log(ctx.db.user);
@@ -120,6 +120,8 @@ export function initDispatcher(
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
       // msgArgs = fn.call(ctx, ctx, actionArgs);
+      console.log('db before I invoke fn: ');
+      console.log(db);
       msgArgs = fn.call(db, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
