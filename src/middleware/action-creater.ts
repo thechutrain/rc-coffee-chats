@@ -17,19 +17,19 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     try {
       actionType = getAction(req.local.cmd);
     } catch (e) {
+      actionType = null;
+
       req.local.errors.push({
         errorType: types.Errors.NO_VALID_ACTION,
         customMessage: e
       });
-      next();
-      return;
     }
   }
 
-  // TODO: save args as key-values in action!
   req.local.action = {
     actionType,
     originUser: email,
+    // TODO: save args as key-values in action!
     actionArgs: {
       rawInput: req.local.cmd.args
     }
@@ -50,7 +50,7 @@ export function getAction(cli: types.IParsedCmd): types.Action {
     : `${cli.directive}`;
 
   console.log(`Heres the command: ${command}`);
-  if (!(command in types.Action) && command === '') {
+  if (!(command in types.Action) && command !== '') {
     console.log('this should be an error');
     throw new Error(
       `Unrecognized command: ${command} \nCould not create a valid action`
