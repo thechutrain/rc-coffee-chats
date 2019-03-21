@@ -200,34 +200,24 @@ export function initUserModel(db: sqlite) {
     targetEmail: string,
     coffeeDays: string[]
   ): { coffeeDays: string[] } {
-    // TODO: make a user exists
-    const { payload: foundUser } = findUserByEmail(targetEmail);
+    // // TODO: make a user exists
+    // const { payload: foundUser } = findUserByEmail(targetEmail);
 
-    if (!foundUser) {
-      throw new Error(`No user with email: "${targetEmail}" found to update`);
-    }
+    // if (!foundUser) {
+    //   throw new Error(`No user with email: "${targetEmail}" found to update`);
+    // }
 
     const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
     const updateStmt = db.prepare(
       `UPDATE User SET
         coffee_days = ?
-        WHERE id = ?`
+        WHERE email = ?`
     );
 
-    // QUESTION ???
     // NOTE: will queryResult.changes still be one if the values are the same??
     // if successful, it will return 1
-    let queryResult;
-    try {
-      // queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
-      queryResult = updateStmt.run(coffeeDayStr, -1);
-      console.log(`QUERY RESULTS:`);
-      console.log(queryResult);
-
-      if (queryResult.changes === 0) {
-        throw new Error();
-      }
-    } catch (_e) {
+    const queryResult = updateStmt.run(coffeeDayStr, targetEmail);
+    if (queryResult.changed === 0) {
       throw new Error('Could not update coffee days');
     }
 

@@ -88,11 +88,11 @@ export function createMessageContent(
       }`
     },
     UPDATED_DAYS: {
-      // reqVars: ['coffeeDays'],
-      // template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
-      //   vars.coffeeDays
-      // }`
-      template: `UPDATED your coffee chat days :)`
+      reqVars: ['coffeeDays'],
+      template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
+        vars.coffeeDays
+      }`
+      // template: `UPDATED your coffee chat days :)`
     },
     HELP: {
       template: `Hi! I'm :coffee: bot and I'm here to help! 
