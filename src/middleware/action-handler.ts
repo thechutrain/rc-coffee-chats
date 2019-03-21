@@ -27,8 +27,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       }
     }
   },
-  SHOW_DAYS: {
-    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS },
+  ////////////////
+  // SHOW
+  ////////////////
+  SHOW__DAYS: {
+    okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
     fn(actionArgs) {
       const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
 
@@ -37,11 +40,20 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       };
     }
   },
-  // STATUS: {
-  //   okMsg: {
-  //     msgTemplate: types.msgTemplate.STATUS
-  //   }
-  // },
+  ////////////////
+  // UPDATE
+  ////////////////
+  UPDATE__DAYS: {
+    okMsg: {
+      msgTemplate: types.msgTemplate.UPDATED_DAYS
+    },
+    fn(actionArgs) {
+      // TODO: need to validate?
+      console.log('What does the actionArgs look like??');
+      console.log(actionArgs);
+      this.db.user.updateCoffeeDays(this.originUser);
+    }
+  },
   HELP: {
     okMsg: {
       msgTemplate: types.msgTemplate.HELP
@@ -96,7 +108,7 @@ export function initActionHandler(db) {
  */
 export function initDispatcher(
   MapActionToFn: types.ActionHandlerMap
-): (ctx: any, action: types.Action, actionArgs: any) => types.IMsg {
+): (ctx: any, action: types.Action, actionArgs: any[]) => types.IMsg {
   // QUESTION: could I not create ctx in the outer initDispatcher function
   // and pass it into fn.call(ctx)? why weren't my fn for db.user there?
 
@@ -124,7 +136,7 @@ export function initDispatcher(
       // as an argument?
       // QUESTION: fn is placeholder for a fn, how to get TS support in this case?
       // ... probably have to explicitly make a type signature
-      msgArgs = fn.call(ctx, actionArgs);
+      msgArgs = fn.call(ctx, actionArgs) || {};
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
