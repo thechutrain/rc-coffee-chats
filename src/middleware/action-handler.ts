@@ -33,11 +33,14 @@ export function initActionHandler(ctx: { db: any }) {
 
     const { type: actionType, currentUser } = req.local.action;
     // TEsting:
-    const { msgType, msgArgs } = dispatcher(types.Action.SHOW_HELP, {});
+    const { msgTemplate, msgArgs } = dispatcher(types.Action.SHOW_HELP, {});
     // const { msgType, msgArgs } = dispatcher(actionType, req.local.cmd.args);
 
-    req.local.msgInfo = { msgType, msgArgs, sendToEmail: currentUser };
+    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: currentUser };
 
+    console.log(req.local.action);
+    console.log(req.local.msgInfo);
+    console.log('======= END of actionHandler ======\n');
     next();
   };
 }
@@ -56,13 +59,13 @@ export function initDispatcher(
 
     // Case: no function to run for a given action
     if (!fn) {
-      return { msgType: okMsg, msgArgs: {} };
+      return { msgTemplate: okMsg.msgTemplate, msgArgs: {} };
     }
 
     // Case: Run a fn for a given action -->
     // 1) results in okMsg
     // 2) results in errMsg
-    let msgType;
+    let msgTemplate;
     let msgArgs = {};
 
     // Note: these actions are not coded for
@@ -70,14 +73,14 @@ export function initDispatcher(
     console.log('==== about to try to invoke function ===\n');
     try {
       msgArgs = fn.call(ctx, actionArgs);
-      msgType = okMsg.msgTemplate;
+      msgTemplate = okMsg.msgTemplate;
     } catch (e) {
-      msgType = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
+      msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
       msgArgs = { errorMessage: e };
     }
-    console.log(msgType);
+    console.log(msgTemplate);
     console.log(msgArgs);
     console.log('====== msgType & args=======');
-    return { msgType, msgArgs };
+    return { msgTemplate, msgArgs };
   };
 }

@@ -128,11 +128,11 @@ export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 ////////////////////////////
 
 export interface IMsg {
-  msgType: msgTemplate;
+  msgTemplate: msgTemplate;
   msgArgs: any;
 }
 export interface IMsgInfo extends IMsg {
-  sendToEmail: string;
+  sendTo: string;
 }
 
 // Required Variables & Types for each msg type
