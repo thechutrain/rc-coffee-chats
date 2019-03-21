@@ -16,7 +16,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     // tslint:disable-next-line:object-literal-shorthand
     fn: function register(ctx, actionArgs) {
       console.log('WHAT METHODS ARE ON db.user???');
-      const db = JSON.stringify(ctx.db);
+      const db = JSON.stringify(ctx);
       console.log(db);
       console.log(ctx.db.user);
 
@@ -56,6 +56,9 @@ export function initActionHandler(db) {
       return;
     }
 
+    console.log('ctx.db: ');
+    console.log(ctx.db);
+
     const { actionType, originUser } = req.local.action;
     ctx.originUser = originUser;
 
@@ -82,8 +85,14 @@ export function initDispatcher(
   ctx,
   MapActionToFn: types.ActionHandlerMap
 ): (action: types.Action, actionArgs: any) => types.IMsg {
+  const ctx2 = ctx;
+
   return (action, actionArgs) => {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
+
+    console.log('CONTEXT from inside the dispatch fn:');
+    console.log(ctx2.db.user);
+    console.log('\n');
 
     // Case: no function to run for a given action
     if (!fn) {
@@ -101,7 +110,7 @@ export function initDispatcher(
     try {
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
-      msgArgs = fn.call(ctx, ctx, actionArgs);
+      msgArgs = fn.call(ctx2, ctx2, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
