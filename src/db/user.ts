@@ -8,30 +8,43 @@ import * as path from 'path';
 // export const SqliteType = ['NULL', 'INTEGER', 'REAL', 'TEXT', 'BLOB'];
 
 import * as types from './dbTypes';
+export const UserModelFields: types.fields = {
+  id: {
+    type: 'INTEGER',
+    isPrimaryKey: true,
+    isNotNull: true,
+    isUnique: true
+  },
+  email: {
+    type: 'TEXT',
+    isUnique: true,
+    isNotNull: true
+  },
+  full_name: {
+    type: 'TEXT',
+    isNotNull: true
+  },
+  coffee_days: {
+    type: 'TEXT',
+    defaultValue: '1234'
+  },
+  warning_exception: {
+    type: 'INTEGER',
+    defaultValue: '0'
+  },
+  is_active: {
+    type: 'INTEGER',
+    defaultValue: '1'
+  },
+  is_faculty: {
+    type: 'INTEGER',
+    defaultValue: '0'
+  }
+};
 
 export class UserModel extends Model {
   protected readonly tableName = 'User';
-  protected fields: types.fields = {
-    id: {
-      type: 'INTEGER',
-      isPrimaryKey: true,
-      isNotNull: true,
-      isUnique: true
-    },
-    email: {
-      type: 'TEXT',
-      isUnique: true,
-      isNotNull: true
-    },
-    full_name: {
-      type: 'TEXT',
-      isNotNull: true
-    },
-    coffee_days: {
-      type: 'TEXT',
-      defaultValue: '1234'
-    }
-  };
+  protected fields: types.fields = UserModelFields;
 
   constructor(db) {
     super(db);
@@ -40,8 +53,6 @@ export class UserModel extends Model {
   }
 
   public createTable() {
-    // console.log(`calling create table ${this.db}`);
-
     // const query = `CREATE TABLE IF NOT EXISTS User (
     //   id INTEGER PRIMARY KEY NOT NULL UNIQUE,
     //   email TEXT NOT NULL UNIQUE,
@@ -86,9 +97,7 @@ export class UserModel extends Model {
 
     const queryBody = fieldsAsArray.join(',\n');
 
-    const query = `CREATE TABLE IF NOT EXISTS ${
-      this.tableName
-    } (\n${queryBody}\n)`;
+    const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${queryBody})`;
 
     console.log(query);
 
