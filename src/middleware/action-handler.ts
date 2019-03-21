@@ -48,10 +48,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
     fn(actionArgs) {
-      // TODO: need to validate?
-      console.log('What does the actionArgs look like??');
-      console.log(actionArgs);
-      this.db.user.updateCoffeeDays(this.originUser);
+      // TODO: need to validate
+      // QUESTION: should db function just try to validate?
+      this.db.user.updateCoffeeDays(this.originUser, actionArgs);
     }
   },
   HELP: {
@@ -139,6 +138,9 @@ export function initDispatcher(
       msgArgs = fn.call(ctx, actionArgs) || {};
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
+      // TODO: make req.local.error
+      // QUESTION: should I make a msg here or just create the req.local.error?
+
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
       msgArgs = { errorMessage: e };
     }
