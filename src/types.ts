@@ -131,14 +131,14 @@ export enum msgTemplate {
   'SIGNED_UP' = 'SIGNED_UP',
 
   // CLI Update-related cmds
-  // 'UPDATED_DAYS' = 'UPDATED_DAYS',
+  'UPDATED_DAYS' = 'UPDATED_DAYS',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
   // CLI Get-related cmds
   // TODO: rename to be SHOW_ instead of STATUS_ ???
   // 'STATUS' = 'STATUS',
-  'STATUS_DAYS' = 'STATUS_DAYS',
+  'SHOW_DAYS' = 'STATUS_DAYS',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 
@@ -153,7 +153,7 @@ export enum msgTemplate {
 
 export type msgCreaterMap = Record<
   keyof typeof msgTemplate,
-  { template: string; reqVars?: any }
+  { template: string; reqVars?: string[] }
 >;
 
 // REMOVE THIS:

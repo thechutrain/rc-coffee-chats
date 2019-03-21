@@ -81,9 +81,15 @@ export function createMessageContent(
       template: `You've successfully been added to coffee chat!
       Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
     },
-    STATUS_DAYS: {
-      reqVars: { coffeeDays: 'string' },
-      template: `YOOOOOO! You are currently set to have coffee chats on the following days: ${
+    SHOW_DAYS: {
+      reqVars: ['coffeeDays'],
+      template: `You are currently set to have coffee chats on the following days: ${
+        vars.coffeeDays
+      }`
+    },
+    UPDATED_DAYS: {
+      reqVars: ['coffeeDays'],
+      template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
         vars.coffeeDays
       }`
     },
@@ -99,9 +105,7 @@ export function createMessageContent(
     },
     ERROR: {
       template: `Error! \n ${vars.errorMessage}`,
-      reqVars: {
-        errorMessage: String
-      }
+      reqVars: ['errorMessage']
     }
   };
 
