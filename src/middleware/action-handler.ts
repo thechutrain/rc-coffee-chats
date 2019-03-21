@@ -15,8 +15,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     // tslint:disable-next-line:object-literal-shorthand
     fn(actionArgs) {
-      console.log(`this from inside register fn`);
+      console.log(`!!!! INSIDE REGISTER FN`);
       console.log(this);
+      console.log(this.db);
+      console.log(this.db.db);
+
       const result = this.db.user.add({
         email: `alancodes@gmail.com`,
         full_name: `alancodes@gmail.com`
@@ -66,7 +69,7 @@ export function initActionHandler(db) {
 
     const { actionType, originUser } = req.local.action;
     const ctx = {
-      db,
+      db: { ...db },
       originUser
     };
     const { msgTemplate, msgArgs } = dispatcher(
