@@ -71,14 +71,17 @@ export enum Action {
 
 export interface IActionObj {
   type: Action | null;
+  args: {
+    rawInput: any[];
+  }; // TODO:
   currentUser: string;
   targetUser?: string;
 }
 
-export interface IReqArg {
-  name: string;
-  type: string;
-}
+// export interface IReqArg {
+//   name: string;
+//   type: string;
+// }
 
 // TODO: rethink how to shape the action handler:
 /**
@@ -111,21 +114,11 @@ export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 ////////////////////////////
 // Dispatch Results
 ////////////////////////////
-
-export interface IDispatchArgs {
-  currentUser: string;
-  targetUser: string;
-  userInput?: any;
-}
-export type DispatchResult = IOkDispatchResult | IErrorDispatchResult;
-
-export interface IOkDispatchResult {
-  status: 'OK';
-}
-export interface IErrorDispatchResult {
-  status: 'ERROR';
-  errorMessage: string;
-}
+// export interface IDispatchArgs {
+//   currentUser: string;
+//   targetUser: string;
+//   userInput?: any;
+// }
 
 ////////////////////////////
 // Messaging

@@ -17,9 +17,13 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     actionType = getAction(req.local.cmd);
   }
 
+  // TODO: save args as key-values in action!
   req.local.action = {
     type: actionType,
-    currentUser: email
+    currentUser: email,
+    args: {
+      rawInput: req.local.cmd.args
+    }
   };
 
   // ==== DEBUG ====
