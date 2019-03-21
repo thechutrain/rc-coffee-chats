@@ -52,14 +52,17 @@ export interface IParsedCmd {
 // Dispatch, Action, Commands
 ////////////////////////////
 export enum Action {
-  'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
-  'REGISTER' = 'REGISTER',
-  'UPDATE_DAYS' = 'UPDATE_DAYS',
+  // 'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
+  // 'REGISTER' = 'REGISTER',
+  // 'UPDATE_DAYS' = 'UPDATE_DAYS',
+
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-  'SHOW_DAYS' = 'SHOW_DAYS',
+
+  // 'SHOW_DAYS' = 'SHOW_DAYS',
+
   // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
@@ -81,14 +84,21 @@ export interface IReqArg {
 /**
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
+
 export interface IActionHandler {
-  fn: string;
-  reqArgs?: IReqArg[];
-  // okMsg?: okMsg;
-  // errMsg?: errMsg;
+  fn: any;
 }
 
 export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
+
+// export interface IActionHandler {
+//   fn: string;
+//   reqArgs?: IReqArg[];
+//   // okMsg?: okMsg;
+//   // errMsg?: errMsg;
+// }
+
+// export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
 
 ////////////////////////////
 // Dispatch Results

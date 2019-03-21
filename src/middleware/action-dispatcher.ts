@@ -5,26 +5,31 @@
 import * as types from '../types';
 
 export const ActionHandlerMap: types.ActionHandlerMap = {
-  PROMPT_SIGNUP: {
-    fn: 'promptSignUp'
-    // okMsg: types.okMsg.PROMPT_SIGNUP
-  },
-  REGISTER: {
-    fn: 'register'
-    // okMsg: types.okMsg.SIGNED_UP
-  },
-  UPDATE_DAYS: {
-    fn: 'updateDays'
-    // okMsg: types.okMsg.UPDATED_DAYS
-  },
-  SHOW_DAYS: {
-    fn: 'showDays'
-    // okMsg: types.okMsg.STATUS_DAYS
-  },
+  // PROMPT_SIGNUP: {
+  //   fn: 'promptSignUp'
+  //   // okMsg: types.okMsg.PROMPT_SIGNUP
+  // },
+  // REGISTER: {
+  //   fn: 'register'
+  //   // okMsg: types.okMsg.SIGNED_UP
+  // },
+  // UPDATE_DAYS: {
+  //   fn: 'updateDays'
+  //   // okMsg: types.okMsg.UPDATED_DAYS
+  // },
+  // SHOW_DAYS: {
+  //   fn: 'showDays'
+  //   // okMsg: types.okMsg.STATUS_DAYS
+  // },
+  // SHOW_HELP: {
+  //   fn: 'showHelp'
+  // },
   SHOW_HELP: {
-    fn: 'showHelp'
+    fn: function help(name: string) {
+      console.log(this.db);
+      console.log(name);
+    }
   }
-  // HELP: {}
 };
 
 export function initDispatcher(db) {
@@ -37,6 +42,16 @@ export function initDispatcher(db) {
       next();
       return;
     }
+
+    const ctx = {
+      db: 'database'
+    };
+    ///// testing ///////
+    const f = 'SHOW_HELP';
+    dispatcher[`${f}`].call(ctx, 'my name');
+
+    next();
+    return;
 
     const { type: actionType, currentUser, targetUser } = req.local.action;
 
@@ -102,13 +117,9 @@ export function initDispatcher(db) {
 // NOTE: make all dispatch methods a promise that once they are resolved, create a message with payload:
 export class Dispatcher {
   private db: any;
-  // private currUser: string;
-  // private targetUser: string;
 
   constructor(db) {
     this.db = db;
-    // this.currUser = currUser;
-    // this.targetUser = targetUser || currUser;
   }
 
   public promptSignUp(args: types.IDispatchArgs): Promise<types.IMsg> {

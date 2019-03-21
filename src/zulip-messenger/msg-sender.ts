@@ -69,6 +69,8 @@ export function createMessageContent(
   let content = '';
   const vars: any = overloadArgs;
 
+  // TODO: validate that all vars exist on overloadArgs!ß
+
   const msgCreaterMap: types.msgCreaterMap = {
     PROMPT_SIGNUP: {
       template: `Hello there! I'm :coffee: bot!
