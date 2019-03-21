@@ -69,7 +69,7 @@ export function initActionHandler(db) {
 
     const { actionType, originUser } = req.local.action;
     const ctx = {
-      db: { ...db },
+      ...db,
       originUser
     };
     const { msgTemplate, msgArgs } = dispatcher(
