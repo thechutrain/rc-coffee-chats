@@ -140,7 +140,7 @@ export enum msgTemplate {
   // CLI Get-related cmds
   // TODO: rename to be SHOW_ instead of STATUS_ ???
   // 'STATUS' = 'STATUS',
-  'SHOW_DAYS' = 'STATUS_DAYS',
+  'SHOW_DAYS' = 'SHOW_DAYS',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 
