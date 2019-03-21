@@ -56,13 +56,13 @@ export interface IParsedCmd {
 export enum Action {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'REGISTER' = 'REGISTER',
-  // 'UPDATE_DAYS' = 'UPDATE_DAYS',
+  'UPDATE__DAYS' = 'UPDATE__DAYS',
 
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-  'SHOW_DAYS' = 'SHOW_DAYS',
+  'SHOW__DAYS' = 'SHOW__DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
