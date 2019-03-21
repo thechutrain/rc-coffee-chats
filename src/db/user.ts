@@ -216,9 +216,11 @@ export function initUserModel(db: sqlite) {
 
     // QUESTION ???
     // NOTE: will queryResult.changes still be one if the values are the same??
+    // if successful, it will return 1
     let queryResult;
     try {
-      queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
+      // queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
+      queryResult = updateStmt.run(coffeeDayStr, -1);
       console.log(`QUERY RESULTS:`);
       console.log(queryResult);
 
