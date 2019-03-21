@@ -33,11 +33,11 @@ const db = (() => {
 import { initRegisteredHandler } from './middleware/registered-handler';
 import { parserHandler } from './middleware/parser-handler';
 import { actionCreater } from './middleware/action-creater';
-import { initDispatcher } from './middleware/action-dispatcher';
+import { initActionHandler } from './middleware/action-handler';
 import { messageHandler } from './middleware/message-handler';
 
 const registerHandler = initRegisteredHandler(db);
-const dispatchHandler = initDispatcher(db);
+const actionHandler = initActionHandler({ db });
 
 /////////////////
 /// Server
@@ -58,7 +58,7 @@ app.post(
   registerHandler,
   parserHandler,
   actionCreater,
-  dispatchHandler,
+  actionHandler,
   messageHandler,
   (req: types.IZulipRequest, res) => {
     res.json({});
