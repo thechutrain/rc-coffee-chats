@@ -34,8 +34,9 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
 
   // Case: given a msgType
   const { msgTemplate, sendTo, msgArgs } = req.local.msgInfo;
-  console.log(msgTemplate);
-  console.log('===== template above =====');
+  // console.log(msgTemplate);
+  // console.log('===== template above =====');
+
   if (msgTemplate in types.msgTemplate) {
     templateMessageSender(sendTo, msgTemplate, msgArgs);
   } else {

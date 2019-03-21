@@ -13,16 +13,19 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   REGISTER: {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
-    fn(ctx, actionArgs) {
+    // tslint:disable-next-line:object-literal-shorthand
+    fn: function register(ctx, actionArgs) {
       console.log('WHAT METHODS ARE ON db.user???');
+      const db = JSON.stringify(ctx.db);
+      console.log(db);
       console.log(ctx.db.user);
 
-      const result = ctx.db.user.add({
-        email: ctx.originUser,
-        full_name: ctx.originUser
-      });
-      console.log(result);
-      console.log('====== result from db ======');
+      // const result = ctx.db.user.add({
+      //   email: ctx.originUser,
+      //   full_name: ctx.originUser
+      // });
+      // console.log(result);
+      console.log('....finished registering \n');
     }
   },
   HELP: {
@@ -60,7 +63,10 @@ export function initActionHandler(db) {
 
     req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
 
+    console.log('======== INFO ========');
+    console.log('req.local.action:');
     console.log(req.local.action);
+    console.log('\nreq.local.msgInfo');
     console.log(req.local.msgInfo);
     console.log('======= END of actionHandler ======\n');
     next();
@@ -92,7 +98,6 @@ export function initDispatcher(
 
     // Note: these actions are not coded for
     // async action! but we can just wrap with async & await
-    console.log('==== about to try to invoke function ===\n');
     try {
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
@@ -102,9 +107,7 @@ export function initDispatcher(
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
       msgArgs = { errorMessage: e };
     }
-    console.log(msgTemplate);
-    console.log(msgArgs);
-    console.log('====== msgType & args=======');
+
     return { msgTemplate, msgArgs };
   };
 }
