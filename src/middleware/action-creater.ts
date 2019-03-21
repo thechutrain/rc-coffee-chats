@@ -28,9 +28,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
   // TODO: save args as key-values in action!
   req.local.action = {
-    type: actionType,
-    currentUser: email,
-    args: {
+    actionType,
+    originUser: email,
+    actionArgs: {
       rawInput: req.local.cmd.args
     }
   };
@@ -49,6 +49,7 @@ export function getAction(cli: types.IParsedCmd): types.Action {
     ? `${cli.directive}_${cli.subcommand}`
     : `${cli.directive}`;
 
+  console.log(`Heres the command: ${command}`);
   if (!(command in types.Action) && command === '') {
     console.log('this should be an error');
     throw new Error(

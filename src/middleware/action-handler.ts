@@ -26,18 +26,18 @@ export function initActionHandler(ctx: { db: any }) {
   return (req: types.IZulipRequest, res, next) => {
     // Case: errors are already present, skip the dispatcher middleware
     // Case: no action specified, skip this middleware
-    if (req.local.errors.length !== 0 || req.local.action.type === null) {
+    if (req.local.errors.length !== 0 || req.local.action.actionType === null) {
       console.log('there was an error so skipping ....');
       next();
       return;
     }
 
-    const { type: actionType, currentUser } = req.local.action;
+    const { actionType, originUser } = req.local.action;
     // TEsting:
     const { msgTemplate, msgArgs } = dispatcher(types.Action.SHOW_HELP, {});
     // const { msgType, msgArgs } = dispatcher(actionType, req.local.cmd.args);
 
-    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: currentUser };
+    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
 
     console.log(req.local.action);
     console.log(req.local.msgInfo);

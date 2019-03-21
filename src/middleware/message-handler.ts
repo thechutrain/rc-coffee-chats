@@ -13,7 +13,7 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
   console.log(req.local.msgInfo);
   console.log(`\n`);
 
-  const { currentUser, targetUser } = req.local.action;
+  const { originUser, targetUser } = req.local.action;
   const { errors } = req.local;
 
   // Case: handle error messages
@@ -23,7 +23,7 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
         ? `ERROR: ${err.customMessage}`
         : `unspecified error ... ooops!`;
       try {
-        sendGenericMessage(currentUser, messageContent);
+        sendGenericMessage(originUser, messageContent);
       } catch (e) {
         console.warn(`Error trying to sendGenericMEssage: ${e}`);
       }
@@ -40,7 +40,7 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
     templateMessageSender(sendTo, msgTemplate, msgArgs);
   } else {
     const msg = JSON.stringify(req.local.msgInfo);
-    sendGenericMessage(currentUser, `Req.local.msgInfo: ${msg}`);
+    sendGenericMessage(originUser, `Req.local.msgInfo: ${msg}`);
   }
   next();
 }

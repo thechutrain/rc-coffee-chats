@@ -70,11 +70,9 @@ export enum Action {
 }
 
 export interface IActionObj {
-  type: Action | null;
-  args: {
-    rawInput: any[];
-  }; // TODO:
-  currentUser: string;
+  actionType: Action | null;
+  originUser: string;
+  actionArgs?: any;
   targetUser?: string;
 }
 
