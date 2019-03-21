@@ -23,6 +23,8 @@ export function initDB(
   match.createTable();
   userMatch.createTable();
 
+  console.log(user);
+  console.log('..... that was the user model \n');
   return {
     user,
     match
