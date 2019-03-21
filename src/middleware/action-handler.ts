@@ -8,6 +8,8 @@ import * as types from '../types';
  *  && what messages get sent if functions are successful
  */
 export const ActionHandlerMap: types.ActionHandlerMap = {
+  // NOTE: all errors thrown in action functions will be handled
+  // by the dispatcher(), which will send a generic error msg:
   PROMPT_SIGNUP: {
     okMsg: { msgTemplate: types.msgTemplate.PROMPT_SIGNUP }
   },
@@ -31,7 +33,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const result = this.db.user.getCoffeeDays(this.originUser);
 
       return {
-        coffeeDays: result
+        coffeeDays: JSON.stringify(result)
       };
     }
   },
