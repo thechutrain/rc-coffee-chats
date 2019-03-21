@@ -144,7 +144,8 @@ export function initUserModel(db: sqlite) {
   //   }
   // }
 
-  function getCoffeeDays(targetEmail: string): { coffeeDays: number[] } {
+  // TODO: add format option (raw) or as a string
+  function getCoffeeDays(targetEmail: string): { coffeeDays: string[] } {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 
     if (!foundUser) {

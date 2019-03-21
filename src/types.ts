@@ -62,12 +62,13 @@ export enum Action {
   // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
   // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
-
-  // 'SHOW_DAYS' = 'SHOW_DAYS',
-
+  'SHOW_DAYS' = 'SHOW_DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
+
+  // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
+
   'HELP' = 'HELP'
 }
 
@@ -105,24 +106,6 @@ export interface IActionRules {
 
 export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 
-// export interface IActionHandler {
-//   fn: string;
-//   reqArgs?: IReqArg[];
-//   // okMsg?: okMsg;
-//   // errMsg?: errMsg;
-// }
-
-// export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
-
-////////////////////////////
-// Dispatch Results
-////////////////////////////
-// export interface IDispatchArgs {
-//   currentUser: string;
-//   targetUser: string;
-//   userInput?: any;
-// }
-
 ////////////////////////////
 // Messaging
 ////////////////////////////
@@ -153,8 +136,9 @@ export enum msgTemplate {
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
   // CLI Get-related cmds
+  // TODO: rename to be SHOW_ instead of STATUS_ ???
   // 'STATUS' = 'STATUS',
-  // 'STATUS_DAYS' = 'STATUS_DAYS',
+  'STATUS_DAYS' = 'STATUS_DAYS',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 

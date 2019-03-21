@@ -81,6 +81,12 @@ export function createMessageContent(
       template: `You've successfully been added to coffee chat!
       Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
     },
+    STATUS_DAYS: {
+      reqVars: { coffeeDays: 'string' },
+      template: `YOOOOOO! You are currently set to have coffee chats on the following days: ${
+        vars.coffeeDays
+      }`
+    },
     HELP: {
       template: `Hi! I'm :coffee: bot and I'm here to help! 
       To talk to me, enter a valid command that begins with the following: 

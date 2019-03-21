@@ -25,6 +25,23 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       }
     }
   },
+  SHOW_DAYS: {
+    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS },
+    fn(actionArgs) {
+      const result = this.db.user.getCoffeeDays({
+        email: this.originUser
+      });
+
+      return {
+        coffeeDays: result
+      };
+    }
+  },
+  // STATUS: {
+  //   okMsg: {
+  //     msgTemplate: types.msgTemplate.STATUS
+  //   }
+  // },
   HELP: {
     okMsg: {
       msgTemplate: types.msgTemplate.HELP
@@ -105,6 +122,8 @@ export function initDispatcher(
     try {
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
+      // QUESTION: fn is placeholder for a fn, how to get TS support in this case?
+      // ... probably have to explicitly make a type signature
       msgArgs = fn.call(ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
