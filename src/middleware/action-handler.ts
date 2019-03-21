@@ -33,11 +33,14 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   SHOW__DAYS: {
     okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
     fn(actionArgs) {
-      const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
-
       return {
-        coffeeDays: `${coffeeDays.join(' ')}`
+        coffeeDays: `MON TUE ... fake daaaata`
       };
+      // const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
+
+      // return {
+      //   coffeeDays: `${coffeeDays.join(' ')}`
+      // };
     }
   },
   ////////////////
