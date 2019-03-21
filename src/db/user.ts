@@ -200,13 +200,13 @@ export function initUserModel(db: sqlite) {
     targetEmail: string,
     coffeeDays: string[]
   ): { coffeeDays: string[] } {
-    // // TODO: make a user exists
+    // // TODO: make sure a user exists
     // const { payload: foundUser } = findUserByEmail(targetEmail);
 
     // if (!foundUser) {
     //   throw new Error(`No user with email: "${targetEmail}" found to update`);
     // }
-    // TODO: validate input!
+    // TODO: validate input here!!
 
     const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
     const updateStmt = db.prepare(
