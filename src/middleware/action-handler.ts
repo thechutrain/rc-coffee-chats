@@ -9,10 +9,6 @@ import * as types from '../types';
  */
 export const ActionHandlerMap: types.ActionHandlerMap = {
   SHOW_HELP: {
-    fn: function help(actionArgs: any) {
-      throw new Error('An error was thrown from the help fn!');
-      return null;
-    },
     okMsg: {
       msgTemplate: types.msgTemplate.HELP
       // reqArgs: { a: Number }
@@ -57,6 +53,15 @@ export function initDispatcher(
 ): (action: types.Action, actionArgs: any) => types.IMsg {
   return (action, actionArgs) => {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
+
+    // Case: no function to run for a given action
+    if (!fn) {
+      return { msgType: okMsg, msgArgs: {} };
+    }
+
+    // Case: Run a fn for a given action -->
+    // 1) results in okMsg
+    // 2) results in errMsg
     let msgType;
     let msgArgs = {};
 

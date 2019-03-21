@@ -89,14 +89,14 @@ export interface IActionObj {
  */
 
 export interface IActionRules {
-  fn: (
-    ctx: { db: any; reqUser: string; targetUser?: string },
-    actionArgs: any
-  ) => any;
   okMsg: {
     msgTemplate: msgTemplate;
     reqArgs?: any; // Note: hard to card code what fn => any must contain. So will check dynamically
   };
+  fn?: (
+    ctx: { db: any; reqUser: string; targetUser?: string },
+    actionArgs: any
+  ) => any;
   errMsg?: {
     msgTemplate: msgTemplate;
     reqArgs?: any;
