@@ -15,11 +15,17 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     // tslint:disable-next-line:object-literal-shorthand
     fn(actionArgs) {
-      console.log('WHAT DOES THIS look like???');
-      console.log(this);
+      const result = this.db.user.add({
+        email: this.originUser,
+        full_name: this.originUser
+      });
 
-      console.log('WHAT DOES this.user look like??');
-      console.log(this.user);
+      console.log(result);
+      // console.log('WHAT DOES THIS look like???');
+      // console.log(this);
+
+      // console.log('WHAT DOES this.user look like??');
+      // console.log(this.user);
       // const db = JSON.stringify(ctx);
       // console.log(db);
       // console.log(ctx.db.user);
@@ -45,14 +51,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *
  */
 export function initActionHandler(db) {
-  const _ctx = {
-    db,
-    originUser: ''
-  };
-
-  // console.log(ctx.db);
-  // console.log(`that was the ctx.db from initActionHandler .... \n`);
-  const dispatcher = initDispatcher(_ctx, ActionHandlerMap);
+  const dispatcher = initDispatcher(ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
     // Case: errors are already present, skip the dispatcher middleware
@@ -63,14 +62,13 @@ export function initActionHandler(db) {
       return;
     }
 
-    // console.log('ctx.db: ');
-    // console.log(ctx.db);
-
     const { actionType, originUser } = req.local.action;
-    // ctx.originUser = originUser;
-
-    const { msgTemplate, msgArgs } = dispatcher(
+    const ctx = {
       db,
+      originUser
+    };
+    const { msgTemplate, msgArgs } = dispatcher(
+      ctx,
       actionType,
       req.local.cmd.args
     );
@@ -93,15 +91,13 @@ export function initActionHandler(db) {
  * @param MapActionToFn
  */
 export function initDispatcher(
-  ctx,
   MapActionToFn: types.ActionHandlerMap
-): (db: any, action: types.Action, actionArgs: any) => types.IMsg {
-  return (db, action, actionArgs) => {
+): (ctx: any, action: types.Action, actionArgs: any) => types.IMsg {
+  return (ctx, action, actionArgs) => {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
     console.log('CONTEXT from inside the dispatch fn:');
     console.log(ctx);
-    console.log('\n\n');
 
     // Case: no function to run for a given action
     if (!fn) {
@@ -120,9 +116,7 @@ export function initDispatcher(
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
       // msgArgs = fn.call(ctx, ctx, actionArgs);
-      console.log('db before I invoke fn: ');
-      console.log(db);
-      msgArgs = fn.call(db, actionArgs);
+      msgArgs = fn.call(ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
