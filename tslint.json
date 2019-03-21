@@ -17,6 +17,8 @@
     "no-console": [false],
     "object-literal-sort-keys": [false],
     "no-empty": [false],
+    "member-ordering":false,
+    "member-access": false,
     "variable-name": [
       true,
       "check-format",
