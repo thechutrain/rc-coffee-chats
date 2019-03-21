@@ -4,15 +4,18 @@
 
 import * as types from '../types';
 
+/** Rules that guide what function gets invoked with what action
+ *  && what messages get sent if functions are successful
+ */
 export const ActionHandlerMap: types.ActionHandlerMap = {
   SHOW_HELP: {
-    fn: function help(name: string) {
-      console.log(this.db);
-      console.log(name);
+    fn: function help(actionArgs: any) {
+      throw new Error('An error was thrown from the help fn!');
+      return null;
     },
     okMsg: {
-      msgTemplate: types.msgTemplate.HELP,
-      reqArgs: { a: Number }
+      msgTemplate: types.msgTemplate.HELP
+      // reqArgs: { a: Number }
     }
   }
 };
@@ -33,7 +36,9 @@ export function initActionHandler(ctx: { db: any }) {
     }
 
     const { type: actionType, currentUser } = req.local.action;
-    const { msgType, msgArgs } = dispatcher(actionType, req.local.cmd.args);
+    // TEsting:
+    const { msgType, msgArgs } = dispatcher(types.Action.SHOW_HELP, {});
+    // const { msgType, msgArgs } = dispatcher(actionType, req.local.cmd.args);
 
     req.local.msgInfo = { msgType, msgArgs, sendToEmail: currentUser };
 
