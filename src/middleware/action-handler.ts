@@ -15,6 +15,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     fn(ctx, actionArgs) {
       console.log('about to register user ...');
+      console.log(ctx);
+
       const result = ctx.db.user.add({
         email: ctx.originUser,
         full_name: ctx.originUser
@@ -35,7 +37,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *  --> dispatches an action that returns a message
  *
  */
-export function initActionHandler(ctx: { db: any }) {
+export function initActionHandler(db) {
+  const ctx = {
+    db,
+    originUser: ''
+  };
   const dispatcher = initDispatcher(ctx, ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
@@ -48,6 +54,8 @@ export function initActionHandler(ctx: { db: any }) {
     }
 
     const { actionType, originUser } = req.local.action;
+    ctx.originUser = originUser;
+
     const { msgTemplate, msgArgs } = dispatcher(actionType, req.local.cmd.args);
 
     req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
