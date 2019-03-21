@@ -1,10 +1,16 @@
 export type sqliteDataTypes = 'TEXT' | 'INTEGER';
 
+// type defaultFieldProp<t> = `DEFAULT ${t}`;
+// type optionalFieldProps = 'PRIMARY KEY' | 'NOT NULL'
+// type mapModifierToString = Record<>
+// type fieldModifiers = 'PRIMARY KEY' | 'NOT NULL' | 'UNIQUE' | 'DEFAULT';
+
 export interface IFieldProps {
-  dataType: sqliteDataTypes;
-  primaryKey?: boolean;
+  type: sqliteDataTypes;
+  isPrimaryKey?: boolean;
   isUnique?: boolean;
-  default?: any;
+  isNotNull?: boolean;
+  defaultValue?: string;
 }
 
 export type fields = Record<any, IFieldProps>;
