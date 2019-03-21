@@ -76,7 +76,6 @@ export function initDispatcher(db) {
           message: errorMessage
         }
       };
-      console.log(req.local.msgInfo);
       next();
       return;
     }
@@ -84,8 +83,6 @@ export function initDispatcher(db) {
     promisedMsg
       .then((msgInfo: types.IMsg) => {
         req.local.msgInfo = { ...msgInfo, sendToEmail: currentUser };
-        console.log(req.local.msgInfo);
-        console.log('====== end of dispatch middleware ========');
         next();
       })
       .catch(error => {
@@ -97,8 +94,6 @@ export function initDispatcher(db) {
             message: error
           }
         };
-        console.log(req.local.msgInfo);
-        console.log('====== end of dispatch middleware ========');
         next();
       });
   };
