@@ -48,7 +48,7 @@ export function initDispatcher(db) {
     };
     ///// testing ///////
     const f = 'SHOW_HELP';
-    ActionHandlerMap[`${f}`].call(ctx, 'my name');
+    ActionHandlerMap[`${f}`].fn.call(ctx, 'my name');
 
     next();
     return;
