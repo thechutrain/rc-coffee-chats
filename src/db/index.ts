@@ -1,7 +1,7 @@
 import sqlite from 'better-sqlite3';
 
 // Models
-import { initUserModel } from './user';
+// import { initUserModel } from './user';
 import { initMatchModel } from './match';
 import { initUserMatchModel } from './usermatch';
 
@@ -14,17 +14,17 @@ export function initDB(
   const db = new sqlite(dbFilePath, { verbose: console.log, fileMustExist });
 
   // Initialize Models here:
-  const user = initUserModel(db);
+  // const user = initUserModel(db);
   const match = initMatchModel(db);
   const userMatch = initUserMatchModel(db);
 
   // Ensure Tables have been also created:
-  user.createTable();
+  // user.createTable();
   match.createTable();
   userMatch.createTable();
 
   return {
-    user,
+    user: {},
     match
   };
 }
