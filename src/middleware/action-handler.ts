@@ -27,6 +27,7 @@ export function initActionHandler(ctx: { db: any }) {
     // Case: errors are already present, skip the dispatcher middleware
     // Case: no action specified, skip this middleware
     if (req.local.errors.length !== 0 || req.local.action.type === null) {
+      console.log('there was an error so skipping ....');
       next();
       return;
     }

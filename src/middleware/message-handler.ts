@@ -21,7 +21,7 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
     errors.forEach(err => {
       const messageContent = err.customMessage
         ? `ERROR: ${err.customMessage}`
-        : `Error`;
+        : `unspecified error ... ooops!`;
       try {
         sendGenericMessage(currentUser, messageContent);
       } catch (e) {

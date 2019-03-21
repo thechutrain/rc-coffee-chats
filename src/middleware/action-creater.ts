@@ -14,7 +14,16 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
       ? types.Action.REGISTER
       : types.Action.PROMPT_SIGNUP;
   } else {
-    actionType = getAction(req.local.cmd);
+    try {
+      actionType = getAction(req.local.cmd);
+    } catch (e) {
+      req.local.errors.push({
+        errorType: types.Errors.NO_VALID_ACTION,
+        customMessage: e
+      });
+      next();
+      return;
+    }
   }
 
   // TODO: save args as key-values in action!
@@ -35,12 +44,17 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 }
 
 // NOTE: will never return null action, by default will return HELP action
-export function getAction(cli: types.IParsedCmd): types.Action | null {
+export function getAction(cli: types.IParsedCmd): types.Action {
   const command = cli.subcommand
     ? `${cli.directive}_${cli.subcommand}`
     : `${cli.directive}`;
 
-  if (command in types.Action) {
+  if (!(command in types.Action) && command === '') {
+    console.log('this should be an error');
+    throw new Error(
+      `Unrecognized command: ${command} \nCould not create a valid action`
+    );
+  } else if (command in types.Action) {
     return types.Action[command];
   } else {
     return types.Action.SHOW_HELP;
