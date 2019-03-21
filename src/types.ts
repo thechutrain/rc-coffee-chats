@@ -14,7 +14,7 @@ export interface IZulipRequest extends Express.Request {
       // is admin?
     };
     cmd: IParsedCmd;
-    action: IAction;
+    action: IActionObj;
     errors: IError[];
     sqlResult?: any;
     msgInfo: IMsgInfo;
@@ -69,7 +69,7 @@ export enum Action {
   'SHOW_HELP' = 'SHOW_HELP'
 }
 
-export interface IAction {
+export interface IActionObj {
   type: Action | null;
   currentUser: string;
   targetUser?: string;
@@ -85,11 +85,19 @@ export interface IReqArg {
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 
-export interface IActionHandler {
+export interface IActionRules {
   fn: any;
+  okMsg: {
+    msgTemplate: msgTemplate;
+    reqArgs?: any;
+  };
+  errMsg?: {
+    msgTemplate: msgTemplate;
+    reqArgs?: any;
+  };
 }
 
-export type ActionHandlerMap = Record<keyof typeof Action, IActionHandler>;
+export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 
 // export interface IActionHandler {
 //   fn: string;
@@ -125,7 +133,7 @@ export interface IErrorDispatchResult {
 
 export interface IMsg {
   msgType: msgTemplate;
-  msgArgs?: any;
+  msgArgs: any;
 }
 export interface IMsgInfo extends IMsg {
   sendToEmail: string;
