@@ -50,7 +50,16 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     fn(actionArgs) {
       // TODO: need to validate
       // QUESTION: should db function just try to validate?
-      this.db.user.updateCoffeeDays(this.originUser, actionArgs);
+      const { status, payload } = this.db.user.updateCoffeeDays(
+        this.originUser,
+        actionArgs
+      );
+
+      if (status === 'ERROR') {
+        throw new Error(`Update coffee days query did not make any changes!`);
+      }
+
+      return { coffeeDays: `${payload.coffeeDays.join(' ')}` };
     }
   },
   HELP: {
