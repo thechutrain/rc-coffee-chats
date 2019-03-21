@@ -82,6 +82,7 @@ export function initUserModel(db: sqlite) {
     }
     let queryResult;
     try {
+      console.log('About to try to run query ....');
       queryResult = insertSQL.run(userVals);
     } catch (e) {
       return { status: 'ERROR', message: e };

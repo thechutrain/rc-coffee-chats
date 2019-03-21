@@ -14,8 +14,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   REGISTER: {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     fn(ctx, actionArgs) {
-      console.log('about to register user ...');
-      console.log(ctx);
+      console.log('WHAT METHODS ARE ON db.user???');
+      console.log(ctx.db.user);
 
       const result = ctx.db.user.add({
         email: ctx.originUser,
