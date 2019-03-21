@@ -199,6 +199,39 @@ export function initUserModel(db: sqlite) {
   function updateCoffeeDays(
     targetEmail: string,
     coffeeDays: string[]
+  ): { coffeeDays: string[] } {
+    // TODO: make a user exists
+    const { payload: foundUser } = findUserByEmail(targetEmail);
+
+    if (!foundUser) {
+      throw new Error(`No user with email: "${targetEmail}" found to update`);
+    }
+
+    const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
+    const updateStmt = db.prepare(
+      `UPDATE User SET
+        coffee_days = ?
+        WHERE id = ?`
+    );
+
+    // QUESTION ???
+    // NOTE: will queryResult.changes still be one if the values are the same??
+    let queryResult;
+    try {
+      queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
+
+      if (queryResult.changes === 0) {
+        throw new Error();
+      }
+    } catch (_e) {
+      throw new Error('Could not update coffee days');
+    }
+
+    return { coffeeDays };
+  }
+  function _prev_updateCoffeeDays(
+    targetEmail: string,
+    coffeeDays: string[]
   ): ISqlOk | ISqlError {
     const { payload: foundUser } = findUserByEmail(targetEmail);
 
