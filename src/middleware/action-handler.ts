@@ -15,9 +15,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     // tslint:disable-next-line:object-literal-shorthand
     fn(actionArgs) {
+      console.log(`this from inside register fn`);
+      console.log(this);
       const result = this.db.user.add({
-        email: this.originUser,
-        full_name: this.originUser
+        email: `alancodes@gmail.com`,
+        full_name: `alancodes@gmail.com`
       });
 
       console.log(result);
@@ -93,7 +95,7 @@ export function initActionHandler(db) {
 export function initDispatcher(
   MapActionToFn: types.ActionHandlerMap
 ): (ctx: any, action: types.Action, actionArgs: any) => types.IMsg {
-  return (ctx, action, actionArgs) => {
+  return function dispatcher(ctx, action, actionArgs) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
     console.log('CONTEXT from inside the dispatch fn:');
