@@ -92,7 +92,7 @@ export interface IActionObj {
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;
-    reqArgs?: any; // Note: hard to card code what fn => any must contain. So will check dynamically
+    reqArgs?: any[]; // Note: hard to card code what fn => any must contain. So will check dynamically
   };
   fn?: (
     ctx: { db: any; originUser: string; targetUser?: string },
@@ -100,7 +100,7 @@ export interface IActionRules {
   ) => any;
   errMsg?: {
     msgTemplate: msgTemplate;
-    reqArgs?: any;
+    reqArgs?: any[];
   };
 }
 
@@ -112,7 +112,7 @@ export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 
 export interface IMsg {
   msgTemplate: msgTemplate;
-  msgArgs: any;
+  msgArgs: Record<any, string>;
 }
 export interface IMsgInfo extends IMsg {
   sendTo: string;

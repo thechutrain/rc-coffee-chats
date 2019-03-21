@@ -30,10 +30,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   SHOW_DAYS: {
     okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS },
     fn(actionArgs) {
-      const result = this.db.user.getCoffeeDays(this.originUser);
+      const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
 
       return {
-        coffeeDays: JSON.stringify(result)
+        coffeeDays: `${coffeeDays.join(' ')}`
       };
     }
   },
