@@ -5,7 +5,6 @@
 import * as types from '../types';
 
 export function actionCreater(req: types.IZulipRequest, res, next) {
-  console.log('========= START of actionCreater middleware ==========');
   const { isRegistered, email } = req.local.user;
   let actionType: types.Action | null = null;
   // Case: not registered user
@@ -23,9 +22,11 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     currentUser: email
   };
 
-  console.log('req.local.action: ');
-  console.log(req.local.action);
-  console.log('========= END of actionCreater middleware ==========\n\n');
+  // ==== DEBUG ====
+  // console.log('========= START of actionCreater middleware ==========');
+  // console.log('req.local.action: ');
+  // console.log(req.local.action);
+  // console.log('========= END of actionCreater middleware ==========\n\n');
   next();
 }
 
