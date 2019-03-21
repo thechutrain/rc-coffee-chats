@@ -219,6 +219,8 @@ export function initUserModel(db: sqlite) {
     let queryResult;
     try {
       queryResult = updateStmt.run(coffeeDayStr, foundUser.id);
+      console.log(`QUERY RESULTS:`);
+      console.log(queryResult);
 
       if (queryResult.changes === 0) {
         throw new Error();
