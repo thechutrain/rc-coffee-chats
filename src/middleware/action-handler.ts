@@ -15,8 +15,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     // tslint:disable-next-line:object-literal-shorthand
     fn: function register(ctx, actionArgs) {
-      console.log('WHAT METHODS ARE ON this.ctx.db.user???');
-      console.log(this.db.user);
+      console.log('WHAT DOES THIS look like???');
+      console.log(JSON.stringify(this));
+
+      console.log('WHAT DOES CTX look like??');
+      console.log(JSON.stringify(ctx));
       // const db = JSON.stringify(ctx);
       // console.log(db);
       // console.log(ctx.db.user);
@@ -43,11 +46,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  */
 export function initActionHandler(db) {
   const ctx = {
-    db,
+    db: Object.freeze(db),
     originUser: ''
   };
-  console.log(ctx.db);
-  console.log(`that was the ctx.db from initActionHandler .... \n`);
+  // console.log(ctx.db);
+  // console.log(`that was the ctx.db from initActionHandler .... \n`);
   const dispatcher = initDispatcher(ctx, ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
@@ -59,8 +62,8 @@ export function initActionHandler(db) {
       return;
     }
 
-    console.log('ctx.db: ');
-    console.log(ctx.db);
+    // console.log('ctx.db: ');
+    // console.log(ctx.db);
 
     const { actionType, originUser } = req.local.action;
     ctx.originUser = originUser;
