@@ -46,7 +46,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  */
 export function initActionHandler(db) {
   const ctx = {
-    db: Object.freeze(db),
+    db,
     originUser: ''
   };
   // console.log(ctx.db);
@@ -114,7 +114,8 @@ export function initDispatcher(
     try {
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
-      msgArgs = fn.call(ctx, ctx, actionArgs);
+      // msgArgs = fn.call(ctx, ctx, actionArgs);
+      msgArgs = fn(ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
