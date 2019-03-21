@@ -15,7 +15,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     fn(ctx, actionArgs) {
       console.log('about to register user ...');
-      ctx.db.user.add({ email: ctx.originUser, full_name: ctx.originUser });
+      const result = ctx.db.user.add({
+        email: ctx.originUser,
+        full_name: ctx.originUser
+      });
+      console.log(result);
+      console.log('====== result from db ======');
     }
   },
   HELP: {
@@ -81,6 +86,8 @@ export function initDispatcher(
     // async action! but we can just wrap with async & await
     console.log('==== about to try to invoke function ===\n');
     try {
+      // QUESTION: better to have ctx be pointed to this? or to just pass it in
+      // as an argument?
       msgArgs = fn.call(ctx, ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
