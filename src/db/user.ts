@@ -206,6 +206,7 @@ export function initUserModel(db: sqlite) {
     // if (!foundUser) {
     //   throw new Error(`No user with email: "${targetEmail}" found to update`);
     // }
+    // TODO: validate input!
 
     const coffeeDayStr = coffeeDays.map(day => WEEKDAYS[day]).join('');
     const updateStmt = db.prepare(
@@ -217,7 +218,7 @@ export function initUserModel(db: sqlite) {
     // NOTE: will queryResult.changes still be one if the values are the same??
     // if successful, it will return 1
     const queryResult = updateStmt.run(coffeeDayStr, targetEmail);
-    if (queryResult.changed === 0) {
+    if (queryResult.changes === 0) {
       throw new Error('Could not update coffee days');
     }
 
