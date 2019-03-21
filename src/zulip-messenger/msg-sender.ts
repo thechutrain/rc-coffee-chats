@@ -90,7 +90,7 @@ export function createMessageContent(
     HELP: {
       template: `Hi! I'm :coffee: bot and I'm here to help! 
       To talk to me, enter a valid command that begins with the following: 
-      \`\`\`UPDATE | STATUS | HELP\`\`\`
+      \`\`\`SHOW | UPDATE | HELP\`\`\`
       I'm also open-sourced, so you can help contribute and make me better :smile:
       You can see find my inner workings @ [github](${
         process.env.HELP_URL
