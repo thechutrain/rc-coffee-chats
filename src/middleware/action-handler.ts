@@ -13,34 +13,16 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   REGISTER: {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
-    // tslint:disable-next-line:object-literal-shorthand
     fn(actionArgs) {
-      console.log(`!!!! INSIDE REGISTER FN`);
-      console.log(this);
-      console.log(this.db);
-      console.log(this.db.db);
-
       const result = this.db.user.add({
-        email: `alancodes@gmail.com`,
-        full_name: `alancodes@gmail.com`
+        email: this.originUser,
+        full_name: this.originUser // TODO: get this from user
       });
 
-      console.log(result);
-      // console.log('WHAT DOES THIS look like???');
-      // console.log(this);
-
-      // console.log('WHAT DOES this.user look like??');
-      // console.log(this.user);
-      // const db = JSON.stringify(ctx);
-      // console.log(db);
-      // console.log(ctx.db.user);
-
-      // const result = ctx.db.user.add({
-      //   email: ctx.originUser,
-      //   full_name: ctx.originUser
-      // });
-      // console.log(result);
-      console.log('....finished registering \n');
+      // TODO: add the typescript definitions to database
+      if (result.status === 'ERROR') {
+        throw new Error(`${result.message}`);
+      }
     }
   },
   HELP: {
@@ -98,11 +80,14 @@ export function initActionHandler(db) {
 export function initDispatcher(
   MapActionToFn: types.ActionHandlerMap
 ): (ctx: any, action: types.Action, actionArgs: any) => types.IMsg {
+  // QUESTION: could I not create ctx in the outer initDispatcher function
+  // and pass it into fn.call(ctx)? why weren't my fn for db.user there?
+
   return function dispatcher(ctx, action, actionArgs) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
-    console.log('CONTEXT from inside the dispatch fn:');
-    console.log(ctx);
+    // console.log('CONTEXT from inside the dispatch fn:');
+    // console.log(ctx);
 
     // Case: no function to run for a given action
     if (!fn) {
@@ -120,7 +105,6 @@ export function initDispatcher(
     try {
       // QUESTION: better to have ctx be pointed to this? or to just pass it in
       // as an argument?
-      // msgArgs = fn.call(ctx, ctx, actionArgs);
       msgArgs = fn.call(ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
