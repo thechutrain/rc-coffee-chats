@@ -114,9 +114,6 @@ export function initDispatcher(
 
   return function dispatcher(ctx, action, actionArgs) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
-    console.log('DISPATCHER FN: .....');
-    console.log(fn);
-    console.log(okMsg);
 
     // console.log('CONTEXT from inside the dispatch fn:');
     // console.log(ctx);
