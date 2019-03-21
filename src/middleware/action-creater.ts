@@ -49,15 +49,13 @@ export function getAction(cli: types.IParsedCmd): types.Action {
     ? `${cli.directive}_${cli.subcommand}`
     : `${cli.directive}`;
 
-  console.log(`Heres the command: ${command}`);
   if (!(command in types.Action) && command !== '') {
-    console.log('this should be an error');
     throw new Error(
       `Unrecognized command: ${command} \nCould not create a valid action`
     );
   } else if (command in types.Action) {
     return types.Action[command];
   } else {
-    return types.Action.SHOW_HELP;
+    return types.Action.HELP;
   }
 }

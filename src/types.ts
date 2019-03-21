@@ -51,9 +51,11 @@ export interface IParsedCmd {
 ////////////////////////////
 // Dispatch, Action, Commands
 ////////////////////////////
+// NOTE: Most actions are created by joining [FIRST_CMD]__[SECOND_COMMAND]
+// Exceptions are: PROMPT_SIGNUP && REGISTER
 export enum Action {
-  // 'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
-  // 'REGISTER' = 'REGISTER',
+  'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
+  'REGISTER' = 'REGISTER',
   // 'UPDATE_DAYS' = 'UPDATE_DAYS',
 
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',
@@ -66,7 +68,7 @@ export enum Action {
   // 'SHOW_PREV' = 'SHOW_PREV',
   // 'SHOW_SKIP' = 'SHOW_SKIP',
   // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
-  'SHOW_HELP' = 'SHOW_HELP'
+  'HELP' = 'HELP'
 }
 
 export interface IActionObj {
@@ -92,7 +94,7 @@ export interface IActionRules {
     reqArgs?: any; // Note: hard to card code what fn => any must contain. So will check dynamically
   };
   fn?: (
-    ctx: { db: any; reqUser: string; targetUser?: string },
+    ctx: { db: any; originUser: string; targetUser?: string },
     actionArgs: any
   ) => any;
   errMsg?: {

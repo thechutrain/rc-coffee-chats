@@ -8,7 +8,17 @@ import * as types from '../types';
  *  && what messages get sent if functions are successful
  */
 export const ActionHandlerMap: types.ActionHandlerMap = {
-  SHOW_HELP: {
+  PROMPT_SIGNUP: {
+    okMsg: { msgTemplate: types.msgTemplate.PROMPT_SIGNUP }
+  },
+  REGISTER: {
+    okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
+    fn(ctx, actionArgs) {
+      console.log('about to register user ...');
+      ctx.db.user.add({ email: ctx.originUser, full_name: ctx.originUser });
+    }
+  },
+  HELP: {
     okMsg: {
       msgTemplate: types.msgTemplate.HELP
       // reqArgs: { a: Number }
@@ -33,9 +43,7 @@ export function initActionHandler(ctx: { db: any }) {
     }
 
     const { actionType, originUser } = req.local.action;
-    // TEsting:
-    const { msgTemplate, msgArgs } = dispatcher(types.Action.SHOW_HELP, {});
-    // const { msgType, msgArgs } = dispatcher(actionType, req.local.cmd.args);
+    const { msgTemplate, msgArgs } = dispatcher(actionType, req.local.cmd.args);
 
     req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
 
@@ -73,7 +81,7 @@ export function initDispatcher(
     // async action! but we can just wrap with async & await
     console.log('==== about to try to invoke function ===\n');
     try {
-      msgArgs = fn.call(ctx, actionArgs);
+      msgArgs = fn.call(ctx, ctx, actionArgs);
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
