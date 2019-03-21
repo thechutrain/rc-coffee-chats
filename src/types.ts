@@ -52,10 +52,12 @@ export interface IParsedCmd {
 // Dispatch, Action, Commands
 ////////////////////////////
 // NOTE: Most actions are created by joining [FIRST_CMD]__[SECOND_COMMAND]
-// Exceptions are: PROMPT_SIGNUP && REGISTER
+// Exceptions include non-user input generated actions:
+// __PROMPT_SIGNUP && __REGISTER
+
 export enum Action {
-  'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
-  'REGISTER' = 'REGISTER',
+  '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
+  '__REGISTER' = '__REGISTER',
   'UPDATE__DAYS' = 'UPDATE__DAYS',
 
   // 'UPDATE_SKIP' = 'UPDATE_SKIP',

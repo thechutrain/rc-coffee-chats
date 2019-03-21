@@ -10,10 +10,10 @@ import * as types from '../types';
 export const ActionHandlerMap: types.ActionHandlerMap = {
   // NOTE: all errors thrown in action functions will be handled
   // by the dispatcher(), which will send a generic error msg:
-  PROMPT_SIGNUP: {
+  __PROMPT_SIGNUP: {
     okMsg: { msgTemplate: types.msgTemplate.PROMPT_SIGNUP }
   },
-  REGISTER: {
+  __REGISTER: {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     fn(actionArgs) {
       const result = this.db.user.add({

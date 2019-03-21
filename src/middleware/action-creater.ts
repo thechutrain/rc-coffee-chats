@@ -11,8 +11,8 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   if (!isRegistered) {
     const wantsToSignUp = req.body.data.match(/signup/gi);
     actionType = wantsToSignUp
-      ? types.Action.REGISTER
-      : types.Action.PROMPT_SIGNUP;
+      ? types.Action.__REGISTER
+      : types.Action.__PROMPT_SIGNUP;
   } else {
     try {
       actionType = getAction(req.local.cmd);
@@ -46,7 +46,7 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 // NOTE: will never return null action, by default will return HELP action
 export function getAction(cli: types.IParsedCmd): types.Action {
   const command = cli.subcommand
-    ? `${cli.directive}_${cli.subcommand}`
+    ? `${cli.directive}__${cli.subcommand}`
     : `${cli.directive}`;
 
   if (!(command in types.Action) && command !== '') {
