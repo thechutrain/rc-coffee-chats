@@ -2,8 +2,8 @@ import sqlite from 'better-sqlite3';
 
 // Models
 // import { initUserModel } from './user';
-import { initMatchModel } from './match';
-import { initUserMatchModel } from './usermatch';
+// import { initMatchModel } from './match';
+// import { initUserMatchModel } from './usermatch';
 
 // TODO: make more strict interface types on the initDB return type
 export function initDB(
@@ -15,16 +15,16 @@ export function initDB(
 
   // Initialize Models here:
   // const user = initUserModel(db);
-  const match = initMatchModel(db);
-  const userMatch = initUserMatchModel(db);
+  // const match = initMatchModel(db);
+  // const userMatch = initUserMatchModel(db);
 
   // Ensure Tables have been also created:
   // user.createTable();
-  match.createTable();
-  userMatch.createTable();
+  // match.createTable();
+  // userMatch.createTable();
 
   return {
     user: {},
-    match
+    match: {}
   };
 }
