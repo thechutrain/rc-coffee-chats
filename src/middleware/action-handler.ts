@@ -48,8 +48,6 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
     fn(actionArgs) {
-      // TODO: need to validate
-
       // QUESTION: should db function just try to validate?
       const { coffeeDays } = this.db.user.updateCoffeeDays(
         this.originUser,
