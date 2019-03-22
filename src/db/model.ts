@@ -107,12 +107,64 @@ export abstract class Model {
     const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (
 ${queryBody})`;
 
-    console.log(query);
+    // console.log(query);
     Model.db.exec(query);
   }
 
-  // IMPORTANT: this does not consider the case w
+  /**
+   * simple validation that ensures all queryArgs exist as column/fields & runs isValideFn
+   * NOTE: not really necessary since sqlite3 will throw us an error :)
+   * @param queryArgs
+   */
+  // NOTE: can pass in function.name && tableName too
+  public __validateQueryArgs(queryArgs = {}): void {
+    for (const argKey in queryArgs) {
+      if (!Object.prototype.hasOwnProperty.call(this.fields, argKey)) {
+        // ErrorType: extra arg that is not related to any field
+        throw new Error(
+          `add a new record was provided a key of "${argKey}" that is not associated with any field on the table "${
+            this.tableName
+          }"`
+        );
+      }
+
+      const { isValidFn } = this.fields[argKey];
+
+      if (isValidFn && !isValidFn(queryArgs[argKey])) {
+        // ErrorType: arg failed validation
+        throw new Error(
+          `provided argument of "${queryArgs[argKey]}" failed validation`
+        );
+      }
+    }
+  }
+
+  public find(queryArgs = {}): any[] {
+    this.__validateQueryArgs(queryArgs);
+    const { db } = Model;
+
+    let query;
+    if (Object.keys(queryArgs).length === 0) {
+      query = db.prepare(`SELECT * FROM ${this.tableName}`);
+    } else {
+      const whereArr = Object.keys(queryArgs).map(f => `${f} = @${f}`);
+      // console.log(
+      //   `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
+      // );
+
+      query = db.prepare(
+        `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
+      );
+    }
+    const result = query.all(queryArgs);
+    console.log(result);
+    return result;
+  }
+
+  // public findOne(queryArgs = {}): any {}
+
   public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
+    this.__validateQueryArgs(queryArgs);
     const { db } = Model;
     // 1) figure out what the required params are:
     // Map through the Fields & filter for
@@ -136,29 +188,11 @@ ${queryBody})`;
       }
     }
 
-    // 3) invoke the validatorFn for each field && check if arg
-    // is in the field?
-    for (const argKey in queryArgs) {
-      if (!Object.prototype.hasOwnProperty.call(this.fields, argKey)) {
-        // ErrorType: extra arg that is not related to any field
-        throw new Error(
-          `add a new record was provided a key of "${argKey}" that is not associated with any field on the table "${
-            this.tableName
-          }"`
-        );
-      }
+    // NOTE: do not have to do this in sqlite3, since we can still create the
+    // table. However we need to do this in
+    // 4) Check that any Foreign Keys vals exist in separate tables:
 
-      const { validatorFn } = this.fields[argKey];
-
-      if (validatorFn && validatorFn(queryArgs[argKey])) {
-        // ErrorType: arg failed validation
-        throw new Error(
-          `provided argument of "${queryArgs[argKey]}" failed validation`
-        );
-      }
-    }
-
-    // 4) create query
+    // 5) create query
     const fields = Object.keys(queryArgs);
     const fieldPlaceholder = fields.map(f => `@${f}`);
 
@@ -168,7 +202,7 @@ ${queryBody})`;
       ${fieldPlaceholder.join(', ')}
       )`;
 
-    // 5) run query
+    // 6) run query
     const query = db.prepare(queryStr);
     const result = query.run(queryArgs);
 
@@ -176,6 +210,11 @@ ${queryBody})`;
     return result;
   }
 
+  // public update(queryArgs = { { changes: number; lastInsertROWID: number } {}
+
+  public remove(queryArgs = {}) {
+    // TODO:
+  }
   public count(): number {
     // Note: this will point to actual child usermodel ect. :)
     const countQuery = Model.db.prepare(
