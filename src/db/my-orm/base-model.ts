@@ -1,17 +1,16 @@
 import sqlite from 'better-sqlite3';
-import * as types from './dbTypes';
+import * as types from './my-orm-types';
 
 /** NOTES:
  * - need to check that there is only one primary key selected
  *
  */
 
-export abstract class Model {
+export class Model {
   static db: sqlite;
   // NOTE: add tableName, fields should be part of an interface!
   protected tableName: string; // ex. User
   protected fields: types.fields;
-  protected relations?: types.IRelation[];
 
   constructor(db: sqlite) {
     if (!Model.db) {
@@ -20,6 +19,7 @@ export abstract class Model {
   }
 
   get primaryKey(): string {
+    // Note: makes the assumption that there is a primary key && that there is just one
     return Object.keys(this.fields).filter(s => this.fields[s].isPrimaryKey)[0];
   }
 
@@ -163,7 +163,7 @@ ${queryBody})`;
       );
     }
     const result = query.all(queryArgs);
-    console.log(result);
+
     return result;
   }
 
