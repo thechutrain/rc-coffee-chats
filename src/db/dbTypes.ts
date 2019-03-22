@@ -5,7 +5,10 @@ export type sqliteDataTypes = 'TEXT' | 'INTEGER';
 // type mapModifierToString = Record<>
 // type fieldModifiers = 'PRIMARY KEY' | 'NOT NULL' | 'UNIQUE' | 'DEFAULT';
 
-export interface IFieldProps {
+export type IFieldProps = IBaseField | IFkField;
+// export interface IBaseField {
+
+export interface IBaseField {
   type: sqliteDataTypes;
   // SQL related vals
   isPrimaryKey?: boolean;
@@ -23,7 +26,25 @@ export interface IFieldProps {
   // 2) validator for each column
 }
 
+export interface IFkField extends IBaseField {
+  foreignKey: {
+    refTable: string;
+    refColumn: string;
+  };
+}
+// export interface IFkField extends IBaseField {
+//   isForeignKey: true;
+//   refTable: string; // QUESTION: these have to be checked at runtime?
+//   refColumn: string;
+// }
+
 export type fields = Record<any, IFieldProps>;
+
+export interface IRelation {
+  foreignKey: string;
+  refTable: string;
+  refColumn: string;
+}
 
 // ======= Table Relationships ====
 // TODO: how to figure out the dynamic keys of a type?
@@ -36,8 +57,4 @@ export type fields = Record<any, IFieldProps>;
 //   ref: R;
 // }
 
-export interface IRelation {
-  foreignKey: string;
-  refTable: string;
-  refColumn: string;
-}
+// NOTE: this should really be in the field table

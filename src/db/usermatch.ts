@@ -31,16 +31,24 @@ export const FIELDS: types.fields = {
   user_id: {
     type: 'INTEGER',
     isNotNull: true,
-    isUnique: true
+    isUnique: true,
+    foreignKey: {
+      refTable: UserModelName,
+      refColumn: 'id' // quickcheck: `${UserFields.id}`
+    }
   },
   match_id: {
     type: 'INTEGER',
     isNotNull: true,
-    isUnique: true
+    isUnique: true,
+    foreignKey: {
+      refTable: MatchModelName,
+      refColumn: 'id' // MatchFields.id
+    }
   }
 };
 
-export class MatchModel extends Model {
+export class UserMatchModel extends Model {
   protected readonly tableName = TABLE_NAME;
   protected fields: types.fields = FIELDS;
   protected relations: types.IRelation[] = RELATIONS;
@@ -48,12 +56,12 @@ export class MatchModel extends Model {
   constructor(db) {
     super(db);
 
-    Model.createTable(this.tableName, this.fields, this.relations);
+    this.__createTable();
   }
 }
 
 // ========= TESTING!!!! ===============
-// const DB_PATH = path.join(__dirname, '-user-match-model-test.db');
-// const dbConnection = new sqlite(DB_PATH);
-// const match = new MatchModel(dbConnection);
+const DB_PATH = path.join(__dirname, '-user-match-model-test.db');
+const dbConnection = new sqlite(DB_PATH);
+const match = new UserMatchModel(dbConnection);
 // console.log(match.count());

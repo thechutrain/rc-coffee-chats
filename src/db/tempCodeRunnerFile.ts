@@ -1,0 +1,2 @@
+
+    refTable: 'User',

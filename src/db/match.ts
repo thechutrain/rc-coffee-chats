@@ -24,15 +24,16 @@ export const FIELDS: types.fields = {
 export class MatchModel extends Model {
   protected readonly tableName = TABLE_NAME;
   protected fields: types.fields = FIELDS;
+  protected relations: types.IRelation[] = [];
 
   constructor(db) {
     super(db);
-
-    Model.createTable(this.tableName, this.fields);
+    this.__createTable();
   }
 }
 
 // ========= TESTING!!!! ===============
-const DB_PATH = path.join(__dirname, '-match-model-test.db');
-const match = new MatchModel(new sqlite(DB_PATH));
-match.count();
+// const DB_PATH = path.join(__dirname, '-match-model-test.db');
+// const match = new MatchModel(new sqlite(DB_PATH));
+// console.log(match.count());
+// match.add({});

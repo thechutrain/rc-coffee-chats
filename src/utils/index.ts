@@ -51,8 +51,9 @@ const getEmailsForDay = ({ emails, userConfigs, day }) => {
     acc[v.email] = String(v.coffee_days);
     return acc;
   }, {});
-
-  const isDefaultDay = process.env.DEFAULT_COFFEE_DAYS.includes(day);
+  // TODO: FIX THIS!!!
+  const isDefaultDay = false;
+  // const isDefaultDay = process.env.DEFAULT_COFFEE_DAYS.includes(day);
   return emails.filter(email => {
     const config = userConfigMap[email];
     if (!config && isDefaultDay) return true;
