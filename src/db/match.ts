@@ -15,7 +15,7 @@ export const FIELDS: types.fields = {
   date: {
     type: 'TEXT',
     isNotNull: true,
-    validatorFn: input => {
+    isValidFn: input => {
       return true;
     }
   }

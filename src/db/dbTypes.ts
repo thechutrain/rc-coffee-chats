@@ -18,7 +18,7 @@ export interface IBaseField {
   defaultValue?: string;
 
   // TODO: think about this?
-  validatorFn?: (val: string) => boolean; // Can be used to create checks,
+  isValidFn?: (val: string) => boolean; // Can be used to create checks,
   // QUESTION: can you run the validatorFn in reverse, to get the set of values that
   // are acceptable --> to put in as a Check?
   // Validator for user interface:
