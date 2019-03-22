@@ -1,11 +1,7 @@
 import sqlite from 'better-sqlite3';
 import * as types from './my-orm-types';
 
-/** NOTES:
- * - need to check that there is only one primary key selected
- *
- */
-
+// ========== OLD STUFF ============
 export class Model {
   static db: sqlite;
   // NOTE: add tableName, fields should be part of an interface!
