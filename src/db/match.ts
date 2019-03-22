@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as types from './dbTypes';
 
 export const TABLE_NAME = 'Match';
-export const MatchModelFields: types.fields = {
+export const FIELDS: types.fields = {
   id: {
     type: 'INTEGER',
     isPrimaryKey: true,
@@ -23,7 +23,7 @@ export const MatchModelFields: types.fields = {
 
 export class MatchModel extends Model {
   protected readonly tableName = TABLE_NAME;
-  protected fields: types.fields = MatchModelFields;
+  protected fields: types.fields = FIELDS;
 
   constructor(db) {
     super(db);

@@ -10,6 +10,7 @@ export interface IFieldProps {
   // SQL related vals
   isPrimaryKey?: boolean;
   isUnique?: boolean;
+  // isRequired?: boolean; // Necessary? overlap with isNotNull?
   isNotNull?: boolean;
   defaultValue?: string;
 
@@ -25,11 +26,18 @@ export interface IFieldProps {
 export type fields = Record<any, IFieldProps>;
 
 // ======= Table Relationships ====
-export interface ItableRelation<
-  F extends keyof fields,
-  R extends keyof fields
-> {
-  fk: F;
-  tableName: string;
-  ref: R;
+// TODO: how to figure out the dynamic keys of a type?
+// export interface ItableRelation<
+//   F extends keyof fields,
+//   R extends keyof fields
+// > {
+//   fk: F;
+//   tableName: string;
+//   ref: R;
+// }
+
+export interface IRelation {
+  foreignKey: string;
+  refTable: string;
+  refColumn: string;
 }
