@@ -28,7 +28,6 @@ export abstract class Model {
   }
 
   public __createTable() {
-    console.log(this.foreignKeys);
     // 1) Validate that we can make a new table
     if (!Model.db) {
       throw new Error(`No database intialized`);
@@ -119,7 +118,9 @@ ${queryBody})`;
     }
 
     // ===== Ensure no primary keys ======
-    if (noPrimaryKey) {
+    // TODO: FIX: right now it is checking to see if all required fields
+    // are in the queryARgs (notNull values)! useful for creation but not updating
+    if (false) {
       // 1) figure out what the required params are:
       // Map through the Fields & filter for
       // fields that are isNotNull == true && isPrimaryKey == false
@@ -193,26 +194,54 @@ ${queryBody})`;
     return result;
   }
 
-  public update(queryArgs = {}): { changes: number; lastInsertROWID: number } {
-    const foundRecords = this.find(queryArgs);
+  public update(updateArgs = {}, whereArgs = {}): { changes: number } {
+    const { db } = Model;
+    // TODO: fix this so validator checks that all fields are within:
+    // - notPrimaryKey
+    this.__validateQueryArgs(updateArgs, false);
+
+    // Check that there are valid records to update
+    const foundRecords = this.find(whereArgs);
     if (foundRecords.length === 0) {
       throw new Error('Found no records to update');
     }
 
-    // Use the primary key
-    // const primaryKey = Object.keys(this.fields).filter(
-    //   s => this.fields[s].isPrimaryKey
-    // )[0];
+    const recordsByPrmKey: string[] = foundRecords.map(record => {
+      return record[this.primaryKey];
+    });
+    console.log(recordsByPrmKey);
 
-    console.log(this.primaryKey);
+    const updateBody = Object.keys(updateArgs).map(
+      colStr => `${colStr} = @${colStr}`
+    );
+    const updateStr = `UPDATE ${this.tableName} SET
+    ${updateBody.join(', ')}
+    WHERE ${this.primaryKey} = @${this.primaryKey}`;
+    console.log(updateStr);
 
-    this.__validateQueryArgs(queryArgs, true); // Default, cant update primary keys!
-    const { db } = Model;
+    const update = db.prepare(updateStr);
+    let changes = 0;
 
-    return {
-      changes: 1,
-      lastInsertROWID: 1
-    };
+    // Source: https://github.com/JoshuaWise/better-sqlite3/issues/49
+    const begin = db.prepare('BEGIN');
+    const commit = db.prepare('COMMIT');
+    const rollback = db.prepare('ROLLBACK');
+    begin.run();
+    try {
+      for (const prmKey of recordsByPrmKey) {
+        const sqlArgs = { ...updateArgs, [this.primaryKey]: prmKey };
+
+        update.run(sqlArgs);
+        changes += 1;
+      }
+      commit.run();
+    } catch (e) {
+      console.warn(`could not run bulk update \n ${e}`);
+      changes = 0;
+      rollback.run();
+    }
+
+    return { changes };
   }
 
   // public remove(queryArgs = {}) {
