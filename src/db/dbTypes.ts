@@ -12,6 +12,10 @@ export interface IBaseField {
   type: sqliteDataTypes;
   // SQL related vals
   isPrimaryKey?: boolean;
+  foreignKey?: {
+    refTable: string;
+    refColumn: string;
+  };
   isUnique?: boolean;
   // isRequired?: boolean; // Necessary? overlap with isNotNull?
   isNotNull?: boolean;

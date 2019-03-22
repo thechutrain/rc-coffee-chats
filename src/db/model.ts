@@ -19,7 +19,16 @@ export abstract class Model {
     }
   }
 
+  get primaryKey(): string {
+    return Object.keys(this.fields).filter(s => this.fields[s].isPrimaryKey)[0];
+  }
+
+  get foreignKeys(): string[] {
+    return Object.keys(this.fields).filter(s => this.fields[s].foreignKey);
+  }
+
   public __createTable() {
+    console.log(this.foreignKeys);
     // 1) Validate that we can make a new table
     if (!Model.db) {
       throw new Error(`No database intialized`);
@@ -73,35 +82,6 @@ export abstract class Model {
         );
       }
     }
-    // const relationsAsArray = Object.keys(this.fields)
-    //   .filter(field => {
-    //     return Object.prototype.hasOwnProperty(this.fields[field], 'as');
-    //     // const { foreignKey } = this.fields[field];
-    //     // return !!foreignKey;
-    //   })
-    //   .map(fkField => {
-    //     // QUESTION: is typescript not smart enough to know that these should be there?
-    //     // Or do I have to update my type?
-    //     const {
-    //       foreignKey: { refTable, refColumn }
-    //     } = this.fields[fkField] as types.IFkField;
-
-    //     return `FOREIGN KEY (${fkField}) REFERENCES ${refTable} (${refColumn})
-    //     ON DELETE CASCADE ON UPDATE NO ACTION`;
-    //   });
-
-    // console.log(queryBodyArr);
-
-    // 3) process any of the relations:
-    // TODO: replace this and create from the fields themselves
-    // if (this.relations) {
-    //   const relationsAsArray: string[] = this.relations.map(r => {
-    //     return `FOREIGN KEY (${r.foreignKey}) REFERENCES ${r.refTable} (${
-    //       r.refColumn
-    //     }) ON DELETE CASCADE ON UPDATE NO ACTION`;
-    //   });
-    //   queryBodyArr = queryBodyArr.concat(relationsAsArray);
-    // }
 
     const queryBody = queryBodyArr.join(',\n');
     const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -117,7 +97,7 @@ ${queryBody})`;
    * @param queryArgs
    */
   // NOTE: can pass in function.name && tableName too
-  public __validateQueryArgs(queryArgs = {}): void {
+  public __validateQueryArgs(queryArgs = {}, noPrimaryKey = true): void {
     for (const argKey in queryArgs) {
       if (!Object.prototype.hasOwnProperty.call(this.fields, argKey)) {
         // ErrorType: extra arg that is not related to any field
@@ -137,10 +117,35 @@ ${queryBody})`;
         );
       }
     }
+
+    // ===== Ensure no primary keys ======
+    if (noPrimaryKey) {
+      // 1) figure out what the required params are:
+      // Map through the Fields & filter for
+      // fields that are isNotNull == true && isPrimaryKey == false
+      const reqFields = Object.keys(this.fields).filter(field => {
+        const { isPrimaryKey, isNotNull } = this.fields[field];
+        // Note: since primary key will autoincrement, never allow users to
+        // specify primary key when adding a new record
+        return isPrimaryKey ? false : isNotNull;
+      });
+
+      // 2) determine that the given args has those required params
+      for (const field of reqFields) {
+        if (!Object.prototype.hasOwnProperty.call(queryArgs, field)) {
+          // ErrorType: missing required field
+          throw new Error(
+            `cannot add a new record in table "${
+              this.tableName
+            }" because you are missing an argument of "${field}"`
+          );
+        }
+      }
+    }
   }
 
   public find(queryArgs = {}): any[] {
-    this.__validateQueryArgs(queryArgs);
+    this.__validateQueryArgs(queryArgs, false);
     const { db } = Model;
 
     let query;
@@ -164,30 +169,8 @@ ${queryBody})`;
   // public findOne(queryArgs = {}): any {}
 
   public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
-    this.__validateQueryArgs(queryArgs);
+    this.__validateQueryArgs(queryArgs, true);
     const { db } = Model;
-    // 1) figure out what the required params are:
-    // Map through the Fields & filter for
-    // fields that are isNotNull == true && isPrimaryKey == false
-    const reqFields = Object.keys(this.fields).filter(field => {
-      const { isPrimaryKey, isNotNull } = this.fields[field];
-      // Note: since primary key will autoincrement, never allow users to
-      // specify primary key when adding a new record
-      return isPrimaryKey ? false : isNotNull;
-    });
-
-    // 2) determine that the given args has those required params
-    for (const field of reqFields) {
-      if (!Object.prototype.hasOwnProperty.call(queryArgs, field)) {
-        // ErrorType: missing required field
-        throw new Error(
-          `cannot add a new record in table "${
-            this.tableName
-          }" because you are missing an argument of "${field}"`
-        );
-      }
-    }
-
     // NOTE: do not have to do this in sqlite3, since we can still create the
     // table. However we need to do this in
     // 4) Check that any Foreign Keys vals exist in separate tables:
@@ -210,11 +193,31 @@ ${queryBody})`;
     return result;
   }
 
-  // public update(queryArgs = { { changes: number; lastInsertROWID: number } {}
+  public update(queryArgs = {}): { changes: number; lastInsertROWID: number } {
+    const foundRecords = this.find(queryArgs);
+    if (foundRecords.length === 0) {
+      throw new Error('Found no records to update');
+    }
 
-  public remove(queryArgs = {}) {
-    // TODO:
+    // Use the primary key
+    // const primaryKey = Object.keys(this.fields).filter(
+    //   s => this.fields[s].isPrimaryKey
+    // )[0];
+
+    console.log(this.primaryKey);
+
+    this.__validateQueryArgs(queryArgs, true); // Default, cant update primary keys!
+    const { db } = Model;
+
+    return {
+      changes: 1,
+      lastInsertROWID: 1
+    };
   }
+
+  // public remove(queryArgs = {}) {
+  //   // TODO:
+  // }
   public count(): number {
     // Note: this will point to actual child usermodel ect. :)
     const countQuery = Model.db.prepare(
