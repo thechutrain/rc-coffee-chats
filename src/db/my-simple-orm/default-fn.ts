@@ -18,3 +18,17 @@ export function find(queryArgs: { attrs?: string[]; where?: any }) {
   // console.log(queryStr);
   return queryStr;
 }
+
+export function __validateQueryArgs(queryArgs: any = {}) {
+  // Ensure that the keys in query arg are valid fields:
+  for (const queryKey in queryArgs) {
+    if (!Object.prototype.hasOwnProperty.call(this.fields, queryKey)) {
+      // ErrorType: extra arg that is not related to any field
+      throw new Error(
+        `failed query argument validation. Query function was passed a key of "${queryKey}" that is not associated with any column on the table "${
+          this.tableName
+        }"`
+      );
+    }
+  }
+}
