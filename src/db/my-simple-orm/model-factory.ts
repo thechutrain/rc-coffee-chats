@@ -19,15 +19,15 @@ function initModelFactory(db) {
 // ===== testing
 const msg = 'im the db';
 const factory = initModelFactory(msg);
-const userSchema: types.ISchema = {
-  tableName: 'user',
-  fields: {
-    id: { type: 'INTEGER', isPrimaryKey: true }
-  }
-};
+// const userSchema: types.ISchema = {
+//   tableName: 'user',
+//   fields: {
+//     id: { type: 'INTEGER', isPrimaryKey: true }
+//   }
+// };
 
-const childModel = factory(userSchema);
-console.log(childModel);
+// const childModel = factory(userSchema);
+// console.log(childModel);
 // console.log(childModel.primaryKey);
 
 // console.log(childModel.db)

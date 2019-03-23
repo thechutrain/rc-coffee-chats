@@ -97,5 +97,17 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     expect(error).not.toBeNull();
   });
 
-  it('should throw an error for', () => {});
+  it('should throw an error if it bans filterableMetaField that is provided', () => {
+    const ctx = defaultCtx;
+    let error = null;
+
+    try {
+      __validateQueryArgs.call(ctx, { id: 1 }, ['isPrimaryKey']);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBe(false);
+    expect(error).not.toBeNull();
+  });
 });

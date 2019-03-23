@@ -1,3 +1,4 @@
+import * as types from './my-orm-types';
 /**
  * smallest unit for each of the
  * @param queryArgs
@@ -19,7 +20,10 @@ export function find(queryArgs: { attrs?: string[]; where?: any }) {
   return queryStr;
 }
 
-export function __validateQueryArgs(queryArgs: any = {}) {
+export function __validateQueryArgs(
+  queryArgs: any = {},
+  excludeMeta: types.filterableMetaFields[] = []
+) {
   // Ensure that the keys in query arg are valid fields:
   for (const queryKey in queryArgs) {
     if (!Object.prototype.hasOwnProperty.call(this.fields, queryKey)) {
@@ -31,4 +35,63 @@ export function __validateQueryArgs(queryArgs: any = {}) {
       );
     }
   }
+
+  // Get all the colFields that we should exclude
+  // & ensure they aren't in queryArgs
+  if (excludeMeta.length === 0) return;
+
+  const fieldsToExclude: any[] = [];
+  for (const field in this.fields) {
+    const { meta, colName } = this.fields[field] as types.IField;
+    for (const metaProperty in meta) {
+      // console.log(metaProperty);
+      if (
+        excludeMeta.indexOf(metaProperty as types.filterableMetaFields) !== -1
+      ) {
+        fieldsToExclude.push(colName);
+      }
+    }
+  }
+  // console.log(fieldsToExclude);
+
+  // Check that none of the queryArgs provided belong on the fieldsToExclude
+  Object.keys(queryArgs).forEach(queryKey => {
+    const foundIndex = fieldsToExclude.indexOf(queryKey);
+    if (foundIndex !== -1) {
+      throw new Error(
+        `${queryKey} was found in the fields that should be excluded`
+      );
+    }
+  });
 }
+
+// ===== testing ===
+// const defaultCtx: types.ISchema = {
+//   tableName: 'User',
+//   fields: {
+//     id: {
+//       colName: 'id',
+//       type: types.sqliteType.INTEGER,
+//       meta: {
+//         isPrimaryKey: true,
+//         isNotNull: true,
+//         isUnique: true
+//       }
+//     },
+//     username: {
+//       colName: 'username',
+//       type: types.sqliteType.TEXT,
+//       meta: {
+//         isUnique: true,
+//         isNotNull: true
+//       }
+//     },
+//     age: {
+//       colName: 'age',
+//       type: types.sqliteType.INTEGER,
+//       meta: {}
+//     }
+//   }
+// };
+
+// __validateQueryArgs.call(defaultCtx, { id: 3 }, ['isPrimaryKey']);

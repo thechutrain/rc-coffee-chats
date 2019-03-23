@@ -6,7 +6,7 @@ export class Model {
   static db: sqlite;
   // NOTE: add tableName, fields should be part of an interface!
   protected tableName: string; // ex. User
-  protected fields: types.fields;
+  protected fields: types.fieldListing;
 
   constructor(db: sqlite) {
     if (!Model.db) {

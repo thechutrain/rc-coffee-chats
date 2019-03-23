@@ -1,5 +1,3 @@
-// export type sqliteDataTypes = 'TEXT' | 'INTEGER';
-
 export enum sqliteType {
   'TEXT' = 'TEXT',
   'INTEGER' = 'INTEGER',
@@ -8,30 +6,27 @@ export enum sqliteType {
 
 export interface ISchema {
   tableName: string;
-  fields: Record<string, IField>;
+  fields: fieldListing;
 }
 
+export type fieldListing = Record<string, IField>;
 ////////////////////////
 // field props
 ////////////////////////
+export type filterableMetaFields = keyof IMetaFields;
 
-export type filterableMetaFields =
-  | 'isPrimaryKey'
-  | 'isForeignKey'
-  | 'isUnique'
-  | 'isNotNull'
-  | 'isDefault';
+interface IMetaFields {
+  isPrimaryKey?: boolean;
+  isForeignKey?: boolean;
+  isUnique?: boolean; // Note: isRequireUpdate ... additional related descriptor
+  isNotNull?: boolean;
+  isDefault?: boolean;
+}
 
 export interface IField {
   colName: string;
   type: sqliteType;
-  meta: {
-    isPrimaryKey?: boolean;
-    isForeignKey?: boolean;
-    isUnique?: boolean; // Note: isRequireUpdate ... additional related descriptor
-    isNotNull?: boolean;
-    isDefault?: boolean;
-  };
+  meta: IMetaFields;
   defaultValue?: any;
   foreignKey?: {
     refTable: string;
