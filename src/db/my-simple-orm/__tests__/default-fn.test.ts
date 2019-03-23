@@ -1,33 +1,37 @@
 import { find, __validateQueryArgs } from '../default-fn';
 import * as types from '../my-orm-types';
 
-interface ITestCtx {
-  tableName: string;
-  fields: types.fields;
-}
+// interface ITestCtx {
+//   tableName: string;
+//   fields: types.fields;
+// }
 
-let defaultCtx: ITestCtx;
+let defaultCtx: types.ISchema;
 beforeEach(() => {
   defaultCtx = {
     tableName: 'User',
     fields: {
       id: {
-        type: 'INTEGER',
-        isPrimaryKey: true,
-        isNotNull: true,
-        isUnique: true
+        colName: 'id',
+        type: types.sqliteType.INTEGER,
+        meta: {
+          isPrimaryKey: true,
+          isNotNull: true,
+          isUnique: true
+        }
       },
       username: {
-        type: 'TEXT',
-        isUnique: true,
-        isNotNull: true
-      },
-      name: {
-        type: 'TEXT',
-        isNotNull: true
+        colName: 'username',
+        type: types.sqliteType.TEXT,
+        meta: {
+          isUnique: true,
+          isNotNull: true
+        }
       },
       age: {
-        type: 'INTEGER'
+        colName: 'age',
+        type: types.sqliteType.INTEGER,
+        meta: {}
       }
     }
   };
@@ -42,7 +46,7 @@ describe('Base Model Fn: find()', () => {
   });
 
   it('should not be able to modify Attrs to select, Where if they are existing fields', () => {
-    const ctx: ITestCtx = defaultCtx;
+    const ctx = defaultCtx;
 
     const sqlStr_1 = find.call(ctx, { where: { id: 2 } });
     expect(sqlStr_1).toBe('SELECT * FROM User WHERE id = @id');
@@ -69,7 +73,8 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     let error = null;
     try {
       __validateQueryArgs.call(ctx, {
-        id: 1
+        id: 1,
+        username: 'validname'
       });
     } catch (e) {
       error = e;
@@ -91,4 +96,6 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
 
     expect(error).not.toBeNull();
   });
+
+  it('should throw an error for', () => {});
 });
