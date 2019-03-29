@@ -55,8 +55,8 @@ export class UserModel extends Model {
 }
 
 // ========= TESTING!!!! ===============
-const DB_PATH = path.join(__dirname, '-user-model-test.db');
-const user = new UserModel(new sqlite(DB_PATH));
+// const DB_PATH = path.join(__dirname, '-user-model-test.db');
+// const user = new UserModel(new sqlite(DB_PATH));
 // user.add({ email: 'a@gmail.com', full_name: 'a', wrong: 'should not exist' });
 // user.add({ email: 'b@gmail.com', full_name: 'bbbbb', coffee_days: '123' });
 // user.add({ email: 'a@gmail.com', full_name: 'a' });
