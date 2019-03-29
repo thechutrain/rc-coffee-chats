@@ -32,10 +32,22 @@ export function update(
 
 export function count(): number {}
 
+// TODO:
+// validate the argument types?
+/** Validates query arguments before making any SQL transactions:
+ * - ensures you have valid fields/column names
+ * -
+ * @param queryArgs
+ * @param excludeMeta
+ */
 export function __validateQueryArgs(
   queryArgs: any = {},
   excludeMeta: types.filterableMetaFields[] = []
+  // requiredFields: types.filterableMetaFields[] = []
 ) {
+  // Note: instead of throwing an error for non-valid query args
+  // you could just ignore invalid keys and return a validated obj?
+
   // Ensure that the keys in query arg are valid fields:
   for (const queryKey in queryArgs) {
     if (!Object.prototype.hasOwnProperty.call(this.fields, queryKey)) {
@@ -71,7 +83,7 @@ export function __validateQueryArgs(
     const foundIndex = fieldsToExclude.indexOf(queryKey);
     if (foundIndex !== -1) {
       throw new Error(
-        `${queryKey} was found in the fields that should be excluded`
+        `"${queryKey}" was found in the fields that should be excluded`
       );
     }
   });
