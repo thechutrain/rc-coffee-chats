@@ -30,7 +30,7 @@ interface IMetaFields {
 export interface IField {
   colName: string;
   type: sqliteType;
-  meta: IMetaFields;
+  meta?: IMetaFields;
   defaultValue?: any;
   foreignKey?: {
     refTable: string;
