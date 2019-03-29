@@ -21,6 +21,17 @@ export function find(queryArgs: { attrs?: string[]; where?: any }) {
   return queryStr;
 }
 
+export function add(
+  queryArgs = {}
+): { changes: number; lastInsertROWID: number } {}
+
+export function update(
+  updateArgs = {},
+  whereArgs = {}
+): { changes: number; err?: string } {}
+
+export function count(): number {}
+
 export function __validateQueryArgs(
   queryArgs: any = {},
   excludeMeta: types.filterableMetaFields[] = []
