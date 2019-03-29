@@ -1,6 +1,6 @@
 import sqlite from 'better-sqlite3';
-import * as types from './my-orm-types';
-import * as defaultFn from './default-fn';
+import * as types from './types';
+// import * as defaultFn from './base-model-fn';
 
 /**
  * Random ideas
@@ -45,6 +45,7 @@ export function initBaseModel(db: sqlite) {
   return baseModel;
 }
 
+// ============ default fn
 function registerCustomQuery(queryName, fn: (...argument) => string) {
   Object.defineProperty(this, queryName, {
     value() {

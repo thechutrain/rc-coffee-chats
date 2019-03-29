@@ -1,3 +1,7 @@
+/** My-simple-orm Types
+ *
+ */
+
 export enum sqliteType {
   'TEXT' = 'TEXT',
   'INTEGER' = 'INTEGER',

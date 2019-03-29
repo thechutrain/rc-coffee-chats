@@ -1,5 +1,5 @@
-import { find, __validateQueryArgs } from '../default-fn';
-import * as types from '../my-orm-types';
+import { find, __validateQueryArgs } from '../base-model-fn';
+import * as types from '../types';
 
 // interface ITestCtx {
 //   tableName: string;
