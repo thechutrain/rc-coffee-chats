@@ -55,12 +55,19 @@ describe('Base Model Fn: find()', () => {
   });
 });
 
+describe('Base Model Fn: add()', () => {});
+
+describe('Base Model Fn: update()', () => {});
+
+describe('Base Model Fn: count()', () => {});
+
 describe('Base Model Fn: __validateQueryArgs()', () => {
   it('should not throw an error if no query args provided', () => {
     const ctx = defaultCtx;
     let error = null;
     try {
-      __validateQueryArgs.call(ctx, {});
+      // __validateQueryArgs.call(ctx, {});
+      __validateQueryArgs(ctx.tableName, ctx.fields, {});
     } catch (e) {
       error = e;
     }
@@ -71,7 +78,7 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     const ctx = defaultCtx;
     let error = null;
     try {
-      __validateQueryArgs.call(ctx, {
+      __validateQueryArgs(ctx.tableName, ctx.fields, {
         id: 1,
         username: 'validname'
       });
@@ -86,7 +93,7 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     let error = null;
 
     try {
-      __validateQueryArgs.call(ctx, {
+      __validateQueryArgs(ctx.tableName, ctx.fields, {
         nononno: 'this key does not exist'
       });
     } catch (e) {
@@ -102,7 +109,10 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     const queryArgs = { id: 1 };
 
     try {
-      __validateQueryArgs.call(ctx, queryArgs, ['isPrimaryKey']);
+      __validateQueryArgs(ctx.tableName, ctx.fields, queryArgs, [
+        'isPrimaryKey'
+      ]);
+      // __validateQueryArgs.call(ctx, queryArgs, ['isPrimaryKey']);
       // __validateQueryArgs.bind(ctx)(queryArgs, ['isPrimaryKey']);
     } catch (e) {
       error = e;

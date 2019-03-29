@@ -23,14 +23,16 @@ export function find(queryArgs: { attrs?: string[]; where?: any }) {
 
 export function add(
   queryArgs = {}
-): { changes: number; lastInsertROWID: number } {}
+): { changes: number; lastInsertROWID: number } {
+  __validateQueryArgs(this.tableName, this.fields, queryArgs, ['isPrimaryKe']);
+}
 
-export function update(
-  updateArgs = {},
-  whereArgs = {}
-): { changes: number; err?: string } {}
+// export function update(
+//   updateArgs = {},
+//   whereArgs = {}
+// ): { changes: number; err?: string } {}
 
-export function count(): number {}
+// export function count(): number {}
 
 // TODO:
 // validate the argument types?
@@ -41,6 +43,8 @@ export function count(): number {}
  * @param excludeMeta
  */
 export function __validateQueryArgs(
+  tableName: string,
+  fields: types.fieldListing = {},
   queryArgs: any = {},
   excludeMeta: types.filterableMetaFields[] = []
   // requiredFields: types.filterableMetaFields[] = []
@@ -50,12 +54,10 @@ export function __validateQueryArgs(
 
   // Ensure that the keys in query arg are valid fields:
   for (const queryKey in queryArgs) {
-    if (!Object.prototype.hasOwnProperty.call(this.fields, queryKey)) {
+    if (!Object.prototype.hasOwnProperty.call(fields, queryKey)) {
       // ErrorType: extra arg that is not related to any field
       throw new Error(
-        `failed query argument validation. Query function was passed a key of "${queryKey}" that is not associated with any column on the table "${
-          this.tableName
-        }"`
+        `failed query argument validation. Query function was passed a key of "${queryKey}" that is not associated with any column on the table "${tableName}"`
       );
     }
   }
@@ -65,8 +67,9 @@ export function __validateQueryArgs(
   if (excludeMeta.length === 0) return;
 
   const fieldsToExclude: any[] = [];
-  for (const field in this.fields) {
-    const { meta, colName } = this.fields[field] as types.IField;
+  for (const field in fields) {
+    // const { meta, colName } = fields[field] as types.IField;
+    const { meta, colName } = fields[field];
     for (const metaProperty in meta) {
       // console.log(metaProperty);
       if (
@@ -88,34 +91,3 @@ export function __validateQueryArgs(
     }
   });
 }
-
-// ===== testing ===
-// const defaultCtx: types.ISchema = {
-//   tableName: 'User',
-//   fields: {
-//     id: {
-//       colName: 'id',
-//       type: types.sqliteType.INTEGER,
-//       meta: {
-//         isPrimaryKey: true,
-//         isNotNull: true,
-//         isUnique: true
-//       }
-//     },
-//     username: {
-//       colName: 'username',
-//       type: types.sqliteType.TEXT,
-//       meta: {
-//         isUnique: true,
-//         isNotNull: true
-//       }
-//     },
-//     age: {
-//       colName: 'age',
-//       type: types.sqliteType.INTEGER,
-//       meta: {}
-//     }
-//   }
-// };
-
-// __validateQueryArgs.call(defaultCtx, { id: 3 }, ['isPrimaryKey']);
