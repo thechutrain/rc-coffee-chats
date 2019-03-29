@@ -1,11 +1,6 @@
 import { find, __validateQueryArgs } from '../base-model-fn';
 import * as types from '../types';
 
-// interface ITestCtx {
-//   tableName: string;
-//   fields: types.fields;
-// }
-
 let defaultCtx: types.ISchema;
 beforeEach(() => {
   defaultCtx = {
@@ -38,14 +33,14 @@ beforeEach(() => {
 });
 
 describe('Base Model Fn: find()', () => {
-  it('should select * from table with no arguments', () => {
+  it('should create "select * from [table]" str when not given args', () => {
     const ctx = defaultCtx;
 
     const sqlStr = find.call(ctx, {});
     expect(sqlStr).toBe('SELECT * FROM User');
   });
 
-  it('should not be able to modify Attrs to select, Where if they are existing fields', () => {
+  it('should be able to create select string for specified attributes', () => {
     const ctx = defaultCtx;
 
     const sqlStr_1 = find.call(ctx, { where: { id: 2 } });
@@ -54,10 +49,14 @@ describe('Base Model Fn: find()', () => {
     const sqlStr_2 = find.call(ctx, { attrs: ['id'] });
     expect(sqlStr_2).toBe('SELECT id FROM User');
   });
+
+  it('should throw an error when trying to select a column field that does not exist on the given table', () => {
+    // TODO:
+  });
 });
 
 describe('Base Model Fn: __validateQueryArgs()', () => {
-  it('should not throw errors if no query args provided', () => {
+  it('should not throw an error if no query args provided', () => {
     const ctx = defaultCtx;
     let error = null;
     try {
@@ -68,7 +67,7 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
     expect(error).toBeNull();
   });
 
-  it('should not throw errors for query args that are valid', () => {
+  it('should not throw an error for query args that are valid', () => {
     const ctx = defaultCtx;
     let error = null;
     try {
@@ -100,14 +99,18 @@ describe('Base Model Fn: __validateQueryArgs()', () => {
   it('should throw an error if it bans filterableMetaField that is provided', () => {
     const ctx = defaultCtx;
     let error = null;
+    const queryArgs = { id: 1 };
 
     try {
-      __validateQueryArgs.call(ctx, { id: 1 }, ['isPrimaryKey']);
+      __validateQueryArgs.call(ctx, queryArgs, ['isPrimaryKey']);
+      // __validateQueryArgs.bind(ctx)(queryArgs, ['isPrimaryKey']);
     } catch (e) {
       error = e;
     }
 
-    expect(error).toBe(false);
     expect(error).not.toBeNull();
+    expect(error.message).toBe(
+      '"id" was found in the fields that should be excluded'
+    );
   });
 });
