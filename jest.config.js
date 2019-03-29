@@ -10,7 +10,8 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   globals: {
     'ts-jest': {
-      warnOnly: true
+      warnOnly: true,
+      diagnostics: false
     }
   },
   modulePaths: ['<rootDir>']
