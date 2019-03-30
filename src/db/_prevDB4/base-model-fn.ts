@@ -36,10 +36,20 @@ export function add(queryArgs = {}): string {
   return queryStr;
 }
 
-// export function update(
-//   updateArgs = {},
-//   whereArgs = {}
-// ): { changes: number; err?: string } {}
+export function update(updateArgs = {}, whereArgs = {}): string {
+  __validateQueryArgs(this.tableName, this.fields, updateArgs, [
+    'isPrimaryKey'
+  ]);
+
+  const updateBody = Object.keys(updateArgs).map(
+    colStr => `${colStr} = @${colStr}`
+  );
+  const updateStr = `UPDATE ${this.tableName} SET
+  ${updateBody.join(', ')}
+  WHERE ${this.primaryKey} = @${this.primaryKey}`;
+
+  
+}
 
 // export function count(): number {}
 
