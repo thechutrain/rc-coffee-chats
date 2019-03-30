@@ -1,4 +1,4 @@
-import { find, __validateQueryArgs } from '../base-model-fn';
+import { find, add, __validateQueryArgs } from '../base-model-fn';
 import * as types from '../types';
 
 let defaultCtx: types.ISchema;
@@ -55,7 +55,36 @@ describe('Base Model Fn: find()', () => {
   });
 });
 
-describe('Base Model Fn: add()', () => {});
+describe('Base Model Fn: add()', () => {
+  xit('should throw an error if no query args provided', () => {
+    const ctx = defaultCtx;
+    let error = null;
+    let sqlStr;
+
+    try {
+      sqlStr = add.call(ctx, {});
+    } catch (e) {
+      error = e;
+    }
+    // expect(sqlStr).toBe('');
+    expect(error).not.toBeNull();
+  });
+  xit('should be able to create a string for adding a new record', () => {
+    const ctx = defaultCtx;
+
+    const sqlStr = add.call(ctx, {});
+    // expect(sqlStr).toBe('');
+  });
+  it('should create the proper add query for one column or multiple columns', () => {
+    const ctx = defaultCtx;
+
+    const addSql = add.call(ctx, { username: 'alan' });
+    const trimmedSqlStr = addSql.replace(/\s+/g, ' ').trim();
+    expect(trimmedSqlStr).toEqual(
+      'INSERT INTO User ( username ) VALUES ( @username )'
+    );
+  });
+});
 
 describe('Base Model Fn: update()', () => {});
 

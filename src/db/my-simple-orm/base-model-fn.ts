@@ -5,7 +5,7 @@ import * as types from './types';
  * @param queryArgs
  */
 
-export function find(queryArgs: { attrs?: string[]; where?: any }) {
+export function find(queryArgs: { attrs?: string[]; where?: any }): string {
   let queryStr;
   const { attrs, where } = queryArgs;
   const attrStr = attrs && attrs.length !== 0 ? attrs.join(', ') : '*';
@@ -21,10 +21,19 @@ export function find(queryArgs: { attrs?: string[]; where?: any }) {
   return queryStr;
 }
 
-export function add(
-  queryArgs = {}
-): { changes: number; lastInsertROWID: number } {
-  __validateQueryArgs(this.tableName, this.fields, queryArgs, ['isPrimaryKe']);
+export function add(queryArgs = {}): string {
+  __validateQueryArgs(this.tableName, this.fields, queryArgs, ['isPrimaryKey']);
+
+  const fields = Object.keys(queryArgs);
+  const fieldPlaceholder = fields.map(f => `@${f}`);
+
+  const queryStr = `INSERT INTO ${this.tableName} (
+    ${fields.join(', ')}
+    ) VALUES (
+      ${fieldPlaceholder.join(', ')}
+  )`;
+
+  return queryStr;
 }
 
 // export function update(
