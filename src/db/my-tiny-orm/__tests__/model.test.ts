@@ -4,6 +4,7 @@
  */
 
 import * as types from '../dbTypes';
+import { Model } from '../model';
 
 const fakeDb = {
   prepare() {
@@ -44,10 +45,7 @@ describe('Db base model: create()', () => {
    * 1) can't create a table without at least one field
    * 2) creates correct string from a schema with two fields
    */
-  it('should have created a new table without any records', () => {
-    // const numUsers = User.count();
-    // expect(numUsers).toBe(0);
-  });
+  it('should not be able to create a model without a schema', () => {});
 });
 
 // describe('Db base model: create()', () => {
