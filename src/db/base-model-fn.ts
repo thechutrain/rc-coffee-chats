@@ -66,9 +66,9 @@ export function count(): string {
 
 // export function remove(): string {}
 
-export function getPrimaryKey(): string {
-  const primaryKeyArr = Object.keys(this.fields).filter(
-    fieldStr => this.fields[fieldStr].meta.isPrimaryKey
+export function __getPrimaryKey(fields: types.fieldListing): string {
+  const primaryKeyArr = Object.keys(fields).filter(
+    fieldStr => fields[fieldStr].meta.isPrimaryKey
   );
 
   if (primaryKeyArr.length !== 1) {

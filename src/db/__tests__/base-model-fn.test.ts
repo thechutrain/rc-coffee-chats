@@ -3,7 +3,7 @@ import {
   add,
   update,
   count,
-  getPrimaryKey,
+  __getPrimaryKey,
   __validateQueryArgs
 } from '../base-model-fn';
 
@@ -147,7 +147,7 @@ describe('Base Model Fn: getPrimaryKey()', () => {
   it('should be able to get the primary key', () => {
     const ctx = defaultCtx;
 
-    const primaryKey = getPrimaryKey.call(ctx);
+    const primaryKey = __getPrimaryKey(ctx.fields);
     expect(primaryKey).toBe('id');
   });
   it('should throw an error if more than one primary key', () => {
@@ -172,7 +172,7 @@ describe('Base Model Fn: getPrimaryKey()', () => {
     };
     let error = null;
     try {
-      getPrimaryKey.call(ctx);
+      __getPrimaryKey(ctx.fields);
     } catch (e) {
       error = e;
     }
