@@ -37,10 +37,16 @@ export function add(queryArgs = {}): string {
 }
 
 export function update(updateArgs = {}, whereArgs = {}): string {
+  // Validation:
   __validateQueryArgs(this.tableName, this.fields, updateArgs, [
     'isPrimaryKey'
   ]);
+  __validateQueryArgs(this.tableName, this.fields, whereArgs);
+  if (Object.keys(whereArgs).length === 0) {
+    throw new Error('Must specify at least one field for the where arguments');
+  }
 
+  // Build Update String:
   const updateBody = Object.keys(updateArgs).map(
     colStr => `${colStr} = @${colStr}`
   );
@@ -48,10 +54,14 @@ export function update(updateArgs = {}, whereArgs = {}): string {
   ${updateBody.join(', ')}
   WHERE ${this.primaryKey} = @${this.primaryKey}`;
 
-  
+  // TODO: feature improvement of adding multiple conditions
+
+  return updateStr;
 }
 
-// export function count(): number {}
+// export function count(): string {}
+
+// export function remove(): string {}
 
 // TODO:
 // validate the argument types?

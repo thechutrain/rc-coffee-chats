@@ -86,7 +86,15 @@ describe('Base Model Fn: add()', () => {
   });
 });
 
-describe('Base Model Fn: update()', () => {});
+describe('Base Model Fn: update()', () => {
+  it('should not be able to update with an empty where arg', () => {
+    expect(false).toBe(true);
+  });
+
+  it('should be able to create an update string for many fields', () => {
+    expect(false).toBe(true);
+  });
+});
 
 describe('Base Model Fn: count()', () => {});
 
