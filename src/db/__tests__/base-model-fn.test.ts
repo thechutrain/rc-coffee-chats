@@ -2,6 +2,7 @@ import {
   find,
   add,
   update,
+  remove,
   count,
   __getPrimaryKey,
   __validateQueryArgs
@@ -133,6 +134,39 @@ describe('Base Model Fn: update()', () => {
     const trimSqlStr = updateStr.replace(/\s+/g, ' ').trim();
     expect(trimSqlStr).toEqual(
       'UPDATE User SET username = @username WHERE username = @username'
+    );
+  });
+});
+
+describe('Base Model Fn: remove()', () => {
+  it('should throw an error with an empty where arg', () => {
+    const ctx = defaultCtx;
+    let error = null;
+    try {
+      remove.call(ctx, {});
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).not.toBeNull();
+    expect(error.message).toBe(
+      'Must specify at least one field for the where argument'
+    );
+  });
+
+  it('should be able to create an remove string for a single where attribute', () => {
+    const ctx = defaultCtx;
+    const removeStr = remove.call(ctx, { username: 'al' });
+    const trimSqlStr = removeStr.replace(/\s+/g, ' ').trim();
+    expect(trimSqlStr).toEqual('DELETE FROM User WHERE username = @username');
+  });
+
+  it('should be able to create an remove string for multiple where attribute', () => {
+    const ctx = defaultCtx;
+    const removeStr = remove.call(ctx, { username: 'al', age: 18 });
+    const trimSqlStr = removeStr.replace(/\s+/g, ' ').trim();
+    expect(trimSqlStr).toEqual(
+      'DELETE FROM User WHERE username = @username AND age = @age'
     );
   });
 });

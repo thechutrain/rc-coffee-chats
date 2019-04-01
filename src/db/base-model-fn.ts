@@ -60,12 +60,21 @@ export function update(updateArgs = {}, whereArgs = {}): string {
   return updateStr;
 }
 
+export function remove(whereArgs = {}): string {
+  __validateQueryArgs(this.tableName, this.fields, whereArgs);
+  if (Object.keys(whereArgs).length === 0) {
+    throw new Error('Must specify at least one field for the where argument');
+  }
+  const whereBody = Object.keys(whereArgs).map(
+    colStr => `${colStr} = @${colStr}`
+  );
+  return `DELETE FROM ${this.tableName} WHERE ${whereBody.join(' AND ')}`;
+}
+
 export function count(): string {
   const primaryKey = __getPrimaryKey(this.fields);
   return `SELECT COUNT(${primaryKey}) FROM ${this.tableName}`;
 }
-
-// export function remove(): string {}
 
 export function __getPrimaryKey(fields: types.fieldListing): string {
   const primaryKeyArr = Object.keys(fields).filter(
