@@ -60,9 +60,23 @@ export function update(updateArgs = {}, whereArgs = {}): string {
   return updateStr;
 }
 
-// export function count(): string {}
+export function count(): string {
+  return '';
+}
 
 // export function remove(): string {}
+
+export function getPrimaryKey(): string {
+  const primaryKeyArr = Object.keys(this.fields).filter(
+    fieldStr => this.fields[fieldStr].meta.isPrimaryKey
+  );
+
+  if (primaryKeyArr.length !== 1) {
+    throw new Error('There must be only one primary key for each table');
+  }
+
+  return primaryKeyArr[0];
+}
 
 // TODO:
 // validate the argument types?

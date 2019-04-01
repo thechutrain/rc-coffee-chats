@@ -1,4 +1,12 @@
-import { find, add, update, __validateQueryArgs } from '../base-model-fn';
+import {
+  find,
+  add,
+  update,
+  count,
+  getPrimaryKey,
+  __validateQueryArgs
+} from '../base-model-fn';
+
 import * as types from '../types';
 
 let defaultCtx: types.ISchema;
@@ -135,7 +143,50 @@ describe('Base Model Fn: count()', () => {
   });
 });
 
-describe('Base Model Fn: __validateQueryArgs()', () => {
+describe('Base Model Fn: getPrimaryKey()', () => {
+  it('should be able to get the primary key', () => {
+    const ctx = defaultCtx;
+
+    const primaryKey = getPrimaryKey.call(ctx);
+    expect(primaryKey).toBe('id');
+  });
+  it('should throw an error if more than one primary key', () => {
+    const ctx = {
+      tableName: 'User',
+      fields: {
+        id: {
+          colName: 'id',
+          type: types.sqliteType.INTEGER,
+          meta: {
+            isPrimaryKey: true
+          }
+        },
+        username: {
+          colName: 'username',
+          type: types.sqliteType.TEXT,
+          meta: {
+            isPrimaryKey: true
+          }
+        }
+      }
+    };
+    let error = null;
+    try {
+      getPrimaryKey.call(ctx);
+    } catch (e) {
+      error = e;
+    }
+    expect(error).not.toBeNull();
+    expect(error.message).toBe(
+      'There must be only one primary key for each table'
+    );
+  });
+  xit('should throw an error if no primary key', () => {
+    expect(false).toBe(true);
+  });
+});
+// TODO: revisit the validateQueryArgs()
+xdescribe('Base Model Fn: __validateQueryArgs()', () => {
   it('should not throw an error if no query args provided', () => {
     const ctx = defaultCtx;
     let error = null;
