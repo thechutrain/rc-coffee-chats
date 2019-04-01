@@ -1,4 +1,4 @@
-import { find, add, __validateQueryArgs } from '../base-model-fn';
+import { find, add, update, __validateQueryArgs } from '../base-model-fn';
 import * as types from '../types';
 
 let defaultCtx: types.ISchema;
@@ -88,15 +88,52 @@ describe('Base Model Fn: add()', () => {
 
 describe('Base Model Fn: update()', () => {
   it('should not be able to update with an empty where arg', () => {
-    expect(false).toBe(true);
+    const ctx = defaultCtx;
+    let error = null;
+    try {
+      update.call(ctx, { username: 'al' }, {});
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).not.toBeNull();
+    expect(error.message).toBe(
+      'Must specify at least one field for the where argument'
+    );
   });
 
-  it('should be able to create an update string for many fields', () => {
-    expect(false).toBe(true);
+  it('should be able to create an update string for a single where attribute', () => {
+    const ctx = defaultCtx;
+    const updateStr = update.call(
+      ctx,
+      { username: 'al' },
+      { username: 'alan', age: 22 }
+    );
+    const trimSqlStr = updateStr.replace(/\s+/g, ' ').trim();
+    expect(trimSqlStr).toEqual(
+      'UPDATE User SET username = @username WHERE username = @username AND age = @age'
+    );
+  });
+
+  it('should be able to create an update string for multiple where attribute', () => {
+    const ctx = defaultCtx;
+    const updateStr = update.call(
+      ctx,
+      { username: 'al' },
+      { username: 'alan' }
+    );
+    const trimSqlStr = updateStr.replace(/\s+/g, ' ').trim();
+    expect(trimSqlStr).toEqual(
+      'UPDATE User SET username = @username WHERE username = @username'
+    );
   });
 });
 
-describe('Base Model Fn: count()', () => {});
+describe('Base Model Fn: count()', () => {
+  xit('should be able to generate a count string', () => {
+    expect(false).toBe(true);
+  });
+});
 
 describe('Base Model Fn: __validateQueryArgs()', () => {
   it('should not throw an error if no query args provided', () => {

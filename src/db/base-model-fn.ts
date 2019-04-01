@@ -43,18 +43,19 @@ export function update(updateArgs = {}, whereArgs = {}): string {
   ]);
   __validateQueryArgs(this.tableName, this.fields, whereArgs);
   if (Object.keys(whereArgs).length === 0) {
-    throw new Error('Must specify at least one field for the where arguments');
+    throw new Error('Must specify at least one field for the where argument');
   }
 
   // Build Update String:
   const updateBody = Object.keys(updateArgs).map(
     colStr => `${colStr} = @${colStr}`
   );
+  const whereBody = Object.keys(whereArgs).map(
+    colStr => `${colStr} = @${colStr}`
+  );
   const updateStr = `UPDATE ${this.tableName} SET
   ${updateBody.join(', ')}
-  WHERE ${this.primaryKey} = @${this.primaryKey}`;
-
-  // TODO: feature improvement of adding multiple conditions
+  WHERE ${whereBody.join(' AND ')}`;
 
   return updateStr;
 }
