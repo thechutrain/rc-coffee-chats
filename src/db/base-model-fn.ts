@@ -61,7 +61,8 @@ export function update(updateArgs = {}, whereArgs = {}): string {
 }
 
 export function count(): string {
-  return '';
+  const primaryKey = __getPrimaryKey(this.fields);
+  return `SELECT COUNT(${primaryKey}) FROM ${this.tableName}`;
 }
 
 // export function remove(): string {}

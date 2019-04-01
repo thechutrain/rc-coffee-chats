@@ -138,8 +138,12 @@ describe('Base Model Fn: update()', () => {
 });
 
 describe('Base Model Fn: count()', () => {
-  xit('should be able to generate a count string', () => {
-    expect(false).toBe(true);
+  it('should be able to generate a count string', () => {
+    const ctx = defaultCtx;
+
+    const countStr = count.call(ctx);
+    const trimCountSql = countStr.replace(/\s+/g, ' ').trim();
+    expect(trimCountSql).toBe('SELECT COUNT(id) FROM User');
   });
 });
 
