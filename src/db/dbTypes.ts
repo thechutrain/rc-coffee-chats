@@ -35,10 +35,10 @@ export interface IField {
   isValidFn?: (val: string) => boolean;
 }
 
-export interface IQueryResult {
-  rawQuery: string;
-  queryData?: any;
-  error?: string;
-}
+// export interface IQueryResult {
+//   rawQuery: string;
+//   queryData?: any;
+//   error?: string;
+// }
 
 // TODO: make enum of db error types

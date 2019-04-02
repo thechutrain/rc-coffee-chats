@@ -33,7 +33,10 @@ export class Model<M> {
     return Object.keys(this.fields).filter(s => !!this.fields[s].foreignKey);
   }
 
-  public create(): types.IQueryResult {
+  /** === create() ====
+   *
+   */
+  public create(): { rawQuery: string } {
     // 1) Validate that we can make a new table
     // if (!Model.db) {
     //   throw new Error(`No database intialized`);
@@ -91,22 +94,18 @@ export class Model<M> {
     const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (
 ${queryBody})`;
 
-    // console.log(query);
-    try {
-      Model.db.exec(query);
-    } catch (e) {
-      return {
-        rawQuery: query,
-        error: e
-      };
-    }
+    Model.db.exec(query);
 
     return {
       rawQuery: query
     };
   }
 
-  public find(queryArgs = {}): any[] {
+  /** ======== find() =========
+   *
+   * @param queryArgs
+   */
+  public find(queryArgs = {}): M[] {
     // this.__validateQueryArgs(queryArgs, false);
     const { db } = Model;
 
@@ -115,21 +114,19 @@ ${queryBody})`;
       query = db.prepare(`SELECT * FROM ${this.tableName}`);
     } else {
       const whereArr = Object.keys(queryArgs).map(f => `${f} = @${f}`);
-      // console.log(
-      //   `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
-      // );
-
       query = db.prepare(
         `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
       );
     }
     const result = query.all(queryArgs);
-    console.log(result);
+
     return result;
   }
 
-  // public findOne(queryArgs = {}): any {}
-
+  /** ========= add() =========
+   *
+   * @param queryArgs
+   */
   public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
     // this.__validateQueryArgs(queryArgs, true);
     const { db } = Model;
@@ -155,34 +152,40 @@ ${queryBody})`;
     return result;
   }
 
+  /** ========= update() =========
+   *
+   * @param updateArgs
+   * @param whereArgs
+   */
   public update(
     updateArgs = {},
     whereArgs = {}
-  ): { changes: number; err?: string } {
+  ): { changes: number; error?: string } {
     const { db } = Model;
     // TODO: fix this so validator checks that all fields are within:
     // - notPrimaryKey
-    this.__validateQueryArgs(updateArgs, false);
+    // this.__validateQueryArgs(updateArgs, false);
 
     // Check that there are valid records to update
     const foundRecords = this.find(whereArgs);
     if (foundRecords.length === 0) {
-      return { changes: 0, err: `Found no records to update` };
-      // throw new Error('Found no records to update');
+      throw new Error('Found no records to update');
     }
 
     const recordsByPrmKey: string[] = foundRecords.map(record => {
       return record[this.primaryKey];
     });
-    console.log(recordsByPrmKey);
+    // console.log(recordsByPrmKey);
 
     const updateBody = Object.keys(updateArgs).map(
       colStr => `${colStr} = @${colStr}`
     );
-    const updateStr = `UPDATE ${this.tableName} SET
-    ${updateBody.join(', ')}
-    WHERE ${this.primaryKey} = @${this.primaryKey}`;
-    // TODO: fix this!!!
+    const whereBody = Object.keys(whereArgs).map(
+      colStr => `${colStr} = @${colStr}`
+    );
+
+    const updateStr = `UPDATE ${this.tableName} SET ${updateBody.join(', ')}
+    WHERE ${whereBody.join(' AND ')}`;
 
     const update = db.prepare(updateStr);
     let changes = 0;
@@ -205,7 +208,7 @@ ${queryBody})`;
       console.warn(errMsg);
 
       rollback.run();
-      return { changes: 0, err: errMsg };
+      return { changes: 0, error: errMsg };
     }
 
     return { changes };
@@ -216,8 +219,10 @@ ${queryBody})`;
   //   // TODO:
   // }
 
+  /** ========= count() =========
+   *
+   */
   public count(): number {
-    // Note: this will point to actual child usermodel ect. :)
     const countQuery = Model.db.prepare(
       `SELECT COUNT(id) FROM ${this.tableName}`
     );
@@ -227,7 +232,8 @@ ${queryBody})`;
     return numRecord;
   }
 
-  /**
+  /** ===== VALIDATE QUERY ARGS ====
+   * TODO later
    * simple validation that ensures all queryArgs exist as column/fields & runs isValideFn
    * NOTE: not really necessary since sqlite3 will throw us an error :)
    * @param queryArgs
