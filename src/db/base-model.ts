@@ -1,29 +1,36 @@
 import sqlite from 'better-sqlite3';
-import * as types from './my-orm-types';
+import * as types from './dbTypes';
 
-// ========== OLD STUFF ============
-export class Model {
+export abstract class Model {
   static db: sqlite;
-  // NOTE: add tableName, fields should be part of an interface!
-  protected tableName: string; // ex. User
-  protected fields: types.fieldListing;
+  protected abstract tableName: string; // ex. User
+  protected abstract fields: types.fieldListing;
 
-  constructor(db: sqlite) {
-    if (!Model.db) {
+  constructor(db?: sqlite) {
+    if (!Model.db && !db) {
+      throw new Error('Must provide db');
+    } else if (!Model.db) {
       Model.db = db;
     }
   }
 
   get primaryKey(): string {
-    // Note: makes the assumption that there is a primary key && that there is just one
-    return Object.keys(this.fields).filter(s => this.fields[s].isPrimaryKey)[0];
+    const primaryKeyArr = Object.keys(this.fields).filter(
+      fieldStr => this.fields[fieldStr].meta.isPrimaryKey
+    );
+
+    if (primaryKeyArr.length !== 1) {
+      throw new Error('There must be only one primary key for each table');
+    }
+
+    return primaryKeyArr[0];
   }
 
   get foreignKeys(): string[] {
     return Object.keys(this.fields).filter(s => this.fields[s].foreignKey);
   }
 
-  public __createTable() {
+  public createTable(): types.IQueryResult {
     // 1) Validate that we can make a new table
     if (!Model.db) {
       throw new Error(`No database intialized`);
@@ -40,9 +47,7 @@ export class Model {
     Object.keys(this.fields).forEach(field => {
       const {
         type,
-        isPrimaryKey,
-        isUnique,
-        isNotNull,
+        meta: { isPrimaryKey, isUnique, isNotNull, isDefault },
         defaultValue
       } = this.fields[field];
       let fieldStr = `${field} ${type}`;
@@ -55,7 +60,7 @@ export class Model {
       if (isNotNull) {
         fieldStr = fieldStr + ' NOT NULL';
       }
-      if (defaultValue && defaultValue !== '') {
+      if (isDefault && defaultValue !== '') {
         fieldStr = fieldStr + ' DEFAULT ' + defaultValue;
       }
 
@@ -65,10 +70,11 @@ export class Model {
     if (queryBodyArr.length === 0) {
       throw new Error('Must have at least one field in the table');
     }
+
     for (const fieldStr in this.fields) {
       const field = this.fields[fieldStr];
       if (field.hasOwnProperty('foreignKey')) {
-        const fkField = this.fields[fieldStr] as types.IFkField;
+        const fkField = this.fields[fieldStr];
         const { refTable, refColumn } = fkField.foreignKey;
 
         queryBodyArr.push(
@@ -82,8 +88,18 @@ export class Model {
     const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (
 ${queryBody})`;
 
-    // console.log(query);
-    Model.db.exec(query);
+    try {
+      Model.db.exec(query);
+    } catch (e) {
+      return {
+        error: e,
+        rawQuery: query
+      };
+    }
+
+    return {
+      rawQuery: query
+    };
   }
 
   /**
@@ -121,7 +137,7 @@ ${queryBody})`;
       // Map through the Fields & filter for
       // fields that are isNotNull == true && isPrimaryKey == false
       const reqFields = Object.keys(this.fields).filter(field => {
-        const { isPrimaryKey, isNotNull } = this.fields[field];
+        const { isPrimaryKey, isNotNull } = this.fields[field].meta;
         // Note: since primary key will autoincrement, never allow users to
         // specify primary key when adding a new record
         return isPrimaryKey ? false : isNotNull;
@@ -141,38 +157,49 @@ ${queryBody})`;
     }
   }
 
-  public find(queryArgs = {}): any[] {
+  public find(
+    queryArgs = {}
+  ): { rawQuery: string; queryData?: any[]; error?: string } {
     this.__validateQueryArgs(queryArgs, false);
     const { db } = Model;
 
-    let query;
+    let queryStr;
     if (Object.keys(queryArgs).length === 0) {
-      query = db.prepare(`SELECT * FROM ${this.tableName}`);
+      queryStr = `SELECT * FROM ${this.tableName}`;
     } else {
       const whereArr = Object.keys(queryArgs).map(f => `${f} = @${f}`);
-      // console.log(
-      //   `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
-      // );
-
-      query = db.prepare(
-        `SELECT * from ${this.tableName} WHERE ${whereArr.join(' AND ')}`
-      );
+      queryStr = `SELECT * from ${this.tableName} WHERE ${whereArr.join(
+        ' AND '
+      )}`;
     }
-    const result = query.all(queryArgs);
 
-    return result;
+    const queryStmt = db.prepare(queryStr);
+    let queryData;
+
+    try {
+      queryData = queryStmt.all(queryArgs);
+    } catch (e) {
+      return {
+        rawQuery: queryStr,
+        error: e
+      };
+    }
+    return {
+      rawQuery: queryStr,
+      queryData
+    };
   }
 
-  // public findOne(queryArgs = {}): any {}
-
-  public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
+  public add(
+    queryArgs = {}
+  ): {
+    rawQuery: string;
+    queryData?: { changes: number; lastInsertROWID: number };
+    error?: string;
+  } {
     this.__validateQueryArgs(queryArgs, true);
     const { db } = Model;
-    // NOTE: do not have to do this in sqlite3, since we can still create the
-    // table. However we need to do this in
-    // 4) Check that any Foreign Keys vals exist in separate tables:
 
-    // 5) create query
     const fields = Object.keys(queryArgs);
     const fieldPlaceholder = fields.map(f => `@${f}`);
 
@@ -182,42 +209,42 @@ ${queryBody})`;
       ${fieldPlaceholder.join(', ')}
       )`;
 
-    // 6) run query
     const query = db.prepare(queryStr);
-    const result = query.run(queryArgs);
-
-    console.log(result);
-    return result;
+    try {
+      const result = query.run(queryArgs);
+      return {
+        rawQuery: queryStr,
+        queryData: result
+      };
+    } catch (e) {
+      return {
+        rawQuery: queryStr,
+        error: e
+      };
+    }
   }
 
-  /** TODO: make very specific results to update
-   * case 1: UPDATE-OK && number of changes
-   * case 2: No values found to update .... error or not?
-   * case 3: SQL error ---> no transactions!
-   *
-   * @param updateArgs
-   * @param whereArgs
-   */
   public update(
     updateArgs = {},
     whereArgs = {}
-  ): { changes: number; err?: string } {
+  ): {
+    rawQuery: string;
+    queryData?: { changes: number };
+    error?: string;
+  } {
     const { db } = Model;
-    // TODO: fix this so validator checks that all fields are within:
-    // - notPrimaryKey
     this.__validateQueryArgs(updateArgs, false);
 
     // Check that there are valid records to update
-    const foundRecords = this.find(whereArgs);
-    if (foundRecords.length === 0) {
-      return { changes: 0, err: `Found no records to update` };
-      // throw new Error('Found no records to update');
+    const { queryData } = this.find(whereArgs);
+    if (queryData.length === 0) {
+      throw new Error('Found no records to update');
     }
 
-    const recordsByPrmKey: string[] = foundRecords.map(record => {
+    const recordsByPrmKey: string[] = queryData.map(record => {
       return record[this.primaryKey];
     });
-    console.log(recordsByPrmKey);
+    // console.log(recordsByPrmKey);
 
     const updateBody = Object.keys(updateArgs).map(
       colStr => `${colStr} = @${colStr}`
@@ -225,7 +252,7 @@ ${queryBody})`;
     const updateStr = `UPDATE ${this.tableName} SET
     ${updateBody.join(', ')}
     WHERE ${this.primaryKey} = @${this.primaryKey}`;
-    console.log(updateStr);
+    // console.log(updateStr);
 
     const update = db.prepare(updateStr);
     let changes = 0;
@@ -245,13 +272,19 @@ ${queryBody})`;
       commit.run();
     } catch (e) {
       const errMsg = `could not run bulk update \n ${e}`;
-      console.warn(errMsg);
+      // console.warn(errMsg);
 
       rollback.run();
-      return { changes: 0, err: errMsg };
+      return {
+        rawQuery: updateStr,
+        error: e
+      };
     }
 
-    return { changes };
+    return {
+      rawQuery: updateStr,
+      queryData: { changes }
+    };
   }
 
   // TODO:
@@ -259,14 +292,12 @@ ${queryBody})`;
   //   // TODO:
   // }
 
-  public count(): number {
-    // Note: this will point to actual child usermodel ect. :)
-    const countQuery = Model.db.prepare(
-      `SELECT COUNT(id) FROM ${this.tableName}`
-    );
+  public count(): { rawQuery: string; queryData: number } {
+    const queryStr = `SELECT COUNT(id) FROM ${this.tableName}`;
+    const countQuery = Model.db.prepare(queryStr);
 
     const { 'COUNT(id)': numRecord } = countQuery.get();
 
-    return numRecord;
+    return { rawQuery: queryStr, queryData: numRecord };
   }
 }
