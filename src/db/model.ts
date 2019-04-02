@@ -1,22 +1,17 @@
 import sqlite from 'better-sqlite3';
 import * as types from './dbTypes';
 
-/** NOTES:
- * - need to check that there is only one primary key selected
- *
- */
-
 export class Model<M> {
   protected static db: sqlite;
-  // NOTE: add tableName, fields should be part of an interface!
   protected tableName: string; // ex. User
   protected fields: types.fieldListing;
-  // protected relations?: types.IRelation[];
 
-  constructor(db: sqlite) {
+  constructor(db: sqlite, tableName: string, fields: types.fieldListing) {
     if (!Model.db) {
       Model.db = db;
     }
+    this.tableName = tableName;
+    this.fields = fields;
   }
 
   get primaryKey(): string {
@@ -91,8 +86,7 @@ export class Model<M> {
     }
 
     const queryBody = queryBodyArr.join(',\n');
-    const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (
-${queryBody})`;
+    const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${queryBody})`;
 
     Model.db.exec(query);
 
