@@ -37,6 +37,8 @@ export interface IField {
 
 export interface IQueryResult {
   rawQuery: string;
-  data?: any;
+  queryData?: any;
   error?: string;
 }
+
+// TODO: make enum of db error types
