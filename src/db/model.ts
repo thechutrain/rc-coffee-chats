@@ -3,8 +3,8 @@ import * as types from './dbTypes';
 
 export class Model<M> {
   protected static db: sqlite;
-  protected tableName: string; // ex. User
-  protected fields: types.fieldListing;
+  tableName: string; // ex. User
+  fields: types.fieldListing;
 
   constructor(db: sqlite, tableName: string, fields: types.fieldListing) {
     if (!Model.db) {
@@ -32,37 +32,31 @@ export class Model<M> {
    *
    */
   public create(): { rawQuery: string } {
-    // 1) Validate that we can make a new table
-    // if (!Model.db) {
-    //   throw new Error(`No database intialized`);
-    // }
-
-    // if (!this.fields || !this.tableName) {
-    //   throw new Error(
-    //     'need to have tableName, fields, relations on child class'
-    //   );
-    // }
-
     const queryBodyArr: string[] = [];
+
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
     Object.keys(this.fields).forEach(field => {
-      const {
-        type,
-        meta: { isPrimaryKey, isUnique, isNotNull, isDefault },
-        defaultValue
-      } = this.fields[field];
+      // Question: is there a way to avoid explicit typing here?
+      const { type } = this.fields[field] as types.IField;
       let fieldStr = `${field} ${type}`;
-      if (isPrimaryKey) {
-        fieldStr = fieldStr + ' PRIMARY KEY';
-      }
-      if (isUnique) {
-        fieldStr = fieldStr + ' UNIQUE';
-      }
-      if (isNotNull) {
-        fieldStr = fieldStr + ' NOT NULL';
-      }
-      if (isDefault && defaultValue !== '') {
-        fieldStr = fieldStr + ' DEFAULT ' + defaultValue;
+
+      if (!!this.fields[field].meta) {
+        const {
+          meta: { isPrimaryKey, isUnique, isNotNull, isDefault },
+          defaultValue
+        } = this.fields[field];
+        if (isPrimaryKey) {
+          fieldStr = fieldStr + ' PRIMARY KEY';
+        }
+        if (isUnique) {
+          fieldStr = fieldStr + ' UNIQUE';
+        }
+        if (isNotNull) {
+          fieldStr = fieldStr + ' NOT NULL';
+        }
+        if (isDefault && defaultValue !== '') {
+          fieldStr = fieldStr + ' DEFAULT ' + defaultValue;
+        }
       }
 
       queryBodyArr.push(fieldStr);
@@ -122,7 +116,7 @@ export class Model<M> {
    * @param queryArgs
    */
   public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
-    // this.__validateQueryArgs(queryArgs, true);
+    this.__validateQueryArgs(queryArgs);
     const { db } = Model;
     // NOTE: do not have to do this in sqlite3, since we can still create the
     // table. However we need to do this in
@@ -233,7 +227,7 @@ export class Model<M> {
    * @param queryArgs
    */
   // NOTE: can pass in function.name && tableName too
-  public __validateQueryArgs(queryArgs = {}, noPrimaryKey = true): void {
+  public __validateQueryArgs(queryArgs = {}): void {
     for (const argKey in queryArgs) {
       if (!Object.prototype.hasOwnProperty.call(this.fields, argKey)) {
         // ErrorType: extra arg that is not related to any field
@@ -244,6 +238,7 @@ export class Model<M> {
         );
       }
 
+      // Checks if theres a validator fn for each column type & runs it
       const { isValidFn } = this.fields[argKey];
 
       if (isValidFn && !isValidFn(queryArgs[argKey])) {
@@ -257,28 +252,28 @@ export class Model<M> {
     // ===== Ensure no primary keys ======
     // TODO: FIX: right now it is checking to see if all required fields
     // are in the queryARgs (notNull values)! useful for creation but not updating
-    if (false) {
-      // 1) figure out what the required params are:
-      // Map through the Fields & filter for
-      // fields that are isNotNull == true && isPrimaryKey == false
-      const reqFields = Object.keys(this.fields).filter(field => {
-        const { isPrimaryKey, isNotNull } = this.fields[field];
-        // Note: since primary key will autoincrement, never allow users to
-        // specify primary key when adding a new record
-        return isPrimaryKey ? false : isNotNull;
-      });
+    // if (false) {
+    //   // 1) figure out what the required params are:
+    //   // Map through the Fields & filter for
+    //   // fields that are isNotNull == true && isPrimaryKey == false
+    //   const reqFields = Object.keys(this.fields).filter(field => {
+    //     const { isPrimaryKey, isNotNull } = this.fields[field];
+    //     // Note: since primary key will autoincrement, never allow users to
+    //     // specify primary key when adding a new record
+    //     return isPrimaryKey ? false : isNotNull;
+    //   });
 
-      // 2) determine that the given args has those required params
-      for (const field of reqFields) {
-        if (!Object.prototype.hasOwnProperty.call(queryArgs, field)) {
-          // ErrorType: missing required field
-          throw new Error(
-            `cannot add a new record in table "${
-              this.tableName
-            }" because you are missing an argument of "${field}"`
-          );
-        }
-      }
-    }
+    //   // 2) determine that the given args has those required params
+    //   for (const field of reqFields) {
+    //     if (!Object.prototype.hasOwnProperty.call(queryArgs, field)) {
+    //       // ErrorType: missing required field
+    //       throw new Error(
+    //         `cannot add a new record in table "${
+    //           this.tableName
+    //         }" because you are missing an argument of "${field}"`
+    //       );
+    //     }
+    //   }
+    // }
   }
 }

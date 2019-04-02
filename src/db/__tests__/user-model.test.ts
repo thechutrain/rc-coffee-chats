@@ -1,39 +1,13 @@
 /**
- * TODO: scaffold db.prepare && db.exec()
- * TODO: add schema
  */
+
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
-import { Model } from '../model';
+import { User, TABLE_NAME, FIELDS } from '../models/user';
 
-const DB_PATH = path.join(__dirname, 'base-model-test.db');
+const DB_PATH = path.join(__dirname, 'user-model-test.db');
 let DB_CONNECTION;
-
-const TABLE_NAME = 'ModelTest';
-const FIELDS: types.fieldListing = {
-  id: {
-    colName: 'id',
-    type: types.sqliteType.INTEGER,
-    meta: {
-      isPrimaryKey: true,
-      isNotNull: true,
-      isUnique: true
-    }
-  },
-  email: {
-    colName: 'email',
-    type: types.sqliteType.TEXT,
-    meta: {
-      isUnique: true,
-      isNotNull: true
-    }
-  }
-};
-type modelRecord = {
-  id: number;
-  email: string;
-};
 
 beforeAll(() => {
   let failedConnection = false;
@@ -55,34 +29,39 @@ afterAll(() => {
   expect(DB_CONNECTION.open).toBe(false);
 });
 
-xdescribe('Db base model', () => {
+describe('User Model:', () => {
   /**
    * 1) can't create a table without at least one field
    * 2) creates correct string from a schema with two fields
    */
-  it('should be able to instantiate the model with db record', () => {
-    const testModel = new Model<modelRecord>(DB_CONNECTION, TABLE_NAME, FIELDS);
-    expect(testModel).not.toBeNull();
+  it('should be able to instantiate the User obj', () => {
+    const UserModel = new User(DB_CONNECTION);
+    expect(UserModel).not.toBeNull();
+    expect(UserModel.fields).toBe(FIELDS);
   });
 
   // Note: just checks that the sql string is correct
   it('should be able to create the table', () => {
-    const testModel = new Model<modelRecord>(DB_CONNECTION, TABLE_NAME, FIELDS);
-    const { rawQuery } = testModel.create();
+    const UserModel = new User(DB_CONNECTION);
+
+    const { rawQuery } = UserModel.create();
     const trimQuery = rawQuery.replace(/\s+/g, ' ').trim();
     expect(trimQuery).toBe(
-      `CREATE TABLE IF NOT EXISTS ModelTest (id INTEGER PRIMARY KEY UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL)`
+      `CREATE TABLE IF NOT EXISTS User (id INTEGER PRIMARY KEY UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, coffee_days TEXT, warning_exception INTEGER, is_active INTEGER, is_faculty INTEGER)`
     );
   });
 
   it('should be able to count the records in the table', () => {
-    const testModel = new Model<modelRecord>(DB_CONNECTION, TABLE_NAME, FIELDS);
-    const numRecords = testModel.count();
+    const UserModel = new User(DB_CONNECTION);
+    const numRecords = UserModel.count();
 
     expect(numRecords).toBe(0);
   });
 
-  it('should be able to add records to the table');
+  it('should be able to add records to the table', () => {});
+  it('should be able to find records to the table', () => {});
+
+  it('should be able to add records to the table', () => {});
 });
 
 // describe('Db base model: create()', () => {
