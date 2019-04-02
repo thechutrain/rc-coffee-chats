@@ -1,6 +1,6 @@
 import sqlite from 'better-sqlite3';
 import * as types from './types';
-// import * as defaultFn from './base-model-fn';
+import * as defaultFn from './base-model-fn';
 
 /**
  * Random ideas
@@ -17,11 +17,21 @@ export function initBaseModel(db: sqlite) {
         }
       }
       throw new Error('No primary key found');
-    },
-    get foreignKey() {
-      return 'to do....';
     }
   };
+
+  // Add the default functions:
+  const isPrivateRegex = /^__/g;
+  Object.keys(defaultFn).forEach(fnName => {
+    if (!isPrivateRegex.test(fnName)) {
+      Object.defineProperty(baseModel, fnName, {
+        // value: defaultFn[fnName]
+        value() {
+          const { queryStr, method } = defaultFn[fnName];
+        }
+      });
+    }
+  });
 
   Object.defineProperty(baseModel, 'db', {
     value: db,
@@ -33,14 +43,6 @@ export function initBaseModel(db: sqlite) {
     value: registerCustomQuery,
     writable: false
   });
-
-  // Object.defineProperty(baseModel, 'get', {
-  //   writable: false,
-  //   // value(queryArgs: { attrs?: string[]; where?: any }) {
-  //   // this.db.prepare(`SELECT * FROM ${this.tableName}`);
-  //   // }
-  //   value: find.bind(this)
-  // });
 
   return baseModel;
 }
@@ -58,3 +60,5 @@ function registerCustomQuery(queryName, fn: (...argument) => string) {
     }
   });
 }
+
+// ====== Testing =====
