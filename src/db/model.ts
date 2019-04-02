@@ -6,7 +6,7 @@ import * as types from './dbTypes';
  *
  */
 
-export class Model {
+export class Model<M> {
   protected static db: sqlite;
   // NOTE: add tableName, fields should be part of an interface!
   protected tableName: string; // ex. User
@@ -35,15 +35,15 @@ export class Model {
 
   public create(): types.IQueryResult {
     // 1) Validate that we can make a new table
-    if (!Model.db) {
-      throw new Error(`No database intialized`);
-    }
+    // if (!Model.db) {
+    //   throw new Error(`No database intialized`);
+    // }
 
-    if (!this.fields || !this.tableName) {
-      throw new Error(
-        'need to have tableName, fields, relations on child class'
-      );
-    }
+    // if (!this.fields || !this.tableName) {
+    //   throw new Error(
+    //     'need to have tableName, fields, relations on child class'
+    //   );
+    // }
 
     const queryBodyArr: string[] = [];
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
@@ -73,6 +73,7 @@ export class Model {
     if (queryBodyArr.length === 0) {
       throw new Error('Must have at least one field in the table');
     }
+
     for (const fieldStr in this.fields) {
       const field = this.fields[fieldStr];
       if (field.hasOwnProperty('foreignKey')) {
@@ -106,7 +107,7 @@ ${queryBody})`;
   }
 
   public find(queryArgs = {}): any[] {
-    this.__validateQueryArgs(queryArgs, false);
+    // this.__validateQueryArgs(queryArgs, false);
     const { db } = Model;
 
     let query;
@@ -130,7 +131,7 @@ ${queryBody})`;
   // public findOne(queryArgs = {}): any {}
 
   public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
-    this.__validateQueryArgs(queryArgs, true);
+    // this.__validateQueryArgs(queryArgs, true);
     const { db } = Model;
     // NOTE: do not have to do this in sqlite3, since we can still create the
     // table. However we need to do this in
@@ -181,7 +182,7 @@ ${queryBody})`;
     const updateStr = `UPDATE ${this.tableName} SET
     ${updateBody.join(', ')}
     WHERE ${this.primaryKey} = @${this.primaryKey}`;
-    console.log(updateStr);
+    // TODO: fix this!!!
 
     const update = db.prepare(updateStr);
     let changes = 0;

@@ -1,5 +1,5 @@
 import sqlite from 'better-sqlite3';
-import * as types from './dbTypes';
+import * as types from '../dbTypes';
 
 export abstract class Model {
   static db: sqlite;
