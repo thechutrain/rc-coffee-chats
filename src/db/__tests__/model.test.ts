@@ -41,8 +41,13 @@ beforeAll(() => {
   expect(failedConnection).toBe(true);
 
   // creates new DB
-  const db = new sqlite(DB_PATH);
-  expect(db.open).toBe(true);
+  DB_CONNECTION = new sqlite(DB_PATH);
+  expect(DB_CONNECTION.open).toBe(true);
+});
+
+afterAll(() => {
+  DB_CONNECTION.close();
+  expect(DB_CONNECTION.open).toBe(false);
 });
 
 describe('Db base model: create()', () => {
