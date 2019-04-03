@@ -1,9 +1,14 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
-import { UserModel, UserRecord, TABLE_NAME, FIELDS } from '../models/user';
+import {
+  UserModel,
+  UserRecord,
+  TABLE_NAME,
+  FIELDS
+} from '../models/user_model';
 
-const DB_PATH = path.join(__dirname, 'user-model-test.db');
+const DB_PATH = path.join(__dirname, 'user_model_test.db');
 let DB_CONNECTION;
 
 beforeAll(() => {
@@ -50,7 +55,7 @@ describe('User Model:', () => {
       is_active INTEGER DEFAULT 1,
       is_faculty INTEGER DEFAULT 0)`;
 
-    const { rawQuery } = User.create();
+    const { rawQuery } = User.initTable();
     const trimReceived = rawQuery.replace(/\s+/g, ' ').trim();
     const trimExpected = expectedQuery.replace(/\s+/g, ' ').trim();
 
@@ -75,7 +80,7 @@ describe('User Model:', () => {
       CHECK (warning_exception in (0,1))
     )`;
 
-    const { rawQuery } = User.create();
+    const { rawQuery } = User.initTable();
     const trimReceived = rawQuery.replace(/\s+/g, ' ').trim();
     const trimExpected = expectedQuery.replace(/\s+/g, ' ').trim();
 

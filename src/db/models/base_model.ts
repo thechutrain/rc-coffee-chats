@@ -1,23 +1,27 @@
 import sqlite from 'better-sqlite3';
-import * as types from './dbTypes';
+import * as types from '../dbTypes';
 
 export class Model<M> {
   protected static db: sqlite;
   tableName: string; // ex. User
   fields: types.fieldListing;
 
-  constructor(db: sqlite, tableName: string, fields: types.fieldListing) {
+  constructor(db: sqlite, tableName: string, fieldsObj: types.fieldListingObj) {
     if (!Model.db) {
       Model.db = db;
     }
     this.tableName = tableName;
-    this.fields = fields;
+    this.fields = new Map();
+    Object.keys(fieldsObj).forEach(k => {
+      this.fields.set(k, fieldsObj[k]);
+    });
   }
 
   get primaryKey(): string {
-    const primaryKeyArr = Object.keys(this.fields).filter(
-      fieldStr => this.fields[fieldStr].meta.isPrimaryKey
-    );
+    if (!this.fields) throw new Error('No fields!');
+    const primaryKeyArr = this.fields
+      .values()
+      .filter(fieldStr => this.fields[fieldStr].meta.isPrimaryKey);
     if (primaryKeyArr.length !== 1) {
       throw new Error('There must be only one primary key for each table');
     }
@@ -28,10 +32,10 @@ export class Model<M> {
     return Object.keys(this.fields).filter(s => !!this.fields[s].foreignKey);
   }
 
-  /** === create() ====
+  /** === initTable() ====
    *
    */
-  public create(): { rawQuery: string } {
+  public initTable(): { rawQuery: string } {
     const queryBodyArr: string[] = [];
 
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
@@ -40,7 +44,7 @@ export class Model<M> {
       const { type } = this.fields[field] as types.IField;
       let fieldStr = `${field} ${type}`;
 
-      if (!!this.fields[field].meta) {
+      if (this.fields[field].meta) {
         const {
           meta: { isPrimaryKey, isUnique, isNotNull, defaultValue }
         } = this.fields[field];
@@ -67,9 +71,8 @@ export class Model<M> {
 
     for (const fieldStr in this.fields) {
       const field = this.fields[fieldStr];
-      if (field.hasOwnProperty('foreignKey')) {
-        const fkField = this.fields[fieldStr];
-        const { refTable, refColumn } = fkField.foreignKey;
+      if (field.foreignKey) {
+        const { refTable, refColumn } = field.foreignKey;
 
         queryBodyArr.push(
           `FOREIGN KEY (${fieldStr}) REFERENCES ${refTable} (${refColumn})

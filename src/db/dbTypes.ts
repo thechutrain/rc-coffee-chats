@@ -9,7 +9,9 @@ export interface ISchema {
   fields: fieldListing;
 }
 
-export type fieldListing = Record<string, IField>;
+type colName = string;
+export type fieldListingObj = Record<colName, IField>;
+export type fieldListing = Map<colName, IField>;
 ////////////////////////
 // field props
 ////////////////////////
@@ -25,7 +27,7 @@ interface IMetaFields {
 }
 
 export interface IField {
-  colName: string;
+  colName;
   type: sqliteType;
   meta?: IMetaFields;
   foreignKey?: {

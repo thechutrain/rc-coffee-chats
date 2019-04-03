@@ -1,6 +1,6 @@
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
-import { Model } from '../model';
+import { Model } from './base_model';
 
 export class UserModel extends Model<UserRecord> {
   constructor(db: sqlite) {
@@ -9,7 +9,7 @@ export class UserModel extends Model<UserRecord> {
 
   // NOTE: current default create() in the Model does not take into account
   // any database constraints (CHECK) this could be a TODO?
-  public create(): { rawQuery: string } {
+  public initTable(): { rawQuery: string } {
     const rawQuery = `CREATE TABLE IF NOT EXISTS User (
         id INTEGER PRIMARY KEY NOT NULL UNIQUE,
         email TEXT NOT NULL UNIQUE,
@@ -43,7 +43,7 @@ export type UserRecord = {
 };
 
 export const TABLE_NAME = 'User';
-export const FIELDS: types.fieldListing = {
+export const FIELDS: types.fieldListingObj = {
   id: {
     colName: 'id',
     type: types.sqliteType.INTEGER,
