@@ -116,6 +116,7 @@ describe('Stable Marriage Match Algo:', () => {
     const matches = makeStableMarriageMatches(suitors, acceptors);
     console.log('🐝', matches);
     expect(matches.length).toBe(2);
+    // TODO: check internal matches
     // let expectedMatch1[male_1, female_1]
   });
 });
