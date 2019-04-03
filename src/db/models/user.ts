@@ -2,7 +2,7 @@ import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { Model } from '../model';
 
-type UserRecord = {
+export type UserRecord = {
   id: number;
   email: string;
   full_name: string;
@@ -60,7 +60,7 @@ export const FIELDS: types.fieldListing = {
   }
 };
 
-export class User extends Model<UserRecord> {
+export class UserModel extends Model<UserRecord> {
   constructor(db: sqlite) {
     super(db, TABLE_NAME, FIELDS);
   }
