@@ -10,8 +10,9 @@ export interface ISchema {
 }
 
 type colName = string;
-export type fieldListingObj = Record<colName, IField>;
-export type fieldListing = Map<colName, IField>;
+// export type fieldListing = Map<colName, IField>;
+// export type fieldListingObj = Record<colName, IField>;
+export type fieldListing = Record<colName, IField>;
 ////////////////////////
 // field props
 ////////////////////////

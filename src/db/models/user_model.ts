@@ -43,7 +43,7 @@ export type UserRecord = {
 };
 
 export const TABLE_NAME = 'User';
-export const FIELDS: types.fieldListingObj = {
+export const FIELDS: types.fieldListing = {
   id: {
     colName: 'id',
     type: types.sqliteType.INTEGER,

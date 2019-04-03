@@ -6,26 +6,26 @@ export class Model<M> {
   tableName: string; // ex. User
   fields: types.fieldListing;
 
-  constructor(db: sqlite, tableName: string, fieldsObj: types.fieldListingObj) {
+  constructor(db: sqlite, tableName: string, fields: types.fieldListing) {
     if (!Model.db) {
       Model.db = db;
     }
     this.tableName = tableName;
-    this.fields = new Map();
-    Object.keys(fieldsObj).forEach(k => {
-      this.fields.set(k, fieldsObj[k]);
-    });
+    this.fields = fields;
   }
 
   get primaryKey(): string {
     if (!this.fields) throw new Error('No fields!');
-    const primaryKeyArr = this.fields
-      .values()
-      .filter(fieldStr => this.fields[fieldStr].meta.isPrimaryKey);
+    const primaryKeyArr = Object.keys(this.fields)
+      .map(f => this.fields[f])
+      .filter(fObj => fObj.meta && fObj.meta.isPrimaryKey);
+
+    // .filter(fieldStr => this.fields[fieldStr].meta.isPrimaryKey);
     if (primaryKeyArr.length !== 1) {
       throw new Error('There must be only one primary key for each table');
     }
-    return primaryKeyArr[0];
+
+    return primaryKeyArr[0].colName;
   }
 
   get foreignKeys(): string[] {
