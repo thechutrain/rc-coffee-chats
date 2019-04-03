@@ -37,15 +37,50 @@ describe('User Model:', () => {
     expect(User.fields).toBe(FIELDS);
   });
 
-  // Note: just checks that the sql string is correct
   it('should be able to create the table', () => {
     const User = new UserModel(DB_CONNECTION);
+    const expectedQuery = `CREATE TABLE IF NOT EXISTS User
+    (id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      full_name TEXT NOT NULL,
+      coffee_days TEXT DEFAULT 1234,
+      skip_next_match INTEGER DEFAULT 0,
+      warning_exception INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      is_faculty INTEGER DEFAULT 0)`;
 
     const { rawQuery } = User.create();
-    const trimQuery = rawQuery.replace(/\s+/g, ' ').trim();
-    expect(trimQuery).toBe(
-      `CREATE TABLE IF NOT EXISTS User (id INTEGER PRIMARY KEY UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, coffee_days TEXT, warning_exception INTEGER, is_active INTEGER, is_faculty INTEGER)`
-    );
+    const trimReceived = rawQuery.replace(/\s+/g, ' ').trim();
+    const trimExpected = expectedQuery.replace(/\s+/g, ' ').trim();
+
+    expect(trimReceived).toBe(trimExpected);
+  });
+
+  // FINAL version: tests the User overload of the create() method
+  xit('should be able to create the table', () => {
+    const User = new UserModel(DB_CONNECTION);
+    const expectedQuery = `CREATE TABLE IF NOT EXISTS User (
+      id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      full_name TEXT NOT NULL,
+      coffee_days TEXT DEFAULT 1234,
+      skip_next_match INTEGER DEFAULT 0,
+      warning_exception INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      is_faculty INTEGER DEFAULT 0,
+      is_alum INTEGER DEFAULT 0,
+      CHECK (is_alum in (0,1)),
+      CHECK (is_faculty in (0,1)),
+      CHECK (is_active in (0,1)),
+      CHECK (skip_next_match in (0,1)),
+      CHECK (warning_exception in (0,1))
+    )`;
+
+    const { rawQuery } = User.create();
+    const trimReceived = rawQuery.replace(/\s+/g, ' ').trim();
+    const trimExpected = expectedQuery.replace(/\s+/g, ' ').trim();
+
+    expect(trimReceived).toBe(trimExpected);
   });
 
   it('should be able to count the records in the table', () => {

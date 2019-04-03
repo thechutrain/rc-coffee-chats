@@ -21,13 +21,13 @@ interface IMetaFields {
   isUnique?: boolean; // Note: isRequireUpdate ... additional related descriptor
   isNotNull?: boolean;
   isDefault?: boolean;
+  defaultValue?: any;
 }
 
 export interface IField {
   colName: string;
   type: sqliteType;
   meta?: IMetaFields;
-  defaultValue?: any;
   foreignKey?: {
     refTable: string;
     refColumn: string;

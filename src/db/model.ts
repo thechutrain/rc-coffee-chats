@@ -36,25 +36,24 @@ export class Model<M> {
 
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
     Object.keys(this.fields).forEach(field => {
-      // Question: is there a way to avoid explicit typing here?
+      // QUESTION: is there a way to avoid explicit typing here?
       const { type } = this.fields[field] as types.IField;
       let fieldStr = `${field} ${type}`;
 
       if (!!this.fields[field].meta) {
         const {
-          meta: { isPrimaryKey, isUnique, isNotNull, isDefault },
-          defaultValue
+          meta: { isPrimaryKey, isUnique, isNotNull, defaultValue }
         } = this.fields[field];
         if (isPrimaryKey) {
           fieldStr = fieldStr + ' PRIMARY KEY';
         }
-        if (isUnique) {
-          fieldStr = fieldStr + ' UNIQUE';
-        }
         if (isNotNull) {
           fieldStr = fieldStr + ' NOT NULL';
         }
-        if (isDefault && defaultValue !== '') {
+        if (isUnique) {
+          fieldStr = fieldStr + ' UNIQUE';
+        }
+        if (defaultValue !== undefined) {
           fieldStr = fieldStr + ' DEFAULT ' + defaultValue;
         }
       }
@@ -80,12 +79,15 @@ export class Model<M> {
     }
 
     const queryBody = queryBodyArr.join(',\n');
-    const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${queryBody})`;
+    const rawQuery = `CREATE TABLE IF NOT EXISTS ${
+      this.tableName
+    } (${queryBody})`;
+    const createStmt = Model.db.prepare(rawQuery);
 
-    Model.db.exec(query);
+    createStmt.run();
 
     return {
-      rawQuery: query
+      rawQuery
     };
   }
 
