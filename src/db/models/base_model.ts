@@ -41,11 +41,13 @@ export class Model<M> {
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
     Object.keys(this.fields).forEach(field => {
       // QUESTION: is there a way to avoid explicit typing here?
-      const { type } = this.fields[field] as types.IField;
+      // const { type } = this.fields[field] as types.IField;
+      const { type } = this.fields[field];
       let fieldStr = `${field} ${type}`;
 
       if (this.fields[field].meta) {
         const {
+          // @ts-ignore TODO: how do I fix this?????
           meta: { isPrimaryKey, isUnique, isNotNull, defaultValue }
         } = this.fields[field];
         if (isPrimaryKey) {
