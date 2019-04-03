@@ -115,7 +115,7 @@ export class Model<M> {
    *
    * @param queryArgs
    */
-  public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
+  public add(queryArgs = {}): { changes: number; lastInsertRowid: number } {
     this.__validateQueryArgs(queryArgs);
     const { db } = Model;
     // NOTE: do not have to do this in sqlite3, since we can still create the
@@ -136,7 +136,6 @@ export class Model<M> {
     const query = db.prepare(queryStr);
     const result = query.run(queryArgs);
 
-    console.log(result);
     return result;
   }
 
