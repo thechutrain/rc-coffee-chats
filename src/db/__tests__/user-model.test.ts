@@ -37,7 +37,8 @@ describe('User Model:', () => {
     expect(User.fields).toBe(FIELDS);
   });
 
-  it('should be able to create the table', () => {
+  // For the default Model.create() method
+  xit('should be able to create the table', () => {
     const User = new UserModel(DB_CONNECTION);
     const expectedQuery = `CREATE TABLE IF NOT EXISTS User
     (id INTEGER PRIMARY KEY NOT NULL UNIQUE,
@@ -57,7 +58,7 @@ describe('User Model:', () => {
   });
 
   // FINAL version: tests the User overload of the create() method
-  xit('should be able to create the table', () => {
+  it('should be able to create the table', () => {
     const User = new UserModel(DB_CONNECTION);
     const expectedQuery = `CREATE TABLE IF NOT EXISTS User (
       id INTEGER PRIMARY KEY NOT NULL UNIQUE,
@@ -68,8 +69,6 @@ describe('User Model:', () => {
       warning_exception INTEGER DEFAULT 0,
       is_active INTEGER DEFAULT 1,
       is_faculty INTEGER DEFAULT 0,
-      is_alum INTEGER DEFAULT 0,
-      CHECK (is_alum in (0,1)),
       CHECK (is_faculty in (0,1)),
       CHECK (is_active in (0,1)),
       CHECK (skip_next_match in (0,1)),

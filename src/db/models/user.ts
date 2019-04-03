@@ -7,29 +7,29 @@ export class UserModel extends Model<UserRecord> {
     super(db, TABLE_NAME, FIELDS);
   }
 
-  //   public create(): { rawQuery: string } {
-  //     const rawQuery = `CREATE TABLE IF NOT EXISTS User (
-  //       id INTEGER PRIMARY KEY NOT NULL UNIQUE,
-  //       email TEXT NOT NULL UNIQUE,
-  //       full_name TEXT NOT NULL,
-  //       coffee_days TEXT DEFAULT 1234,
-  //       skip_next_match INTEGER DEFAULT 0,
-  //       warning_exception INTEGER DEFAULT 0,
-  //       is_active INTEGER DEFAULT 1,
-  //       is_faculty INTEGER DEFAULT 0,
-  //       is_alum INTEGER DEFAULT 0,
-  //       CHECK (is_alum in (0,1)),
-  //       CHECK (is_faculty in (0,1)),
-  //       CHECK (is_active in (0,1)),
-  //       CHECK (skip_next_match in (0,1)),
-  //       CHECK (warning_exception in (0,1))
-  //     )`;
+  // NOTE: current default create() in the Model does not take into account
+  // any database constraints (CHECK) this could be a TODO?
+  public create(): { rawQuery: string } {
+    const rawQuery = `CREATE TABLE IF NOT EXISTS User (
+        id INTEGER PRIMARY KEY NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        full_name TEXT NOT NULL,
+        coffee_days TEXT DEFAULT 1234,
+        skip_next_match INTEGER DEFAULT 0,
+        warning_exception INTEGER DEFAULT 0,
+        is_active INTEGER DEFAULT 1,
+        is_faculty INTEGER DEFAULT 0,
+        CHECK (is_faculty in (0,1)),
+        CHECK (is_active in (0,1)),
+        CHECK (skip_next_match in (0,1)),
+        CHECK (warning_exception in (0,1))
+      )`;
 
-  //     const createStmt = Model.db.prepare(rawQuery);
-  //     createStmt.run();
+    const createStmt = Model.db.prepare(rawQuery);
+    createStmt.run();
 
-  //     return { rawQuery };
-  //   }
+    return { rawQuery };
+  }
 }
 
 export type UserRecord = {
