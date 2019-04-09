@@ -11,7 +11,7 @@ import {
 const DB_PATH = path.join(__dirname, 'user_model_test.db');
 let DB_CONNECTION;
 
-beforeAll(() => {
+beforeAll(done => {
   let failedConnection = false;
   try {
     // tslint:disable-next-line
@@ -24,11 +24,15 @@ beforeAll(() => {
   // creates new DB
   DB_CONNECTION = new sqlite(DB_PATH);
   expect(DB_CONNECTION.open).toBe(true);
+
+  done();
 });
 
-afterAll(() => {
+afterAll(done => {
   DB_CONNECTION.close();
   expect(DB_CONNECTION.open).toBe(false);
+
+  done();
 });
 
 describe('User Model:', () => {
@@ -107,9 +111,53 @@ describe('User Model:', () => {
     expect(changes).toBe(1);
     expect(lastInsertRowid).toBe(1);
   });
-  it('should be able to find records to the table', () => {});
 
-  it('should be able to add records to the table', () => {});
+  // NOTE: this depends on the prior test
+  it('should not be able to add the same person to the database', () => {
+    const User = new UserModel(DB_CONNECTION);
+    const user_1 = {
+      email: 'alan@gmail.com',
+      full_name: 'alan bot'
+    };
+    let error = null;
+    expect(User.count()).toBe(1);
+    try {
+      User.add(user_1);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(User.count()).toBe(1);
+    expect(error).not.toBeNull();
+    expect(error.message).toBe('UNIQUE constraint failed: User.email');
+  });
+
+  it('should be able to find records to the table', () => {
+    const User = new UserModel(DB_CONNECTION);
+    const email = 'alan@gmail.com';
+    const foundUsers = User.find({ email });
+    expect(foundUsers.length).toBe(1);
+
+    const firstUser = foundUsers[0];
+    expect(firstUser.email).toBe(email);
+  });
+
+  it('should be able to update a users record', () => {
+    const User = new UserModel(DB_CONNECTION);
+    const email = 'alan@gmail.com';
+    const originalUser = User.find({ email })[0];
+    expect(originalUser.email).toBe('alan@gmail.com');
+
+    const { changes } = User.update({ email: 'blaaaa' }, { email });
+    const newUser = User.find({ email });
+
+    // expect(newUser).toBe(false);
+    expect(changes).toBe(1);
+  });
+
+  // it('should be able to remove a given user', () => {
+  //   const User = new UserModel(DB_CONNECTION);
+  // });
 });
 
 // describe('Db base model: create()', () => {
