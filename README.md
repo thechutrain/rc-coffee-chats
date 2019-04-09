@@ -1,58 +1,30 @@
 # Coffee Chats 2.0
 > Zulip bot that pairs Recursers for coffee chats
 
-## Introduction
-- Get matched
-- Get Coffee
-- Get Chatty
+## Signing up  
+If you're looking to get paired for coffeechats you can subscribe to the coffee chat stream.
+
+## Background
+The original prototype began during Sheridan's batch in fall 2018. The original project can be found on glitch [here](https://glitch.com/~zulip-coffee-bot).
+
+The current goal has now been to make Coffee Chat more robust so it can be easily maintained and others can all contributions without worrying about breaking this microservice. These goals include the following:
+* decoupling the code into separate modules
+* writing tests to ensure there are no regression bugs
+* Using TypeScript for type safety and documentation
+
+## Add Features
+* CLI for interacting with coffee chat bot (easily extensible)
+
+#### Next Steps:
+- [ ] Fix & write tests for all the CLI actions & database queries
+- [ ] migrate current data to the new prod.db && deactivate the glitch server
+- [ ] TypeScriptify the project (set to strict compiler settings)
 
 
-#### Getting Your Developement Environment Setup
-- `npm i` after cloning the repository to you machine.
-- `mv .templateenv .env` and add all env keys. Chat with a maintainer.
-
-
-## Product Road Map
-
-#### Prep
-
-#### Proposed Feature
-
-- [ ] welcome message when you first subscribe
-
-- [ ] Writing Tests (prioritize)
-
-- [ ] Move database to Firebase (no relational db)
-
-  - [ ] create test stream & test database
-
-- [ ] End of batch confirmation message of do you want to continue with coffee chats?
-
-- [ ] Revisit Matching Algorithm?
-
-  - [ ] don't pair facilitators with each other
-  - [ ] pairing new recursers with continuing recursers (first two weeks?)
-  - [ ] allow users to set matching criteria (May be counter to coffee chat intention)
-  - [ ] Date handling (use moment.js, date-fns? )
-
-- [ ] Admin CLI for managing coffee chats bot:
-
-  - [ ] getting recent logs, if it ran today, will run tomorrow
-  - [ ] checking holidays, toggling on and off
-  - [ ] change who the odd match facilitator is
-
-- [ ] raincheck feature (if you get paired, but don't meet up, remove the matched record so they can be paired later)
-
-- [ ] writing migration scripts, preserving existing data
-
-- [ ] Propose moving the database to use postgres
-
-- [ ] Front end interface for end users:
-
-  - [ ] allow users to see who they've matched with
-  - [ ] same features of zulip bot cli, in browser?
-
-- [ ] make maintainer-notes markdown file
 
 ### Contributors
-Todo ... (include previous glitch coffee chats)
+* Alan Chu - releasing the second version 
+* Sheridan Kates - started the project 
+* Liz Krane
+* Greg Altman
+* Jordan & Maren --> for getting me to update the readme :) 
