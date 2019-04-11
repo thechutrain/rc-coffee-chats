@@ -151,6 +151,7 @@ export class Model<M> {
    * @param updateArgs
    * @param whereArgs
    */
+  // TODO: Fix - can only update if the keys in the whereArgs do not conflict with the keys in the updateArgs
   public update(
     updateArgs = {},
     whereArgs = {}
@@ -175,11 +176,13 @@ export class Model<M> {
       colStr => `${colStr} = @${colStr}`
     );
     const whereBody = Object.keys(whereArgs).map(
-      colStr => `${colStr} = @${colStr}`
+      colStr => `${this.primaryKey} = @primaryKey`
     );
 
+    //    const updateStr = `UPDATE ${this.tableName} SET ${updateBody.join(', ')}
+    //   WHERE ${whereBody.join(' AND ')}`;
     const updateStr = `UPDATE ${this.tableName} SET ${updateBody.join(', ')}
-    WHERE ${whereBody.join(' AND ')}`;
+    WHERE ${this.primaryKey} = @prmKey`;
 
     const update = db.prepare(updateStr);
     let changes = 0;
@@ -191,7 +194,7 @@ export class Model<M> {
     begin.run();
     try {
       for (const prmKey of recordsByPrmKey) {
-        const sqlArgs = { ...updateArgs, [this.primaryKey]: prmKey };
+        const sqlArgs = { ...updateArgs, prmKey };
 
         update.run(sqlArgs);
         changes += 1;

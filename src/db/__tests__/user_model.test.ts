@@ -151,7 +151,7 @@ describe('User Model:', () => {
     const { changes } = User.update({ email: 'blaaaa' }, { email });
     const newUser = User.find({ email });
 
-    // expect(newUser).toBe(false);
+    expect(newUser).toBe(false);
     expect(changes).toBe(1);
   });
 
