@@ -1,6 +1,6 @@
 /**
- * TODO: scaffold db.prepare && db.exec()
- * TODO: add schema
+ * NOTE: most of the base model class funcitonality is tested by
+ * the user model that extends the base class
  */
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
@@ -68,7 +68,7 @@ xdescribe('Db base model', () => {
   // Note: just checks that the sql string is correct
   it('should be able to create the table', () => {
     const testModel = new Model<modelRecord>(DB_CONNECTION, TABLE_NAME, FIELDS);
-    const { rawQuery } = testModel.create();
+    const { rawQuery } = testModel.initTable();
     const trimQuery = rawQuery.replace(/\s+/g, ' ').trim();
     expect(trimQuery).toBe(
       `CREATE TABLE IF NOT EXISTS ModelTest (id INTEGER PRIMARY KEY UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL)`
@@ -84,14 +84,3 @@ xdescribe('Db base model', () => {
 
   it('should be able to add records to the table');
 });
-
-// describe('Db base model: create()', () => {
-//   /**
-//    * 1) can't create a table without at least one field
-//    * 2) creates correct string from a schema with two fields
-//    */
-//   it('should have created a new table without any records', () => {
-//     // const numUsers = User.count();
-//     // expect(numUsers).toBe(0);
-//   });
-// });
