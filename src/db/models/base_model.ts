@@ -36,6 +36,7 @@ export class Model<M> {
    *
    */
   public initTable(): { rawQuery: string } {
+    throw new Error('yo');
     const queryBodyArr: string[] = [];
 
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,

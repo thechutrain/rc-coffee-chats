@@ -2,6 +2,8 @@ import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import { UserModel, UserMatchModel, MatchModel } from '../models';
 
+import { ALL_USERS } from './test_db/test_users';
+
 // Creates the test database
 const DB_NAME = 'user_match_test.db';
 const DB_PATH = path.join(__dirname, 'test_db', DB_NAME);
@@ -40,8 +42,14 @@ beforeAll(done => {
  *
  */
 describe('Integration Test of User, UserMatch, Match Table:', () => {
-  it('should just work!', () => {
-    expect(true).toBe(true);
+  it('should be able to add in all my test users!', () => {
+    let lastInsert = 1;
+    ALL_USERS.forEach(user => {
+      const { changes, lastInsertRowid } = DB.User.add(user);
+      expect(changes).toBe(1);
+      expect(lastInsertRowid).toBe(lastInsert);
+      lastInsert += 1;
+    });
   });
 
   it('should be able to find users to match for today', () => {});
