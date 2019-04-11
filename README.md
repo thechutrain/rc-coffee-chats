@@ -20,6 +20,8 @@ The current goal has now been to make Coffee Chat more robust so it can be easil
 - [ ] migrate current data to the new prod.db && deactivate the glitch server
 - [ ] TypeScriptify the project (set to strict compiler settings)
 
+### Code Refactors:
+- [] add the db into the context of each of the action handler functions. Easier to test!
 
 
 ### Contributors
