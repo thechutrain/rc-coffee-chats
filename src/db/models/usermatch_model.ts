@@ -1,10 +1,16 @@
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { Model } from './base_model';
+import { UserModel, MatchModel } from '.';
 
 export class UserMatchModel extends Model<UserMatchRecord> {
-  constructor(db: sqlite) {
+  private User: UserModel;
+  private Match: MatchModel;
+
+  constructor(db: sqlite, userM: UserModel, matchM: MatchModel) {
     super(db, TABLE_NAME, FIELDS);
+    this.User = userM;
+    this.Match = matchM;
     this.initTable();
   }
 
@@ -23,6 +29,26 @@ export class UserMatchModel extends Model<UserMatchRecord> {
     createStmt.run();
 
     return { rawQuery };
+  }
+
+  public addNewMatch(user_ids: number[], inputDate?: string) {
+    // Create the Match Record
+    const date = inputDate ? inputDate : new Date().toISOString().split('T')[0];
+    const { lastInsertRowid } = this.Match.add({ date });
+
+    const insertQuery = Model.db.prepare(
+      `INSERT INTO ${
+        this.tableName
+      } (user_id, match_id) VALUES (@user_id, @match_id)`
+    );
+
+    const insertMany = Model.db.transaction(ids => {
+      for (const user_id of ids) {
+        insertQuery.run({ user_id, match_id: lastInsertRowid });
+      }
+    });
+
+    insertMany(user_ids);
   }
 }
 
@@ -51,7 +77,7 @@ export const FIELDS: types.fieldListing = {
       isNotNull: true
     }
   },
-  math_id: {
+  match_id: {
     colName: 'match_id',
     type: types.sqliteType.INTEGER,
     meta: {

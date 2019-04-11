@@ -2,7 +2,7 @@ import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import { UserModel, UserMatchModel, MatchModel } from '../models';
 
-import { ALL_USERS } from './test_db/test_users';
+import { ALL_USERS, MATCHES } from './test_db/mock_user_data';
 
 // Creates the test database
 const DB_NAME = 'user_match_test.db';
@@ -25,10 +25,13 @@ beforeAll(done => {
   expect(DB_CONNECTION.open).toBe(true);
 
   // Instantiate the User, UserMatch, Match models:
+  const User = new UserModel(DB_CONNECTION);
+  const Match = new MatchModel(DB_CONNECTION);
+  const UserMatch = new UserMatchModel(DB_CONNECTION, User, Match);
   DB = {
-    User: new UserModel(DB_CONNECTION),
-    Match: new MatchModel(DB_CONNECTION),
-    UserMatch: new UserMatchModel(DB_CONNECTION)
+    User,
+    Match,
+    UserMatch
   };
 
   done();
@@ -50,7 +53,20 @@ describe('Integration Test of User, UserMatch, Match Table:', () => {
       expect(lastInsertRowid).toBe(lastInsert);
       lastInsert += 1;
     });
+
+    expect(DB.User.count()).toBe(ALL_USERS.length);
   });
 
-  it('should be able to find users to match for today', () => {});
+  it('should be able to create matches of users', () => {
+    expect(DB.Match.count()).toBe(0);
+    expect(DB.UserMatch.count()).toBe(0);
+
+    MATCHES.forEach(match_pair => {
+      DB.UserMatch.addNewMatch(match_pair);
+    });
+
+    expect(DB.Match.count()).toBe(MATCHES.length);
+  });
+
+  // it('should be able to find users to match for today', () => {});
 });
