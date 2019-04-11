@@ -5,6 +5,7 @@ import { Model } from './base_model';
 export class UserMatchModel extends Model<UserMatchRecord> {
   constructor(db: sqlite) {
     super(db, TABLE_NAME, FIELDS);
+    this.initTable();
   }
 
   public initTable(): { rawQuery: string } {

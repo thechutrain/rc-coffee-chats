@@ -5,6 +5,7 @@ import { Model } from './base_model';
 export class MatchModel extends Model<MatchRecord> {
   constructor(db: sqlite) {
     super(db, TABLE_NAME, FIELDS);
+    this.initTable();
   }
 }
 
