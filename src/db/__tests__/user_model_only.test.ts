@@ -8,18 +8,19 @@ import {
   FIELDS
 } from '../models/user_model';
 
-const DB_PATH = path.join(__dirname, 'user_model_test.db');
+const DB_PATH = path.join(__dirname, 'test_db', 'user_model_test.db');
+console.log(DB_PATH);
 let DB_CONNECTION;
 
 beforeAll(done => {
-  let failedConnection = false;
+  let failedConnection = null;
+  let didFail = false;
   try {
-    // tslint:disable-next-line
-    new sqlite(DB_PATH, { fileMustExist: true });
+    failedConnection = new sqlite(DB_PATH, { fileMustExist: true });
   } catch (e) {
-    failedConnection = true;
+    didFail = true;
   }
-  expect(failedConnection).toBe(true);
+  expect(didFail).toBe(true);
 
   // creates new DB
   DB_CONNECTION = new sqlite(DB_PATH);
@@ -28,12 +29,12 @@ beforeAll(done => {
   done();
 });
 
-afterAll(done => {
-  DB_CONNECTION.close();
-  expect(DB_CONNECTION.open).toBe(false);
+// afterAll(done => {
+//   DB_CONNECTION.close();
+//   expect(DB_CONNECTION.open).toBe(false);
 
-  done();
-});
+//   done();
+// });
 
 describe('User Model:', () => {
   /**

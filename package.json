@@ -12,7 +12,7 @@
     "test:db": "cross-env DB_FILE=test.db DEBUG=1 ts-node ./src/db/",
     "clean": "rm -rf dist",
     "clean:db": "rimraf .data/test.db",
-    "pretest": "rimraf src/db/__tests__/*.db",
+    "pretest": "rimraf src/db/__tests__/**/*.db",
     "test": "cross-env DB_FILE=test.db jest",
     "build": "npm run clean && tsc"
   },
