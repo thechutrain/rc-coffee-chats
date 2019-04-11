@@ -9,7 +9,6 @@ import {
 } from '../models/user_model';
 
 const DB_PATH = path.join(__dirname, 'test_db', 'user_model_test.db');
-console.log(DB_PATH);
 let DB_CONNECTION;
 
 beforeAll(done => {
