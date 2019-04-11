@@ -144,15 +144,23 @@ describe('User Model:', () => {
 
   it('should be able to update a users record', () => {
     const User = new UserModel(DB_CONNECTION);
-    const email = 'alan@gmail.com';
-    const originalUser = User.find({ email })[0];
+    const original_email = 'alan@gmail.com';
+    const new_email = 'blaaaaaah@gmail.com';
+    const originalUser = User.find({ email: original_email })[0];
     expect(originalUser.email).toBe('alan@gmail.com');
 
-    const { changes } = User.update({ email: 'blaaaa' }, { email });
-    const newUser = User.find({ email });
-
-    expect(newUser).toBe(false);
+    const { changes } = User.update(
+      { email: new_email },
+      { email: original_email }
+    );
     expect(changes).toBe(1);
+
+    const oldUser = User.find({ email: original_email });
+    expect(oldUser.length).toBe(0);
+
+    const newUser = User.find({ email: new_email });
+    expect(newUser.length).toBe(1);
+    expect(newUser[0].email).toBe(new_email);
   });
 
   // it('should be able to remove a given user', () => {
