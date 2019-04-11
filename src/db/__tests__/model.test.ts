@@ -5,7 +5,7 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
-import { Model } from '../model';
+import { Model } from '../models/base_model';
 
 const DB_PATH = path.join(__dirname, 'base-model-test.db');
 let DB_CONNECTION;
