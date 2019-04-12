@@ -1,7 +1,7 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import { UserModel, UserMatchModel, MatchModel } from '../models';
-import { WEEKDAY } from '../models/user_model';
+import { WEEKDAY } from '../../types';
 
 import { ALL_USERS, MATCHES } from './test_db/mock_user_data';
 
@@ -45,6 +45,7 @@ beforeAll(done => {
  * [] find all the people who want to be matched for today
  *
  */
+
 describe('Integration Test of User, UserMatch, Match Table:', () => {
   it('should be able to add in all my test users!', () => {
     let lastInsert = 1;
