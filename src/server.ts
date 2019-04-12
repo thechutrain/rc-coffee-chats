@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 8080;
 
 // ===== My Custom Modules =====
 import * as types from './types';
-// import { initDB } from './db';
+import { initDB } from './db';
 // import { parseStrAsBool, validatePayload } from './utils/';
 
 //////////////////////////////////
@@ -18,26 +18,26 @@ import * as types from './types';
 //////////////////////////////////
 /// Database
 //////////////////////////////////
-// const db = (() => {
-//   const isProd = process.env.NODE_ENV === 'production';
-//   const DB_FILE = isProd ? 'prod.db' : 'dev.db';
-//   const fileMustExist = isProd;
-//   const DB_PATH = path.join(__dirname, '../', 'data/', DB_FILE);
+const db = (() => {
+  const isProd = process.env.NODE_ENV === 'production';
+  const fileMustExist = isProd;
+  const DB_FILE = (isProd ? process.env.PROD_DB : process.env.DEV_DB) as string;
+  const DB_PATH = path.join(__dirname, '../', 'data/', DB_FILE);
 
-//   return initDB(DB_PATH, fileMustExist);
-// })();
+  return initDB(DB_PATH, fileMustExist);
+})();
 
 /////////////////
 /// Middleware
 /////////////////
-// import { initRegisteredHandler } from './middleware/registered-handler';
-// import { parserHandler } from './middleware/parser-handler';
-// import { actionCreater } from './middleware/action-creater';
-// import { initActionHandler } from './middleware/action-handler';
-// import { messageHandler } from './middleware/message-handler';
+import { initRegisteredHandler } from './middleware/registered-handler';
+import { parserHandler } from './middleware/parser-handler';
+import { actionCreater } from './middleware/action-creater';
+import { initActionHandler } from './middleware/action-handler';
+import { messageHandler } from './middleware/message-handler';
 
-// const registerHandler = initRegisteredHandler(db);
-// const actionHandler = initActionHandler({ db });
+const registerHandler = initRegisteredHandler(db);
+const actionHandler = initActionHandler(db);
 
 /////////////////
 /// Server
@@ -58,17 +58,21 @@ app.use((req: types.ILocalsReq, res, next) => {
 app.get('/', (req, res) => {
   res.json({ message: 'hello there' });
 });
+
 // Handle messages received from Zulip outgoing webhooks
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
-  // registerHandler,
-  // parserHandler,
-  // actionCreater,
-  // actionHandler,
-  // messageHandler,
-  // (req: types.IZulipRequest, res) => {
-  (req, res) => {
+  (req, res, next) => {
+    console.log(req.body);
+    next();
+  },
+  registerHandler,
+  parserHandler,
+  actionCreater,
+  actionHandler,
+  messageHandler,
+  (req: types.IZulipRequest, res) => {
     res.json({});
 
     // TODO: extend Express.Request type, so that I can store
