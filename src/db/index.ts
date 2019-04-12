@@ -1,6 +1,4 @@
 import sqlite from 'better-sqlite3';
-
-// Models
 import { UserModel, UserMatchModel, MatchModel } from './models';
 
 export function initDB(
