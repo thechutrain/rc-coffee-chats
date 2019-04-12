@@ -110,6 +110,7 @@ export interface ICtx {
   userEmail: string;
 }
 
+// TODO: add a validator that validates arguments for
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;

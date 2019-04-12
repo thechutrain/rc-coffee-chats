@@ -27,7 +27,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   SHOW__DAYS: {
     okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
-    fn(ctx, actionArgs, zulipReqBody) {
+    fn(ctx) {
       const User = ctx.db.User.findByEmail(ctx.userEmail);
       if (!User) {
         throw new Error(`Could not find given user @ "${ctx.userEmail}"`);
@@ -52,9 +52,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
     fn(ctx, actionArgs, zulipReqBody) {
-      if (!actionArgs.weekdays) {
-        throw new Error(`Need to provide weekdays to update`);
-      }
+      console.log(actionArgs);
+
       const weekdaysStr = actionArgs.weekdays
         .split('')
         .map(day => {
