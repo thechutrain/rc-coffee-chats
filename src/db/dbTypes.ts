@@ -9,7 +9,10 @@ export interface ISchema {
   fields: fieldListing;
 }
 
-export type fieldListing = Record<string, IField>;
+type colName = string;
+// export type fieldListing = Map<colName, IField>;
+// export type fieldListingObj = Record<colName, IField>;
+export type fieldListing = Record<colName, IField>;
 ////////////////////////
 // field props
 ////////////////////////
@@ -21,13 +24,13 @@ interface IMetaFields {
   isUnique?: boolean; // Note: isRequireUpdate ... additional related descriptor
   isNotNull?: boolean;
   isDefault?: boolean;
+  defaultValue?: any;
 }
 
 export interface IField {
-  colName: string;
+  colName;
   type: sqliteType;
   meta?: IMetaFields;
-  defaultValue?: any;
   foreignKey?: {
     refTable: string;
     refColumn: string;

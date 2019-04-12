@@ -1,13 +1,8 @@
 import sqlite from 'better-sqlite3';
-// import { TABLE_NAME as user_table_name } from './user';
-// import { TABLE_NAME as match_table_name } from './match';
 
 // Models
-// import { initUserModel } from './user';
-// import { initMatchModel } from './match';
-// import { initUserMatchModel } from './usermatch';
+import { UserModel } from './models';
 
-// TODO: make more strict interface types on the initDB return type
 export function initDB(
   dbFilePath: string,
   fileMustExist = true

@@ -1,5 +1,5 @@
 import sqlite from 'better-sqlite3';
-import * as types from './dbTypes';
+import * as types from '../dbTypes';
 
 export class Model<M> {
   protected static db: sqlite;
@@ -15,46 +15,51 @@ export class Model<M> {
   }
 
   get primaryKey(): string {
-    const primaryKeyArr = Object.keys(this.fields).filter(
-      fieldStr => this.fields[fieldStr].meta.isPrimaryKey
-    );
+    if (!this.fields) throw new Error('No fields!');
+    const primaryKeyArr = Object.keys(this.fields)
+      .map(f => this.fields[f])
+      .filter(fObj => fObj.meta && fObj.meta.isPrimaryKey);
+
+    // .filter(fieldStr => this.fields[fieldStr].meta.isPrimaryKey);
     if (primaryKeyArr.length !== 1) {
       throw new Error('There must be only one primary key for each table');
     }
-    return primaryKeyArr[0];
+
+    return primaryKeyArr[0].colName;
   }
 
   get foreignKeys(): string[] {
     return Object.keys(this.fields).filter(s => !!this.fields[s].foreignKey);
   }
 
-  /** === create() ====
+  /** === initTable() ====
    *
    */
-  public create(): { rawQuery: string } {
+  public initTable(): { rawQuery: string } {
     const queryBodyArr: string[] = [];
 
     // 2) Get each field pertaining to column, ex. username TEXT NOT NULL,
     Object.keys(this.fields).forEach(field => {
-      // Question: is there a way to avoid explicit typing here?
-      const { type } = this.fields[field] as types.IField;
+      // QUESTION: is there a way to avoid explicit typing here?
+      // const { type } = this.fields[field] as types.IField;
+      const { type } = this.fields[field];
       let fieldStr = `${field} ${type}`;
 
-      if (!!this.fields[field].meta) {
+      if (this.fields[field].meta) {
         const {
-          meta: { isPrimaryKey, isUnique, isNotNull, isDefault },
-          defaultValue
+          // @ts-ignore TODO: how do I fix this?????
+          meta: { isPrimaryKey, isUnique, isNotNull, defaultValue }
         } = this.fields[field];
         if (isPrimaryKey) {
           fieldStr = fieldStr + ' PRIMARY KEY';
         }
-        if (isUnique) {
-          fieldStr = fieldStr + ' UNIQUE';
-        }
         if (isNotNull) {
           fieldStr = fieldStr + ' NOT NULL';
         }
-        if (isDefault && defaultValue !== '') {
+        if (isUnique) {
+          fieldStr = fieldStr + ' UNIQUE';
+        }
+        if (defaultValue !== undefined) {
           fieldStr = fieldStr + ' DEFAULT ' + defaultValue;
         }
       }
@@ -68,9 +73,8 @@ export class Model<M> {
 
     for (const fieldStr in this.fields) {
       const field = this.fields[fieldStr];
-      if (field.hasOwnProperty('foreignKey')) {
-        const fkField = this.fields[fieldStr];
-        const { refTable, refColumn } = fkField.foreignKey;
+      if (field.foreignKey) {
+        const { refTable, refColumn } = field.foreignKey;
 
         queryBodyArr.push(
           `FOREIGN KEY (${fieldStr}) REFERENCES ${refTable} (${refColumn})
@@ -80,12 +84,15 @@ export class Model<M> {
     }
 
     const queryBody = queryBodyArr.join(',\n');
-    const query = `CREATE TABLE IF NOT EXISTS ${this.tableName} (${queryBody})`;
+    const rawQuery = `CREATE TABLE IF NOT EXISTS ${
+      this.tableName
+    } (${queryBody})`;
+    const createStmt = Model.db.prepare(rawQuery);
 
-    Model.db.exec(query);
+    createStmt.run();
 
     return {
-      rawQuery: query
+      rawQuery
     };
   }
 
@@ -115,7 +122,7 @@ export class Model<M> {
    *
    * @param queryArgs
    */
-  public add(queryArgs = {}): { changes: number; lastInsertROWID: number } {
+  public add(queryArgs = {}): { changes: number; lastInsertRowid: number } {
     this.__validateQueryArgs(queryArgs);
     const { db } = Model;
     // NOTE: do not have to do this in sqlite3, since we can still create the
@@ -136,7 +143,6 @@ export class Model<M> {
     const query = db.prepare(queryStr);
     const result = query.run(queryArgs);
 
-    console.log(result);
     return result;
   }
 
@@ -145,6 +151,7 @@ export class Model<M> {
    * @param updateArgs
    * @param whereArgs
    */
+  // TODO: Fix - can only update if the keys in the whereArgs do not conflict with the keys in the updateArgs
   public update(
     updateArgs = {},
     whereArgs = {}
@@ -169,11 +176,13 @@ export class Model<M> {
       colStr => `${colStr} = @${colStr}`
     );
     const whereBody = Object.keys(whereArgs).map(
-      colStr => `${colStr} = @${colStr}`
+      colStr => `${this.primaryKey} = @primaryKey`
     );
 
+    //    const updateStr = `UPDATE ${this.tableName} SET ${updateBody.join(', ')}
+    //   WHERE ${whereBody.join(' AND ')}`;
     const updateStr = `UPDATE ${this.tableName} SET ${updateBody.join(', ')}
-    WHERE ${whereBody.join(' AND ')}`;
+    WHERE ${this.primaryKey} = @prmKey`;
 
     const update = db.prepare(updateStr);
     let changes = 0;
@@ -185,7 +194,7 @@ export class Model<M> {
     begin.run();
     try {
       for (const prmKey of recordsByPrmKey) {
-        const sqlArgs = { ...updateArgs, [this.primaryKey]: prmKey };
+        const sqlArgs = { ...updateArgs, prmKey };
 
         update.run(sqlArgs);
         changes += 1;

@@ -94,7 +94,7 @@ export interface IActionObj {
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;
-    reqArgs?: any[]; // Note: hard to card code what fn => any must contain. So will check dynamically
+    reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
   };
   fn?: (
     ctx: { db: any; originUser: string; targetUser?: string },
@@ -166,4 +166,17 @@ export enum Errors {
   'NO_VALID_ACTION' = 'NO_VALID_ACTION',
   'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST',
   'NOPE' = 'NOPE' // TODO: temp
+}
+
+////////////////////////////
+// MISC
+////////////////////////////
+export enum WEEKDAY {
+  SUN,
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT
 }
