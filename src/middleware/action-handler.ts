@@ -53,20 +53,19 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     },
     fn(ctx, actionArgs, zulipReqBody) {
       // Validate that all the arguments are in Weekdays
-      const weekdaysStr = actionArgs
-        .map(day => {
-          if (!(day in types.WEEKDAY)) {
-            throw new Error(
-              `Inproper input for updating days. Receive: "${day}". User the first three letters for each day of the week`
-            );
-          }
-          return types.WEEKDAY[day];
-        })
-        .join('');
+      const weekdays = actionArgs.map(day => {
+        if (!(day in types.WEEKDAY)) {
+          throw new Error(
+            `Inproper input for updating days. Receive: "${day}". User the first three letters for each day of the week`
+          );
+        }
+        return day;
+        // return types.WEEKDAY[day]; // return int of the day
+      });
 
-      console.log(weekdaysStr);
+      console.log(weekdays);
 
-      const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdaysStr);
+      const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdays);
 
       return {
         changes
