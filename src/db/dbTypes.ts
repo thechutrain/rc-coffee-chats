@@ -46,10 +46,9 @@ export interface IField {
   isValidFn?: (val: string) => boolean;
 }
 
-// export interface IQueryResult {
-//   rawQuery: string;
-//   queryData?: any;
-//   error?: string;
-// }
+// ======== MODEL RELATED TYPES ==================
+import { UserRecord } from './models/user_model';
+import { UserMatchRecord } from './models/usermatch_model';
+import { MatchRecord } from './models/match_model';
 
-// TODO: make enum of db error types
+export { UserRecord, UserMatchRecord, MatchRecord };

@@ -16,16 +16,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   __REGISTER: {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
-    fn(actionArgs) {
-      const result = this.db.user.add({
-        email: this.originUser,
-        full_name: this.originUser // TODO: get this from user
+    fn(ctx, _, zulipReqBody) {
+      return ctx.db.User.add({
+        email: ctx.originUser.email,
+        full_name: zulipReqBody.message.sender_full_name
       });
-
-      // TODO: add the typescript definitions to database
-      if (result.status === 'ERROR') {
-        throw new Error(`${result.message}`);
-      }
     }
   },
   ////////////////
