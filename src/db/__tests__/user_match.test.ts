@@ -1,6 +1,7 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import { UserModel, UserMatchModel, MatchModel } from '../models';
+import { WEEKDAY } from '../models/user_model';
 
 import { ALL_USERS, MATCHES } from './test_db/mock_user_data';
 
@@ -68,5 +69,12 @@ describe('Integration Test of User, UserMatch, Match Table:', () => {
     expect(DB.Match.count()).toBe(MATCHES.length);
   });
 
-  // it('should be able to find users to match for today', () => {});
+  it('should be able to find a users previous matches', () => {
+    const results = DB.User.getPrevMatches(1, WEEKDAY.MON);
+    const matches_for_1 = MATCHES.filter(match_pair => {
+      return match_pair.indexOf(1) !== -1;
+    }).length;
+
+    expect(results.length).toBe(matches_for_1);
+  });
 });
