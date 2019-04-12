@@ -64,6 +64,34 @@ export class UserModel extends Model<UserRecord> {
     return prevMatchesQuery.all();
   }
 
+  public getTodaysMatches(weekday?: WEEKDAY) {
+    const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
+    //   const findMatches = Model.db.prepare(`
+    //   SELECT U.*, count (UM.user_id) as num_matches FROM User U
+    //     LEFT JOIN User_Match UM
+    //     ON U.id = UM.user_id
+    //     LEFT JOIN Match M
+    //     ON UM.match_id = M.id
+    //     WHERE U.coffee_days LIKE '%${matchDayInt}%'
+    //     AND U.skip_next_match <> 1
+    //     GROUP BY UM.user_id
+    //     ORDER BY num_matches desc
+    // `);
+    const findMatches = Model.db.prepare(`
+    SELECT U.*,  U.id as u_id, count (UM.user_id) as num_matches, M.id as mid FROM User U
+    LEFT JOIN User_Match UM
+    ON U.id = UM.user_id
+    LEFT JOIN Match M
+    ON UM.match_id = M.id
+    WHERE U.coffee_days LIKE '%${matchDayInt}%'
+    AND U.skip_next_match <> 1
+    GROUP BY UM.user_id
+    ORDER BY num_matches desc
+    `);
+
+    return findMatches.all();
+  }
+
   //   public getTodaysMatch(weekday?: WEEKDAY_SHORT) {
   //     const dayToSearch = weekday ? WEEKDAY_SHORT[weekday] : new Date().getDay();
 
@@ -102,6 +130,7 @@ export type UserRecord = {
   full_name: string;
   coffee_days: string; // NOTE: or the enum days?
   warning_exceptions: boolean;
+  skip_next_match: boolean;
   is_active: boolean;
   is_faculty: boolean;
 };

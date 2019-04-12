@@ -77,4 +77,9 @@ describe('Integration Test of User, UserMatch, Match Table:', () => {
 
     expect(results.length).toBe(matches_for_1);
   });
+
+  it('should be able to find users to match for a given day', () => {
+    const results = DB.User.getTodaysMatches(WEEKDAY.TUE);
+    expect(results.length).toBe(2);
+  });
 });
