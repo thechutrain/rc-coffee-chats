@@ -94,7 +94,7 @@ export interface IActionObj {
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;
-    reqArgs?: any[]; // Note: hard to card code what fn => any must contain. So will check dynamically
+    reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
   };
   fn?: (
     ctx: { db: any; originUser: string; targetUser?: string },
