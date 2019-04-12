@@ -1,5 +1,6 @@
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
+import { WEEKDAY } from '../../types';
 import { Model } from './base_model';
 
 export class UserModel extends Model<UserRecord> {
@@ -33,8 +34,14 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================== FIND ====================
-  public findByEmail(email: string) {
-    return Model.db.find(email);
+  public findByEmail(email: string): UserRecord | null {
+    const results = this.find({ email });
+    return results.length ? results[0] : null;
+  }
+
+  public findById(id: number): UserRecord | null {
+    const results = this.find({ id });
+    return results.length ? results[0] : null;
   }
 
   public findMatchesByDay(weekday?: WEEKDAY) {
@@ -98,7 +105,31 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================= UPDATE ===============
-  public updateDays() {}
+  public updateDays(user_id: number, weekdays: WEEKDAY[]) {
+    const weekdayStr = weekdays
+      .sort((a, b) => {
+        if (a > b) {
+          return 1;
+        }
+        if (b < a) {
+          return -1;
+        }
+        return 0;
+      })
+      .join('');
+
+    return this.update({ coffee_days: weekdayStr }, { id: user_id });
+  }
+
+  public updateWarnings(user_id: number, warnings: boolean) {
+    const warning_exception = warnings ? '1' : '0';
+    return this.update({ warning_exception }, { id: user_id });
+  }
+
+  public updateSkipNextMatch(user_id: number, skipNextMatch: boolean) {
+    const skip_next_match = skipNextMatch ? '1' : '0';
+    return this.update({ skip_next_match }, { id: user_id });
+  }
 
   //   public getTodaysMatch(weekday?: WEEKDAY_SHORT) {
   //     const dayToSearch = weekday ? WEEKDAY_SHORT[weekday] : new Date().getDay();
@@ -205,23 +236,3 @@ export const FIELDS: types.fieldListing = {
     }
   }
 };
-
-export enum WEEKDAY {
-  SUN,
-  MON,
-  TUE,
-  WED,
-  THU,
-  FRI,
-  SAT
-}
-
-// export enum WEEKDAY_LONG {
-//   SUNDAY,
-//   MONDAY,
-//   TUESDAY,
-//   WEDNESDAY,
-//   THURSDAY,
-//   FRIDAY,
-//   SATURDAY
-// }

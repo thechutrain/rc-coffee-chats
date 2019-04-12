@@ -1,6 +1,7 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
+import { WEEKDAY } from '../../types';
 import {
   UserModel,
   UserRecord,
@@ -10,6 +11,7 @@ import {
 
 const DB_PATH = path.join(__dirname, 'test_db', 'user_model_test.db');
 let DB_CONNECTION;
+let User;
 
 beforeAll(done => {
   let failedConnection = null;
@@ -25,15 +27,17 @@ beforeAll(done => {
   DB_CONNECTION = new sqlite(DB_PATH);
   expect(DB_CONNECTION.open).toBe(true);
 
+  User = new UserModel(DB_CONNECTION);
+
   done();
 });
 
-// afterAll(done => {
-//   DB_CONNECTION.close();
-//   expect(DB_CONNECTION.open).toBe(false);
+afterAll(done => {
+  DB_CONNECTION.close();
+  expect(DB_CONNECTION.open).toBe(false);
 
-//   done();
-// });
+  done();
+});
 
 describe('User Model:', () => {
   /**
@@ -41,14 +45,12 @@ describe('User Model:', () => {
    * 2) creates correct string from a schema with two fields
    */
   it('should be able to instantiate the User obj', () => {
-    const User = new UserModel(DB_CONNECTION);
     expect(User).not.toBeNull();
     expect(User.fields).toBe(FIELDS);
   });
 
   // For the default Model.create() method
   xit('should be able to create the table', () => {
-    const User = new UserModel(DB_CONNECTION);
     const expectedQuery = `CREATE TABLE IF NOT EXISTS User
     (id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
@@ -68,7 +70,6 @@ describe('User Model:', () => {
 
   // FINAL version: tests the User overload of the create() method
   it('should be able to create the table', () => {
-    const User = new UserModel(DB_CONNECTION);
     const expectedQuery = `CREATE TABLE IF NOT EXISTS User (
       id INTEGER PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
@@ -92,14 +93,12 @@ describe('User Model:', () => {
   });
 
   it('should be able to count the records in the table', () => {
-    const User = new UserModel(DB_CONNECTION);
     const numRecords = User.count();
 
     expect(numRecords).toBe(0);
   });
 
   it('should be able to add records to the table', () => {
-    const User = new UserModel(DB_CONNECTION);
     const user_1 = {
       email: 'alan@gmail.com',
       full_name: 'alan bot'
@@ -114,7 +113,6 @@ describe('User Model:', () => {
 
   // NOTE: this depends on the prior test
   it('should not be able to add the same person to the database', () => {
-    const User = new UserModel(DB_CONNECTION);
     const user_1 = {
       email: 'alan@gmail.com',
       full_name: 'alan bot'
@@ -132,8 +130,8 @@ describe('User Model:', () => {
     expect(error.message).toBe('UNIQUE constraint failed: User.email');
   });
 
-  it('should be able to find records to the table', () => {
-    const User = new UserModel(DB_CONNECTION);
+  // TODO: move this into base_model test
+  xit('should be able to find records to the table', () => {
     const email = 'alan@gmail.com';
     const foundUsers = User.find({ email });
     expect(foundUsers.length).toBe(1);
@@ -142,8 +140,8 @@ describe('User Model:', () => {
     expect(firstUser.email).toBe(email);
   });
 
-  it('should be able to update a users record', () => {
-    const User = new UserModel(DB_CONNECTION);
+  // TODO: move this into the base_model test
+  xit('should be able to update a users record', () => {
     const original_email = 'alan@gmail.com';
     const new_email = 'blaaaaaah@gmail.com';
     const originalUser = User.find({ email: original_email })[0];
@@ -163,18 +161,47 @@ describe('User Model:', () => {
     expect(newUser[0].email).toBe(new_email);
   });
 
-  // it('should be able to remove a given user', () => {
-  //   const User = new UserModel(DB_CONNECTION);
-  // });
-});
+  // TODO: make a remove record method
+  xit('should be able to remove a given user', () => {});
 
-// describe('Db base model: create()', () => {
-//   /**
-//    * 1) can't create a table without at least one field
-//    * 2) creates correct string from a schema with two fields
-//    */
-//   it('should have created a new table without any records', () => {
-//     // const numUsers = User.count();
-//     // expect(numUsers).toBe(0);
-//   });
-// });
+  // =========== MORE SPECIFIC TO USER ==========
+  it('should be able to find a user by id', () => {
+    const results = User.findById(1);
+    expect(results).toHaveProperty('id', 1);
+  });
+
+  it('should return null for nonexistant id', () => {
+    const results = User.findById(4);
+    expect(results).toBeNull();
+  });
+
+  it('should be able to update the users weekdays', () => {
+    const { changes } = User.updateDays(1, [WEEKDAY.TUE, WEEKDAY.MON]);
+    expect(changes).toBe(1);
+
+    const updatedUser = User.findById(1);
+    expect(updatedUser.coffee_days).toBe('12');
+  });
+
+  it('Should be able to update a users warning setting', () => {
+    const originalUser = User.findById(1);
+    expect(originalUser.warning_exception).toBe(0);
+
+    const { changes } = User.updateWarnings(1, true);
+    expect(changes).toBe(1);
+
+    const updatedUser = User.findById(1);
+    expect(updatedUser.warning_exception).toBe(1);
+  });
+
+  it('Should be able to update a users skip next match', () => {
+    const originalUser = User.findById(1);
+    expect(originalUser.skip_next_match).toBe(0);
+
+    const { changes } = User.updateSkipNextMatch(1, true);
+    expect(changes).toBe(1);
+
+    const updatedUser = User.findById(1);
+    expect(updatedUser.skip_next_match).toBe(1);
+  });
+});
