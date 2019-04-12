@@ -120,7 +120,7 @@ export function initDispatcher(
   actionArgs: any[],
   zulipBody: types.IZulipBody
 ) => types.IMsg {
-  return function dispatcher(ctx, action, actionArgs) {
+  return function dispatcher(ctx, action, actionArgs, zulipBody) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
     // console.log('CONTEXT from inside the dispatch fn:');
@@ -144,7 +144,9 @@ export function initDispatcher(
       // as an argument?
       // QUESTION: fn is placeholder for a fn, how to get TS support in this case?
       // ... probably have to explicitly make a type signature
-      msgArgs = fn.call(ctx, actionArgs) || {};
+      console.log(fn);
+      console.log(ctx);
+      msgArgs = fn.call(this, ctx, actionArgs, zulipBody) || {};
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
       // TODO: make req.local.error
