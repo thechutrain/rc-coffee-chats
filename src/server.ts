@@ -44,6 +44,10 @@ import * as types from './types';
 /////////////////
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Im working');
+});
+
 app.use((req: types.ILocalsReq, res, next) => {
   req.local = {
     errors: []
