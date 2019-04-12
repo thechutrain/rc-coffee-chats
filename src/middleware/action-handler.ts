@@ -123,34 +123,20 @@ export function initDispatcher(
   return function dispatcher(ctx, action, actionArgs, zulipBody) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
-    // console.log('CONTEXT from inside the dispatch fn:');
-    // console.log(ctx);
-
     // Case: no function to run for a given action
     if (!fn) {
       return { msgTemplate: okMsg.msgTemplate, msgArgs: {} };
     }
 
-    // Case: Run a fn for a given action -->
-    // 1) results in okMsg
-    // 2) results in errMsg
     let msgTemplate;
     let msgArgs = {};
 
-    // Note: these actions are not coded for
-    // async action! but we can just wrap with async & await
+    // Note: these actions are not coded for async action! but we can just wrap with async & await
     try {
-      // QUESTION: better to have ctx be pointed to this? or to just pass it in
-      // as an argument?
-      // QUESTION: fn is placeholder for a fn, how to get TS support in this case?
-      // ... probably have to explicitly make a type signature
-      console.log(fn);
-      console.log(ctx);
-      msgArgs = fn.call(this, ctx, actionArgs, zulipBody) || {};
+      msgArgs = fn(ctx, actionArgs, zulipBody) || {};
       msgTemplate = okMsg.msgTemplate;
     } catch (e) {
-      // TODO: make req.local.error
-      // QUESTION: should I make a msg here or just create the req.local.error?
+      console.warn(`Error trying to dispatch an action: ${action}`);
 
       msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
       msgArgs = { errorMessage: e };
