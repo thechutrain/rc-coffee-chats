@@ -51,16 +51,35 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
-    fn(actionArgs) {
-      return { coffeeDays: `MON TUE ...fake data :)` };
-      // TODO: come back to this after I update the models/database
-      // QUESTION: should db function just try to validate?
-      // const { coffeeDays } = this.db.user.updateCoffeeDays(
-      //   this.originUser,
-      //   actionArgs
-      // );
+    fn(ctx, actionArgs, zulipReqBody) {
+      if (!actionArgs.weekdays) {
+        throw new Error(`Need to provide weekdays to update`);
+      }
+      const weekdaysStr = actionArgs.weekdays
+        .split('')
+        .map(day => {
+          return types.WEEKDAY[day];
+        })
+        .join();
 
-      // return { coffeeDays: `${coffeeDays.join(' ')}` };
+      console.log(weekdaysStr);
+
+      const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdaysStr);
+      const UpdatedUser = ctx.db.User.findByEmail(ctx.userEmail);
+      if (!UpdatedUser) {
+        throw new Error(`No user found!`);
+      }
+      const coffeeDays = UpdatedUser.coffee_days
+        .split('')
+        .map(day => {
+          return types.WEEKDAY[day];
+        })
+        .join(' ');
+
+      return {
+        coffeeDays,
+        changes
+      };
     }
   },
   HELP: {
