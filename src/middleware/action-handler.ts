@@ -52,31 +52,23 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgTemplate: types.msgTemplate.UPDATED_DAYS
     },
     fn(ctx, actionArgs, zulipReqBody) {
-      console.log(actionArgs);
-
-      const weekdaysStr = actionArgs.weekdays
-        .split('')
+      // Validate that all the arguments are in Weekdays
+      const weekdaysStr = actionArgs
         .map(day => {
+          if (!(day in types.WEEKDAY)) {
+            throw new Error(
+              `Inproper input for updating days. Receive: "${day}". User the first three letters for each day of the week`
+            );
+          }
           return types.WEEKDAY[day];
         })
-        .join();
+        .join('');
 
       console.log(weekdaysStr);
 
       const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdaysStr);
-      const UpdatedUser = ctx.db.User.findByEmail(ctx.userEmail);
-      if (!UpdatedUser) {
-        throw new Error(`No user found!`);
-      }
-      const coffeeDays = UpdatedUser.coffee_days
-        .split('')
-        .map(day => {
-          return types.WEEKDAY[day];
-        })
-        .join(' ');
 
       return {
-        coffeeDays,
         changes
       };
     }
