@@ -105,7 +105,7 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================= UPDATE ===============
-  public updateDays(user_id: number, weekdays: WEEKDAY[]) {
+  public updateDays(email: string, weekdays: WEEKDAY[]) {
     const weekdayStr = weekdays
       .sort((a, b) => {
         if (a > b) {
@@ -118,17 +118,17 @@ export class UserModel extends Model<UserRecord> {
       })
       .join('');
 
-    return this.update({ coffee_days: weekdayStr }, { id: user_id });
+    return this.update({ coffee_days: weekdayStr }, { email });
   }
 
-  public updateWarnings(user_id: number, warnings: boolean) {
+  public updateWarnings(email: string, warnings: boolean) {
     const warning_exception = warnings ? '1' : '0';
-    return this.update({ warning_exception }, { id: user_id });
+    return this.update({ warning_exception }, { email });
   }
 
-  public updateSkipNextMatch(user_id: number, skipNextMatch: boolean) {
+  public updateSkipNextMatch(email, skipNextMatch: boolean) {
     const skip_next_match = skipNextMatch ? '1' : '0';
-    return this.update({ skip_next_match }, { id: user_id });
+    return this.update({ skip_next_match }, { email });
   }
 
   //   public getTodaysMatch(weekday?: WEEKDAY_SHORT) {
