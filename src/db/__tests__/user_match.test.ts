@@ -70,7 +70,7 @@ describe('Integration Test of User, UserMatch, Match Table:', () => {
   });
 
   it('should be able to find a users previous matches', () => {
-    const results = DB.User.getPrevMatches(1, WEEKDAY.MON);
+    const results = DB.User.findPrevMatches(1, WEEKDAY.MON);
     const matches_for_1 = MATCHES.filter(match_pair => {
       return match_pair.indexOf(1) !== -1;
     }).length;
@@ -79,7 +79,7 @@ describe('Integration Test of User, UserMatch, Match Table:', () => {
   });
 
   it('should be able to find users to match for a given day', () => {
-    const results = DB.User.getTodaysMatches(WEEKDAY.TUE);
+    const results = DB.User.findMatchesByDay(WEEKDAY.TUE);
     expect(results.length).toBe(2);
   });
 });

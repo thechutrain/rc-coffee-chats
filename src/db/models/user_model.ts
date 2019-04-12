@@ -32,39 +32,12 @@ export class UserModel extends Model<UserRecord> {
     return { rawQuery };
   }
 
-  /**
-   * - gets all previous matches with active users who are also being paired today
-   * @param user_id
-   * @param weekday
-   */
-  public getPrevMatches(user_id: number, weekday: WEEKDAY) {
-    const prevMatchesQuery = Model.db.prepare(`
-    SELECT U.id, U.email, U.full_name, Match.date
-    FROM User U
-    LEFT Join User_Match
-      ON U.id = User_Match.user_id
-    LEFT JOIN Match
-      ON User_Match.match_id = Match.id
-    WHERE User_Match.user_id <> ${user_id}
-    AND U.coffee_days LIKE '%${weekday}%'
-    AND U.skip_next_match <> ${user_id}
-    AND U.is_active <> 0
-    AND User_Match.match_id in (
-      SELECT Match.id
-      FROM User
-      LEFT JOIN User_Match
-        ON User.id = User_Match.user_id
-      LEFT JOIN Match
-        ON User_Match.match_id = Match.id
-      WHERE User.id = ${user_id}
-     )
-     ORDER BY Match.date
-    `);
-
-    return prevMatchesQuery.all();
+  // ================== FIND ====================
+  public findByEmail(email: string) {
+    return Model.db.find(email);
   }
 
-  public getTodaysMatches(weekday?: WEEKDAY) {
+  public findMatchesByDay(weekday?: WEEKDAY) {
     const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
     //   const findMatches = Model.db.prepare(`
     //   SELECT U.*, count (UM.user_id) as num_matches FROM User U
@@ -91,6 +64,41 @@ export class UserModel extends Model<UserRecord> {
 
     return findMatches.all();
   }
+
+  /**
+   * - gets all previous matches with active users who are also being paired today
+   * @param user_id
+   * @param weekday
+   */
+  public findPrevMatches(user_id: number, weekday: WEEKDAY) {
+    const prevMatchesQuery = Model.db.prepare(`
+    SELECT U.id, U.email, U.full_name, Match.date
+    FROM User U
+    LEFT Join User_Match
+      ON U.id = User_Match.user_id
+    LEFT JOIN Match
+      ON User_Match.match_id = Match.id
+    WHERE User_Match.user_id <> ${user_id}
+    AND U.coffee_days LIKE '%${weekday}%'
+    AND U.skip_next_match <> ${user_id}
+    AND U.is_active <> 0
+    AND User_Match.match_id in (
+      SELECT Match.id
+      FROM User
+      LEFT JOIN User_Match
+        ON User.id = User_Match.user_id
+      LEFT JOIN Match
+        ON User_Match.match_id = Match.id
+      WHERE User.id = ${user_id}
+     )
+     ORDER BY Match.date
+    `);
+
+    return prevMatchesQuery.all();
+  }
+
+  // ================= UPDATE ===============
+  public updateDays() {}
 
   //   public getTodaysMatch(weekday?: WEEKDAY_SHORT) {
   //     const dayToSearch = weekday ? WEEKDAY_SHORT[weekday] : new Date().getDay();
