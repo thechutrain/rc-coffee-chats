@@ -27,15 +27,21 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   SHOW__DAYS: {
     okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
-    fn(actionArgs) {
-      return {
-        coffeeDays: `MON TUE ... fake daaaata`
-      };
-      // const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
+    fn(ctx, actionArgs, zulipReqBody) {
+      const User = ctx.db.User.findByEmail(ctx.userEmail);
+      if (!User) {
+        throw new Error(`Could not find given user @ "${ctx.userEmail}"`);
+      }
+      const coffeeDays = User.coffee_days
+        .split('')
+        .map(day => {
+          return types.WEEKDAY[day];
+        })
+        .join(' ');
 
-      // return {
-      //   coffeeDays: `${coffeeDays.join(' ')}`
-      // };
+      return {
+        coffeeDays
+      };
     }
   },
   ////////////////
