@@ -27,7 +27,7 @@
     "winston": "^2.4.0"
   },
   "engines": {
-    "node": "8.x"
+    "node": "10.x"
   },
   "repository": {
     "url": "https://github.com/thechutrain/coffee-chats-2.0"
