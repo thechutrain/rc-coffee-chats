@@ -1,27 +1,26 @@
 import sqlite from 'better-sqlite3';
 
 // Models
-import { UserModel } from './models';
+import { UserModel, UserMatchModel, MatchModel } from './models';
 
 export function initDB(
   dbFilePath: string,
   fileMustExist = true
-): { user: any; match: any } {
+): { User: UserModel; Match: MatchModel; UserMatch: UserMatchModel } {
   // Note: can set readonly, fileMustExist, timeout etc
-  const db = new sqlite(dbFilePath, { verbose: console.log, fileMustExist });
+  const db_connection = new sqlite(dbFilePath, {
+    verbose: console.log,
+    fileMustExist
+  });
 
-  // Initialize Models here:
-  // const user = initUserModel(db);
-  // const match = initMatchModel(db);
-  // const userMatch = initUserMatchModel(db);
-
-  // Ensure Tables have been also created:
-  // user.createTable();
-  // match.createTable();
-  // userMatch.createTable();
+  // Initialize Models:
+  const User = new UserModel(db_connection);
+  const Match = new MatchModel(db_connection);
+  const UserMatch = new UserMatchModel(db_connection, User, Match);
 
   return {
-    user: {},
-    match: {}
+    User,
+    Match,
+    UserMatch
   };
 }
