@@ -167,3 +167,16 @@ export enum Errors {
   'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST',
   'NOPE' = 'NOPE' // TODO: temp
 }
+
+////////////////////////////
+// MISC
+////////////////////////////
+export enum WEEKDAY {
+  SUN,
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT
+}
