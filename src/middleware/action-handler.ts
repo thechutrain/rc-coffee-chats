@@ -3,6 +3,7 @@
  */
 
 import * as types from '../types';
+import { myDB } from '../db/dbTypes';
 
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
@@ -74,7 +75,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *  --> dispatches an action that returns a message
  *
  */
-export function initActionHandler(db) {
+export function initActionHandler(db: myDB) {
   const dispatcher = initDispatcher(ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
@@ -86,6 +87,7 @@ export function initActionHandler(db) {
       return;
     }
 
+    // TODO: make this targetUser, originUser separate
     const { actionType, originUser } = req.local.action;
     const ctx = {
       ...db,

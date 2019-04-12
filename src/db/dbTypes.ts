@@ -1,3 +1,11 @@
+import { UserModel, UserMatchModel, MatchModel } from './models';
+
+export type myDB = {
+  User: UserModel;
+  UserMatch: UserMatchModel;
+  Match: MatchModel;
+};
+
 export enum sqliteType {
   'TEXT' = 'TEXT',
   'INTEGER' = 'INTEGER',
