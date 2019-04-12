@@ -3,7 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // ===== My Custom Modules =====
 import * as types from './types';
