@@ -24,7 +24,7 @@ export interface IZulipRequest extends Express.Request {
     user: {
       email: string;
       isRegistered: boolean;
-      // is admin?
+      data?: UserRecord;
     };
     cmd: IParsedCmd;
     action: IActionObj;
@@ -89,7 +89,6 @@ export enum Action {
 
 export interface IActionObj {
   actionType: Action | null;
-  originUser: string;
   actionArgs?: any;
   targetUser?: string;
 }
@@ -105,16 +104,18 @@ export interface IActionObj {
  */
 
 import { myDB, UserRecord } from './db/dbTypes';
+export { myDB };
+export interface ICtx {
+  db: myDB;
+  userEmail: string;
+}
+
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;
     reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
   };
-  fn?: (
-    ctx: { db: myDB; originUser: UserRecord },
-    actionArgs: any,
-    zulipBody: IZulipBody
-  ) => any;
+  fn?: (ctx: ICtx, actionArgs: any, zulipBody: IZulipBody) => any;
   errMsg?: {
     msgTemplate: msgTemplate;
     reqArgs?: any[];

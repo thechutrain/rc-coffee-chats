@@ -3,7 +3,6 @@
  */
 
 import * as types from '../types';
-import { myDB } from '../db/dbTypes';
 
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
@@ -18,7 +17,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
     fn(ctx, _, zulipReqBody) {
       return ctx.db.User.add({
-        email: ctx.originUser.email,
+        email: ctx.userEmail,
         full_name: zulipReqBody.message.sender_full_name
       });
     }
@@ -70,7 +69,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *  --> dispatches an action that returns a message
  *
  */
-export function initActionHandler(db: myDB) {
+export function initActionHandler(db: types.myDB) {
   const dispatcher = initDispatcher(ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
@@ -83,18 +82,20 @@ export function initActionHandler(db: myDB) {
     }
 
     // TODO: make this targetUser, originUser separate
-    const { actionType, originUser } = req.local.action;
+    const userEmail = req.local.user.email;
+    const { actionType } = req.local.action;
     const ctx = {
-      ...db,
-      originUser
+      db,
+      userEmail
     };
     const { msgTemplate, msgArgs } = dispatcher(
       ctx,
       actionType,
-      req.local.cmd.args
+      req.local.cmd.args,
+      req.body
     );
 
-    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
+    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: userEmail };
 
     console.log('======== INFO ========');
     console.log('req.local.action:');
@@ -113,10 +114,12 @@ export function initActionHandler(db: myDB) {
  */
 export function initDispatcher(
   MapActionToFn: types.ActionHandlerMap
-): (ctx: any, action: types.Action, actionArgs: any[]) => types.IMsg {
-  // QUESTION: could I not create ctx in the outer initDispatcher function
-  // and pass it into fn.call(ctx)? why weren't my fn for db.user there?
-
+): (
+  ctx: types.ICtx,
+  action: types.Action,
+  actionArgs: any[],
+  zulipBody: types.IZulipBody
+) => types.IMsg {
   return function dispatcher(ctx, action, actionArgs) {
     const { fn, okMsg, errMsg } = MapActionToFn[action];
 
