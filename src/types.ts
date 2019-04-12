@@ -1,6 +1,19 @@
 ////////////////////////////
 // Request
 ////////////////////////////
+export interface IZulipBody {
+  trigger: string;
+  token: string;
+  message: {
+    sender_id: number;
+    sender_full_name: string;
+    content: string;
+    sender_email: string;
+    subject: string;
+  };
+  bot_email: string;
+}
+
 export interface ILocalsReq extends Express.Request {
   body: any;
   local?: any;
@@ -91,14 +104,16 @@ export interface IActionObj {
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 
+import { myDB, UserRecord } from './db/dbTypes';
 export interface IActionRules {
   okMsg: {
     msgTemplate: msgTemplate;
     reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
   };
   fn?: (
-    ctx: { db: any; originUser: string; targetUser?: string },
-    actionArgs: any
+    ctx: { db: myDB; originUser: UserRecord },
+    actionArgs: any,
+    zulipBody: IZulipBody
   ) => any;
   errMsg?: {
     msgTemplate: msgTemplate;
