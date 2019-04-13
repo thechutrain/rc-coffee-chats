@@ -58,15 +58,21 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const weekdays = actionArgs.map(day => {
         if (!(day in types.WEEKDAY)) {
           throw new Error(
-            `Inproper input for updating days. Receive: "${day}". User the first three letters for each day of the week`
+            `Inproper input for updating days. Received: "${day}". User the first three letters for each day of the week`
+          );
+        } else if (!isNaN(parseInt(day, 10))) {
+          // Case: where user gave us a number
+          throw new Error(
+            `Please provide days of the week using the first three letters for each day of the week, not as an integer.`
           );
         }
-        return day;
-        // return types.WEEKDAY[day]; // return int of the day
+        // return day;
+        return types.WEEKDAY[day]; // return int of the day
       });
 
       console.log(weekdays);
 
+      // Must save the days of the week as a string of numbers
       const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdays);
 
       return {
@@ -114,12 +120,12 @@ export function initActionHandler(db: types.myDB) {
 
     req.local.msgInfo = { msgTemplate, msgArgs, sendTo: userEmail };
 
-    console.log('======== INFO ========');
+    console.log('\n======= Start of actionHandler ======');
     console.log('req.local.action:');
     console.log(req.local.action);
     console.log('\nreq.local.msgInfo');
     console.log(req.local.msgInfo);
-    console.log('======= END of actionHandler ======\n');
+    console.log('\n');
     next();
   };
 }
