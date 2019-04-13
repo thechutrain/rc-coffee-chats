@@ -70,7 +70,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   // UPDATE
   ////////////////
-  UPDATE__DAYS(ctx, actionArgs, zulipReqBody) {
+  UPDATE__DAYS(ctx, actionArgs) {
     // Validate that all the arguments are in Weekdays
     const weekdays = actionArgs.map(day => {
       if (!(day in types.WEEKDAY)) {
@@ -105,7 +105,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       }
     };
   },
-  UPDATE__SKIP(ctx, actionArgs, zulipReqBody) {
+  UPDATE__SKIP(ctx, actionArgs) {
     // Validate arguments:
     const trueArgs = ['1', 'TRUE', 'YES'];
     const falseArgs = ['0', 'FALSE', 'NO'];
@@ -120,8 +120,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       throw new Error(`${actionArgs[0]} is not a valid argument`);
     }
 
-    const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
-    ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
+    const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+    ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
     const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
     return {
@@ -129,6 +129,33 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       msgArgs: {
         setting_key: 'Skip Next Match',
         setting_value: skip_next_match === 1 ? 'True' : 'False'
+      }
+    };
+  },
+  UPDATE__WARNINGS(ctx, actionArgs) {
+    const trueArgs = ['1', 'TRUE', 'YES', 'ON'];
+    const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
+    const validArgs = new Set([...trueArgs, ...falseArgs]);
+
+    if (actionArgs.length !== 1) {
+      throw new Error(
+        `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+          ','
+        )}, ${falseArgs.join(',')}*`
+      );
+    } else if (!validArgs.has(actionArgs[0])) {
+      throw new Error(`${actionArgs[0]} is not a valid argument`);
+    }
+
+    const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+    ctx.db.User.updateWarnings(ctx.userEmail, blnWarning);
+    const { warning_exceptions } = ctx.db.User.findByEmail(ctx.userEmail);
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
+        setting_key: 'Warning Exceptions',
+        setting_value: warning_exceptions === 1 ? 'True' : 'False'
       }
     };
   },

@@ -79,7 +79,7 @@ export enum Action {
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
   'UPDATE__SKIP' = 'UPDATE__SKIP',
-  // 'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
+  'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
   // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
