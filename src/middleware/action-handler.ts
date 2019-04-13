@@ -109,7 +109,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       console.log(skip_next_match);
       return {
         setting_key: 'Skip Next Match',
-        setting_value: skip_next_match === '1' ? 'True' : 'False'
+        setting_value: skip_next_match === 1 ? 'True' : 'False'
       };
     }
   },

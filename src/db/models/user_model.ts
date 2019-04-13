@@ -171,10 +171,10 @@ export type UserRecord = {
   email: string;
   full_name: string;
   coffee_days: string; // NOTE: or the enum days?
-  warning_exceptions: string; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
-  skip_next_match: string;
-  is_active: string;
-  is_faculty: string;
+  warning_exceptions: number; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
+  skip_next_match: number;
+  is_active: number;
+  is_faculty: number;
 };
 
 export const TABLE_NAME = 'User';
