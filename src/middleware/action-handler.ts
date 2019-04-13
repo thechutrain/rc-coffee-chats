@@ -58,7 +58,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const weekdays = actionArgs.map(day => {
         if (!(day in types.WEEKDAY)) {
           throw new Error(
-            `Inproper input for updating days. Received: "${day}". User the first three letters for each day of the week`
+            `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
           );
         } else if (!isNaN(parseInt(day, 10))) {
           // Case: where user gave us a number
