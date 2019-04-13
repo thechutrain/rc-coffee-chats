@@ -87,11 +87,11 @@ export function createMessageContent(
       }`
     },
     UPDATED_DAYS: {
-      reqVars: ['coffeeDays'],
-      template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
-        vars.coffeeDays
-      }`
-      // template: `UPDATED your coffee chat days :)`
+      // reqVars: ['coffeeDays'],
+      // template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
+      //   vars.coffeeDays
+      // }`
+      template: `UPDATED your coffee chat days ✅`
     },
     HELP: {
       template: `Hi! I'm :coffee: bot and I'm here to help!
@@ -104,7 +104,11 @@ export function createMessageContent(
       `
     },
     ERROR: {
-      template: `Error! \n ${vars.errorMessage}`,
+      template: `Error! 💣 \n ${vars.errorMessage}
+      \n if this is a 🐞, please submit an issue @ [issues](${
+        process.env.GITHUB_URL
+      }/issues)
+      `,
       reqVars: ['errorMessage']
     }
   };
