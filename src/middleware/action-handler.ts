@@ -77,11 +77,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         })
         .join(' ');
 
-      console.log(coffeeDays);
+      console.log(typeof coffeeDays);
 
       return {
         setting_key: 'Coffee Days',
-        setting_value: coffeeDays
+        setting_value: JSON.stringify(coffeeDays)
       };
     }
   },
