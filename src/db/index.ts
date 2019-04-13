@@ -15,8 +15,7 @@ export function initDB(
 
   const dbFilePath = optDbFilePath
     ? optDbFilePath
-    : path.join(__dirname, '../', 'data/', defaultDbFile);
-  console.log(dbFilePath);
+    : path.join(__dirname, '../../', 'data/', defaultDbFile);
 
   // Note: can set readonly, fileMustExist, timeout etc
   const db_connection = new sqlite(dbFilePath, {
