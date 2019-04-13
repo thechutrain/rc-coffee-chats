@@ -32,6 +32,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       if (!User) {
         throw new Error(`Could not find given user @ "${ctx.userEmail}"`);
       }
+      console.log('User data ====');
+      console.log(User);
       const coffeeDays = User.coffee_days
         .split('')
         .map(day => {
