@@ -105,6 +105,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+      console.log(typeof skip_next_match);
+      console.log(skip_next_match);
       return {
         setting_key: 'Skip Next Match',
         setting_value: skip_next_match === '1' ? 'True' : 'False'
