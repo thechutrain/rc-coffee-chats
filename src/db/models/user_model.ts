@@ -34,9 +34,12 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================== FIND ====================
-  public findByEmail(email: string): UserRecord | null {
+  public findByEmail(email: string): UserRecord {
     const results = this.find({ email });
-    return results.length ? results[0] : null;
+    if (results.length === 0) {
+      throw new Error(`Could not find a user with the email: ${email}`);
+    }
+    return results[0];
   }
 
   public findById(id: number): UserRecord | null {
