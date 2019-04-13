@@ -67,7 +67,6 @@ export interface IParsedCmd {
 // NOTE: Most actions are created by joining [FIRST_CMD]__[SECOND_COMMAND]
 // Exceptions include non-user input generated actions:
 // __PROMPT_SIGNUP && __REGISTER
-
 export enum Action {
   '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
   '__REGISTER' = '__REGISTER',
@@ -75,7 +74,7 @@ export enum Action {
   'SHOW__DAYS' = 'SHOW__DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
   'SHOW__SKIP' = 'SHOW__SKIP',
-  // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
+  'SHOW__WARNINGS' = 'SHOW__WARNINGS',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
@@ -93,11 +92,6 @@ export interface IActionObj {
   actionArgs?: any;
   targetUser?: string;
 }
-
-// export interface IReqArg {
-//   name: string;
-//   type: string;
-// }
 
 // TODO: rethink how to shape the action handler:
 /**
@@ -121,7 +115,6 @@ export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 ////////////////////////////
 // Messaging
 ////////////////////////////
-
 export interface IMsg {
   msgTemplate: msgTemplate;
   msgArgs?: Record<any, string>;
@@ -129,14 +122,6 @@ export interface IMsg {
 export interface IMsgInfo extends IMsg {
   sendTo: string;
 }
-
-// Required Variables & Types for each msg type
-// TODO: add-in the required variable types
-// type msgTypeEnum = {
-//   [k in okMsg]: {
-//     reqVars: string[];
-//   }
-// };
 
 export enum msgTemplate {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
@@ -150,6 +135,10 @@ export enum msgTemplate {
 
   // 'STATUS' = 'STATUS',
   'STATUS_DAYS' = 'STATUS_DAYS',
+  'STATUS_SKIP_TRUE' = 'STATUS_SKIP_TRUE',
+  'STATUS_SKIP_FALSE' = 'STATUS_SKIP_FALSE',
+  'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
+  'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',

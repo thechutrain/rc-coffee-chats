@@ -43,10 +43,28 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       }
     };
   },
-  SHOW__SKIP() {
-    // TODO: find the days that were skipped
+  SHOW__SKIP(ctx) {
+    const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+    // TODO: feature that lets user know when their next match is schedule to be
+
+    const msgTemplate =
+      skip_next_match === 1
+        ? types.msgTemplate.STATUS_SKIP_TRUE
+        : types.msgTemplate.STATUS_SKIP_FALSE;
+
     return {
-      msgTemplate: types.msgTemplate.STATUS_DAYS
+      msgTemplate
+    };
+  },
+  SHOW__WARNINGS(ctx) {
+    const { warning_exceptions } = ctx.db.User.findByEmail(ctx.userEmail);
+    const msgTemplate =
+      warning_exceptions === 1
+        ? types.msgTemplate.STATUS_WARNINGS_ON
+        : types.msgTemplate.STATUS_WARNINGS_OFF;
+
+    return {
+      msgTemplate
     };
   },
   ////////////////

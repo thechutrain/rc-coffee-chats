@@ -94,10 +94,18 @@ export function createMessageContent(
         vars.coffeeDays
       }`
     },
-    // STATUS_SKIP: {
-    //   reqVars: ['skip_next_match'],
-    //   template:
-    // }
+    STATUS_SKIP_TRUE: {
+      template: `You will be skipping your next match`
+    },
+    STATUS_SKIP_FALSE: {
+      template: `Skip_next_match is set to False. You will be matched according to your normal schedule`
+    },
+    STATUS_WARNINGS_ON: {
+      template: `Your warning settings are turned *ON*. You will receive a message from me letting you know that you'll be matched the next day. To turn the warnings off type in the following command: **UPDATE WARNINGS False**`
+    },
+    STATUS_WARNINGS_OFF: {
+      template: `Your warning settings are turned *OFF*. You will no longer get warnings the night before matches are made. `
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions
