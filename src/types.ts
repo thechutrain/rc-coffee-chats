@@ -150,6 +150,7 @@ export enum msgTemplate {
   'SIGNED_UP' = 'SIGNED_UP',
 
   // CLI Update-related cmds
+  'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',

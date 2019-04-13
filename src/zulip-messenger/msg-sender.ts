@@ -71,6 +71,9 @@ export function createMessageContent(
   // TODO: validate that all vars exist on overloadArgs!
 
   const msgCreaterMap: types.msgCreaterMap = {
+    ////////////////////////
+    // Registration related messages
+    ////////////////////////
     PROMPT_SIGNUP: {
       template: `Hello there! I'm :coffee: bot!
       You are not currently registered as a user of coffee chats
@@ -80,19 +83,35 @@ export function createMessageContent(
       template: `You've successfully been added to coffee chat!
       Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
     },
+    ////////////////////////
+    // Messages related to SHOW actions
+    ////////////////////////
     SHOW_DAYS: {
       reqVars: ['coffeeDays'],
       template: `You are currently set to have coffee chats on the following days: ${
         vars.coffeeDays
       }`
     },
+
+    ////////////////////////
+    // Messages related to UPDATE actions
+    ////////////////////////
+    UPDATED_GENERAL: {
+      reqVars: ['setting_key', 'setting_value'],
+      template: `✅ successful update. \n Your *${vars.setting_key}* to: *${
+        vars.settting_value
+      }*`
+    },
     UPDATED_DAYS: {
       // reqVars: ['coffeeDays'],
       // template: `UPDATED your coffee chat days. \nYou will meet on the following days: ${
       //   vars.coffeeDays
       // }`
-      template: `UPDATED your coffee chat days ✅`
+      template: `✅ UPDATED your coffee chat days`
     },
+    ////////////////////////
+    // HELP messages
+    ////////////////////////
     HELP: {
       template: `Hi! I'm :coffee: bot and I'm here to help!
       To talk to me, enter a valid command that begins with the following:
@@ -103,6 +122,9 @@ export function createMessageContent(
       }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
       `
     },
+    ////////////////////////
+    // Error Messages
+    ////////////////////////
     ERROR: {
       template: `Error! 💣 \n ${vars.errorMessage}
       \n if this is a 🐞, please submit an issue @ [issues](${

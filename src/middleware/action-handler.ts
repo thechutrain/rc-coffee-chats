@@ -29,11 +29,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
     fn(ctx) {
       const User = ctx.db.User.findByEmail(ctx.userEmail);
-      if (!User) {
-        throw new Error(`Could not find given user @ "${ctx.userEmail}"`);
-      }
-      console.log('User data ====');
-      console.log(User);
+
       const coffeeDays = User.coffee_days
         .split('')
         .map(day => {
@@ -51,7 +47,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   UPDATE__DAYS: {
     okMsg: {
-      msgTemplate: types.msgTemplate.UPDATED_DAYS
+      // msgTemplate: types.msgTemplate.UPDATED_DAYS
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL
     },
     fn(ctx, actionArgs, zulipReqBody) {
       // Validate that all the arguments are in Weekdays
@@ -66,17 +63,23 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             `Please provide days of the week using the first three letters for each day of the week, not as an integer.`
           );
         }
-        // return day;
+
         return types.WEEKDAY[day]; // return int of the day
       });
 
-      console.log(weekdays);
-
       // Must save the days of the week as a string of numbers
-      const { changes } = ctx.db.User.updateDays(ctx.userEmail, weekdays);
+      ctx.db.User.updateDays(ctx.userEmail, weekdays);
+      const User = ctx.db.User.findByEmail(ctx.userEmail);
+      const coffeeDays = User.coffee_days
+        .split('')
+        .map(day => {
+          return types.WEEKDAY[day];
+        })
+        .join(' ');
 
       return {
-        changes
+        setting_key: 'Coffee Days',
+        setting_value: coffeeDays
       };
     }
   },
