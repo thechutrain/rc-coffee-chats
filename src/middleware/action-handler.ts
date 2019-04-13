@@ -73,7 +73,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   UPDATE__DAYS(ctx, actionArgs) {
     if (actionArgs.length === 0) {
       throw new Error(
-        `Must provide at least one day to be signed up for with Coffee Chat bot in order to stay active!\n If you'd like to no longer be paired up for matches you can deactive your account by typing: **Update Active False**`
+        `Must provide at least one day to be signed up for with Coffee Chat bot in order to stay active!\n If you'd like to no longer be paired up for matches you can deactive your account by typing: "**Update Active False**"`
       );
     }
     // Validate that all the arguments are in Weekdays
@@ -118,8 +118,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     if (actionArgs.length !== 1) {
       throw new Error(
         `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
-          ','
-        )}, ${falseArgs.join(',')}*`
+          ', '
+        )}, ${falseArgs.join(', ')}*`
       );
     } else if (!validArgs.has(actionArgs[0])) {
       throw new Error(`${actionArgs[0]} is not a valid argument`);
@@ -145,8 +145,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     if (actionArgs.length !== 1) {
       throw new Error(
         `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
-          ','
-        )}, ${falseArgs.join(',')}*`
+          ', '
+        )}, ${falseArgs.join(', ')}*`
       );
     } else if (!validArgs.has(actionArgs[0])) {
       throw new Error(`${actionArgs[0]} is not a valid argument`);
