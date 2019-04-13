@@ -77,6 +77,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         })
         .join(' ');
 
+      console.log(coffeeDays);
+
       return {
         setting_key: 'Coffee Days',
         setting_value: coffeeDays

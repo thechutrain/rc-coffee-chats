@@ -98,9 +98,9 @@ export function createMessageContent(
     ////////////////////////
     UPDATED_GENERAL: {
       reqVars: ['setting_key', 'setting_value'],
-      template: `✅ successful update. \n Your *${vars.setting_key}* to: *${
-        vars.settting_value
-      }*`
+      template: `✅ successful update. \n Your *${
+        vars.setting_key
+      }* is now set to: *${vars.settting_value}*`
     },
     UPDATED_DAYS: {
       // reqVars: ['coffeeDays'],
