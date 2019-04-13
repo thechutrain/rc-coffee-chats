@@ -3,7 +3,7 @@ import * as path from 'path';
 import { initDB } from '../../../src/db';
 
 import activeUsers from './activeUsers04_13';
-
+import inactiveUsers from './inactiveUsers04_13';
 const pathGlitchDb = path.join(__dirname, 'glitch.db');
 const glitchDB: sqlite = new sqlite(pathGlitchDb, { fileMustExist: true });
 const pathToMigrated = path.join(__dirname, 'migrated_4_14_19.db');
@@ -14,12 +14,23 @@ const migratedDB = initDB(pathToMigrated, false);
 ///////////////////////////////////
 // 1) Get all users from glitch database and add them to migrated DB
 
-const glitchUsers = glitchDB.prepare('Select * from Users').all(); // 71 users
+const glitchUsers = glitchDB
+  .prepare('Select * from Users')
+  .all()
+  .concat(inactiveUsers); // 71 users
+
+// console.log(glitchUsers.length);
+// const uniqueUsers = new Set(glitchUsers);
+// console.log(uniqueUsers.size);
+
 glitchUsers.forEach(user => {
+  const full_name = user.email ? user.email : user;
+  const coffee_days =
+    user.coffee_days !== undefined ? user.coffee_days : '1234';
   migratedDB.User.add({
-    email: user.email,
-    full_name: user.email,
-    coffee_days: `${user.coffee_days}`,
+    email: full_name,
+    full_name,
+    coffee_days,
     is_active: '0'
   });
 });
