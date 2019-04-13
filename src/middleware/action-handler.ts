@@ -151,6 +151,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     ctx.db.User.updateWarnings(ctx.userEmail, blnWarning);
     const { warning_exceptions } = ctx.db.User.findByEmail(ctx.userEmail);
 
+    console.log(warning_exceptions);
+
     return {
       msgTemplate: types.msgTemplate.UPDATED_GENERAL,
       msgArgs: {
