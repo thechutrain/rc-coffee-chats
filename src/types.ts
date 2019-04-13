@@ -72,10 +72,10 @@ export enum Action {
   '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
   '__REGISTER' = '__REGISTER',
   'UPDATE__DAYS' = 'UPDATE__DAYS',
+  'UPDATE__SKIP' = 'UPDATE__SKIP',
+  // 'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
+  // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
-  // 'UPDATE_SKIP' = 'UPDATE_SKIP',
-  // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
-  // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
   // ===== NOTE: change status to show!
   'SHOW__DAYS' = 'SHOW__DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
