@@ -7,123 +7,118 @@ import * as types from '../types';
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
  */
+// NOTE: all errors thrown in action functions will be handled
+// by the dispatcher(), which will send a generic error msg:
 export const ActionHandlerMap: types.ActionHandlerMap = {
-  // NOTE: all errors thrown in action functions will be handled
-  // by the dispatcher(), which will send a generic error msg:
-  __PROMPT_SIGNUP: {
-    okMsg: { msgTemplate: types.msgTemplate.PROMPT_SIGNUP }
+  __PROMPT_SIGNUP() {
+    return {
+      msgTemplate: types.msgTemplate.PROMPT_SIGNUP
+    };
   },
-  __REGISTER: {
-    okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
-    fn(ctx, _, zulipReqBody) {
-      return ctx.db.User.add({
-        email: ctx.userEmail,
-        full_name: zulipReqBody.message.sender_full_name
-      });
-    }
+  __REGISTER(ctx, _, zulipReqBody) {
+    ctx.db.User.add({
+      email: ctx.userEmail,
+      full_name: zulipReqBody.message.sender_full_name
+    });
+
+    return { msgTemplate: types.msgTemplate.SIGNED_UP };
   },
   ////////////////
   // SHOW
   ////////////////
-  SHOW__DAYS: {
-    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS },
-    fn(ctx) {
-      const User = ctx.db.User.findByEmail(ctx.userEmail);
+  SHOW__DAYS(ctx) {
+    const User = ctx.db.User.findByEmail(ctx.userEmail);
 
-      const coffeeDays = User.coffee_days
-        .split('')
-        .map(day => {
-          return types.WEEKDAY[day];
-        })
-        .join(' ');
+    const coffeeDays = User.coffee_days
+      .split('')
+      .map(day => {
+        return types.WEEKDAY[day];
+      })
+      .join(' ');
 
-      return {
+    return {
+      msgTemplate: types.msgTemplate.STATUS_DAYS,
+      msgArgs: {
         coffeeDays
-      };
-    }
+      }
+    };
   },
-
-  SHOW__SKIP: {
-    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS }
+  SHOW__SKIP() {
+    // TODO: find the days that were skipped
+    return {
+      msgTemplate: types.msgTemplate.STATUS_DAYS
+    };
   },
   ////////////////
   // UPDATE
   ////////////////
-  UPDATE__DAYS: {
-    okMsg: {
-      msgTemplate: types.msgTemplate.UPDATED_GENERAL
-    },
-    fn(ctx, actionArgs, zulipReqBody) {
-      // Validate that all the arguments are in Weekdays
-      const weekdays = actionArgs.map(day => {
-        if (!(day in types.WEEKDAY)) {
-          throw new Error(
-            `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
-          );
-        } else if (!isNaN(parseInt(day, 10))) {
-          // Case: where user gave us a number
-          throw new Error(
-            `Please provide days of the week using the first three letters for each day of the week, not as an integer.`
-          );
-        }
-
-        return types.WEEKDAY[day]; // return int of the day
-      });
-
-      // Must save the days of the week as a string of numbers
-      ctx.db.User.updateDays(ctx.userEmail, weekdays);
-      const User = ctx.db.User.findByEmail(ctx.userEmail);
-      const coffeeDays = User.coffee_days
-        .split('')
-        .map(day => {
-          return types.WEEKDAY[day];
-        })
-        .join(' ');
-
-      return {
-        setting_key: 'Coffee Days',
-        setting_value: coffeeDays
-      };
-    }
-  },
-  UPDATE__SKIP: {
-    okMsg: {
-      msgTemplate: types.msgTemplate.UPDATED_GENERAL
-    },
-    fn(ctx, actionArgs, zulipReqBody) {
-      // Validate arguments:
-      const trueArgs = ['1', 'TRUE', 'YES'];
-      const falseArgs = ['0', 'FALSE', 'NO'];
-      const validArgs = new Set([...trueArgs, ...falseArgs]);
-      if (actionArgs.length !== 1) {
+  UPDATE__DAYS(ctx, actionArgs, zulipReqBody) {
+    // Validate that all the arguments are in Weekdays
+    const weekdays = actionArgs.map(day => {
+      if (!(day in types.WEEKDAY)) {
         throw new Error(
-          `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
-            ','
-          )}, ${falseArgs.join(',')}*`
+          `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
-        throw new Error(`${actionArgs[0]} is not a valid argument`);
+      } else if (!isNaN(parseInt(day, 10))) {
+        // Case: where user gave us a number
+        throw new Error(
+          `Please provide days of the week using the first three letters for each day of the week, not as an integer.`
+        );
       }
 
-      // Determine if its true or false
-      const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
-      ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
-      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+      return types.WEEKDAY[day]; // return int of the day
+    });
 
-      return {
+    // Must save the days of the week as a string of numbers
+    ctx.db.User.updateDays(ctx.userEmail, weekdays);
+    const User = ctx.db.User.findByEmail(ctx.userEmail);
+    const coffeeDays = User.coffee_days
+      .split('')
+      .map(day => {
+        return types.WEEKDAY[day];
+      })
+      .join(' ');
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
+        setting_key: 'Coffee Days',
+        setting_value: coffeeDays
+      }
+    };
+  },
+  UPDATE__SKIP(ctx, actionArgs, zulipReqBody) {
+    // Validate arguments:
+    const trueArgs = ['1', 'TRUE', 'YES'];
+    const falseArgs = ['0', 'FALSE', 'NO'];
+    const validArgs = new Set([...trueArgs, ...falseArgs]);
+    if (actionArgs.length !== 1) {
+      throw new Error(
+        `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+          ','
+        )}, ${falseArgs.join(',')}*`
+      );
+    } else if (!validArgs.has(actionArgs[0])) {
+      throw new Error(`${actionArgs[0]} is not a valid argument`);
+    }
+
+    const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+    ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
+    const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
         setting_key: 'Skip Next Match',
         setting_value: skip_next_match === 1 ? 'True' : 'False'
-      };
-    }
+      }
+    };
   },
   ////////////////
   // HELP
   ////////////////
-  HELP: {
-    okMsg: {
-      msgTemplate: types.msgTemplate.HELP
-      // reqArgs: { a: Number }
-    }
+  HELP() {
+    return { msgTemplate: types.msgTemplate.HELP };
   }
 };
 
@@ -183,27 +178,17 @@ export function initDispatcher(
   zulipBody: types.IZulipBody
 ) => types.IMsg {
   return function dispatcher(ctx, action, actionArgs, zulipBody) {
-    const { fn, okMsg, errMsg } = MapActionToFn[action];
-
-    // Case: no function to run for a given action
-    if (!fn) {
-      return { msgTemplate: okMsg.msgTemplate, msgArgs: {} };
-    }
-
-    let msgTemplate;
-    let msgArgs = {};
+    const actionfn = MapActionToFn[action];
 
     // Note: these actions are not coded for async action! but we can just wrap with async & await
     try {
-      msgArgs = fn(ctx, actionArgs, zulipBody) || {};
-      msgTemplate = okMsg.msgTemplate;
+      return actionfn(ctx, actionArgs, zulipBody);
     } catch (e) {
       console.warn(`Error trying to dispatch an action: ${action}`);
-
-      msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
-      msgArgs = { errorMessage: e };
+      return {
+        msgTemplate: types.msgTemplate.ERROR,
+        msgArgs: { errorMessage: e }
+      };
     }
-
-    return { msgTemplate, msgArgs };
   };
 }

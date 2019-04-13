@@ -111,20 +111,12 @@ export interface ICtx {
   userEmail: string;
 }
 
-// TODO: add a validator that validates arguments for
-export interface IActionRules {
-  okMsg: {
-    msgTemplate: msgTemplate;
-    reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
-  };
-  fn?: (ctx: ICtx, actionArgs: any, zulipBody: IZulipBody) => any;
-  errMsg?: {
-    msgTemplate: msgTemplate;
-    reqArgs?: any[];
-  };
-}
-
-export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
+export type actionFn = (
+  ctx: ICtx,
+  actionArgs: any,
+  zulipBody: IZulipBody
+) => IMsg;
+export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
 ////////////////////////////
 // Messaging
@@ -132,7 +124,7 @@ export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
 
 export interface IMsg {
   msgTemplate: msgTemplate;
-  msgArgs: Record<any, string>;
+  msgArgs?: Record<any, string>;
 }
 export interface IMsgInfo extends IMsg {
   sendTo: string;
