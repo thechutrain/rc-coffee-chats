@@ -194,7 +194,10 @@ export class Model<M> {
     begin.run();
     try {
       for (const prmKey of recordsByPrmKey) {
-        const sqlArgs = { ...updateArgs, prmKey };
+        // NOTE: below is converting the int prmKey into a float
+        // const sqlArgs = { ...updateArgs, prmKey };
+        // NOTE: below converts it to a string
+        const sqlArgs = { ...updateArgs, prmKey: `${prmKey}` };
 
         update.run(sqlArgs);
         changes += 1;

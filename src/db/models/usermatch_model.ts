@@ -44,7 +44,10 @@ export class UserMatchModel extends Model<UserMatchRecord> {
 
     const insertMany = Model.db.transaction(ids => {
       for (const user_id of ids) {
-        insertQuery.run({ user_id, match_id: lastInsertRowid });
+        insertQuery.run({
+          user_id: `${user_id}`,
+          match_id: `${lastInsertRowid}`
+        });
       }
     });
 
