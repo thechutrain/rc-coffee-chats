@@ -13,14 +13,7 @@ import { initDB } from './db';
 //////////////////////////////////
 /// Database
 //////////////////////////////////
-const db = (() => {
-  const isProd = process.env.NODE_ENV === 'production';
-  const fileMustExist = isProd;
-  const DB_FILE = (isProd ? process.env.PROD_DB : process.env.DEV_DB) as string;
-  const DB_PATH = path.join(__dirname, '../', 'data/', DB_FILE);
-
-  return initDB(DB_PATH, fileMustExist);
-})();
+const db = initDB();
 
 /////////////////
 /// Middleware
