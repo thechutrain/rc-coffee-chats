@@ -47,7 +47,6 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   UPDATE__DAYS: {
     okMsg: {
-      // msgTemplate: types.msgTemplate.UPDATED_DAYS
       msgTemplate: types.msgTemplate.UPDATED_GENERAL
     },
     fn(ctx, actionArgs, zulipReqBody) {
@@ -80,6 +79,35 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       return {
         setting_key: 'Coffee Days',
         setting_value: coffeeDays
+      };
+    }
+  },
+  UPDATE__SKIP: {
+    okMsg: {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL
+    },
+    fn(ctx, actionArgs, zulipReqBody) {
+      // Validate arguments:
+      const trueArgs = ['1', 'TRUE', 'YES'];
+      const falseArgs = ['0', 'FALSE', 'NO'];
+      const validArgs = new Set([...trueArgs, ...falseArgs]);
+      if (actionArgs.length !== 1) {
+        throw new Error(
+          `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+            ','
+          )}, ${falseArgs.join(',')}*`
+        );
+      } else if (!validArgs.has(actionArgs[0])) {
+        throw new Error(`${actionArgs[0]} is not a valid argument`);
+      }
+
+      // Determine if its true or false
+      const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
+      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+      return {
+        setting_key: 'Skip Next Match',
+        setting_value: skip_next_match === '1' ? 'True' : 'False'
       };
     }
   },
