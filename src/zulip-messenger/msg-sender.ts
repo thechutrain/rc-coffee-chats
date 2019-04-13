@@ -76,11 +76,11 @@ export function createMessageContent(
     ////////////////////////
     PROMPT_SIGNUP: {
       template: `Hello there! I'm :coffee: bot!
-      You are not currently registered as a user of coffee chats
+      You are not currently registered as a user of coffee chats\n
       Type SIGNUP to join`
     },
     SIGNED_UP: {
-      template: `You've successfully been added to coffee chat!
+      template: `You've successfully been added to coffee chat! 🤠 \n
       Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
     },
     ////////////////////////
@@ -95,16 +95,16 @@ export function createMessageContent(
       }`
     },
     STATUS_SKIP_TRUE: {
-      template: `Your *skip next match* is set to *True*. You will be skipping your next match`
+      template: `Your *skip next match* is set to *True*. \n\nYou will be skipping your next match`
     },
     STATUS_SKIP_FALSE: {
-      template: `Your *skip next match* is set to *False*. You will be matched according to your regular schedule.`
+      template: `Your *skip next match* is set to *False*.\n\n You will be matched according to your regular schedule.`
     },
     STATUS_WARNINGS_ON: {
-      template: `Your warning settings are turned *ON*. You will receive a message from me letting you know that you'll be matched the next day. To turn the warnings off type in the following command: **UPDATE WARNINGS False**`
+      template: `Your warning settings are turned *ON*. \n\nYou will receive a message from me letting you know that you'll be matched the next day. To turn the warnings off type in the following command: **UPDATE WARNINGS False**`
     },
     STATUS_WARNINGS_OFF: {
-      template: `Your warning settings are turned *OFF*. You will no longer get warnings the night before matches are made. `
+      template: `Your warning settings are turned *OFF*. \n\nYou will no longer get warnings the night before matches are made. `
     },
 
     ////////////////////////
@@ -140,8 +140,8 @@ export function createMessageContent(
     // Error Messages
     ////////////////////////
     ERROR: {
-      template: `Error! 💣 \n ${vars.errorMessage}
-      \n if this is a 🐞, please submit an issue @ [issues](${
+      template: `Ooops ... \n ${vars.errorMessage}
+      \nIf you think this is a 🐞, please submit an issue @ [issues](${
         process.env.GITHUB_URL
       }/issues)
       `,

@@ -71,6 +71,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   // UPDATE
   ////////////////
   UPDATE__DAYS(ctx, actionArgs) {
+    if (actionArgs.length === 0) {
+      throw new Error(
+        `Must provide at least one day to be signed up for with Coffee Chat bot in order to stay active!\n If you'd like to no longer be paired up for matches you can deactive your account by typing: **Update Active False**`
+      );
+    }
     // Validate that all the arguments are in Weekdays
     const weekdays = actionArgs.map(day => {
       if (!(day in types.WEEKDAY)) {
