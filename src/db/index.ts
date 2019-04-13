@@ -18,19 +18,20 @@ export function initDB(
     : path.join(__dirname, '../../', 'data/', defaultDbFile);
 
   // Note: can set readonly, fileMustExist, timeout etc
-  const db_connection = new sqlite(dbFilePath, {
-    verbose: console.log,
+  const DB_CONNECTION = new sqlite(dbFilePath, {
+    // verbose: console.log,
     fileMustExist
   });
 
   // Initialize Models:
-  const User = new UserModel(db_connection);
-  const Match = new MatchModel(db_connection);
-  const UserMatch = new UserMatchModel(db_connection, User, Match);
+  const User = new UserModel(DB_CONNECTION);
+  const Match = new MatchModel(DB_CONNECTION);
+  const UserMatch = new UserMatchModel(DB_CONNECTION, User, Match);
 
   return {
     User,
     Match,
-    UserMatch
+    UserMatch,
+    DB_CONNECTION
   };
 }
