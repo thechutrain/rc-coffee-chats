@@ -64,7 +64,9 @@ app.post(
   '/webhooks/zulip',
   bodyParser.json(),
   (req, res, next) => {
-    console.log(req.body);
+    if (process.env.DEBUG) {
+      console.log(req.body);
+    }
     next();
   },
   registerHandler,
