@@ -57,9 +57,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     };
   },
   SHOW__WARNINGS(ctx) {
-    const { warning_exceptions } = ctx.db.User.findByEmail(ctx.userEmail);
+    const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
     const msgTemplate =
-      warning_exceptions === 1
+      warning_exception === 1
         ? types.msgTemplate.STATUS_WARNINGS_ON
         : types.msgTemplate.STATUS_WARNINGS_OFF;
 
@@ -149,15 +149,13 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
 
     const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
     ctx.db.User.updateWarnings(ctx.userEmail, blnWarning);
-    const { warning_exceptions } = ctx.db.User.findByEmail(ctx.userEmail);
-
-    console.log(warning_exceptions);
+    const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
 
     return {
       msgTemplate: types.msgTemplate.UPDATED_GENERAL,
       msgArgs: {
         setting_key: 'Warning Exceptions',
-        setting_value: warning_exceptions === 1 ? 'True' : 'False'
+        setting_value: warning_exception === 1 ? 'True' : 'False'
       }
     };
   },

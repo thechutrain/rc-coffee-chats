@@ -166,12 +166,14 @@ export class UserModel extends Model<UserRecord> {
   //   }
 }
 
+// TODO: how can I make this UserRecord a type that
+// gets all its keys from the FIELDS?
 export type UserRecord = {
   id: number;
   email: string;
   full_name: string;
   coffee_days: string; // NOTE: or the enum days?
-  warning_exceptions: number; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
+  warning_exception: number; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
   skip_next_match: number;
   is_active: number;
   is_faculty: number;
