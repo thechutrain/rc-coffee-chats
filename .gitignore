@@ -11,7 +11,7 @@ winston.log
 # Data
 **.db
 data/migrations/activeUsers.js
-data/migrations/*.js
+data/migrations/**/*.js
 data/migrations/_02_09_2019_activeUsers.js
 
 # Logs
