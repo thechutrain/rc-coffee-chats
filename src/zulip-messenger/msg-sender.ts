@@ -86,12 +86,18 @@ export function createMessageContent(
     ////////////////////////
     // Messages related to SHOW actions
     ////////////////////////
-    SHOW_DAYS: {
+
+    // STATUS: {},
+    STATUS_DAYS: {
       reqVars: ['coffeeDays'],
       template: `You are currently set to have coffee chats on the following days: ${
         vars.coffeeDays
       }`
     },
+    // STATUS_SKIP: {
+    //   reqVars: ['skip_next_match'],
+    //   template:
+    // }
 
     ////////////////////////
     // Messages related to UPDATE actions

@@ -26,7 +26,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   // SHOW
   ////////////////
   SHOW__DAYS: {
-    okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
+    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS },
     fn(ctx) {
       const User = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -41,6 +41,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         coffeeDays
       };
     }
+  },
+
+  SHOW__SKIP: {
+    okMsg: { msgTemplate: types.msgTemplate.STATUS_DAYS }
   },
   ////////////////
   // UPDATE
@@ -105,14 +109,16 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnWarning);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
-      console.log(typeof skip_next_match);
-      console.log(skip_next_match);
+
       return {
         setting_key: 'Skip Next Match',
         setting_value: skip_next_match === 1 ? 'True' : 'False'
       };
     }
   },
+  ////////////////
+  // HELP
+  ////////////////
   HELP: {
     okMsg: {
       msgTemplate: types.msgTemplate.HELP

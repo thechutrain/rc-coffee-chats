@@ -71,16 +71,17 @@ export interface IParsedCmd {
 export enum Action {
   '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
   '__REGISTER' = '__REGISTER',
+  // === SHOW actions ====
+  'SHOW__DAYS' = 'SHOW__DAYS',
+  // 'SHOW_PREV' = 'SHOW_PREV',
+  'SHOW__SKIP' = 'SHOW__SKIP',
+  // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
+
+  // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
   'UPDATE__SKIP' = 'UPDATE__SKIP',
   // 'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
-
-  // ===== NOTE: change status to show!
-  'SHOW__DAYS' = 'SHOW__DAYS',
-  // 'SHOW_PREV' = 'SHOW_PREV',
-  // 'SHOW_SKIP' = 'SHOW_SKIP',
-  // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
 
   // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
 
@@ -155,10 +156,9 @@ export enum msgTemplate {
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
-  // CLI Get-related cmds
-  // TODO: rename to be SHOW_ instead of STATUS_ ???
   // 'STATUS' = 'STATUS',
-  'SHOW_DAYS' = 'SHOW_DAYS',
+  'STATUS_DAYS' = 'STATUS_DAYS',
+  // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 
