@@ -1,4 +1,4 @@
-import { makeMatches } from './matchAlgo';
+import { makeMatches } from '../original-match-algo';
 
 let fallBackUser;
 

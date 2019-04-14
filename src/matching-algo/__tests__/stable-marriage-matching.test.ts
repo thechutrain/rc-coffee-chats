@@ -4,7 +4,7 @@ import {
   makeStableMarriageMatches,
   trimAfterRank
 } from './matchAlgo';
-import { IUser } from './matching-algo';
+import { IUser } from '../matching-algo';
 
 const male_1: IUser = {
   email: 'male_1',

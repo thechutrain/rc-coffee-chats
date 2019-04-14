@@ -7,7 +7,7 @@ process.env.PROD_DB = 'prod.db';
 process.env.NODE_ENV = 'production';
 
 import * as types from '../types';
-import { makeMatches } from '../matching-algo/match-algo';
+import { makeMatches } from '../matching-algo/original-match-algo';
 import { initDB } from '../db';
 
 const db = initDB();

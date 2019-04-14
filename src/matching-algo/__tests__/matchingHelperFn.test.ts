@@ -3,8 +3,8 @@ import {
   filterForPrevMatches,
   sortByOldestMatch,
   findAndRemoveUserFromPool
-} from './matchingHelperFn';
-import { IUser, IpastMatchObj, prevMatch } from './matching-algo';
+} from '../matchingHelperFn';
+import { IUser, IpastMatchObj, prevMatch } from '../matching-algo';
 
 // const currUser: IUser = Object.freeze({
 //   email: 'test@rc.com',
