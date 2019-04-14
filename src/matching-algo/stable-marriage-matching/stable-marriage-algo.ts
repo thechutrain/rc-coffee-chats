@@ -2,7 +2,7 @@
  * NOTE: This stable marriage algorithm should be generalized
  * so it should not have to depend on the shape of the UserRecord
  */
-import { marriage_id, IUnique, Acceptor, Suitor } from './marriage-types';
+import { marriage_id, Acceptor, Suitor } from './marriage-types';
 
 export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   priorityList.splice(rank + 1, priorityList.length - (rank + 1));
@@ -10,7 +10,7 @@ export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   return priorityList;
 }
 
-export function makeStableMarriageMatches<T extends IUnique>(
+export function makeStableMarriageMatches<T>(
   suitors: Map<marriage_id, Suitor<T>>,
   acceptors: Map<marriage_id, Acceptor<T>>
 ): Array<[Acceptor<T>, Suitor<T>]> {
