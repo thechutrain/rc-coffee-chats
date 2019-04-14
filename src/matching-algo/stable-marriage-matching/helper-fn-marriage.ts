@@ -1,13 +1,17 @@
 import { marriage_id as m_id, Acceptor, Suitor } from './marriage-types';
 
-/** TODO: make a "makeSuitor" fn and "makeAcceptor" fn specific to User
- *
- */
+// export function defaultFindPriorities<P>(
+//   person: P,
+//   oppositePool: P[],
+//   key: keyof P
+// ): Array<P[keyof P]> {
+//   return oppositePool.map((matchPerson: P) => matchPerson[key]);
+// }
 
 export function makeSuitorPool<P>(
   people: P[],
   marriageKey: keyof P,
-  findPriorities: (person: P, acceptorPool: P[]) => Array<keyof P>,
+  findPriorities: (person: P, acceptorPool: P[]) => Array<P[keyof P]>,
   acceptorPool: P[]
 ): Map<m_id, Suitor<P>> {
   const suitorMap: Map<m_id, Suitor<P>> = new Map();
@@ -37,7 +41,7 @@ export function makeSuitorPool<P>(
 export function makeAcceptorPool<P>(
   people: P[],
   marriageKey: keyof P,
-  findPriorities: (person: P, suitorPool: P[]) => Array<keyof P>,
+  findPriorities: (person: P, suitorPool: P[]) => Array<P[keyof P]>,
   suitorPool: P[]
 ): Map<m_id, Acceptor<P>> {
   const acceptorMap: Map<m_id, Acceptor<P>> = new Map();
