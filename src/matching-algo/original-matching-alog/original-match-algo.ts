@@ -3,7 +3,7 @@
  *  - move stable marriage match
  */
 
-import { deepClone } from '../utils/clone';
+import { deepClone } from '../../utils/clone';
 import {
   filterForUniqueMatches,
   filterForPrevMatches,

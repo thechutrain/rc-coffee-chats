@@ -3,20 +3,40 @@
  * so it should not have to depend on the shape of the UserRecord
  */
 
-interface IUnique {
-  _id: number;
+export type marriage_id = number;
+
+export interface IUnique {
+  marriage_id;
 }
 export type Acceptor<T extends IUnique> = {
-  self: T;
-  topSuitor: T;
-  priority: T[];
+  data: T;
+  marriage_id;
+  priority: marriage_id[];
+  topSuitor: marriage_id | null;
 };
 
 export type Suitor<T extends IUnique> = {
-  self: T;
-  priority: T[];
+  data: T;
+  marriage_id;
+  priority: marriage_id[];
   currentlyAccepted: boolean;
 };
+
+// TODO: change this any to a person
+export function makeSuitor<T extends IUnique>(people: any[]): Array<Suitor<T>> {
+  return people.map(person => {
+    return {
+      data: person,
+      marriage_id: person.email,
+      priority: [],
+      currentlyAccepted: false
+    };
+  });
+}
+
+export function makeAcceptor<T extends IUnique>(
+  people: any[]
+): Array<Acceptor<T>> {}
 
 export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   priorityList.splice(rank + 1, priorityList.length - (rank + 1));
@@ -25,22 +45,22 @@ export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
 }
 
 export function makeStableMarriageMatches<T extends IUnique>(
-  suitors: Map<string, Suitor<T>>,
-  acceptors: Map<string, Acceptor<T>>
-): Array<[T, T]> {
+  suitors: Map<marriage_id, Suitor<T>>,
+  acceptors: Map<marriage_id, Acceptor<T>>
+): Array<[Acceptor<T>, Suitor<T>]> {
   if (suitors.size !== acceptors.size) {
     throw new Error('suitors and acceptor arrays not equal length');
   }
 
-  const acceptedAcceptors = [];
+  const acceptedAcceptors: Array<Acceptor<T>> = [];
   while (acceptedAcceptors.length !== acceptors.size) {
     for (const s of suitors.values()) {
       if (!s.currentlyAccepted && s.priority.length !== 0) {
-        const potentialAcceptor = acceptors.get(s.priority[0].email);
-        const rank = potentialAcceptor.priority.indexOf(s.self);
+        const potentialAcceptor = acceptors.get(s.priority[0]);
+        const rank = potentialAcceptor.priority.indexOf(s.marriage_id);
         // case 1: no current proposals --> accept
         if (!potentialAcceptor.topSuitor) {
-          potentialAcceptor.topSuitor = s.self;
+          potentialAcceptor.topSuitor = s.marriage_id;
           acceptedAcceptors.push(potentialAcceptor);
           trimAfterRank(potentialAcceptor.priority, rank);
           s.currentlyAccepted = true;
@@ -48,34 +68,34 @@ export function makeStableMarriageMatches<T extends IUnique>(
           const currentTopSuitorRank = potentialAcceptor.priority.indexOf(
             potentialAcceptor.topSuitor
           );
-          // case 2: has proposal, but this suitor is worse or not in priority list --> so keep current proposal
+          // case 2: has proposal, but this current suitor is worse or not in priority list --> so keep current proposal
           if (currentTopSuitorRank < rank || rank === -1) {
             s.priority.shift();
           } else {
             // case 3: has proposal, but this suitor is better --> set current proposal to this suitor, & get reference to previous suitor & set currentAccepted
-            const rejectedSuitor = suitors.get(
-              potentialAcceptor.topSuitor.email
-            );
+            const rejectedSuitor = suitors.get(potentialAcceptor.topSuitor);
             rejectedSuitor.currentlyAccepted = false;
 
-            potentialAcceptor.topSuitor = s.self;
+            potentialAcceptor.topSuitor = s.marriage_id;
             trimAfterRank(potentialAcceptor.priority, rank);
             s.currentlyAccepted = true;
           }
         }
+      } else {
+        // CASE: suitor has no priority, pair with random acceptor?
+        // or throw an error? b/c suitor should have a priority for all the acceptors?
+        throw new Error('Suitor missing their priority');
       }
     }
   }
 
   // make matches from acceptors accepted suitors
-  const matches: Array<[IUser, IUser]> = acceptedAcceptors.map(makeMatch);
-  //   const matches = acceptedAcceptors.map((a: Acceptor) => {
-  //     return [a.self, a.topSuitor];
-  //   });
+  const matches: Array<[Acceptor<T>, Suitor<T>]> = acceptedAcceptors.map(
+    acceptor => {
+      const suitorMatch = suitors.get(acceptor.topSuitor);
+      return [acceptor, suitorMatch];
+    }
+  );
 
   return matches;
-}
-
-function makeMatch(a: Acceptor): [IUser, IUser] {
-  return [a.self, a.topSuitor];
 }
