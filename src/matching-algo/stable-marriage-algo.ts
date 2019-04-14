@@ -1,3 +1,8 @@
+/**
+ * NOTE: This stable marriage algorithm should be generalized
+ * so it should not have to depend on the shape of the UserRecord
+ */
+
 interface IUnique {
   _id: symbol;
 }
