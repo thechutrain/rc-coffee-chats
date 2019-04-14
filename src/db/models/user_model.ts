@@ -47,30 +47,26 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  public findMatchesByDay(weekday?: WEEKDAY) {
+  public findMatchesByDay(
+    weekday?: WEEKDAY
+  ): Array<UserRecord & { num_matches: number }> {
     const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
-    //   const findMatches = Model.db.prepare(`
-    //   SELECT U.*, count (UM.user_id) as num_matches FROM User U
-    //     LEFT JOIN User_Match UM
-    //     ON U.id = UM.user_id
-    //     LEFT JOIN Match M
-    //     ON UM.match_id = M.id
-    //     WHERE U.coffee_days LIKE '%${matchDayInt}%'
-    //     AND U.skip_next_match <> 1
-    //     GROUP BY UM.user_id
-    //     ORDER BY num_matches desc
-    // `);
+
     const findMatches = Model.db.prepare(`
-    SELECT U.*,  U.id as u_id, count (UM.user_id) as num_matches, M.id as mid FROM User U
-    LEFT JOIN User_Match UM
-    ON U.id = UM.user_id
-    LEFT JOIN Match M
-    ON UM.match_id = M.id
-    WHERE U.coffee_days LIKE '%${matchDayInt}%'
-    AND U.is_active <> 0
-    AND U.skip_next_match <> 1
-    GROUP BY UM.user_id
-    ORDER BY num_matches desc
+    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
+
+    prevMatches as (SELECT UM.user_id, count (UM.user_id) as num_matches from User_Match UM
+    LEFT JOIN MATCH M
+      ON UM.match_id = M.id
+    INNER JOIN User_Match UM2
+      ON UM2.match_id = M.id
+     WHERE UM.user_id in todayMatches and UM2.user_id in todayMatches and UM.user_id != UM2.user_id
+     group by um.user_id
+     order by num_matches desc
+     )
+
+    SELECT U2.*, prevMatches.num_matches from prevMatches LEFT JOIN User U2
+    ON U2.id = prevMatches.user_id;
     `);
 
     return findMatches.all();
@@ -81,7 +77,10 @@ export class UserModel extends Model<UserRecord> {
    * @param user_id
    * @param weekday
    */
-  public findPrevActiveMatches(user_id: number, weekday: WEEKDAY) {
+  public findPrevActiveMatches(
+    user_id: number,
+    weekday: WEEKDAY
+  ): UserRecord[] {
     const prevMatchesQuery = Model.db.prepare(
       `
     SELECT U.id, U.email, U.full_name, Match.date
