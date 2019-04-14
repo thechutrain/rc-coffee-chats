@@ -3,7 +3,7 @@ import { marriage_id } from '../../marriage-types';
 ////////////////////////////////////////
 // Data
 ////////////////////////////////////////
-interface IMarriagePerson<T> {
+export interface IMarriagePerson<T> {
   data: T;
   marriage_id: marriage_id;
   priority: marriage_id[];
@@ -44,7 +44,7 @@ export const w_a: IMarriagePerson<string> = {
 };
 
 export const w_b: IMarriagePerson<string> = {
-  data: 'Bob',
+  data: 'Bri',
   marriage_id: 12,
   priority: []
 };
@@ -56,7 +56,7 @@ export const w_c: IMarriagePerson<string> = {
 };
 
 export const w_d: IMarriagePerson<string> = {
-  data: 'Allison',
+  data: 'Diana',
   marriage_id: 11,
   priority: []
 };
