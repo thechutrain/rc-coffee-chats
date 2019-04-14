@@ -67,6 +67,7 @@ export class UserModel extends Model<UserRecord> {
     LEFT JOIN Match M
     ON UM.match_id = M.id
     WHERE U.coffee_days LIKE '%${matchDayInt}%'
+    AND U.is_active <> 0
     AND U.skip_next_match <> 1
     GROUP BY UM.user_id
     ORDER BY num_matches desc
@@ -80,8 +81,9 @@ export class UserModel extends Model<UserRecord> {
    * @param user_id
    * @param weekday
    */
-  public findPrevMatches(user_id: number, weekday: WEEKDAY) {
-    const prevMatchesQuery = Model.db.prepare(`
+  public findPrevActiveMatches(user_id: number, weekday: WEEKDAY) {
+    const prevMatchesQuery = Model.db.prepare(
+      `
     SELECT U.id, U.email, U.full_name, Match.date
     FROM User U
     LEFT Join User_Match
@@ -90,7 +92,7 @@ export class UserModel extends Model<UserRecord> {
       ON User_Match.match_id = Match.id
     WHERE User_Match.user_id <> ${user_id}
     AND U.coffee_days LIKE '%${weekday}%'
-    AND U.skip_next_match <> ${user_id}
+    AND U.skip_next_match <> 1
     AND U.is_active <> 0
     AND User_Match.match_id in (
       SELECT Match.id
@@ -102,7 +104,8 @@ export class UserModel extends Model<UserRecord> {
       WHERE User.id = ${user_id}
      )
      ORDER BY Match.date
-    `);
+    `
+    );
 
     return prevMatchesQuery.all();
   }
