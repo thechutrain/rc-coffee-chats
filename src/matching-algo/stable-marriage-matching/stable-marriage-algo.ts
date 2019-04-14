@@ -2,41 +2,7 @@
  * NOTE: This stable marriage algorithm should be generalized
  * so it should not have to depend on the shape of the UserRecord
  */
-
-export type marriage_id = number;
-
-export interface IUnique {
-  marriage_id;
-}
-export type Acceptor<T extends IUnique> = {
-  data: T;
-  marriage_id;
-  priority: marriage_id[];
-  topSuitor: marriage_id | null;
-};
-
-export type Suitor<T extends IUnique> = {
-  data: T;
-  marriage_id;
-  priority: marriage_id[];
-  currentlyAccepted: boolean;
-};
-
-// TODO: change this any to a person
-export function makeSuitor<T extends IUnique>(people: any[]): Array<Suitor<T>> {
-  return people.map(person => {
-    return {
-      data: person,
-      marriage_id: person.email,
-      priority: [],
-      currentlyAccepted: false
-    };
-  });
-}
-
-export function makeAcceptor<T extends IUnique>(
-  people: any[]
-): Array<Acceptor<T>> {}
+import { marriage_id, IUnique, Acceptor, Suitor } from './marriage-types';
 
 export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   priorityList.splice(rank + 1, priorityList.length - (rank + 1));
