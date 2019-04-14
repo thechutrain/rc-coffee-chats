@@ -4,6 +4,7 @@ import { makeSuitorPool, makeAcceptorPool } from '../helper-fn-marriage';
  * Test:
  *  - make suitorPool
  *  - make acceptorPool
+ *  - TODO: more robust test, where there has to be a unique marriage_id?
  */
 
 describe('Make suitor pool', () => {
