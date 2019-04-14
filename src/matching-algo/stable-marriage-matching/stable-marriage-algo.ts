@@ -25,7 +25,7 @@ export function makeStableMarriageMatches<T>(
         const potentialAcceptor = acceptors.get(s.priority[0]);
         const rank = potentialAcceptor.priority.indexOf(s.marriage_id);
         // case 1: no current proposals --> accept
-        if (!potentialAcceptor.topSuitor) {
+        if (potentialAcceptor.topSuitor === null) {
           potentialAcceptor.topSuitor = s.marriage_id;
           acceptedAcceptors.push(potentialAcceptor);
           trimAfterRank(potentialAcceptor.priority, rank);
