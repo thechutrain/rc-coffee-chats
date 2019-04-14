@@ -37,7 +37,21 @@ describe('Make suitor pool', () => {
     });
   });
 
-  xit('should be able to make a pool of suitors from custom findPriorities fn', () => {});
+  it('should be able to make a pool of suitors from custom findPriorities fn', () => {
+    interface IPerson {
+      name: string;
+    }
+    const m_1 = { name: 'm_1' };
+    const m_2 = { name: 'm_2' };
+    const w_1 = { name: 'w_1' };
+    const w_2 = { name: 'w_2' };
+    const w_3 = { name: 'w_3' };
+    const male_pool = [m_1, m_2];
+    const female_pool = [w_1, w_2, w_3];
+    const reversePriority = (a: IPerson, b: IPerson[]) => {
+      b.reverse();
+    };
+  });
 
   it('should be able to make a pool of acceptors', () => {
     interface IPerson {
