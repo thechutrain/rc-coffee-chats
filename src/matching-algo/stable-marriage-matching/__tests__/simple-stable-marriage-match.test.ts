@@ -41,14 +41,14 @@ describe('Stable Marriage Match Algo!!', () => {
     const suitor_pool = makeSuitorPool<person>(
       pool_men,
       '_id',
-      (_, b) => b.map(p => p._id),
+      (_, b) => b,
       pool_women
     );
 
     const acceptor_pool = makeAcceptorPool<person>(
       pool_women,
       '_id',
-      (_, b) => b.reverse().map(p => p._id),
+      (_, b) => b.reverse(),
       pool_men
     );
 
@@ -78,7 +78,5 @@ describe('Stable Marriage Match Algo!!', () => {
         expect(suitor.marriage_id).toBe(14);
       }
     });
-
-    console.log('🐝');
   });
 });

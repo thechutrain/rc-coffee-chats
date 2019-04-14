@@ -8,10 +8,13 @@ import { marriage_id as m_id, Acceptor, Suitor } from './marriage-types';
 //   return oppositePool.map((matchPerson: P) => matchPerson[key]);
 // }
 
+export function makeUserPriorities<U>(user: U, oppositePool: U[]) {}
+
 export function makeSuitorPool<P>(
   people: P[],
   marriageKey: keyof P,
-  findPriorities: (person: P, acceptorPool: P[]) => Array<P[keyof P]>,
+  // findPriorities: (person: P, acceptorPool: P[]) => Array<P[keyof P]>,
+  findPriorities: (person: P, acceptorPool: P[]) => P[],
   acceptorPool: P[]
 ): Map<m_id, Suitor<P>> {
   const suitorMap: Map<m_id, Suitor<P>> = new Map();
@@ -19,7 +22,9 @@ export function makeSuitorPool<P>(
   people.forEach(person => {
     const marriage_id = person[marriageKey];
 
-    const priority = findPriorities(person, acceptorPool);
+    const priority = findPriorities(person, acceptorPool).map(
+      p => p[marriageKey]
+    );
 
     const suitor = {
       data: person,
@@ -41,13 +46,16 @@ export function makeSuitorPool<P>(
 export function makeAcceptorPool<P>(
   people: P[],
   marriageKey: keyof P,
-  findPriorities: (person: P, suitorPool: P[]) => Array<P[keyof P]>,
+  // findPriorities: (person: P, suitorPool: P[]) => Array<P[keyof P]>,
+  findPriorities: (person: P, suitorPool: P[]) => P[],
   suitorPool: P[]
 ): Map<m_id, Acceptor<P>> {
   const acceptorMap: Map<m_id, Acceptor<P>> = new Map();
   people.forEach(person => {
     const marriage_id = person[marriageKey];
-    const priority = findPriorities(person, suitorPool);
+    const priority = findPriorities(person, suitorPool).map(
+      p => p[marriageKey]
+    );
 
     const acceptor = {
       data: person,
