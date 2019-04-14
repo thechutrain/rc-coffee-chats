@@ -80,7 +80,7 @@ export class UserModel extends Model<UserRecord> {
   public findPrevActiveMatches(
     user_id: number,
     weekday: WEEKDAY
-  ): UserRecord[] {
+  ): PrevMatchRecord[] {
     const prevMatchesQuery = Model.db.prepare(
       `
     SELECT U.id, U.email, U.full_name, Match.date
@@ -179,6 +179,13 @@ export type UserRecord = {
   skip_next_match: number;
   is_active: number;
   is_faculty: number;
+};
+
+export type PrevMatchRecord = {
+  id: number;
+  email: string;
+  full_name: string;
+  date: string;
 };
 
 export const TABLE_NAME = 'User';
