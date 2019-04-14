@@ -47,10 +47,6 @@ export function makeStableMarriageMatches<T>(
             s.currentlyAccepted = true;
           }
         }
-      } else {
-        // CASE: suitor has no priority, pair with random acceptor?
-        // or throw an error? b/c suitor should have a priority for all the acceptors?
-        throw new Error('Suitor missing their priority');
       }
     }
   }

@@ -14,14 +14,14 @@ describe('Stable Marriage Match Algo!!', () => {
 
     const suitorPool = makeSuitorPool<person>(
       pool_men,
-      'name',
+      '_id',
       defaultFindPriorities,
       pool_women
     );
 
     const acceptorPool = makeAcceptorPool<person>(
       pool_women,
-      'data',
+      '_id',
       defaultFindPriorities,
       pool_men
     );
@@ -34,11 +34,50 @@ describe('Stable Marriage Match Algo!!', () => {
     expect(error).not.toBeNull();
   });
 
-  it('should find stable match in a pool of users', () => {
+  it('should find stable match in a pool of users, where all men & women have the same priorities', () => {
     const pool_men = cloneDeep(men);
     const pool_women = cloneDeep(women);
 
-    const suitor_pool = makeSuitorPool(pool_men, 'data');
+    const suitor_pool = makeSuitorPool<person>(
+      pool_men,
+      '_id',
+      (_, b) => b.map(p => p._id),
+      pool_women
+    );
+
+    const acceptor_pool = makeAcceptorPool<person>(
+      pool_women,
+      '_id',
+      (_, b) => b.reverse().map(p => p._id),
+      pool_men
+    );
+
+    const matches = makeStableMarriageMatches<person>(
+      suitor_pool,
+      acceptor_pool
+    );
+
+    matches.forEach((matchPair: [Acceptor<person>, Suitor<person>]) => {
+      const acceptor = matchPair[0];
+      const suitor = matchPair[1];
+      expect(acceptor.topSuitor).toBe(suitor.marriage_id);
+      /**
+       *  Most sought after suitor, should be matched with top choice: 4--> 11
+       *  Second most sought after suitor, should be matched with their second choice: 3 -> 12
+       * 2-> 13
+       * 1 -> 14
+       */
+
+      if (acceptor.marriage_id === 4) {
+        expect(suitor.marriage_id).toBe(11);
+      } else if (acceptor.marriage_id === 3) {
+        expect(suitor.marriage_id).toBe(12);
+      } else if (acceptor.marriage_id === 2) {
+        expect(suitor.marriage_id).toBe(13);
+      } else if (acceptor.marriage_id === 1) {
+        expect(suitor.marriage_id).toBe(14);
+      }
+    });
 
     console.log('🐝');
   });
