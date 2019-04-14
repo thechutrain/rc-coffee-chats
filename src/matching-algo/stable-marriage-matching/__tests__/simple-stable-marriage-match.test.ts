@@ -2,7 +2,7 @@ import { marriage_id, Acceptor, Suitor } from '../marriage-types';
 import { makeStableMarriageMatches } from '../stable-marriage-algo';
 import { makeSuitorPool, makeAcceptorPool } from '../helper-fn-marriage';
 import cloneDeep from 'lodash/cloneDeep';
-import { men, women, IMarriagePerson } from './mock_data/set_1_data';
+import { men, women, person } from './mock_data/set_1_data';
 
 describe('Stable Marriage Match Algo!!', () => {
   it('should throw an error if suitors and acceptors are different sizes', () => {
@@ -12,14 +12,14 @@ describe('Stable Marriage Match Algo!!', () => {
     expect(pool_men.length).not.toEqual(pool_women.length);
     const defaultFindPriorities = (a: any, b: any[]) => b;
 
-    const suitorPool = makeSuitorPool<IMarriagePerson<string>>(
+    const suitorPool = makeSuitorPool<person>(
       pool_men,
-      'data',
+      'name',
       defaultFindPriorities,
       pool_women
     );
 
-    const acceptorPool = makeAcceptorPool<IMarriagePerson<string>>(
+    const acceptorPool = makeAcceptorPool<person>(
       pool_women,
       'data',
       defaultFindPriorities,
@@ -34,7 +34,12 @@ describe('Stable Marriage Match Algo!!', () => {
     expect(error).not.toBeNull();
   });
 
-  it('should find stable match in a pool of four users', () => {
+  it('should find stable match in a pool of users', () => {
+    const pool_men = cloneDeep(men);
+    const pool_women = cloneDeep(women);
+
+    const suitor_pool = makeSuitorPool(pool_men, 'data');
+
     console.log('🐝');
   });
 });

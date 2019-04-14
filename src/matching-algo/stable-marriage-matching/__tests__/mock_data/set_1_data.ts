@@ -12,53 +12,49 @@ export interface IMarriagePerson<T> {
 /** Male Suitors:
  *  Alfred, Bob, Chris, Dan
  */
-export const m_a: IMarriagePerson<string> = {
-  data: 'Alfred',
-  marriage_id: 1,
-  priority: []
+export type person = {
+  name: string;
+  _id: number;
+};
+export const m_a: person = {
+  name: 'Alfred',
+  _id: 1
 };
 
-export const m_b: IMarriagePerson<string> = {
-  data: 'Bob',
-  marriage_id: 2,
-  priority: []
+export const m_b: person = {
+  name: 'Bob',
+  _id: 2
 };
-export const m_c: IMarriagePerson<string> = {
-  data: 'Chris',
-  marriage_id: 3,
-  priority: []
+export const m_c: person = {
+  name: 'Chris',
+  _id: 3
 };
-export const m_d: IMarriagePerson<string> = {
-  data: 'Dan',
-  marriage_id: 4,
-  priority: []
+export const m_d: person = {
+  name: 'Dan',
+  _id: 4
 };
 
 /** Female Acceptors:
  *  Allison, Bri, Cynthia, Diana
  */
-export const w_a: IMarriagePerson<string> = {
-  data: 'Allison',
-  marriage_id: 11,
-  priority: []
+export const w_a: person = {
+  name: 'Allison',
+  _id: 11
 };
 
-export const w_b: IMarriagePerson<string> = {
-  data: 'Bri',
-  marriage_id: 12,
-  priority: []
+export const w_b: person = {
+  name: 'Bri',
+  _id: 12
 };
 
-export const w_c: IMarriagePerson<string> = {
-  data: 'Cynthia',
-  marriage_id: 11,
-  priority: []
+export const w_c: person = {
+  name: 'Cynthia',
+  _id: 13
 };
 
-export const w_d: IMarriagePerson<string> = {
-  data: 'Diana',
-  marriage_id: 11,
-  priority: []
+export const w_d: person = {
+  name: 'Diana',
+  _id: 14
 };
 
 export const men = [m_a, m_b, m_c, m_d];
