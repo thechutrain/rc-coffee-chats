@@ -30,7 +30,7 @@ glitchUsers.forEach(user => {
   migratedDB.User.add({
     email: full_name,
     full_name,
-    coffee_days,
+    coffee_days: `${coffee_days}`,
     is_active: '0'
   });
 });
