@@ -1,9 +1,9 @@
 import {
-  Acceptor,
-  Suitor,
   makeStableMarriageMatches,
   trimAfterRank
 } from '../stable-marriage-algo';
+
+import { Suitor, Acceptor } from '../marriage-types';
 
 interface IBasicUser {
   email: string;
