@@ -4,15 +4,15 @@
  */
 
 interface IUnique {
-  _id: symbol;
+  _id: number;
 }
-export type Acceptor<T> = {
+export type Acceptor<T extends IUnique> = {
   self: T;
   topSuitor: T;
   priority: T[];
 };
 
-export type Suitor<T> = {
+export type Suitor<T extends IUnique> = {
   self: T;
   priority: T[];
   currentlyAccepted: boolean;
