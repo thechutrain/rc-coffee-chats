@@ -2,6 +2,10 @@
  * make matches chron job
  *
  */
+
+import shuffle from 'lodash/shuffle';
+
+// ===== REMOVE LATER ========
 // LOCAL TESTING PURPOSE ONLY
 process.env.PROD_DB = 'prod.db';
 process.env.NODE_ENV = 'production';
@@ -32,8 +36,13 @@ const fallBackUser = {
 };
 
 const adminMessage = (() => {
+  ////////////////////
+  // Get Users to Match
+  ////////////////////
   // const today = new Date().getDay();
   const today = 4;
+
+  // TODO: check if today is an exception or not
   // if today is an exception --> return
 
   const usersToMatch = db.User.findMatchesByDay(today).map(user => {
@@ -44,9 +53,63 @@ const adminMessage = (() => {
     };
   });
 
-  console.log(usersToMatch);
-  console.log(usersToMatch.length);
+  ////////////////////
+  // Stable Marriage algorithm
+  ////////////////////
+  // 1) prep: split the users to match into two even groups
+  const evenNumMatches = usersToMatch.length % 2 === 0;
+  // TEMP: because Im lazy and don't want to import the fallBackMatch type
+  let fallBackMatch: null | any = null;
+  // TODO: Need to test this!!!! In a day with odd number
+  if (!evenNumMatches) {
+    // Find the first person who hasn't been matched with the fallback person
+    // and pair them together:
+    let i;
+    for (i = usersToMatch.length - 1; i >= 0; i--) {
+      let hasMatchedWithFallback = false;
+      for (const prevMatch of usersToMatch[i].prevMatches) {
+        if (prevMatch.email === fallBackUser.email) {
+          hasMatchedWithFallback = true;
+          break;
+        }
+      }
 
-  // const matches = makeMatches(usersToMatch, fallBackUser);
-  // console.log(matches);
+      if (!hasMatchedWithFallback) {
+        fallBackMatch = usersToMatch[i];
+        break;
+      }
+    }
+
+    // Case: everyone has already matched with fallback:
+    i = 0;
+
+    // Remove the fallback match, so the pool is an even number of users:
+    fallBackMatch = usersToMatch.splice(i, 1);
+  }
+
+  const shuffledUsersToMatch = shuffle(usersToMatch);
+  const suitorPool = shuffledUsersToMatch.splice(
+    0,
+    shuffledUsersToMatch.length / 2
+  );
+  const acceptorPool = shuffledUsersToMatch;
+
+  // ============ DEBUGGING =============
+  // console.log(acceptorPool.length);
+  // console.log(suitorPool.length);
+  // console.log(usersToMatch);
+  // console.log(usersToMatch.length);
+  // console.log(suitorPool);
+
+  ////////////////////
+  // Message each user their match
+  ////////////////////
+
+  ////////////////////
+  // clear skip next match of users who were matched today
+  ////////////////////
+
+  ////////////////////
+  // Log output & send to admin
+  ////////////////////
 })();

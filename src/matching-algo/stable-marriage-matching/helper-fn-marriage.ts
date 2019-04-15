@@ -1,4 +1,5 @@
 import { marriage_id as m_id, Acceptor, Suitor } from './marriage-types';
+import { shuffle, cloneDeep } from 'lodash';
 
 // export function defaultFindPriorities<P>(
 //   person: P,
@@ -8,7 +9,9 @@ import { marriage_id as m_id, Acceptor, Suitor } from './marriage-types';
 //   return oppositePool.map((matchPerson: P) => matchPerson[key]);
 // }
 
-export function makeUserPriorities<U>(user: U, oppositePool: U[]) {}
+export function makeUserPriorities<U>(user: U, oppositePool: U[]) {
+  const oppositePoolClone = cloneDeep(oppositePool);
+}
 
 export function makeSuitorPool<P>(
   people: P[],
