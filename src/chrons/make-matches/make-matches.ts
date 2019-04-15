@@ -10,23 +10,11 @@ import shuffle from 'lodash/shuffle';
 process.env.PROD_DB = 'prod.db';
 process.env.NODE_ENV = 'production';
 
-import * as types from '../types';
-import { makeMatches } from '../matching-algo/original-matching-alog/original-match-algo';
-import { initDB } from '../db';
+import * as types from '../../types';
+import { makeMatches } from '../../matching-algo/original-matching-alog/original-match-algo';
+import { initDB } from '../../db';
 
 const db = initDB();
-
-/**
- *  PseudoCode:
- *  -- determine today's date
- *  -- check if today is an exception or not (LATER)
- *  -- get all the users who want to be matched today:
- *    -- also find their previous matches:
- *  -- make matches
- *  -- reset all the users who wanted to skip their match today!
- *  -- send zulip message to all match pairs
- *  -- send message to admin folks the results of the match pairs!
- */
 
 // const today = types.WEEKDAY[new Date().getDay()];
 const fallBackUser = {
