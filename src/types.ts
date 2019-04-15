@@ -1,6 +1,19 @@
 ////////////////////////////
 // Request
 ////////////////////////////
+export interface IZulipBody {
+  trigger: string;
+  token: string;
+  message: {
+    sender_id: number;
+    sender_full_name: string;
+    content: string;
+    sender_email: string;
+    subject: string;
+  };
+  bot_email: string;
+}
+
 export interface ILocalsReq extends Express.Request {
   body: any;
   local?: any;
@@ -11,7 +24,7 @@ export interface IZulipRequest extends Express.Request {
     user: {
       email: string;
       isRegistered: boolean;
-      // is admin?
+      data?: UserRecord;
     };
     cmd: IParsedCmd;
     action: IActionObj;
@@ -54,20 +67,20 @@ export interface IParsedCmd {
 // NOTE: Most actions are created by joining [FIRST_CMD]__[SECOND_COMMAND]
 // Exceptions include non-user input generated actions:
 // __PROMPT_SIGNUP && __REGISTER
-
 export enum Action {
   '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
   '__REGISTER' = '__REGISTER',
-  'UPDATE__DAYS' = 'UPDATE__DAYS',
-
-  // 'UPDATE_SKIP' = 'UPDATE_SKIP',
-  // 'UPDATE_WARNINGS' = 'UPDATE_WARNINGS',
-  // 'UPDATE_ACTIVE' = 'UPDATE_ACTIVE',
-  // ===== NOTE: change status to show!
+  // === SHOW actions ====
   'SHOW__DAYS' = 'SHOW__DAYS',
   // 'SHOW_PREV' = 'SHOW_PREV',
-  // 'SHOW_SKIP' = 'SHOW_SKIP',
-  // 'SHOW_WARNINGS' = 'SHOW_WARNINGS',
+  'SHOW__SKIP' = 'SHOW__SKIP',
+  'SHOW__WARNINGS' = 'SHOW__WARNINGS',
+
+  // === UPDATE actions ====
+  'UPDATE__DAYS' = 'UPDATE__DAYS',
+  'UPDATE__SKIP' = 'UPDATE__SKIP',
+  'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
+  // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
   // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
 
@@ -76,71 +89,57 @@ export enum Action {
 
 export interface IActionObj {
   actionType: Action | null;
-  originUser: string;
   actionArgs?: any;
   targetUser?: string;
 }
-
-// export interface IReqArg {
-//   name: string;
-//   type: string;
-// }
 
 // TODO: rethink how to shape the action handler:
 /**
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 
-export interface IActionRules {
-  okMsg: {
-    msgTemplate: msgTemplate;
-    reqArgs?: any[]; // Note: hard to code what fn => any must contain. So will check dynamically
-  };
-  fn?: (
-    ctx: { db: any; originUser: string; targetUser?: string },
-    actionArgs: any
-  ) => any;
-  errMsg?: {
-    msgTemplate: msgTemplate;
-    reqArgs?: any[];
-  };
+import { myDB, UserRecord } from './db/dbTypes';
+export { myDB };
+export interface ICtx {
+  db: myDB;
+  userEmail: string;
 }
 
-export type ActionHandlerMap = Record<keyof typeof Action, IActionRules>;
+export type actionFn = (
+  ctx: ICtx,
+  actionArgs: any,
+  zulipBody: IZulipBody
+) => IMsg;
+export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
 ////////////////////////////
 // Messaging
 ////////////////////////////
-
 export interface IMsg {
   msgTemplate: msgTemplate;
-  msgArgs: Record<any, string>;
+  msgArgs?: Record<any, string>;
 }
 export interface IMsgInfo extends IMsg {
   sendTo: string;
 }
-
-// Required Variables & Types for each msg type
-// TODO: add-in the required variable types
-// type msgTypeEnum = {
-//   [k in okMsg]: {
-//     reqVars: string[];
-//   }
-// };
 
 export enum msgTemplate {
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
   // CLI Update-related cmds
+  'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
-  // CLI Get-related cmds
-  // TODO: rename to be SHOW_ instead of STATUS_ ???
   // 'STATUS' = 'STATUS',
-  'SHOW_DAYS' = 'SHOW_DAYS',
+  'STATUS_DAYS' = 'STATUS_DAYS',
+  'STATUS_SKIP_TRUE' = 'STATUS_SKIP_TRUE',
+  'STATUS_SKIP_FALSE' = 'STATUS_SKIP_FALSE',
+  'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
+  'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
+  // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
 

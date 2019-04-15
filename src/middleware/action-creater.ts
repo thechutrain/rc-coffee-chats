@@ -28,7 +28,6 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
   req.local.action = {
     actionType,
-    originUser: email,
     // TODO: save args as key-values in action!
     actionArgs: {
       rawInput: req.local.cmd.args

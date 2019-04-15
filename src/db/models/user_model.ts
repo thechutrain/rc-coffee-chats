@@ -34,9 +34,12 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================== FIND ====================
-  public findByEmail(email: string): UserRecord | null {
+  public findByEmail(email: string): UserRecord {
     const results = this.find({ email });
-    return results.length ? results[0] : null;
+    if (results.length === 0) {
+      throw new Error(`Could not find a user with the email: ${email}`);
+    }
+    return results[0];
   }
 
   public findById(id: number): UserRecord | null {
@@ -44,29 +47,26 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  public findMatchesByDay(weekday?: WEEKDAY) {
+  public findMatchesByDay(
+    weekday?: WEEKDAY
+  ): Array<UserRecord & { num_matches: number }> {
     const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
-    //   const findMatches = Model.db.prepare(`
-    //   SELECT U.*, count (UM.user_id) as num_matches FROM User U
-    //     LEFT JOIN User_Match UM
-    //     ON U.id = UM.user_id
-    //     LEFT JOIN Match M
-    //     ON UM.match_id = M.id
-    //     WHERE U.coffee_days LIKE '%${matchDayInt}%'
-    //     AND U.skip_next_match <> 1
-    //     GROUP BY UM.user_id
-    //     ORDER BY num_matches desc
-    // `);
+
     const findMatches = Model.db.prepare(`
-    SELECT U.*,  U.id as u_id, count (UM.user_id) as num_matches, M.id as mid FROM User U
-    LEFT JOIN User_Match UM
-    ON U.id = UM.user_id
-    LEFT JOIN Match M
-    ON UM.match_id = M.id
-    WHERE U.coffee_days LIKE '%${matchDayInt}%'
-    AND U.skip_next_match <> 1
-    GROUP BY UM.user_id
-    ORDER BY num_matches desc
+    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
+
+    prevMatches as (SELECT UM.user_id, count (UM.user_id) as num_matches from User_Match UM
+    LEFT JOIN MATCH M
+      ON UM.match_id = M.id
+    INNER JOIN User_Match UM2
+      ON UM2.match_id = M.id
+     WHERE UM.user_id in todayMatches and UM2.user_id in todayMatches and UM.user_id != UM2.user_id
+     group by um.user_id
+     order by num_matches desc
+     )
+
+    SELECT U2.*, prevMatches.num_matches from prevMatches LEFT JOIN User U2
+    ON U2.id = prevMatches.user_id;
     `);
 
     return findMatches.all();
@@ -77,8 +77,12 @@ export class UserModel extends Model<UserRecord> {
    * @param user_id
    * @param weekday
    */
-  public findPrevMatches(user_id: number, weekday: WEEKDAY) {
-    const prevMatchesQuery = Model.db.prepare(`
+  public findPrevActiveMatches(
+    user_id: number,
+    weekday: WEEKDAY
+  ): PrevMatchRecord[] {
+    const prevMatchesQuery = Model.db.prepare(
+      `
     SELECT U.id, U.email, U.full_name, Match.date
     FROM User U
     LEFT Join User_Match
@@ -87,7 +91,7 @@ export class UserModel extends Model<UserRecord> {
       ON User_Match.match_id = Match.id
     WHERE User_Match.user_id <> ${user_id}
     AND U.coffee_days LIKE '%${weekday}%'
-    AND U.skip_next_match <> ${user_id}
+    AND U.skip_next_match <> 1
     AND U.is_active <> 0
     AND User_Match.match_id in (
       SELECT Match.id
@@ -99,13 +103,14 @@ export class UserModel extends Model<UserRecord> {
       WHERE User.id = ${user_id}
      )
      ORDER BY Match.date
-    `);
+    `
+    );
 
     return prevMatchesQuery.all();
   }
 
   // ================= UPDATE ===============
-  public updateDays(user_id: number, weekdays: WEEKDAY[]) {
+  public updateDays(email: string, weekdays: WEEKDAY[]) {
     const weekdayStr = weekdays
       .sort((a, b) => {
         if (a > b) {
@@ -118,17 +123,17 @@ export class UserModel extends Model<UserRecord> {
       })
       .join('');
 
-    return this.update({ coffee_days: weekdayStr }, { id: user_id });
+    return this.update({ coffee_days: weekdayStr }, { email });
   }
 
-  public updateWarnings(user_id: number, warnings: boolean) {
+  public updateWarnings(email: string, warnings: boolean) {
     const warning_exception = warnings ? '1' : '0';
-    return this.update({ warning_exception }, { id: user_id });
+    return this.update({ warning_exception }, { email });
   }
 
-  public updateSkipNextMatch(user_id: number, skipNextMatch: boolean) {
+  public updateSkipNextMatch(email, skipNextMatch: boolean) {
     const skip_next_match = skipNextMatch ? '1' : '0';
-    return this.update({ skip_next_match }, { id: user_id });
+    return this.update({ skip_next_match }, { email });
   }
 
   //   public getTodaysMatch(weekday?: WEEKDAY_SHORT) {
@@ -163,15 +168,24 @@ export class UserModel extends Model<UserRecord> {
   //   }
 }
 
+// TODO: how can I make this UserRecord a type that
+// gets all its keys from the FIELDS?
 export type UserRecord = {
   id: number;
   email: string;
   full_name: string;
   coffee_days: string; // NOTE: or the enum days?
-  warning_exceptions: boolean;
-  skip_next_match: boolean;
-  is_active: boolean;
-  is_faculty: boolean;
+  warning_exception: number; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
+  skip_next_match: number;
+  is_active: number;
+  is_faculty: number;
+};
+
+export type PrevMatchRecord = {
+  id: number;
+  email: string;
+  full_name: string;
+  date: string;
 };
 
 export const TABLE_NAME = 'User';

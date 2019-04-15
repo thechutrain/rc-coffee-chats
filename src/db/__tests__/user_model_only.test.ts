@@ -13,6 +13,8 @@ const DB_PATH = path.join(__dirname, 'test_db', 'user_model_test.db');
 let DB_CONNECTION;
 let User;
 
+const testEmail = 'alan@gmail.com';
+
 beforeAll(done => {
   let failedConnection = null;
   let didFail = false;
@@ -176,7 +178,7 @@ describe('User Model:', () => {
   });
 
   it('should be able to update the users weekdays', () => {
-    const { changes } = User.updateDays(1, [WEEKDAY.TUE, WEEKDAY.MON]);
+    const { changes } = User.updateDays(testEmail, [WEEKDAY.TUE, WEEKDAY.MON]);
     expect(changes).toBe(1);
 
     const updatedUser = User.findById(1);
@@ -187,7 +189,7 @@ describe('User Model:', () => {
     const originalUser = User.findById(1);
     expect(originalUser.warning_exception).toBe(0);
 
-    const { changes } = User.updateWarnings(1, true);
+    const { changes } = User.updateWarnings(testEmail, true);
     expect(changes).toBe(1);
 
     const updatedUser = User.findById(1);
@@ -198,7 +200,7 @@ describe('User Model:', () => {
     const originalUser = User.findById(1);
     expect(originalUser.skip_next_match).toBe(0);
 
-    const { changes } = User.updateSkipNextMatch(1, true);
+    const { changes } = User.updateSkipNextMatch(testEmail, true);
     expect(changes).toBe(1);
 
     const updatedUser = User.findById(1);

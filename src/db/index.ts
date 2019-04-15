@@ -1,27 +1,37 @@
+import * as path from 'path';
 import sqlite from 'better-sqlite3';
 
-// Models
-import { UserModel } from './models';
+import { UserModel, UserMatchModel, MatchModel } from './models';
+import * as types from './dbTypes';
 
 export function initDB(
-  dbFilePath: string,
-  fileMustExist = true
-): { user: any; match: any } {
+  optDbFilePath?: string,
+  fileMustExist: boolean = true
+): types.myDB {
+  const isProd = process.env.NODE_ENV === 'production';
+  const defaultDbFile = (isProd
+    ? process.env.PROD_DB
+    : process.env.DEV_DB) as string;
+
+  const dbFilePath = optDbFilePath
+    ? optDbFilePath
+    : path.join(__dirname, '../../', 'data/', defaultDbFile);
+
   // Note: can set readonly, fileMustExist, timeout etc
-  const db = new sqlite(dbFilePath, { verbose: console.log, fileMustExist });
+  const DB_CONNECTION = new sqlite(dbFilePath, {
+    // verbose: console.log,
+    fileMustExist
+  });
 
-  // Initialize Models here:
-  // const user = initUserModel(db);
-  // const match = initMatchModel(db);
-  // const userMatch = initUserMatchModel(db);
-
-  // Ensure Tables have been also created:
-  // user.createTable();
-  // match.createTable();
-  // userMatch.createTable();
+  // Initialize Models:
+  const User = new UserModel(DB_CONNECTION);
+  const Match = new MatchModel(DB_CONNECTION);
+  const UserMatch = new UserMatchModel(DB_CONNECTION, User, Match);
 
   return {
-    user: {},
-    match: {}
+    User,
+    Match,
+    UserMatch,
+    DB_CONNECTION
   };
 }

@@ -7,66 +7,168 @@ import * as types from '../types';
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
  */
+// NOTE: all errors thrown in action functions will be handled
+// by the dispatcher(), which will send a generic error msg:
 export const ActionHandlerMap: types.ActionHandlerMap = {
-  // NOTE: all errors thrown in action functions will be handled
-  // by the dispatcher(), which will send a generic error msg:
-  __PROMPT_SIGNUP: {
-    okMsg: { msgTemplate: types.msgTemplate.PROMPT_SIGNUP }
+  __PROMPT_SIGNUP() {
+    return {
+      msgTemplate: types.msgTemplate.PROMPT_SIGNUP
+    };
   },
-  __REGISTER: {
-    okMsg: { msgTemplate: types.msgTemplate.SIGNED_UP },
-    fn(actionArgs) {
-      const result = this.db.user.add({
-        email: this.originUser,
-        full_name: this.originUser // TODO: get this from user
-      });
+  __REGISTER(ctx, _, zulipReqBody) {
+    ctx.db.User.add({
+      email: ctx.userEmail,
+      full_name: zulipReqBody.message.sender_full_name
+    });
 
-      // TODO: add the typescript definitions to database
-      if (result.status === 'ERROR') {
-        throw new Error(`${result.message}`);
-      }
-    }
+    return { msgTemplate: types.msgTemplate.SIGNED_UP };
   },
   ////////////////
   // SHOW
   ////////////////
-  SHOW__DAYS: {
-    okMsg: { msgTemplate: types.msgTemplate.SHOW_DAYS },
-    fn(actionArgs) {
-      return {
-        coffeeDays: `MON TUE ... fake daaaata`
-      };
-      // const { coffeeDays } = this.db.user.getCoffeeDays(this.originUser);
+  SHOW__DAYS(ctx) {
+    const User = ctx.db.User.findByEmail(ctx.userEmail);
 
-      // return {
-      //   coffeeDays: `${coffeeDays.join(' ')}`
-      // };
-    }
+    const coffeeDays = User.coffee_days
+      .split('')
+      .map(day => {
+        return types.WEEKDAY[day];
+      })
+      .join(' ');
+
+    return {
+      msgTemplate: types.msgTemplate.STATUS_DAYS,
+      msgArgs: {
+        coffeeDays
+      }
+    };
+  },
+  SHOW__SKIP(ctx) {
+    const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+    // TODO: feature that lets user know when their next match is schedule to be
+
+    const msgTemplate =
+      skip_next_match === 1
+        ? types.msgTemplate.STATUS_SKIP_TRUE
+        : types.msgTemplate.STATUS_SKIP_FALSE;
+
+    return {
+      msgTemplate
+    };
+  },
+  SHOW__WARNINGS(ctx) {
+    const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
+    const msgTemplate =
+      warning_exception === 1
+        ? types.msgTemplate.STATUS_WARNINGS_ON
+        : types.msgTemplate.STATUS_WARNINGS_OFF;
+
+    return {
+      msgTemplate
+    };
   },
   ////////////////
   // UPDATE
   ////////////////
-  UPDATE__DAYS: {
-    okMsg: {
-      msgTemplate: types.msgTemplate.UPDATED_DAYS
-    },
-    fn(actionArgs) {
-      return { coffeeDays: `MON TUE ...fake data :)` };
-      // TODO: come back to this after I update the models/database
-      // QUESTION: should db function just try to validate?
-      // const { coffeeDays } = this.db.user.updateCoffeeDays(
-      //   this.originUser,
-      //   actionArgs
-      // );
+  UPDATE__DAYS(ctx, actionArgs) {
+    if (actionArgs.length === 0) {
+      throw new Error(
+        `Must provide at least one day to be signed up for with Coffee Chat bot in order to stay active!\n If you'd like to no longer be paired up for matches you can deactive your account by typing: "**Update Active False**"`
+      );
+    }
+    // Validate that all the arguments are in Weekdays
+    const weekdays = actionArgs.map(day => {
+      if (!(day in types.WEEKDAY)) {
+        throw new Error(
+          `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
+        );
+      } else if (!isNaN(parseInt(day, 10))) {
+        // Case: where user gave us a number
+        throw new Error(
+          `Please provide days of the week using the first three letters for each day of the week, not as an integer.`
+        );
+      }
 
-      // return { coffeeDays: `${coffeeDays.join(' ')}` };
-    }
+      return types.WEEKDAY[day]; // return int of the day
+    });
+
+    // Must save the days of the week as a string of numbers
+    ctx.db.User.updateDays(ctx.userEmail, weekdays);
+    const User = ctx.db.User.findByEmail(ctx.userEmail);
+    const coffeeDays = User.coffee_days
+      .split('')
+      .map(day => {
+        return types.WEEKDAY[day];
+      })
+      .join(' ');
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
+        setting_key: 'Coffee Days',
+        setting_value: coffeeDays
+      }
+    };
   },
-  HELP: {
-    okMsg: {
-      msgTemplate: types.msgTemplate.HELP
-      // reqArgs: { a: Number }
+  UPDATE__SKIP(ctx, actionArgs) {
+    // Validate arguments:
+    const trueArgs = ['1', 'TRUE', 'YES'];
+    const falseArgs = ['0', 'FALSE', 'NO'];
+    const validArgs = new Set([...trueArgs, ...falseArgs]);
+    if (actionArgs.length !== 1) {
+      throw new Error(
+        `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+          ', '
+        )}, ${falseArgs.join(', ')}*`
+      );
+    } else if (!validArgs.has(actionArgs[0])) {
+      throw new Error(`${actionArgs[0]} is not a valid argument`);
     }
+
+    const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+    ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
+    const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
+        setting_key: 'Skip Next Match',
+        setting_value: skip_next_match === 1 ? 'True' : 'False'
+      }
+    };
+  },
+  UPDATE__WARNINGS(ctx, actionArgs) {
+    const trueArgs = ['1', 'TRUE', 'YES', 'ON'];
+    const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
+    const validArgs = new Set([...trueArgs, ...falseArgs]);
+
+    if (actionArgs.length !== 1) {
+      throw new Error(
+        `Update skip takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+          ', '
+        )}, ${falseArgs.join(', ')}*`
+      );
+    } else if (!validArgs.has(actionArgs[0])) {
+      throw new Error(`${actionArgs[0]} is not a valid argument`);
+    }
+
+    const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+    ctx.db.User.updateWarnings(ctx.userEmail, blnWarning);
+    const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
+
+    return {
+      msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+      msgArgs: {
+        setting_key: 'Warning Exceptions',
+        setting_value: warning_exception === 1 ? 'True' : 'False'
+      }
+    };
+  },
+  ////////////////
+  // HELP
+  ////////////////
+  HELP() {
+    return { msgTemplate: types.msgTemplate.HELP };
   }
 };
 
@@ -74,7 +176,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *  --> dispatches an action that returns a message
  *
  */
-export function initActionHandler(db) {
+export function initActionHandler(db: types.myDB) {
   const dispatcher = initDispatcher(ActionHandlerMap);
 
   return (req: types.IZulipRequest, res, next) => {
@@ -86,25 +188,28 @@ export function initActionHandler(db) {
       return;
     }
 
-    const { actionType, originUser } = req.local.action;
+    // TODO: make this targetUser, originUser separate
+    const userEmail = req.local.user.email;
+    const { actionType } = req.local.action;
     const ctx = {
-      ...db,
-      originUser
+      db,
+      userEmail
     };
     const { msgTemplate, msgArgs } = dispatcher(
       ctx,
       actionType,
-      req.local.cmd.args
+      req.local.cmd.args,
+      req.body
     );
 
-    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: originUser };
+    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: userEmail };
 
-    console.log('======== INFO ========');
+    console.log('\n======= Start of actionHandler ======');
     console.log('req.local.action:');
     console.log(req.local.action);
     console.log('\nreq.local.msgInfo');
     console.log(req.local.msgInfo);
-    console.log('======= END of actionHandler ======\n');
+    console.log('\n');
     next();
   };
 }
@@ -116,44 +221,24 @@ export function initActionHandler(db) {
  */
 export function initDispatcher(
   MapActionToFn: types.ActionHandlerMap
-): (ctx: any, action: types.Action, actionArgs: any[]) => types.IMsg {
-  // QUESTION: could I not create ctx in the outer initDispatcher function
-  // and pass it into fn.call(ctx)? why weren't my fn for db.user there?
+): (
+  ctx: types.ICtx,
+  action: types.Action,
+  actionArgs: any[],
+  zulipBody: types.IZulipBody
+) => types.IMsg {
+  return function dispatcher(ctx, action, actionArgs, zulipBody) {
+    const actionfn = MapActionToFn[action];
 
-  return function dispatcher(ctx, action, actionArgs) {
-    const { fn, okMsg, errMsg } = MapActionToFn[action];
-
-    // console.log('CONTEXT from inside the dispatch fn:');
-    // console.log(ctx);
-
-    // Case: no function to run for a given action
-    if (!fn) {
-      return { msgTemplate: okMsg.msgTemplate, msgArgs: {} };
-    }
-
-    // Case: Run a fn for a given action -->
-    // 1) results in okMsg
-    // 2) results in errMsg
-    let msgTemplate;
-    let msgArgs = {};
-
-    // Note: these actions are not coded for
-    // async action! but we can just wrap with async & await
+    // Note: these actions are not coded for async action! but we can just wrap with async & await
     try {
-      // QUESTION: better to have ctx be pointed to this? or to just pass it in
-      // as an argument?
-      // QUESTION: fn is placeholder for a fn, how to get TS support in this case?
-      // ... probably have to explicitly make a type signature
-      msgArgs = fn.call(ctx, actionArgs) || {};
-      msgTemplate = okMsg.msgTemplate;
+      return actionfn(ctx, actionArgs, zulipBody);
     } catch (e) {
-      // TODO: make req.local.error
-      // QUESTION: should I make a msg here or just create the req.local.error?
-
-      msgTemplate = errMsg ? errMsg.msgTemplate : types.msgTemplate.ERROR;
-      msgArgs = { errorMessage: e };
+      console.warn(`Error trying to dispatch an action: ${action}`);
+      return {
+        msgTemplate: types.msgTemplate.ERROR,
+        msgArgs: { errorMessage: e }
+      };
     }
-
-    return { msgTemplate, msgArgs };
   };
 }

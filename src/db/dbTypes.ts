@@ -1,3 +1,13 @@
+import * as sqlite from 'better-sqlite3';
+import { UserModel, UserMatchModel, MatchModel } from './models';
+
+export type myDB = {
+  User: UserModel;
+  UserMatch: UserMatchModel;
+  Match: MatchModel;
+  DB_CONNECTION: sqlite;
+};
+
 export enum sqliteType {
   'TEXT' = 'TEXT',
   'INTEGER' = 'INTEGER',
@@ -38,10 +48,9 @@ export interface IField {
   isValidFn?: (val: string) => boolean;
 }
 
-// export interface IQueryResult {
-//   rawQuery: string;
-//   queryData?: any;
-//   error?: string;
-// }
+// ======== MODEL RELATED TYPES ==================
+import { UserRecord } from './models/user_model';
+import { UserMatchRecord } from './models/usermatch_model';
+import { MatchRecord } from './models/match_model';
 
-// TODO: make enum of db error types
+export { UserRecord, UserMatchRecord, MatchRecord };

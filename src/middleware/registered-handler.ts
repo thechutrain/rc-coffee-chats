@@ -1,6 +1,5 @@
-/** ==== Middleware fn that checks registration ====
+/** ==== Middleware fn that checks if user is registered ====
  * Checks if a given user is registered in the database &
- * prompts user to signup if not registered
  */
 
 /** TODO:
@@ -11,14 +10,15 @@
  */
 
 import * as types from '../types';
+import { myDB } from '../db/dbTypes';
 
 // TODO: make a generic interface for this msg sender!
 // seperate the concerns so it can handle three events: onSuccessfulSignup, onFailedSignup, promptSignup
 
-export function initRegisteredHandler(db) {
-  return (req, res, next) => {
+export function initRegisteredHandler(db: myDB) {
+  return (req, _, next) => {
     const senderEmail = req.body.message.sender_email;
-    const user = db.user.find(senderEmail);
+    const user = db.User.findByEmail(senderEmail);
 
     req.local.user = {
       email: senderEmail,
