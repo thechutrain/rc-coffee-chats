@@ -21,6 +21,7 @@ export type basicUser = {
   prevMatches: basicPrevMatch[];
 };
 
+// ✅ tested!
 export function findUserPriority<U extends basicUser, E>(
   currUser: U,
   oppositePool: E[]
@@ -45,6 +46,7 @@ export function findUserPriority<U extends basicUser, E>(
   return [...shuffle(requiredEmails), ...prevMatches];
 }
 
+// ✅ tested!
 export function createSuitorAcceptorPool<A extends basicUser>(
   users: A[],
   fallBackPerson: A
