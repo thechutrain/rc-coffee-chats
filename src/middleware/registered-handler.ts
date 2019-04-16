@@ -16,21 +16,28 @@ import { myDB } from '../db/dbTypes';
 // seperate the concerns so it can handle three events: onSuccessfulSignup, onFailedSignup, promptSignup
 
 export function initRegisteredHandler(db: myDB) {
-  return (req, _, next) => {
+  return (req: types.IZulipRequest, _, next) => {
     const senderEmail = req.body.message.sender_email;
-    let userExists = false;
-    try {
-      // TODO: create a sql fn for checking if the user exists or not
-      // instead of throwing an error!
-      db.User.findByEmail(senderEmail);
-      userExists = true;
-    } catch (e) {
-      // user does not exist
+    const isRegistered = db.User.emailExists(senderEmail);
+
+    // TEMP: patches missing full_name column for users
+    if (isRegistered) {
+      try {
+        db.User.update(
+          { full_name: req.body.message.sender_full_name },
+          { email: senderEmail }
+        );
+      } catch (e) {
+        console.log(
+          `Error trying to update User's full_name: ${JSON.stringify(req.body)}`
+        );
+        req.local.errors = [{ errorType: types.Errors.FAILED_UPDATE }];
+      }
     }
 
     req.local.user = {
       email: senderEmail,
-      isRegistered: userExists
+      isRegistered
     };
 
     next();
