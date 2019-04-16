@@ -23,6 +23,10 @@ export function initDB(
     fileMustExist
   });
 
+  console.log(`==== initDB() =====`);
+  console.log(`connected to database: ${dbFilePath}`);
+  console.log('\n');
+
   // Initialize Models:
   const User = new UserModel(DB_CONNECTION);
   const Match = new MatchModel(DB_CONNECTION);
