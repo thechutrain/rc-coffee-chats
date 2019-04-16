@@ -128,16 +128,14 @@ export function createMessageContent(
     // MATCHED Related Messages
     ////////////////////////
     YOUR_MATCH: {
-      reqVars: ['matchedName'],
-      template: `Hi there! 👋 \n @**Alan Chu (SP2'19)** @*Alan Chu (SP2'19)* You've been matched today with @**${
-        vars.matchedName
+      reqVars: ['full_name'],
+      template: `Hi there! 👋 \n You've been matched today with @**${
+        vars.full_name
       }** today! \nSee [${
-        vars.matchedName
+        vars.full_name
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
-        vars.matchedName
-      )}) for more details. Hope you have a wonderful time chatting!
-      TEST: @**Alan Chu (SP2'19)**
-      `
+        vars.full_name
+      )}) for more details. Hope you have a wonderful chat!`
     },
     ////////////////////////
     // HELP messages
