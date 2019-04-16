@@ -63,8 +63,13 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         ? types.msgTemplate.STATUS_WARNINGS_ON
         : types.msgTemplate.STATUS_WARNINGS_OFF;
 
+    // return {
+    //   msgTemplate
+    // };
+
     return {
-      msgTemplate
+      msgTemplate: types.msgTemplate.YOUR_MATCH,
+      msgArgs: { matchedName: 'alancodes@gmail.com' }
     };
   },
   ////////////////

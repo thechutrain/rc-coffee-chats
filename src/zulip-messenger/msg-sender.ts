@@ -124,6 +124,24 @@ export function createMessageContent(
       template: `✅ UPDATED your coffee chat days`
     },
     ////////////////////////
+    // MATCHED Related Messages
+    ////////////////////////
+    YOUR_MATCH: {
+      reqVars: ['matchedName'],
+      template: `Hi there! 👋 \n You're having coffee (or tea, or a walk, or whatever you fancy) with @**${
+        vars.matchedName
+      }** today - enjoy! \nSee [${
+        vars.matchedName.split(' ')[0]
+      }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+        vars.matchedName
+      )}) for more details. 
+
+      TESTING: https://www.recurse.com/directory?q=${encodeURIComponent(
+        vars.matchedName
+      )}
+      `
+    },
+    ////////////////////////
     // HELP messages
     ////////////////////////
     HELP: {

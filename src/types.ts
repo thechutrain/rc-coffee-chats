@@ -148,6 +148,9 @@ export enum msgTemplate {
   // 'HELP_STATUS' = 'HELP_STATUS',
   'HELP' = 'HELP',
 
+  // CHRON Messags:
+  'YOUR_MATCH' = 'YOUR_MATCH',
+
   // Error
   'ERROR' = 'ERROR'
 }
