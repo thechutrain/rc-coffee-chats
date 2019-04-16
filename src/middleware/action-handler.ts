@@ -69,7 +69,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
 
     return {
       msgTemplate: types.msgTemplate.YOUR_MATCH,
-      msgArgs: { full_name: "Alan Chu (SP'19)" }
+      msgArgs: { full_name: `Alan Chu (SP\'19)` }
     };
   },
   ////////////////
