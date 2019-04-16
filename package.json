@@ -4,7 +4,7 @@
   "description": "A simple Node app with SQLite as a database management system, instantly up and running.",
   "main": "server.js",
   "scripts": {
-    "dev": "",
+    "dev": "ts-node src/server.ts",
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
     "_start": "cross-env NODE_ENV=production ts-node src/server.ts",
     "format": "prettier --write \"./**/*.{ts,js,json,md}\"",
@@ -14,7 +14,7 @@
     "clean:db": "rimraf .data/test.db",
     "pretest": "rimraf src/db/__tests__/**/*.db",
     "test": "cross-env DB_FILE=test.db jest",
-    "t": "jest -- -- src/matching-algo/stable-marriage",
+    "t": "jest -- -- src/chrons/make-matches/__tests__/",
     "build": "npm run clean && tsc"
   },
   "dependencies": {
