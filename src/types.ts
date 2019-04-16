@@ -2,6 +2,7 @@
 // Request
 ////////////////////////////
 export interface IZulipBody {
+  data: string;
   trigger: string;
   token: string;
   message: {
