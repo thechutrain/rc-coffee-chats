@@ -122,6 +122,10 @@ export function makeMatches(sendMessages = false, debug = true) {
   console.log(`Total number of matches: ${total_num_matches}`);
   console.log(fallBackMatch);
   console.log(`Number of repeated matches: ${num_repeated_matches}`);
+
+  if (sendMessages) {
+    // emailMatches;
+  }
 }
 
-makeMatches();
+makeMatches(false);

@@ -18,11 +18,19 @@ import { myDB } from '../db/dbTypes';
 export function initRegisteredHandler(db: myDB) {
   return (req, _, next) => {
     const senderEmail = req.body.message.sender_email;
-    const user = db.User.findByEmail(senderEmail);
+    let userExists = false;
+    try {
+      // TODO: create a sql fn for checking if the user exists or not
+      // instead of throwing an error!
+      db.User.findByEmail(senderEmail);
+      userExists = true;
+    } catch (e) {
+      // user does not exist
+    }
 
     req.local.user = {
       email: senderEmail,
-      isRegistered: !!user
+      isRegistered: userExists
     };
 
     next();
