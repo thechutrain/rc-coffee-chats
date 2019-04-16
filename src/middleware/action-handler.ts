@@ -63,13 +63,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         ? types.msgTemplate.STATUS_WARNINGS_ON
         : types.msgTemplate.STATUS_WARNINGS_OFF;
 
-    // return {
-    //   msgTemplate
-    // };
-
     return {
-      msgTemplate: types.msgTemplate.YOUR_MATCH,
-      msgArgs: { full_name: `Alan Chu (SP'19)` }
+      msgTemplate
     };
   },
   ////////////////

@@ -18,12 +18,10 @@ process.env.NODE_ENV = 'production';
 
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 import { initDB } from '../../db';
-import {
-  createSuitorAcceptorPool,
-  basicPrevMatch
-} from '../make-matches/create-suitor-acceptor-pool';
+import { createSuitorAcceptorPool } from '../make-matches/create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
 import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
+import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
 
 type logDataType = {
   numMatches?: number;
@@ -33,7 +31,7 @@ type logDataType = {
   acceptors?: any;
 };
 
-export function makeMatches(sendMessages = false, debug = true) {
+export function makeMatches(sendMessages = false) {
   // TODO: move all variables into the log
   // const logData: logDataType = {};
   ////////////////////
@@ -114,6 +112,24 @@ export function makeMatches(sendMessages = false, debug = true) {
   });
 
   ////////////////////
+  // Message each user their match
+  ////////////////////
+
+  if (sendMessages) {
+    acceptorSuitorMatches.forEach(match => {
+      const acceptor = match[0];
+      const suitor = match[1];
+      const acceptorMessage = `Hi there! 👋
+      You've been matched today with @**${suitor.data.full_name}**`;
+      const suitorMessage = `Hi there! 👋
+      You've been matched today with @**${acceptor.data.full_name}**`;
+
+      sendGenericMessage(acceptor.data.email, acceptorMessage);
+      sendGenericMessage(suitor.data.email, suitorMessage);
+    });
+  }
+
+  ////////////////////
   // Logging
   ////////////////////
   // ====== debugging =====
@@ -122,10 +138,9 @@ export function makeMatches(sendMessages = false, debug = true) {
   console.log(`Total number of matches: ${total_num_matches}`);
   console.log(fallBackMatch);
   console.log(`Number of repeated matches: ${num_repeated_matches}`);
-
-  if (sendMessages) {
-    // emailMatches;
-  }
 }
 
+// IMPORTANT!!! 💣
+// only pass in true to make Matches if you want to
+// annoy and send a bunch of people matches since Im using the prod db!
 makeMatches(false);
