@@ -76,8 +76,9 @@ export function createMessageContent(
     ////////////////////////
     PROMPT_SIGNUP: {
       template: `Hello there! I'm the new :coffee: bot!
-      You are not currently registered as a user of coffee chats
-      Type **SIGNUP** if you would like to join`
+      You are not currently registered as a user of coffee chats.
+      If you would like to join, just type: \n
+      SIGNUP`
     },
     SIGNED_UP: {
       template: `You've successfully been added to coffee chat! 🤠 \n
