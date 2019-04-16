@@ -170,6 +170,12 @@ export class UserModel extends Model<UserRecord> {
 
 // TODO: how can I make this UserRecord a type that
 // gets all its keys from the FIELDS?
+export type UserWithPrevMatchRecord = UserRecord & {
+  prevMatches: PrevMatchRecord[];
+} & {
+  num_matches: number;
+};
+
 export type UserRecord = {
   id: number;
   email: string;

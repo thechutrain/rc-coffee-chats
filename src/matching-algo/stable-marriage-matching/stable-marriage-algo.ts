@@ -10,10 +10,12 @@ export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   return priorityList;
 }
 
+export type Match<T> = [Acceptor<T>, Suitor<T>];
+
 export function makeStableMarriageMatches<T>(
   suitors: Map<marriage_id, Suitor<T>>,
   acceptors: Map<marriage_id, Acceptor<T>>
-): Array<[Acceptor<T>, Suitor<T>]> {
+): Array<Match<T>> {
   if (suitors.size !== acceptors.size) {
     throw new Error('suitors and acceptor arrays not equal length');
   }
@@ -22,7 +24,7 @@ export function makeStableMarriageMatches<T>(
   while (acceptedAcceptors.length !== acceptors.size) {
     for (const s of suitors.values()) {
       if (!s.currentlyAccepted && s.priority.length !== 0) {
-        const potentialAcceptor = acceptors.get(s.priority[0]);
+        const potentialAcceptor = acceptors.get(s.priority[0]) as Acceptor<T>;
         const rank = potentialAcceptor.priority.indexOf(s.marriage_id);
         // case 1: no current proposals --> accept
         if (potentialAcceptor.topSuitor === null) {
@@ -39,7 +41,9 @@ export function makeStableMarriageMatches<T>(
             s.priority.shift();
           } else {
             // case 3: has proposal, but this suitor is better --> set current proposal to this suitor, & get reference to previous suitor & set currentAccepted
-            const rejectedSuitor = suitors.get(potentialAcceptor.topSuitor);
+            const rejectedSuitor = suitors.get(
+              potentialAcceptor.topSuitor
+            ) as Suitor<T>;
             rejectedSuitor.currentlyAccepted = false;
 
             potentialAcceptor.topSuitor = s.marriage_id;
@@ -52,10 +56,13 @@ export function makeStableMarriageMatches<T>(
   }
 
   // make matches from acceptors accepted suitors
-  const matches: Array<[Acceptor<T>, Suitor<T>]> = acceptedAcceptors.map(
-    acceptor => {
-      const suitorMatch = suitors.get(acceptor.topSuitor);
-      return [acceptor, suitorMatch];
+  // TODO: why is this throwing a typescript compiler error!?
+  // 😡 💣🤔
+  // @ts-ignore
+  const matches: Array<Match<T>> = acceptedAcceptors.map(
+    (acceptor: Acceptor<T>) => {
+      const suitorMatch = suitors.get(acceptor.topSuitor) as Suitor<T>;
+      return [acceptor as Acceptor<T>, suitorMatch];
     }
   );
 
