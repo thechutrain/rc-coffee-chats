@@ -18,7 +18,7 @@ process.env.NODE_ENV = 'production';
 
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 import { initDB } from '../../db';
-import { createSuitorAcceptorPool } from '../make-matches/create-suitor-acceptor-pool';
+import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
 import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
 import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
