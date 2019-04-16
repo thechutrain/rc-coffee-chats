@@ -59,11 +59,21 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  /** TODO:
-   *
+  public _findUsersWhoSkipped(weekday?: WEEKDAY): UserRecord[] {
+    const matchDayInt: number =
+      weekday !== undefined ? weekday : new Date().getDay();
+
+    const findTodaysSkipped = Model.db.prepare(
+      `SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match = 1`
+    );
+
+    return findTodaysSkipped.all();
+  }
+
+  /**
    *
    */
-  public updateUsersWhoSkipped() {}
+  public updateUsersWhoSkipped(inputWeekday?: WEEKDAY) {}
 
   /**
    * Finds all the users who want to be matched today and all of their previous matches
