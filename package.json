@@ -16,7 +16,7 @@
     "test": "cross-env DB_FILE=test.db jest",
     "t": "jest -- -- src/chrons/make-matches/__tests__/",
     "build": "npm run clean && tsc",
-    "cron-matchify": "ts-node src/chrons/make-matches",
+    "cron-matchify": "ts-node src/chrons/matchify",
     "cron-warnings": "ts-node src/chrons/warnings"
   },
   "dependencies": {
