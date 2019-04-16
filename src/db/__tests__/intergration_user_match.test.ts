@@ -35,8 +35,22 @@ describe('User-UserMatch-Match tests:', () => {
     expect(results.length).toBe(2);
   });
 
-  it('should be able to find all the users to match for a given day', () => {
-    const usersToMatchMonday = DB.User.findMatchesByDay(1);
+  it('should not get any users who are inactive or were planning on skipping today', () => {
+    const usersToMatchMonday = DB.User.findMatchesByDay(1); // Find matches for monday
+
+    /**
+     * Everyone in the UsersToMatch:
+     *  is_active = 1;
+     *  skip_next_match = 0;
+     *  coffeeDays=has to have 1
+     */
+    usersToMatchMonday.forEach(user => {
+      expect(user.is_active).toBe(1);
+      expect(user.skip_next_match).toBe(0);
+      const coffeeDays = user.coffee_days.split('');
+      expect(coffeeDays.indexOf('1')).not.toBe(-1);
+    });
+
     expect(usersToMatchMonday.length).toBe(3);
   });
 });
