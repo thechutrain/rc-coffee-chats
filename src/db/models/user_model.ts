@@ -34,6 +34,17 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ================== FIND ====================
+  public emailExists(email: string): boolean {
+    const results = this.find({ email });
+    if (results.length > 1) {
+      throw new Error(
+        `Found more than one user with the given email: ${email}`
+      );
+    }
+
+    return results.length === 1;
+  }
+
   public findByEmail(email: string): UserRecord {
     const results = this.find({ email });
     if (results.length === 0) {
