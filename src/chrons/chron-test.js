@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const now = new Date();
 const timeAsString = now.toLocaleTimeString('en-US', {
   timeZone: 'America/New_York'
