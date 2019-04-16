@@ -47,6 +47,10 @@ app.use((req: types.ILocalsReq, res, next) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
+  (req, res, next) => {
+    console.log(req.body);
+    next();
+  },
   registerHandler,
   parserHandler,
   actionCreater,

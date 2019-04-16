@@ -77,12 +77,12 @@ export function createMessageContent(
     PROMPT_SIGNUP: {
       template: `Hello there! I'm the new :coffee: bot!
       You are not currently registered as a user of coffee chats.
-      If you would like to join, just type: \n
-      SIGNUP`
+      If you would like to join, just type: **SIGNUP**`
     },
     SIGNED_UP: {
-      template: `You've successfully been added to coffee chat! 🤠 \n
-      Type HELP or learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)`
+      template: `You've successfully been added to coffee chat! 🤠
+      You can learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)
+      or just type: **HELP**`
     },
     ////////////////////////
     // Messages related to SHOW actions
@@ -129,17 +129,13 @@ export function createMessageContent(
     ////////////////////////
     YOUR_MATCH: {
       reqVars: ['matchedName'],
-      template: `Hi there! 👋 \n You're having coffee (or tea, or a walk, or whatever you fancy) with @**${
+      template: `Hi there! 👋 \n You've been matched today with @**${
         vars.matchedName
-      }** today - enjoy! \nSee [${
+      }** today! \nSee [${
         vars.matchedName
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
         vars.matchedName
-      )}) for more details. 
-
-      TESTING: https://www.recurse.com/directory?q=${encodeURIComponent(
-        vars.matchedName
-      )}
+      )}) for more details. Hope you have a wonderful time chatting!
       `
     },
     ////////////////////////

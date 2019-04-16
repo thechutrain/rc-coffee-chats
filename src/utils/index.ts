@@ -1,5 +1,18 @@
 import { EXCEPTION_DATES, WEEKDAYS } from '../constants';
 
+export function log(msgArr: any[], debug = true) {
+  const shouldLog = debug ? true : process.env.DEVELOPMENT === 'development';
+
+  if (shouldLog) {
+    console.log('=====================');
+    console.log(' --- ' + JSON.stringify(msgArr[0]) + ' --- ');
+    for (let i = 1; i < msgArr.length; i++) {
+      console.log(JSON.stringify(msgArr[i]));
+    }
+    console.log('\n');
+  }
+}
+
 export class Util {
   // public static existValueInEnum(type: any, val: any): boolean {
   //   return Object.keys(type).filter(k => type[k] === val).length > 0;
