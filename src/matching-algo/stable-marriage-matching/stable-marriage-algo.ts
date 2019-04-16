@@ -10,12 +10,12 @@ export function trimAfterRank<T>(priorityList: T[], rank: number): T[] {
   return priorityList;
 }
 
-export type Match<T> = [Acceptor<T>, Suitor<T>];
+export type StableMatch<T> = [Acceptor<T>, Suitor<T>];
 
 export function makeStableMarriageMatches<T>(
   suitors: Map<marriage_id, Suitor<T>>,
   acceptors: Map<marriage_id, Acceptor<T>>
-): Array<Match<T>> {
+): Array<StableMatch<T>> {
   if (suitors.size !== acceptors.size) {
     throw new Error('suitors and acceptor arrays not equal length');
   }
@@ -59,7 +59,7 @@ export function makeStableMarriageMatches<T>(
   // TODO: why is this throwing a typescript compiler error!?
   // 😡 💣🤔
   // @ts-ignore
-  const matches: Array<Match<T>> = acceptedAcceptors.map(
+  const matches: Array<StableMatch<T>> = acceptedAcceptors.map(
     (acceptor: Acceptor<T>) => {
       const suitorMatch = suitors.get(acceptor.topSuitor) as Suitor<T>;
       return [acceptor as Acceptor<T>, suitorMatch];
