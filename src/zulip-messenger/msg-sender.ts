@@ -129,14 +129,14 @@ export function createMessageContent(
     ////////////////////////
     YOUR_MATCH: {
       reqVars: ['matchedName'],
-      template: `Hi there! 👋 \n You've been matched today with @**${
+      template: `Hi there! 👋 \n @**Alan Chu (SP2'19)** @*Alan Chu (SP2'19)* You've been matched today with @**${
         vars.matchedName
       }** today! \nSee [${
         vars.matchedName
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
         vars.matchedName
       )}) for more details. Hope you have a wonderful time chatting!
-      TEST: \`@**Alan Chu (SP2'19)**\`
+      TEST: @**Alan Chu (SP2'19)**
       `
     },
     ////////////////////////
