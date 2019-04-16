@@ -129,9 +129,9 @@ export function createMessageContent(
     ////////////////////////
     YOUR_MATCH: {
       reqVars: ['full_name'],
-      template: `Hi there! 👋 \n You've been matched today with @**${
-        vars.full_name
-      }** today! \nSee [${
+      template: `Hi there! 👋
+      You've been matched today with @**${vars.full_name}**
+      See [${
         vars.full_name
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
         vars.full_name
