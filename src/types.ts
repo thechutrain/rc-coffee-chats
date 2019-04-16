@@ -19,7 +19,7 @@ export interface ILocalsReq extends Express.Request {
   local?: any;
 }
 export interface IZulipRequest extends Express.Request {
-  body: any;
+  body: IZulipBody;
   local: {
     user: {
       email: string;
@@ -162,6 +162,7 @@ export type msgCreaterMap = Record<
 
 // REMOVE THIS:
 export enum Errors {
+  'FAILED_UPDATE' = 'FAILED_UPDATE',
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?
   'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',
