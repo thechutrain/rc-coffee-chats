@@ -136,6 +136,8 @@ export function createMessageContent(
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
         vars.matchedName
       )}) for more details. Hope you have a wonderful time chatting!
+
+      TEST: @**Alan Chu (SP2'19)**
       `
     },
     ////////////////////////
