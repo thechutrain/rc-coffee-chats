@@ -75,6 +75,32 @@ describe('User-UserMatch-Match tests:', () => {
     });
     expect(usersPrevMatch.length).toBe(3);
   });
+
+  it('should be able to get users to match today, who are active and not skipping', () => {
+    const usersPrevMatch = DB.User.findUsersPrevMatchesToday();
+    const todaysUsers = usersPrevMatch.map(user => user.email);
+
+    usersPrevMatch.forEach(user => {
+      // Sanity check: ensures all users are active, no-skip, and are set to
+      // be matched today
+      expect(user.is_active).toBe(1);
+      expect(user.skip_next_match).toBe(0);
+      const coffeeDays = user.coffee_days.split('');
+      expect(coffeeDays.indexOf('1')).not.toBe(-1);
+
+      // Make sure that prevmatches only includes users for today & matches num_matches:
+      expect(user.num_matches).toBe(user.prevMatches.length);
+      for (const prevmatch of user.prevMatches) {
+        expect(todaysUsers.indexOf(prevmatch.email)).not.toBe(-1);
+      }
+    });
+  });
+
+  // TODO:
+  xit('should be able to find all the users that were skipped today', () => {});
+
+  // TODO:
+  xit("should be able to turn off a user's skipped status if and only if they were supposed to be matched today", () => {});
 });
 
 // ==== PREP ====
