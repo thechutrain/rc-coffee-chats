@@ -131,7 +131,7 @@ export function createMessageContent(
       template: `Hi there! 👋 \n You're having coffee (or tea, or a walk, or whatever you fancy) with @**${
         vars.matchedName
       }** today - enjoy! \nSee [${
-        vars.matchedName.split(' ')[0]
+        vars.matchedName
       }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
         vars.matchedName
       )}) for more details. 
