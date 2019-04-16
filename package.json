@@ -15,7 +15,8 @@
     "pretest": "rimraf src/db/__tests__/**/*.db",
     "test": "cross-env DB_FILE=test.db jest",
     "t": "jest -- -- src/chrons/make-matches/__tests__/",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "chron": "ts-node src/chrons/chron-test.ts"
   },
   "dependencies": {
     "axios": "^0.18.0",
