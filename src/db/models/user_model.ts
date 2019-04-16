@@ -59,7 +59,39 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  public findMatchesByDay(
+  /** TODO:
+   *
+   *
+   */
+  public updateUsersWhoSkipped() {}
+
+  /**
+   * Finds all the users who want to be matched today and all of their previous matches
+   * @param inputWeekday
+   */
+  public findUsersPrevMatchesToday(
+    inputWeekday?: WEEKDAY
+  ): UserWithPrevMatchRecord[] {
+    const weekday: number =
+      inputWeekday !== undefined ? inputWeekday : new Date().getDay();
+
+    const usersToMatchToday = this._findUsersToMatch(weekday);
+    return usersToMatchToday.map(user => {
+      const prevMatches = this.findPrevActiveMatches(user.id, weekday);
+
+      return {
+        ...user,
+        prevMatches
+      };
+    });
+  }
+
+  /**
+   * Finds users who want to be matched for the given day, sorted by users who
+   * have the most number of matches first.
+   * @param weekday
+   */
+  public _findUsersToMatch(
     weekday?: WEEKDAY
   ): Array<UserRecord & { num_matches: number }> {
     const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
@@ -120,6 +152,9 @@ export class UserModel extends Model<UserRecord> {
 
     return prevMatchesQuery.all();
   }
+
+  // TODO:
+  // public findAllPrevMatches() { }
 
   // ================= UPDATE ===============
   public updateDays(email: string, weekdays: WEEKDAY[]) {

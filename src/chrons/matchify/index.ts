@@ -41,14 +41,7 @@ export function makeMatches(sendMessages = false) {
     const db = initDB();
     // const today = new Date().getDay();
     const today = 2;
-    return db.User.findMatchesByDay(today).map(user => {
-      const prevMatches = db.User.findPrevActiveMatches(user.id, today);
-
-      return {
-        ...user,
-        prevMatches
-      };
-    });
+    return db.User.findUsersPrevMatchesToday(today);
   })();
 
   // ==== debugging =====

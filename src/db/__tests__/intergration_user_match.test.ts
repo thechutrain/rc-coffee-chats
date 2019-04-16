@@ -36,7 +36,7 @@ describe('User-UserMatch-Match tests:', () => {
   });
 
   it('should not get any users who are inactive or were planning on skipping today', () => {
-    const usersToMatchMonday = DB.User.findMatchesByDay(1); // Find matches for monday
+    const usersToMatchMonday = DB.User._findUsersToMatch(1); // Find matches for monday
 
     /**
      * Everyone in the UsersToMatch:
@@ -52,6 +52,28 @@ describe('User-UserMatch-Match tests:', () => {
     });
 
     expect(usersToMatchMonday.length).toBe(3);
+  });
+
+  it('should be able to get users to match and only include prevmatches of users who are trying to match today', () => {
+    const monday = 1;
+    const usersPrevMatch = DB.User.findUsersPrevMatchesToday(monday);
+    const todaysUsers = usersPrevMatch.map(user => user.email);
+
+    usersPrevMatch.forEach(user => {
+      // Sanity check: ensures all users are active, no-skip, and are set to
+      // be matched today
+      expect(user.is_active).toBe(1);
+      expect(user.skip_next_match).toBe(0);
+      const coffeeDays = user.coffee_days.split('');
+      expect(coffeeDays.indexOf('1')).not.toBe(-1);
+
+      // Make sure that prevmatches only includes users for today & matches num_matches:
+      expect(user.num_matches).toBe(user.prevMatches.length);
+      for (const prevmatch of user.prevMatches) {
+        expect(todaysUsers.indexOf(prevmatch.email)).not.toBe(-1);
+      }
+    });
+    expect(usersPrevMatch.length).toBe(3);
   });
 });
 
