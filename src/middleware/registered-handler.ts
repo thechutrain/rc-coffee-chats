@@ -23,6 +23,8 @@ export function initRegisteredHandler(db: myDB) {
     // TEMP: patches missing full_name column for users
     if (isRegistered) {
       try {
+        console.log('updating ...');
+        console.log(req.body.message.sender_full_name);
         db.User.update(
           { full_name: req.body.message.sender_full_name },
           { email: senderEmail }
