@@ -29,19 +29,18 @@ type logDataType = {
 };
 
 export function makeMatches(sendMessages = false) {
-  // TODO: move all variables into the log
-  // const logData: logDataType = {};
+  const db = initDB();
+  const today = new Date().getDay();
+
   ////////////////////
   // Get Users to Match
   ////////////////////
   const usersToMatch: UserWithPrevMatchRecord[] = (() => {
-    const db = initDB();
-    const today = new Date().getDay();
-    // const today = 4;
     return db.User.findUsersPrevMatchesToday(today);
   })();
 
-  // TODO: clear all the skip next match warnings for todays people
+  // Clear all the skip next match warnings for todays people
+  db.User.clearTodaysSkippers();
 
   // ==== debugging =====
   // console.log(usersToMatch);
@@ -51,16 +50,20 @@ export function makeMatches(sendMessages = false) {
   ////////////////////
   // Create Stable Marriage Pool
   ////////////////////
+  const fallBackUser = {
+    email: 'alicia@recurse.com',
+    full_name: 'Alicia',
+    prevMatches: []
+  };
   const { suitors, acceptors, fallBackMatch } = (() => {
-    const fallBackUser = {
-      email: 'alicia@recurse.com',
-      full_name: 'Alicia',
-      prevMatches: []
-    };
-
     return createSuitorAcceptorPool(usersToMatch, fallBackUser);
   })();
-  // TODO: add the fallBackMatch to the list of users to match!!
+
+  // Add the fallBackMatch to the list of users to match:
+  let fallBackPair: any;
+  if (fallBackMatch !== null) {
+    fallBackPair = [fallBackUser, fallBackMatch];
+  }
 
   // ====== debugging =====
   // console.log(`Fall back match: ${JSON.stringify(fallBackMatch)}`);
@@ -71,9 +74,10 @@ export function makeMatches(sendMessages = false) {
     suitorPool,
     acceptorPool
   ) => {
-    const _acceptorSuitorMatches = makeStableMarriageMatches<
-      UserWithPrevMatchRecord
-    >(suitorPool, acceptorPool);
+    const _acceptorSuitorMatches = makeStableMarriageMatches(
+      suitorPool,
+      acceptorPool
+    );
 
     const _emailMatches = _acceptorSuitorMatches.map(match => {
       return [match[0].data.email, match[1].data.email];
