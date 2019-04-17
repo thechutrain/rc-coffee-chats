@@ -3,9 +3,18 @@
 # runs chron job for matching all users & sending zulip messages
 
 cd ~/rc-coffee-chats
-current_date_time=`date "+%Y-%m-%d %H:%M:%S"`;
-echo "\n=================\nTime is: $current_date_time \nStarting MATCHIFY cron job ..." >> /root/cron-jobs/logs
-npm run cron-matchify >> /root/chron-logs
+echo "" >> /root/cron-jobs/logs
+cat << BEGIN >> /root/cron-jobs/logs
+============= START: cron-job =================
+  TIMESTAMP @ `date`
+BEGIN
 
-current_date_time=`date "+%Y-%m-%d %H:%M:%S"`;
-echo "\nFinished MATCHIFY cron job \n$current_date_time --> ran matchify chron :)\n============" >> root/cron-jobs/logs;
+
+npm run cron-matchify >> /root/cron-jobs/logs
+
+cat << FINISH >> /root/cron-jobs/logs
+============= START: cron-job =================
+  TIMESTAMP @ `date`
+FINISH
+
+

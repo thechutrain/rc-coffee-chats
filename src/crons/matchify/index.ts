@@ -29,19 +29,18 @@ type logDataType = {
 };
 
 export function makeMatches(sendMessages = false) {
-  // TODO: move all variables into the log
-  // const logData: logDataType = {};
+  const db = initDB();
+  const today = new Date().getDay();
+
   ////////////////////
   // Get Users to Match
   ////////////////////
   const usersToMatch: UserWithPrevMatchRecord[] = (() => {
-    const db = initDB();
-    const today = new Date().getDay();
-    // const today = 4;
     return db.User.findUsersPrevMatchesToday(today);
   })();
 
-  // TODO: clear all the skip next match warnings for todays people
+  // Clear all the skip next match warnings for todays people
+  db.User.clearTodaysSkippers();
 
   // ==== debugging =====
   // console.log(usersToMatch);
@@ -51,16 +50,30 @@ export function makeMatches(sendMessages = false) {
   ////////////////////
   // Create Stable Marriage Pool
   ////////////////////
-  const { suitors, acceptors, fallBackMatch } = (() => {
-    const fallBackUser = {
-      email: 'alicia@recurse.com',
-      full_name: 'Alicia',
-      prevMatches: []
-    };
+  // TODO: get the fallbackuser from the user table!!!
+  // 💣
+  const fallBackUser = {
+    id: -1,
+    email: 'alicia@recurse.com',
+    full_name: 'Alicia',
+    coffee_days: 'not right',
+    warning_exception: 0,
+    skip_next_match: 0,
+    is_active: 1,
+    is_faculty: 1,
+    num_matches: 0,
+    prevMatches: []
+  };
 
+  const { suitors, acceptors, fallBackMatch } = (() => {
     return createSuitorAcceptorPool(usersToMatch, fallBackUser);
   })();
-  // TODO: add the fallBackMatch to the list of users to match!!
+
+  // Add the fallBackMatch to the list of users to match:
+  let fallBackPair: any;
+  if (fallBackMatch !== null) {
+    fallBackPair = [fallBackUser, fallBackMatch];
+  }
 
   // ====== debugging =====
   // console.log(`Fall back match: ${JSON.stringify(fallBackMatch)}`);
@@ -77,7 +90,10 @@ export function makeMatches(sendMessages = false) {
     );
 
     const _emailMatches = _acceptorSuitorMatches.map(match => {
-      return [match[0].data.email, match[1].data.email];
+      return [
+        (match[0].data as UserWithPrevMatchRecord).email,
+        (match[1].data as UserWithPrevMatchRecord).email
+      ];
     });
 
     return {
@@ -110,15 +126,15 @@ export function makeMatches(sendMessages = false) {
 
   if (sendMessages) {
     acceptorSuitorMatches.forEach(match => {
-      const acceptor = match[0];
-      const suitor = match[1];
+      const acceptorData = match[0].data as UserWithPrevMatchRecord;
+      const suitorData = match[1].data as UserWithPrevMatchRecord;
       const acceptorMessage = `Hi there! 👋
-      You've been matched today with @**${suitor.data.full_name}**`;
+      You've been matched today with @**${suitorData.full_name}**`;
       const suitorMessage = `Hi there! 👋
-      You've been matched today with @**${acceptor.data.full_name}**`;
+      You've been matched today with @**${acceptorData.full_name}**`;
 
-      sendGenericMessage(acceptor.data.email, acceptorMessage);
-      sendGenericMessage(suitor.data.email, suitorMessage);
+      sendGenericMessage(acceptorData.email, acceptorMessage);
+      sendGenericMessage(suitorData.email, suitorMessage);
     });
   }
 
