@@ -145,6 +145,14 @@ export function createMessageContent(
       }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
       `
     },
+    HELP_SHOW: {
+      template: `Here are the valid subcommands associated with the **SHOW** directive:
+     \n
+     * \`\`\`SHOW DAYS\`\`\` 
+     * \`\`\`SHOW SKIP\`\`\` 
+     * \`\`\`SHOW WARNINGS\`\`\` 
+      `
+    },
     ////////////////////////
     // Error Messages
     ////////////////////////

@@ -169,6 +169,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   HELP() {
     return { msgTemplate: types.msgTemplate.HELP };
+  },
+  HELP__SHOW() {
+    return { msgTemplate: types.msgTemplate.HELP_SHOW };
   }
 };
 

@@ -86,7 +86,9 @@ export enum Action {
 
   // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
 
-  'HELP' = 'HELP'
+  'HELP' = 'HELP',
+  'HELP__SHOW' = 'HELP__SHOW'
+  // 'HELP_UPDATE' = 'HELP_UPDATE'
 }
 
 export interface IActionObj {
@@ -149,6 +151,7 @@ export enum msgTemplate {
   // 'HELP_UPDATE' = 'HELP_UPDATE',
   // 'HELP_STATUS' = 'HELP_STATUS',
   'HELP' = 'HELP',
+  'HELP_SHOW' = 'HELP_SHOW',
 
   // CHRON Messags:
   'YOUR_MATCH' = 'YOUR_MATCH',
