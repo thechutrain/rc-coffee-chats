@@ -116,15 +116,15 @@ export function makeMatches(sendMessages = false) {
 
   if (sendMessages) {
     acceptorSuitorMatches.forEach(match => {
-      const acceptor = match[0];
-      const suitor = match[1];
+      const acceptorData = match[0].data as UserWithPrevMatchRecord;
+      const suitorData = match[1].data as UserWithPrevMatchRecord;
       const acceptorMessage = `Hi there! 👋
-      You've been matched today with @**${suitor.data.full_name}**`;
+      You've been matched today with @**${suitorData.full_name}**`;
       const suitorMessage = `Hi there! 👋
-      You've been matched today with @**${acceptor.data.full_name}**`;
+      You've been matched today with @**${acceptorData.full_name}**`;
 
-      sendGenericMessage(acceptor.data.email, acceptorMessage);
-      sendGenericMessage(suitor.data.email, suitorMessage);
+      sendGenericMessage(acceptorData.email, acceptorMessage);
+      sendGenericMessage(suitorData.email, suitorMessage);
     });
   }
 
