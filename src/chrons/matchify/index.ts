@@ -10,11 +10,8 @@
  *  -- send message to admin folks the results of the match pairs!
  */
 import { cloneDeep } from 'lodash';
-
-// ===== REMOVE LATER ========
-// LOCAL TESTING PURPOSE ONLY -- code runner doesn't set the process.env
-process.env.PROD_DB = 'prod.db';
-process.env.NODE_ENV = 'production';
+import * as dotenv from 'dotenv-safe';
+dotenv.config();
 
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 import { initDB } from '../../db';
@@ -39,10 +36,12 @@ export function makeMatches(sendMessages = false) {
   ////////////////////
   const usersToMatch: UserWithPrevMatchRecord[] = (() => {
     const db = initDB();
-    // const today = new Date().getDay();
-    const today = 2;
+    const today = new Date().getDay();
+    // const today = 4;
     return db.User.findUsersPrevMatchesToday(today);
   })();
+
+  // TODO: clear all the skip next match warnings for todays people
 
   // ==== debugging =====
   // console.log(usersToMatch);
@@ -61,6 +60,7 @@ export function makeMatches(sendMessages = false) {
 
     return createSuitorAcceptorPool(usersToMatch, fallBackUser);
   })();
+  // TODO: add the fallBackMatch to the list of users to match!!
 
   // ====== debugging =====
   // console.log(`Fall back match: ${JSON.stringify(fallBackMatch)}`);

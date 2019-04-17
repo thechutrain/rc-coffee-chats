@@ -30,6 +30,7 @@ export interface IZulipRequest extends Express.Request {
     cmd: IParsedCmd;
     action: IActionObj;
     errors: IError[];
+    // TODO: DEPRECATE THIS
     sqlResult?: any;
     msgInfo: IMsgInfo;
   };

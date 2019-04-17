@@ -14,7 +14,7 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
   console.log(`\n`);
 
   const originUser = req.local.user.email;
-  const { targetUser } = req.local.action;
+  // const { targetUser } = req.local.action;
   const { errors } = req.local;
 
   // Case: handle error messages
