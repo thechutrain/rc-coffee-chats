@@ -4,7 +4,7 @@
 
 cd ~/rc-coffee-chats
 echo "" >> /root/cron-jobs/logs
-cat << BEGIN > /root/cron-jobs/logs
+cat << BEGIN >> /root/cron-jobs/logs
 ============= START: cron-job =================
   TIMESTAMP @ `date`
 BEGIN
@@ -12,7 +12,7 @@ BEGIN
 
 npm run cron-matchify >> /root/cron-jobs/logs
 
-cat << FINISH > /root/cron-jobs/logs
+cat << FINISH >> /root/cron-jobs/logs
 ============= START: cron-job =================
   TIMESTAMP @ `date`
 FINISH
