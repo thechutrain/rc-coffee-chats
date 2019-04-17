@@ -134,8 +134,6 @@ describe('User-UserMatch-Match tests:', () => {
       const coffeeDays = user.coffee_days.split('');
       expect(coffeeDays.indexOf('5')).not.toBe(-1);
     });
-
-    console.log(needWarningMessage);
   });
 });
 
