@@ -119,6 +119,21 @@ describe('User-UserMatch-Match tests:', () => {
     const numSkippersDiffDayAfter = DB.User._findSkippingUsers(0).length;
     expect(numSkippersDiffDay).toBe(numSkippersDiffDayAfter);
   });
+
+  it('should be able to find the users who have warnings set on and want to be matched tomorrow', () => {
+    // Note: mock data contains two users who are looking to be matched on Friday (Day # 5)
+    // Since warnings are sent the day prior
+    const dayToSendWarnings = 4;
+    const needWarningMessage = DB.User.findUsersNextDayMatchWarning(
+      dayToSendWarnings
+    );
+
+    needWarningMessage.forEach(user => {
+      expect(user.warning_exception).toBe(1);
+      const coffeeDays = user.coffee_days.split('');
+      expect(coffeeDays.indexOf('5')).not.toBe(-1);
+    });
+  });
 });
 
 // ==== PREP ====

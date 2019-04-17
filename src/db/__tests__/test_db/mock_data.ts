@@ -33,6 +33,20 @@ export const ALL_USERS = [
     full_name: 'Not matched with anyone',
     coffee_days: '0',
     skip_next_match: '1'
+  },
+  // Testing the warning exception
+  {
+    email: 'User needs to be warned',
+    full_name: 'user with warning exception',
+    coffee_days: '5',
+    warning_exception: '1'
+  },
+  {
+    email: 'User needs to be warned, but is skipping',
+    full_name: 'no msg should be sent',
+    coffee_days: '5',
+    warning_exception: '1',
+    skip_next_match: '1'
   }
 ];
 

@@ -74,7 +74,7 @@ export class UserModel extends Model<UserRecord> {
     return findTodaysSkipped.all();
   }
 
-  /** ️✳️ Query Used for Making Matches
+  /** ️✳️ Query used for Matchify cron
    * Finds all the users who want to be matched today and all of their previous matches
    * @param inputWeekday
    */
@@ -96,12 +96,24 @@ export class UserModel extends Model<UserRecord> {
     });
   }
 
+  /** ✳️ Query userd for Warning Cron job
+   *
+   * @param weekday
+   */
+  public findUsersNextDayMatchWarning(weekday?: WEEKDAY): UserRecord[] {
+    const todayInt = weekday !== undefined ? weekday : new Date().getDay();
+    const tomorrowInt = (todayInt + 1) % 7;
+
+    const nextDayWarnings = Model.db.prepare(`SELECT *  
+    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception =1 AND U.skip_next_match <> 1`);
+
+    return nextDayWarnings.all();
+  }
   /**
    * Finds users who want to be matched for the given day, sorted by users who
    * have the most number of matches first.
    * @param weekday
    */
-
   // ✅: tests written
   public _findUsersToMatch(
     weekday?: WEEKDAY
@@ -109,7 +121,7 @@ export class UserModel extends Model<UserRecord> {
     const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
 
     const findMatches = Model.db.prepare(`
-    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
+    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
 
     prevMatches as (SELECT UM.user_id, count (UM.user_id) as num_matches from User_Match UM
     LEFT JOIN MATCH M
