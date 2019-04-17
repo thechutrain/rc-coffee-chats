@@ -47,6 +47,13 @@ export const ALL_USERS = [
     coffee_days: '5',
     warning_exception: '1',
     skip_next_match: '1'
+  },
+  {
+    email: 'User is NOT active, but has warnings',
+    full_name: 'no msg should be sent',
+    coffee_days: '5',
+    warning_exception: '1',
+    is_active: '0'
   }
 ];
 

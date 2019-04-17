@@ -98,6 +98,8 @@ export class UserModel extends Model<UserRecord> {
 
   /** ✳️ Query userd for Warning Cron job
    *
+   * Gets all the active users who are planning on being matched tomorrow and
+   * dont have warning exceptions turned on
    * @param weekday
    */
   public findUsersNextDayMatchWarning(weekday?: WEEKDAY): UserRecord[] {
@@ -105,7 +107,7 @@ export class UserModel extends Model<UserRecord> {
     const tomorrowInt = (todayInt + 1) % 7;
 
     const nextDayWarnings = Model.db.prepare(`SELECT *  
-    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception =1 AND U.skip_next_match <> 1`);
+    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception =1 AND U.skip_next_match <> 1 AND U.is_active = 1`);
 
     return nextDayWarnings.all();
   }
