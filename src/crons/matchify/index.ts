@@ -71,10 +71,9 @@ export function makeMatches(sendMessages = false) {
     suitorPool,
     acceptorPool
   ) => {
-    const _acceptorSuitorMatches = makeStableMarriageMatches(
-      suitorPool,
-      acceptorPool
-    );
+    const _acceptorSuitorMatches = makeStableMarriageMatches<
+      UserWithPrevMatchRecord
+    >(suitorPool, acceptorPool);
 
     const _emailMatches = _acceptorSuitorMatches.map(match => {
       return [match[0].data.email, match[1].data.email];
