@@ -50,11 +50,21 @@ export function makeMatches(sendMessages = false) {
   ////////////////////
   // Create Stable Marriage Pool
   ////////////////////
+  // TODO: get the fallbackuser from the user table!!!
+  // 💣
   const fallBackUser = {
+    id: -1,
     email: 'alicia@recurse.com',
     full_name: 'Alicia',
+    coffee_days: 'not right',
+    warning_exception: 0,
+    skip_next_match: 0,
+    is_active: 1,
+    is_faculty: 1,
+    num_matches: 0,
     prevMatches: []
   };
+
   const { suitors, acceptors, fallBackMatch } = (() => {
     return createSuitorAcceptorPool(usersToMatch, fallBackUser);
   })();
@@ -81,7 +91,7 @@ export function makeMatches(sendMessages = false) {
 
     const _emailMatches = _acceptorSuitorMatches.map(match => {
       return [
-        (match[0].data as UserWithPrevMatchRecord).email,
+        match[0].data.email,
         (match[1].data as UserWithPrevMatchRecord).email
       ];
     });
