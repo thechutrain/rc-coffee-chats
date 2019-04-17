@@ -3,7 +3,7 @@ export const ALL_USERS = [
     // id: 1
     email: 'user A',
     full_name: 'Matched to: BCD',
-    coffee_days: '1'
+    coffee_days: '0123456'
   },
   {
     // id: 2
@@ -14,7 +14,8 @@ export const ALL_USERS = [
   {
     // id: 3
     email: 'user C',
-    full_name: 'Matched to: AD'
+    full_name: 'Matched to: AD',
+    coffee_days: '0123456'
   },
   {
     // id: 4
@@ -26,6 +27,12 @@ export const ALL_USERS = [
     // id: 5,
     email: 'User E',
     full_name: 'Matched to: A'
+  },
+  {
+    email: 'User F',
+    full_name: 'Not matched with anyone',
+    coffee_days: '0',
+    skip_next_match: '1'
   }
 ];
 
