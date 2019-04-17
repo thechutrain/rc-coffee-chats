@@ -26,22 +26,6 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
-  // TODO: why is ts giving me this error?
-  /* 
-  return axios({
-    method: 'post',
-    baseURL: process.env.ZULIP_URL_ENDPOINT,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    auth: {
-      username: process.env.ZULIP_BOT_USERNAME,
-      password: process.env.ZULIP_BOT_API_KEY
-    },
-    data: dataAsQueryParams
-  });
-  */
-
   return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
