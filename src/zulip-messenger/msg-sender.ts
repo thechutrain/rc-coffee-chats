@@ -42,15 +42,14 @@ export function sendGenericMessage(
   });
   */
 
-  return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, {
+  return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     auth: {
-      username: process.env.ZULIP_BOT_USERNAME,
-      password: process.env.ZULIP_BOT_API_KEY
-    },
-    data: dataAsQueryParams
+      username: `${process.env.ZULIP_BOT_USERNAME}`,
+      password: `${process.env.ZULIP_BOT_API_KEY}`
+    }
   });
 }
 

@@ -7,5 +7,7 @@ export function sendUserNotification(message: string) {
   const db = initDB();
   const activeUsers = db.User.findActiveUsers();
 
-  activeUsers.forEach(user => {});
+  activeUsers.forEach(user => {
+    sendGenericMessage(user.email, `Hello!`);
+  });
 }
