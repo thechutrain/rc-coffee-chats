@@ -59,6 +59,11 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
+  public findActiveUsers(): UserRecord[] {
+    const findStatement = Model.db.prepare(`SELECT * FROM User U WHERE U.is_active = 1`);
+    return findStatement.all()
+  }
+
   /**
    * Finds the users who want to skip their next match
    * @param weekday

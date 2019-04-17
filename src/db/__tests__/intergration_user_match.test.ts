@@ -135,6 +135,13 @@ describe('User-UserMatch-Match tests:', () => {
       expect(coffeeDays.indexOf('5')).not.toBe(-1);
     });
   });
+
+  it('should be able to find all currently active users', () => {
+    const activeUsers = DB.User.findActiveUsers();
+    activeUsers.forEach(user => {
+      expect(user.is_active).toBe(1);
+    });
+  });
 });
 
 // ==== PREP ====
