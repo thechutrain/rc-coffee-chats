@@ -80,7 +80,10 @@ export function makeMatches(sendMessages = false) {
     );
 
     const _emailMatches = _acceptorSuitorMatches.map(match => {
-      return [match[0].data.email, match[1].data.email];
+      return [
+        (match[0].data as UserWithPrevMatchRecord).email,
+        (match[1].data as UserWithPrevMatchRecord).email
+      ];
     });
 
     return {
