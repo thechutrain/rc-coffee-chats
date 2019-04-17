@@ -59,26 +59,26 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  public _findUsersWhoSkipped(weekday?: WEEKDAY): UserRecord[] {
+  /**
+   * Finds the users who want to skip their next match
+   * @param weekday
+   */
+  public _findSkippingUsers(weekday?: WEEKDAY): UserRecord[] {
     const matchDayInt: number =
       weekday !== undefined ? weekday : new Date().getDay();
 
     const findTodaysSkipped = Model.db.prepare(
-      `SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match = 1`
+      `SELECT * FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match = 1`
     );
 
     return findTodaysSkipped.all();
   }
 
-  /**
-   *
-   */
-  public updateUsersWhoSkipped(inputWeekday?: WEEKDAY) {}
-
-  /**
+  /** ️✳️ Query Used for Making Matches
    * Finds all the users who want to be matched today and all of their previous matches
    * @param inputWeekday
    */
+  // ✅: tests written
   public findUsersPrevMatchesToday(
     inputWeekday?: WEEKDAY
   ): UserWithPrevMatchRecord[] {
@@ -87,7 +87,7 @@ export class UserModel extends Model<UserRecord> {
 
     const usersToMatchToday = this._findUsersToMatch(weekday);
     return usersToMatchToday.map(user => {
-      const prevMatches = this.findPrevActiveMatches(user.id, weekday);
+      const prevMatches = this._findPrevActiveMatches(user.id, weekday);
 
       return {
         ...user,
@@ -101,6 +101,8 @@ export class UserModel extends Model<UserRecord> {
    * have the most number of matches first.
    * @param weekday
    */
+
+  // ✅: tests written
   public _findUsersToMatch(
     weekday?: WEEKDAY
   ): Array<UserRecord & { num_matches: number }> {
@@ -131,7 +133,8 @@ export class UserModel extends Model<UserRecord> {
    * @param user_id
    * @param weekday
    */
-  public findPrevActiveMatches(
+  // ✅: tests written
+  public _findPrevActiveMatches(
     user_id: number,
     weekday: WEEKDAY
   ): PrevMatchRecord[] {
@@ -163,7 +166,6 @@ export class UserModel extends Model<UserRecord> {
     return prevMatchesQuery.all();
   }
 
-  // TODO:
   // public findAllPrevMatches() { }
 
   // ================= UPDATE ===============
@@ -191,6 +193,18 @@ export class UserModel extends Model<UserRecord> {
   public updateSkipNextMatch(email, skipNextMatch: boolean) {
     const skip_next_match = skipNextMatch ? '1' : '0';
     return this.update({ skip_next_match }, { email });
+  }
+
+  // ✅: tests written
+  public clearTodaysSkippers(weekday?: WEEKDAY) {
+    const weekdayInt: number =
+      weekday !== undefined ? weekday : new Date().getDay();
+    const updateQuery = Model.db
+      .prepare(`with todaysSkipped as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${weekdayInt}%' and U.is_active <> 0 and U.skip_next_match = 1)
+
+    UPDATE User SET skip_next_match = 0 WHERE User.id in todaysSkipped;`);
+
+    return updateQuery.run();
   }
 }
 

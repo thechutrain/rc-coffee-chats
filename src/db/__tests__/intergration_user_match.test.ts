@@ -30,7 +30,7 @@ describe('User-UserMatch-Match tests:', () => {
 
   it('should find all the previous matches of a given user', () => {
     const user_a = ALL_USERS[0];
-    const results = DB.User.findPrevActiveMatches(1, 1);
+    const results = DB.User._findPrevActiveMatches(1, 1);
 
     expect(results.length).toBe(2);
   });
@@ -96,11 +96,29 @@ describe('User-UserMatch-Match tests:', () => {
     });
   });
 
-  // TODO:
-  xit('should be able to find all the users that were skipped today', () => {});
+  it('should be able to find all the users that were skipped today', () => {
+    const skippedUsers = DB.User._findSkippingUsers(1);
+    skippedUsers.forEach(user => {
+      expect(user.skip_next_match).toBe(1);
+      const coffeeDays = user.coffee_days.split('');
+      expect(coffeeDays.indexOf('1')).not.toBe(-1);
+    });
+  });
 
-  // TODO:
-  xit("should be able to turn off a user's skipped status if and only if they were supposed to be matched today", () => {});
+  it("should be able to turn off a user's skipped status if and only if they were supposed to be matched today", () => {
+    const today = 1;
+    const skippedUsers = DB.User._findSkippingUsers(1);
+    expect(skippedUsers.length).toBeGreaterThan(0);
+    // Ensure number of people skipping on another day doesn't get reset
+    const numSkippersDiffDay = DB.User._findSkippingUsers(0).length;
+    expect(numSkippersDiffDay).toBeGreaterThan(0);
+
+    DB.User.clearTodaysSkippers(1);
+    const clearedSkippedUsers = DB.User._findSkippingUsers(1);
+    expect(clearedSkippedUsers.length).toBe(0);
+    const numSkippersDiffDayAfter = DB.User._findSkippingUsers(0).length;
+    expect(numSkippersDiffDay).toBe(numSkippersDiffDayAfter);
+  });
 });
 
 // ==== PREP ====
