@@ -5,10 +5,9 @@
 cd ~/rc-coffee-chats
 echo "" >> /root/cron-jobs/logs
 cat << BEGIN >> /root/cron-jobs/logs
-============= START: cron-job =================
+============= START: MATCHIFY =================
   TIMESTAMP @ `date`
 BEGIN
-
 
 npm run cron-matchify >> /root/cron-jobs/logs
 
