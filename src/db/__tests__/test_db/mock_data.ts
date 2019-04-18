@@ -54,6 +54,11 @@ export const ALL_USERS = [
     coffee_days: '5',
     warning_exception: '1',
     is_active: '0'
+  },
+  {
+    email: 'user to match on monday',
+    full_name: 'but no prev matches',
+    coffee_days: '1'
   }
 ];
 
