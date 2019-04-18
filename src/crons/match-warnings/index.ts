@@ -20,9 +20,9 @@ function sendNextDayMatchWarning(sendMessage = true) {
   console.log('Users to warn:');
   console.log(usersToWarn);
 
-  const warningMessage = `Just a friendly reminder that you'll be matched tomorrow for coffee chats
-  If you can't meet tomorrow and would like to cancel tomorrow's match, just type: \`\`\`**UPDATE SKIP 0**\`\`\`
-  If you would no longer wish to receive these warnings messages, just type: \`\`\`**UPDATE WARNINGS 0**\`\`\`
+  const warningMessage = `Hi there 👋\nJust a friendly reminder that you'll be matched tomorrow for coffee chats
+  If you can't meet tomorrow and would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIP 0\`\`\`
+  If you would no longer wish to receive these warnings messages, just type: \`\`\`UPDATE WARNINGS 0\`\`\`
   `;
 
   if (sendMessage) {
