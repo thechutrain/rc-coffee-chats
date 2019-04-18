@@ -44,6 +44,7 @@ describe('User-UserMatch-Match tests:', () => {
      *  skip_next_match = 0;
      *  coffeeDays=has to have 1
      */
+
     usersToMatchMonday.forEach(user => {
       expect(user.is_active).toBe(1);
       expect(user.skip_next_match).toBe(0);
@@ -51,7 +52,8 @@ describe('User-UserMatch-Match tests:', () => {
       expect(coffeeDays.indexOf('1')).not.toBe(-1);
     });
 
-    expect(usersToMatchMonday.length).toBe(3);
+    // CASE: should find users to match:
+    expect(usersToMatchMonday.length).toBe(4); // User E, User C, User A, User to match on monday
   });
 
   it('should be able to get users to match and only include prevmatches of users who are trying to match today', () => {
@@ -73,7 +75,7 @@ describe('User-UserMatch-Match tests:', () => {
         expect(todaysUsers.indexOf(prevmatch.email)).not.toBe(-1);
       }
     });
-    expect(usersPrevMatch.length).toBe(3);
+    expect(usersPrevMatch.length).toBe(4); // User E, User C, User A, User to match on monday
   });
 
   it('should be able to get users to match today, who are active and not skipping', () => {

@@ -87,35 +87,6 @@ export class UserModel extends Model<UserRecord> {
     return findTodaysSkipped.all();
   }
 
-  /** ️✳️ Query used for Matchify cron
-   * Finds all the users who want to be matched today and all of their previous matches
-   * @param inputWeekday
-   */
-  // ✅: tests written
-  public findUsersPrevMatchesToday(
-    inputWeekday?: number
-  ): UserWithPrevMatchRecord[] {
-    const weekday: number =
-      inputWeekday !== undefined
-        ? inputWeekday
-        : moment()
-            .tz('America/New_York')
-            .day();
-
-    console.log('USERS TO MATCH FROM USER_MODEL!!');
-    console.log(this._findUsersToMatch(weekday));
-
-    const usersToMatchToday = this._findUsersToMatch(weekday);
-    return usersToMatchToday.map(user => {
-      const prevMatches = this._findPrevActiveMatches(user.id, weekday);
-
-      return {
-        ...user,
-        prevMatches
-      };
-    });
-  }
-
   /** ✳️ Query userd for Warning Cron job
    *
    * Gets all the active users who are planning on being matched tomorrow and
@@ -136,15 +107,41 @@ export class UserModel extends Model<UserRecord> {
 
     return nextDayWarnings.all();
   }
+
+  /** ️✳️ Query used for Matchify cron
+   * Finds all the users who want to be matched today and all of their previous matches
+   * @param inputWeekday
+   */
+  // ✅: tests written
+  public findUsersPrevMatchesToday(
+    inputWeekday?: number
+  ): UserWithPrevMatchRecord[] {
+    const weekday: number =
+      inputWeekday !== undefined
+        ? inputWeekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+
+    const usersToMatchToday = this._findUsersToMatch(weekday);
+
+    return usersToMatchToday.map(user => {
+      const prevMatches = this._findPrevActiveMatches(user.id, weekday);
+
+      return {
+        ...user,
+        prevMatches
+      };
+    });
+  }
+
   /**
    * Finds users who want to be matched for the given day, sorted by users who
    * have the most number of matches first.
    * @param weekday
    */
   // ✅: tests written
-  public _findUsersToMatch(
-    weekday?: number
-  ): Array<UserRecord & { num_matches: number }> {
+  public _findUsersToMatch(weekday?: number): UserWithPrevMatchRecord[] {
     const matchDayInt =
       weekday !== undefined
         ? weekday
@@ -165,11 +162,21 @@ export class UserModel extends Model<UserRecord> {
      order by num_matches desc
      )
 
-    SELECT U2.*, prevMatches.num_matches from prevMatches LEFT JOIN User U2
-    ON U2.id = prevMatches.user_id;
+    SELECT U2.*, prevMatches.num_matches from User U2
+      LEFT JOIN prevMatches
+      ON prevMatches.user_id = U2.id
+      WHERE U2.coffee_days LIKE '%1%' and U2.is_active <> 0 and U2.skip_next_match <> 1;
     `);
 
-    return findMatches.all();
+    // NOTE: num_matches will be null if there are no prevmatches --> ensures num_matches
+    // will be a number:
+    return findMatches.all().map(userRecord => {
+      return {
+        ...userRecord,
+        num_matches:
+          userRecord.num_matches === null ? 0 : userRecord.num_matches
+      };
+    });
   }
 
   /**
