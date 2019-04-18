@@ -102,8 +102,7 @@ export class UserModel extends Model<UserRecord> {
             .tz('America/New_York')
             .day();
 
-    console.log(weekday);
-
+    console.log('USERS TO MATCH FROM USER_MODEL!!');
     console.log(this._findUsersToMatch(weekday));
 
     const usersToMatchToday = this._findUsersToMatch(weekday);
