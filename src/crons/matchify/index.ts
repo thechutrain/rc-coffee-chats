@@ -11,6 +11,7 @@
  */
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
+import 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
@@ -31,7 +32,9 @@ type logDataType = {
 
 export function makeMatches(sendMessages = false) {
   const db = initDB();
-  const today = moment().day();
+  const today = moment()
+    .tz('America/New_York')
+    .day();
 
   ////////////////////
   // Get Users to Match
@@ -141,7 +144,9 @@ export function makeMatches(sendMessages = false) {
   // Logging
   ////////////////////
   // ====== debugging =====
-  const localTime = moment().format('LLLL');
+  const localTime = moment()
+    .tz('America/New_York')
+    .format('LLLL');
   console.log(`====== makeMatches() ======\n${localTime}`);
   console.log(`>> Users who want to be matched`);
   // console.log(usersToMatch);
