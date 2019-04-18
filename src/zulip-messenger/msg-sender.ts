@@ -183,6 +183,13 @@ export function createMessageContent(
       }/issues)`
     },
     ////////////////////////
+    // BLank Message
+    ////////////////////////
+    BLANK: {
+      reqVars: ['message'],
+      template: `${vars.message}`
+    },
+    ////////////////////////
     // Error Messages
     ////////////////////////
     ERROR: {

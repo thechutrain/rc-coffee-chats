@@ -7,13 +7,21 @@ import * as types from '../types';
 export function actionCreater(req: types.IZulipRequest, res, next) {
   const { isRegistered, email } = req.local.user;
   let actionType: types.Action | null = null;
+  const justGreetingMe =
+    req.body.data.match(/hi/gi) ||
+    req.body.data.match(/hello/gi) ||
+    req.body.data.match(/sup/gi);
+
   // Case: not registered user
   if (!isRegistered) {
     const wantsToSignUp = req.body.data.match(/signup/gi);
     actionType = wantsToSignUp
       ? types.Action.__REGISTER
       : types.Action.__PROMPT_SIGNUP;
+  } else if (justGreetingMe) {
+    actionType = types.Action.BOT__HI;
   } else {
+    // DEFAULT: creation of action
     try {
       actionType = getAction(req.local.cmd);
     } catch (e) {
