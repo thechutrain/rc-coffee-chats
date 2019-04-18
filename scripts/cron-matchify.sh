@@ -3,17 +3,17 @@
 # runs chron job for matching all users & sending zulip messages
 
 cd ~/rc-coffee-chats
-echo "" >> /root/cron-jobs/logs
-cat << BEGIN >> /root/cron-jobs/logs
+echo "" >> ~/cron-jobs/logs
+cat << _BEGIN >> ~/cron-jobs/logs
 ============= START: MATCHIFY =================
-  TIMESTAMP @ `date`
-BEGIN
+  START TIMESTAMP @ `date`
+_BEGIN
 
-npm run cron-matchify >> /root/cron-jobs/logs
+npm run cron-matchify >> ~/cron-jobs/logs
 
-cat << FINISH >> /root/cron-jobs/logs
-============= START: cron-job =================
-  TIMESTAMP @ `date`
-FINISH
+cat << _FINISH >> ~/cron-jobs/logs
+  FINISH TIMESTAMP @ `date`
+============= FINISHED: MATCHIFY =================
+_FINISH
 
 
