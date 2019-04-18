@@ -20,6 +20,18 @@
     "cron-warnings": "cross-env NODE_ENV=production ts-node src/crons/match-warnings",
     "_notify-users": "cross-env NODE_ENV=production ts-node src/crons/notify-users"
   },
+  "lint-staged": {
+    "src/*.ts": [
+      "npm run format",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "better-sqlite3": "^5.4.0",
