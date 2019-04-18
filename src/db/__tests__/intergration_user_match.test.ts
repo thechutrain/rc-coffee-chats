@@ -129,7 +129,7 @@ describe('User-UserMatch-Match tests:', () => {
     );
 
     needWarningMessage.forEach(user => {
-      expect(user.warning_exception).toBe(1);
+      expect(user.warning_exception).toBe(0);
       expect(user.is_active).toBe(1);
       const coffeeDays = user.coffee_days.split('');
       expect(coffeeDays.indexOf('5')).not.toBe(-1);

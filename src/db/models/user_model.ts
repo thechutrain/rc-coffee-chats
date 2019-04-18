@@ -60,8 +60,10 @@ export class UserModel extends Model<UserRecord> {
   }
 
   public findActiveUsers(): UserRecord[] {
-    const findStatement = Model.db.prepare(`SELECT * FROM User U WHERE U.is_active = 1`);
-    return findStatement.all()
+    const findStatement = Model.db.prepare(
+      `SELECT * FROM User U WHERE U.is_active = 1`
+    );
+    return findStatement.all();
   }
 
   /**
@@ -112,7 +114,7 @@ export class UserModel extends Model<UserRecord> {
     const tomorrowInt = (todayInt + 1) % 7;
 
     const nextDayWarnings = Model.db.prepare(`SELECT *  
-    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception =1 AND U.skip_next_match <> 1 AND U.is_active = 1`);
+    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception = 0 AND U.skip_next_match <> 1 AND U.is_active = 1`);
 
     return nextDayWarnings.all();
   }
