@@ -40,7 +40,14 @@ export function makeMatches(sendMessages = false) {
   // Get Users to Match
   ////////////////////
   const usersToMatch: UserWithPrevMatchRecord[] = (() => {
-    return db.User.findUsersPrevMatchesToday();
+    // return db.User.findUsersPrevMatchesToday();
+    return db.User.findActiveUsers().map(user => {
+      return {
+        ...user,
+        num_matches: 0,
+        prevMatches: []
+      };
+    });
   })();
 
   // Clear all the skip next match warnings for todays people
