@@ -1,3 +1,4 @@
+import moment from 'moment';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { WEEKDAY } from '../../types';
@@ -72,7 +73,7 @@ export class UserModel extends Model<UserRecord> {
    */
   public _findSkippingUsers(weekday?: WEEKDAY): UserRecord[] {
     const matchDayInt: number =
-      weekday !== undefined ? weekday : new Date().getDay();
+      weekday !== undefined ? weekday : moment().day();
 
     const findTodaysSkipped = Model.db.prepare(
       `SELECT * FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match = 1`
@@ -90,7 +91,7 @@ export class UserModel extends Model<UserRecord> {
     inputWeekday?: WEEKDAY
   ): UserWithPrevMatchRecord[] {
     const weekday: number =
-      inputWeekday !== undefined ? inputWeekday : new Date().getDay();
+      inputWeekday !== undefined ? inputWeekday : moment().day();
 
     const usersToMatchToday = this._findUsersToMatch(weekday);
     return usersToMatchToday.map(user => {
@@ -110,7 +111,7 @@ export class UserModel extends Model<UserRecord> {
    * @param weekday
    */
   public findUsersNextDayMatchWarning(weekday?: WEEKDAY): UserRecord[] {
-    const todayInt = weekday !== undefined ? weekday : new Date().getDay();
+    const todayInt = weekday !== undefined ? weekday : moment().day();
     const tomorrowInt = (todayInt + 1) % 7;
 
     const nextDayWarnings = Model.db.prepare(`SELECT *  
@@ -127,7 +128,7 @@ export class UserModel extends Model<UserRecord> {
   public _findUsersToMatch(
     weekday?: WEEKDAY
   ): Array<UserRecord & { num_matches: number }> {
-    const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
+    const matchDayInt = weekday !== undefined ? weekday : moment().day();
 
     const findMatches = Model.db.prepare(`
     with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
@@ -218,8 +219,7 @@ export class UserModel extends Model<UserRecord> {
 
   // ✅: tests written
   public clearTodaysSkippers(weekday?: WEEKDAY) {
-    const weekdayInt: number =
-      weekday !== undefined ? weekday : new Date().getDay();
+    const weekdayInt: number = weekday !== undefined ? weekday : moment().day();
     const updateQuery = Model.db
       .prepare(`with todaysSkipped as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${weekdayInt}%' and U.is_active <> 0 and U.skip_next_match = 1)
 

@@ -1,3 +1,4 @@
+import moment from 'moment';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
@@ -6,8 +7,7 @@ import { UserRecord } from '../../db/dbTypes';
 
 const usersToWarn: UserRecord[] = (() => {
   const db = initDB();
-  const today = new Date().getDay();
-  // const today = 2;
+  const today = moment().day();
 
   return db.User.findUsersNextDayMatchWarning(today);
 })();

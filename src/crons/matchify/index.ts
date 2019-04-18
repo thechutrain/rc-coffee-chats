@@ -10,6 +10,7 @@
  *  -- send message to admin folks the results of the match pairs!
  */
 import { cloneDeep } from 'lodash';
+import moment from 'moment';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
@@ -30,7 +31,7 @@ type logDataType = {
 
 export function makeMatches(sendMessages = false) {
   const db = initDB();
-  const today = new Date().getDay();
+  const today = moment().day();
 
   ////////////////////
   // Get Users to Match
@@ -44,7 +45,6 @@ export function makeMatches(sendMessages = false) {
 
   // ==== debugging =====
   // console.log(usersToMatch);
-  const total_num_matches = usersToMatch.length;
   // console.log(`Total number of matches: ${total_num_matches}`);
 
   ////////////////////
@@ -142,11 +142,16 @@ export function makeMatches(sendMessages = false) {
   // Logging
   ////////////////////
   // ====== debugging =====
+  const localTime = moment().format('LLLL');
+  console.log(`====== makeMatches() ======\n${localTime}`);
+  console.log(`>> Users who want to be matched`);
+  // console.log(usersToMatch);
+  console.log('\n>> Matches:');
   console.log(emailMatches);
-  console.log(emailMatches.length);
-  console.log(`Total number of matches: ${total_num_matches}`);
+  console.log(`total number of match pairs: ${emailMatches.length}`);
+  console.log(`>> fall back:`);
   console.log(fallBackMatch);
-  console.log(`Number of repeated matches: ${num_repeated_matches}`);
+  console.log(`\nNumber of repeated matches: ${num_repeated_matches}`);
 }
 
 // IMPORTANT!!! 💣
