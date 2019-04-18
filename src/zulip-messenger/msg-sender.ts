@@ -178,7 +178,7 @@ export function createMessageContent(
     BOT_ISSUES_MANY: {
       template: `☕️ bot isn't doing great. I've got a lot of issues 😞. Precisely ${
         vars.num_issues
-      } issues, but who's even counting... But that's alright because I know that you can make me better one issue at a time! Learn more at [issues](${
+      } issues, but who's even counting... But that's alright because I know that you care and you can make me better one issue at a time. Learn more at [issues](${
         process.env.GITHUB_URL
       }/issues)`
     },
