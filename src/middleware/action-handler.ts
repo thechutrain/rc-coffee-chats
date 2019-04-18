@@ -206,8 +206,17 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   BOT__ISSUES() {
     return new Promise(async resolve => {
       const num_issues = await getProjectIssues();
+      let msgTemplate: types.msgTemplate;
 
-      resolve({ msgTemplate: types.msgTemplate.HELP_SHOW });
+      if (num_issues === 0) {
+        msgTemplate = types.msgTemplate.BOT_ISSUES_NONE;
+      } else if (num_issues < 4) {
+        msgTemplate = types.msgTemplate.BOT_ISSUES_FEW;
+      } else {
+        msgTemplate = types.msgTemplate.BOT_ISSUES_MANY;
+      }
+
+      resolve({ msgTemplate, msgArgs: { num_issues: `${num_issues}` } });
     });
   }
 };

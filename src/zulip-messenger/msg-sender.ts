@@ -162,6 +162,27 @@ export function createMessageContent(
       `
     },
     ////////////////////////
+    // BOT related messages
+    ////////////////////////
+    BOT_ISSUES_NONE: {
+      template: `☕️ bot is doing great! 🎉 I am flawless, don't even have a single issue!`
+    },
+    BOT_ISSUES_FEW: {
+      reqVars: ['num_issues'],
+      template: `☕️ bot is doing alright. I've got ${
+        vars.num_issues
+      } issue(s). You can make me happy by fixing my issues. See more at [issues](${
+        process.env.GITHUB_URL
+      }/issues)`
+    },
+    BOT_ISSUES_MANY: {
+      template: `☕️ bot isn't doing great. I've got a lot of issues 😞. Precisely ${
+        vars.num_issues
+      } issues, but who's even counting... But that's alright because I know that you can make me better one issue at a time! Learn more at [issues](${
+        process.env.GITHUB_URL
+      }/issues)`
+    },
+    ////////////////////////
     // Error Messages
     ////////////////////////
     ERROR: {

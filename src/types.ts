@@ -157,6 +157,11 @@ export enum msgTemplate {
   // CHRON Messags:
   'YOUR_MATCH' = 'YOUR_MATCH',
 
+  // BOT-related messages:
+  'BOT_ISSUES_MANY' = 'BOT_ISSUES_MANY',
+  'BOT_ISSUES_FEW' = 'BOT_ISSUES_FEW',
+  'BOT_ISSUES_NONE' = 'BOT_ISSUES_NONE',
+
   // Error
   'ERROR' = 'ERROR'
 }
