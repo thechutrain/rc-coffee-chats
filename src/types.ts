@@ -88,7 +88,7 @@ export enum Action {
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW'
-  // 'HELP_UPDATE' = 'HELP_UPDATE'
+  'HELP__UPDATE' = 'HELP__UPDATE'
 }
 
 export interface IActionObj {
@@ -152,6 +152,7 @@ export enum msgTemplate {
   // 'HELP_STATUS' = 'HELP_STATUS',
   'HELP' = 'HELP',
   'HELP_SHOW' = 'HELP_SHOW',
+  'HELP_UPDATE' = 'HELP_UPDATE',
 
   // CHRON Messags:
   'YOUR_MATCH' = 'YOUR_MATCH',

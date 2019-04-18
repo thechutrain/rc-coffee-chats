@@ -147,10 +147,16 @@ export function createMessageContent(
     },
     HELP_SHOW: {
       template: `Here are the valid subcommands associated with the **SHOW** directive:
-     \n
      * \`\`\`SHOW DAYS\`\`\` 
      * \`\`\`SHOW SKIP\`\`\` 
      * \`\`\`SHOW WARNINGS\`\`\` 
+      `
+    },
+    HELP_UPDATE: {
+      template: `Here are the valid subcommands associated with the **UPDATE** directive. Valid arguments for each command are listed in the square braces:
+     * \`\`\`UPDATE DAYS [mon tue wed thu fri sat sun]\`\`\` 
+     * \`\`\`UPDATE SKIP [0, 1]\`\`\` 
+     * \`\`\`UPDATE WARNINGS [0, 1]\`\`\` 
       `
     },
     ////////////////////////

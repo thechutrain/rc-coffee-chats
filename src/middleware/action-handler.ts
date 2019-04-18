@@ -172,6 +172,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   HELP__SHOW() {
     return { msgTemplate: types.msgTemplate.HELP_SHOW };
+  },
+  HELP__UPDATE() {
+    return { msgTemplate: types.msgTemplate.HELP_UPDATE };
   }
 };
 
