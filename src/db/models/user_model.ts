@@ -104,6 +104,8 @@ export class UserModel extends Model<UserRecord> {
 
     console.log(weekday);
 
+    console.log(this._findUsersToMatch(weekday));
+
     const usersToMatchToday = this._findUsersToMatch(weekday);
     return usersToMatchToday.map(user => {
       const prevMatches = this._findPrevActiveMatches(user.id, weekday);
