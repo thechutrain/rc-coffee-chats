@@ -87,7 +87,7 @@ export enum Action {
   // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
 
   'HELP' = 'HELP',
-  'HELP__SHOW' = 'HELP__SHOW'
+  'HELP__SHOW' = 'HELP__SHOW',
   'HELP__UPDATE' = 'HELP__UPDATE'
 }
 
