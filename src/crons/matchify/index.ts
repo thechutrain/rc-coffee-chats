@@ -69,12 +69,6 @@ export function makeMatches(sendMessages = false) {
     return createSuitorAcceptorPool(usersToMatch, fallBackUser);
   })();
 
-  // Add the fallBackMatch to the list of users to match:
-  let fallBackPair: any;
-  if (fallBackMatch !== null) {
-    fallBackPair = [fallBackUser, fallBackMatch];
-  }
-
   // ====== debugging =====
   // console.log(`Fall back match: ${JSON.stringify(fallBackMatch)}`);
   // console.log(`Size of suitors: ${suitors.size}`);
@@ -101,6 +95,11 @@ export function makeMatches(sendMessages = false) {
       acceptorSuitorMatches: _acceptorSuitorMatches
     };
   })(cloneDeep(suitors), cloneDeep(acceptors));
+
+  // Add the fallBackMatch to the list of users to match:
+  if (fallBackMatch !== null) {
+    emailMatches.push([fallBackUser.email, fallBackMatch.email]);
+  }
 
   ////////////////////
   // Test for the number of previous matches?
