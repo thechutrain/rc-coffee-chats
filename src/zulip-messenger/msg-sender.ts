@@ -141,7 +141,6 @@ export function createMessageContent(
       \`\`\`SHOW | UPDATE | HELP\`\`\`
       To learn more about the **SHOW** or **UPDATE** commands, you can type:
       \`\`\`**HELP SHOW**\`\`\` or \`\`\`**HELP UPDATE**\`\`\`
-
       I'm also open-sourced, so you can help contribute and make me better :smile:
       You can see find my inner workings @ [github](${
         process.env.HELP_URL
