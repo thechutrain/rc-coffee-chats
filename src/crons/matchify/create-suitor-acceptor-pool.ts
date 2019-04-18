@@ -10,27 +10,32 @@ import {
   makeSuitorPool,
   makeAcceptorPool
 } from '../../matching-algo/stable-marriage-matching/helper-fn-marriage';
-
-export type basicPrevMatch = {
-  email: string;
-  date?: string;
-};
-export type basicUser = {
-  email: string;
-  prevMatches: basicPrevMatch[];
-};
+import {
+  UserWithPrevMatchRecord,
+  PrevMatchRecord
+} from '../../db/models/user_model';
+// export type basicPrevMatch = {
+//   email: string;
+//   date?: string;
+// };
+// export type basicUser = {
+//   email: string;
+//   prevMatches: basicPrevMatch[];
+// };
 
 // ✅ tested!
-export function findUserPriority<U extends basicUser>(
-  currUser: U,
-  _requiredUsersForPriority: U[]
-): U[] {
-  const requiredUsers: U[] = cloneDeep(_requiredUsersForPriority);
-  const uniqueMatches: U[] = [];
-  const nonUniqueMatches: U[] = [];
+export function findUserPriority(
+  currUser: UserWithPrevMatchRecord,
+  _requiredUsersForPriority: UserWithPrevMatchRecord[]
+): UserWithPrevMatchRecord[] {
+  const requiredUsers: UserWithPrevMatchRecord[] = cloneDeep(
+    _requiredUsersForPriority
+  );
+  const uniqueMatches: UserWithPrevMatchRecord[] = [];
+  const nonUniqueMatches: UserWithPrevMatchRecord[] = [];
 
   // Note: SQL query returns prevMatches based on last date, preserve this order
-  currUser.prevMatches.forEach((prevMatch: basicPrevMatch) => {
+  currUser.prevMatches.forEach((prevMatch: PrevMatchRecord) => {
     // Note: current user's previous match may or may not be in the pool of requiredUsersForPriority since they are split randomly into two separate sets
     const prevMatchEmail = prevMatch.email;
     let prevMatchFound = -1;
@@ -51,16 +56,16 @@ export function findUserPriority<U extends basicUser>(
 }
 
 // ✅ tested!1
-export function createSuitorAcceptorPool<A extends basicUser>(
-  users: A[],
-  fallBackPerson: basicUser
+export function createSuitorAcceptorPool(
+  users: UserWithPrevMatchRecord[],
+  fallBackPerson: UserWithPrevMatchRecord
 ): {
-  suitors: Map<mTypes.marriage_id, mTypes.Suitor<A>>;
-  acceptors: Map<mTypes.marriage_id, mTypes.Acceptor<A>>;
-  fallBackMatch: A | null;
+  suitors: Map<mTypes.marriage_id, mTypes.Suitor<UserWithPrevMatchRecord>>;
+  acceptors: Map<mTypes.marriage_id, mTypes.Acceptor<UserWithPrevMatchRecord>>;
+  fallBackMatch: UserWithPrevMatchRecord | null;
 } {
   const userCopy = cloneDeep(users);
-  let fallBackMatch: null | A = null;
+  let fallBackMatch: null | UserWithPrevMatchRecord = null;
   if (!isEvenNumberUsers(userCopy)) {
     // TODO: Improved feature that removes a user who hasn't matched with fallback person!
     const fallBackIndex = findFallBackMatch(userCopy, fallBackPerson);
@@ -100,9 +105,9 @@ export function createSuitorAcceptorPool<A extends basicUser>(
  *
  *
  */
-export function findFallBackMatch<A extends basicUser>(
-  people: A[],
-  fallBackPerson: A
+export function findFallBackMatch(
+  people: UserWithPrevMatchRecord[],
+  fallBackPerson: UserWithPrevMatchRecord
 ): number {
   // let match: A | null = null;
   for (let i = people.length - 1; i >= 0; i--) {
@@ -122,6 +127,6 @@ export function findFallBackMatch<A extends basicUser>(
   return 0;
 }
 
-export function isEvenNumberUsers<A>(people: A[]): boolean {
+export function isEvenNumberUsers(people: UserWithPrevMatchRecord[]): boolean {
   return people.length % 2 === 0;
 }

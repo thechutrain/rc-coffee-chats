@@ -44,6 +44,10 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
 // NOTE: will never return null action, by default will return HELP action
 export function getAction(cli: types.IParsedCmd): types.Action {
+  // TODO:
+  // If user only has subcommand && subcommand = show, update --> change the action
+
+  // DEFAULT ACTION creator:
   const command = cli.subcommand
     ? `${cli.directive}__${cli.subcommand}`
     : `${cli.directive}`;

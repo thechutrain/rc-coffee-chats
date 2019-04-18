@@ -26,19 +26,14 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
-  // TODO: why is ts giving me this error?
-  // @ts-ignore
-  return axios({
-    method: 'post',
-    baseURL: process.env.ZULIP_URL_ENDPOINT,
+  return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     auth: {
-      username: process.env.ZULIP_BOT_USERNAME,
-      password: process.env.ZULIP_BOT_API_KEY
-    },
-    data: dataAsQueryParams
+      username: `${process.env.ZULIP_BOT_USERNAME}`,
+      password: `${process.env.ZULIP_BOT_API_KEY}`
+    }
   });
 }
 
@@ -75,7 +70,7 @@ export function createMessageContent(
     // Registration related messages
     ////////////////////////
     PROMPT_SIGNUP: {
-      template: `Hello there! I'm the new :coffee: bot!
+      template: `Hello there! I'm the new :coffee: chat bot!
       You are not currently registered as a user of coffee chats.
       If you would like to join, just type: **SIGNUP**`
     },
@@ -144,11 +139,48 @@ export function createMessageContent(
       template: `Hi! I'm :coffee: bot and I'm here to help!
       To talk to me, enter a valid command that begins with the following:
       \`\`\`SHOW | UPDATE | HELP\`\`\`
+      To learn more about the **SHOW** or **UPDATE** commands, you can type:
+      \`\`\`**HELP SHOW**\`\`\` or \`\`\`**HELP UPDATE**\`\`\`
       I'm also open-sourced, so you can help contribute and make me better :smile:
       You can see find my inner workings @ [github](${
         process.env.HELP_URL
-      }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
+      }) or read my [docs](${process.env.GITHUB_URL}/wiki/)
       `
+    },
+    HELP_SHOW: {
+      template: `Here are the valid subcommands associated with the **SHOW** directive:
+     * \`\`\`SHOW DAYS\`\`\`  - shows you what days you are currently signed up to be matched on
+     * \`\`\`SHOW SKIP\`\`\` - shows you whether you will be skipping your next match or not
+     * \`\`\`SHOW WARNINGS\`\`\` - shows whether you'll receive warning notifications the night before you get matched or not
+      `
+    },
+    HELP_UPDATE: {
+      template: `Here are the valid subcommands associated with the **UPDATE** directive. Valid arguments for each command are listed in the square braces:
+     * \`\`\`UPDATE DAYS [mon tue wed thu fri sat sun]\`\`\` 
+     * \`\`\`UPDATE SKIP [0, 1]\`\`\` 
+     * \`\`\`UPDATE WARNINGS [0, 1]\`\`\` 
+      `
+    },
+    ////////////////////////
+    // BOT related messages
+    ////////////////////////
+    BOT_ISSUES_NONE: {
+      template: `☕️ bot is doing great! 🎉 I am flawless, don't even have a single issue!`
+    },
+    BOT_ISSUES_FEW: {
+      reqVars: ['num_issues'],
+      template: `☕️ bot is doing alright. I've got ${
+        vars.num_issues
+      } issue(s). You can make me happy by fixing my issues. See more at [issues](${
+        process.env.GITHUB_URL
+      }/issues)`
+    },
+    BOT_ISSUES_MANY: {
+      template: `☕️ bot isn't doing great. I've got a lot of issues 😞. Precisely ${
+        vars.num_issues
+      } issues, but who's even counting... But that's alright because I know that you care and you can make me better one issue at a time. Learn more at [issues](${
+        process.env.GITHUB_URL
+      }/issues)`
     },
     ////////////////////////
     // Error Messages

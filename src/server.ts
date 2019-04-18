@@ -1,4 +1,3 @@
-import * as path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
 import * as dotenv from 'dotenv-safe';
@@ -31,10 +30,6 @@ const actionHandler = initActionHandler(db);
 /// Server
 /////////////////
 const app = express();
-
-app.get('/', (req, res) => {
-  res.send('Im working');
-});
 
 app.use((req: types.ILocalsReq, res, next) => {
   req.local = {

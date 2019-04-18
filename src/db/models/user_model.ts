@@ -1,3 +1,5 @@
+import moment from 'moment';
+import 'moment-timezone';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { WEEKDAY } from '../../types';
@@ -59,13 +61,96 @@ export class UserModel extends Model<UserRecord> {
     return results.length ? results[0] : null;
   }
 
-  public findMatchesByDay(
-    weekday?: WEEKDAY
-  ): Array<UserRecord & { num_matches: number }> {
-    const matchDayInt = weekday !== undefined ? weekday : new Date().getDay();
+  public findActiveUsers(): UserRecord[] {
+    const findStatement = Model.db.prepare(
+      `SELECT * FROM User U WHERE U.is_active = 1`
+    );
+    return findStatement.all();
+  }
+
+  /**
+   * Finds the users who want to skip their next match
+   * @param weekday
+   */
+  public _findSkippingUsers(weekday?: WEEKDAY): UserRecord[] {
+    const matchDayInt: number =
+      weekday !== undefined
+        ? weekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+
+    const findTodaysSkipped = Model.db.prepare(
+      `SELECT * FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match = 1`
+    );
+
+    return findTodaysSkipped.all();
+  }
+
+  /** ✳️ Query userd for Warning Cron job
+   *
+   * Gets all the active users who are planning on being matched tomorrow and
+   * dont have warning exceptions turned on
+   * @param weekday
+   */
+  public findUsersNextDayMatchWarning(weekday?: number): UserRecord[] {
+    const todayInt =
+      weekday !== undefined
+        ? weekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+    const tomorrowInt = (todayInt + 1) % 7;
+
+    const nextDayWarnings = Model.db.prepare(`SELECT *  
+    FROM User U WHERE U.coffee_days LIKE '%${tomorrowInt}%' AND U.warning_exception = 0 AND U.skip_next_match <> 1 AND U.is_active = 1`);
+
+    return nextDayWarnings.all();
+  }
+
+  /** ️✳️ Query used for Matchify cron
+   * Finds all the users who want to be matched today and all of their previous matches
+   * @param inputWeekday
+   */
+  // ✅: tests written
+  public findUsersPrevMatchesToday(
+    inputWeekday?: number
+  ): UserWithPrevMatchRecord[] {
+    const weekday: number =
+      inputWeekday !== undefined
+        ? inputWeekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+
+    const usersToMatchToday = this._findUsersToMatch(weekday);
+
+    return usersToMatchToday.map(user => {
+      const prevMatches = this._findPrevActiveMatches(user.id, weekday);
+
+      return {
+        ...user,
+        prevMatches
+      };
+    });
+  }
+
+  /**
+   * Finds users who want to be matched for the given day, sorted by users who
+   * have the most number of matches first.
+   * @param weekday
+   */
+  // ✅: tests written
+  public _findUsersToMatch(weekday?: number): UserWithPrevMatchRecord[] {
+    const matchDayInt =
+      weekday !== undefined
+        ? weekday
+        : moment()
+            .tz('America/New_York')
+            .day();
 
     const findMatches = Model.db.prepare(`
-    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
+    with todayMatches as (SELECT U.id FROM User U WHERE U.coffee_days LIKE '%${matchDayInt}%' and U.is_active <> 0 and U.skip_next_match <> 1),
 
     prevMatches as (SELECT UM.user_id, count (UM.user_id) as num_matches from User_Match UM
     LEFT JOIN MATCH M
@@ -77,11 +162,21 @@ export class UserModel extends Model<UserRecord> {
      order by num_matches desc
      )
 
-    SELECT U2.*, prevMatches.num_matches from prevMatches LEFT JOIN User U2
-    ON U2.id = prevMatches.user_id;
+    SELECT U2.*, prevMatches.num_matches from User U2
+      LEFT JOIN prevMatches
+      ON prevMatches.user_id = U2.id
+      WHERE U2.coffee_days LIKE '%1%' and U2.is_active <> 0 and U2.skip_next_match <> 1;
     `);
 
-    return findMatches.all();
+    // NOTE: num_matches will be null if there are no prevmatches --> ensures num_matches
+    // will be a number:
+    return findMatches.all().map(userRecord => {
+      return {
+        ...userRecord,
+        num_matches:
+          userRecord.num_matches === null ? 0 : userRecord.num_matches
+      };
+    });
   }
 
   /**
@@ -89,7 +184,8 @@ export class UserModel extends Model<UserRecord> {
    * @param user_id
    * @param weekday
    */
-  public findPrevActiveMatches(
+  // ✅: tests written
+  public _findPrevActiveMatches(
     user_id: number,
     weekday: WEEKDAY
   ): PrevMatchRecord[] {
@@ -121,6 +217,8 @@ export class UserModel extends Model<UserRecord> {
     return prevMatchesQuery.all();
   }
 
+  // public findAllPrevMatches() { }
+
   // ================= UPDATE ===============
   public updateDays(email: string, weekdays: WEEKDAY[]) {
     const weekdayStr = weekdays
@@ -146,6 +244,22 @@ export class UserModel extends Model<UserRecord> {
   public updateSkipNextMatch(email, skipNextMatch: boolean) {
     const skip_next_match = skipNextMatch ? '1' : '0';
     return this.update({ skip_next_match }, { email });
+  }
+
+  // ✅: tests written
+  public clearTodaysSkippers(weekday?: WEEKDAY) {
+    const weekdayInt: number =
+      weekday !== undefined
+        ? weekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+    const updateQuery = Model.db
+      .prepare(`with todaysSkipped as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${weekdayInt}%' and U.is_active <> 0 and U.skip_next_match = 1)
+
+    UPDATE User SET skip_next_match = 0 WHERE User.id in todaysSkipped;`);
+
+    return updateQuery.run();
   }
 }
 

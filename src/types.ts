@@ -30,6 +30,7 @@ export interface IZulipRequest extends Express.Request {
     cmd: IParsedCmd;
     action: IActionObj;
     errors: IError[];
+    // TODO: DEPRECATE THIS
     sqlResult?: any;
     msgInfo: IMsgInfo;
   };
@@ -83,9 +84,11 @@ export enum Action {
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
-  // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
+  'HELP' = 'HELP',
+  'HELP__SHOW' = 'HELP__SHOW',
+  'HELP__UPDATE' = 'HELP__UPDATE',
 
-  'HELP' = 'HELP'
+  'BOT__ISSUES' = 'BOT__ISSUES'
 }
 
 export interface IActionObj {
@@ -110,7 +113,7 @@ export type actionFn = (
   ctx: ICtx,
   actionArgs: any,
   zulipBody: IZulipBody
-) => IMsg;
+) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
 ////////////////////////////
@@ -148,9 +151,16 @@ export enum msgTemplate {
   // 'HELP_UPDATE' = 'HELP_UPDATE',
   // 'HELP_STATUS' = 'HELP_STATUS',
   'HELP' = 'HELP',
+  'HELP_SHOW' = 'HELP_SHOW',
+  'HELP_UPDATE' = 'HELP_UPDATE',
 
   // CHRON Messags:
   'YOUR_MATCH' = 'YOUR_MATCH',
+
+  // BOT-related messages:
+  'BOT_ISSUES_MANY' = 'BOT_ISSUES_MANY',
+  'BOT_ISSUES_FEW' = 'BOT_ISSUES_FEW',
+  'BOT_ISSUES_NONE' = 'BOT_ISSUES_NONE',
 
   // Error
   'ERROR' = 'ERROR'

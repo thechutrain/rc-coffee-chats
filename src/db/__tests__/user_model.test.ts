@@ -12,6 +12,10 @@ import {
 const DB_PATH = path.join(__dirname, 'test_db', 'user_model_test.db');
 let DB_CONNECTION;
 let User;
+let lastSqlStr = '';
+function getSqlStr(str: string) {
+  lastSqlStr = str;
+}
 
 const testEmail = 'alan@gmail.com';
 
@@ -26,7 +30,9 @@ beforeAll(done => {
   expect(didFail).toBe(true);
 
   // creates new DB
-  DB_CONNECTION = new sqlite(DB_PATH);
+  DB_CONNECTION = new sqlite(DB_PATH, {
+    verbose: getSqlStr
+  });
   expect(DB_CONNECTION.open).toBe(true);
 
   User = new UserModel(DB_CONNECTION);
@@ -90,7 +96,9 @@ describe('User Model:', () => {
     const { rawQuery } = User.initTable();
     const trimReceived = rawQuery.replace(/\s+/g, ' ').trim();
     const trimExpected = expectedQuery.replace(/\s+/g, ' ').trim();
+    const trimLastSqlStr = lastSqlStr.replace(/\s+/g, ' ').trim();
 
+    expect(trimLastSqlStr).toBe(trimExpected);
     expect(trimReceived).toBe(trimExpected);
   });
 
