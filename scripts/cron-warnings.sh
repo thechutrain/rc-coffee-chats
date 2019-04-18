@@ -4,16 +4,16 @@
 
 cd ~/rc-coffee-chats
 echo "" >> ~/cron-jobs/logs
-cat << BEGIN >> ~/cron-jobs/logs
+cat << _BEGIN >> ~/cron-jobs/logs
 ============= START: WARNINGS-NOTIFICATIONS =================
-  TIMESTAMP @ `date`
-BEGIN
+> START TIMESTAMP @ `date`
+_BEGIN
 
 npm run cron-warnings >> ~/cron-jobs/logs
 
-cat << FINISH >> ~/cron-jobs/logs
+cat << _FINISH >> ~/cron-jobs/logs
+> FINISHED TIMESTAMP @ `date`
 ============= FINISH: WARNINGS-NOTIFICATIONS =================
-  TIMESTAMP @ `date`
-FINISH
+_FINISH
 
 
