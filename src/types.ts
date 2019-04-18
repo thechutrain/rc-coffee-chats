@@ -84,11 +84,11 @@ export enum Action {
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
-  // 'STATUS' = 'STATUS', // Admin is the bot running? planning to run?
-
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
-  'HELP__UPDATE' = 'HELP__UPDATE'
+  'HELP__UPDATE' = 'HELP__UPDATE',
+
+  'BOT__ISSUES' = 'BOT__ISSUES'
 }
 
 export interface IActionObj {
@@ -113,7 +113,7 @@ export type actionFn = (
   ctx: ICtx,
   actionArgs: any,
   zulipBody: IZulipBody
-) => IMsg;
+) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
 ////////////////////////////
