@@ -2,7 +2,7 @@ import sqlite from 'better-sqlite3';
 import * as path from 'path';
 
 import activeUsers from '../migrations/activeUsers.js'; // currently subscribed to zulip users
-import { initDB } from '../../src/db';
+import { initDB } from '../../../src/db';
 
 const pathGlitchDb = path.join(__dirname, '../', 'glitch_02_09_2019.db');
 const pathNewDb = path.join(__dirname, '../', 'migrated.db');
