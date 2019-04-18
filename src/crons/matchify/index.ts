@@ -138,9 +138,22 @@ export function makeMatches(sendMessages = false) {
       const acceptorData = match[0].data as UserWithPrevMatchRecord;
       const suitorData = match[1].data as UserWithPrevMatchRecord;
       const acceptorMessage = `Hi there! 👋
-      You've been matched today with @**${suitorData.full_name}**`;
+      You've been matched today with @**${suitorData.full_name}**
+      See [${
+        suitorData.full_name.split(' ')[0]
+      }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+        suitorData.full_name
+      )}) for more details.
+     `;
+
       const suitorMessage = `Hi there! 👋
-      You've been matched today with @**${acceptorData.full_name}**`;
+      You've been matched today with @**${acceptorData.full_name}**
+      See [${
+        acceptorData.full_name.split(' ')[0]
+      }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+        acceptorData.full_name
+      )}) for more details.
+      `;
 
       sendGenericMessage(acceptorData.email, acceptorMessage);
       sendGenericMessage(suitorData.email, suitorMessage);
