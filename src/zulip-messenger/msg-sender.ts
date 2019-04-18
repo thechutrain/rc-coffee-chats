@@ -97,10 +97,10 @@ export function createMessageContent(
       template: `Your *skip next match* is set to *False*.\n\n You will be matched according to your regular schedule.`
     },
     STATUS_WARNINGS_ON: {
-      template: `Your warning settings are turned *ON*. \n\nYou will receive a message from me letting you know that you'll be matched the next day. To turn the warnings off type in the following command: **UPDATE WARNINGS False**`
+      template: `Your warning notifications are turned *ON*. \n\nYou will receive a message from me letting you know that you'll be matched the next day. To turn your warning exceptions off, type in the following command: **UPDATE WARNINGS False**`
     },
     STATUS_WARNINGS_OFF: {
-      template: `Your warning settings are turned *OFF*. \n\nYou will no longer get warnings the night before matches are made. `
+      template: `Your warning notifications  are turned *OFF*. \n\nYou will not receive warnings the night before matches are made. `
     },
 
     ////////////////////////
