@@ -203,6 +203,19 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   // BOT
   ////////////////
+  BOT__HI() {
+    return new Promise(resolve => {
+      const helloResponses = ['Hey', 'Hi', 'Howdy', '👋'];
+      const index = Math.floor(Math.random() * helloResponses.length);
+      const greeting = helloResponses[index];
+      resolve({
+        msgTemplate: types.msgTemplate.BLANK,
+        msgArgs: {
+          message: greeting
+        }
+      });
+    });
+  },
   BOT__ISSUES() {
     return new Promise(async resolve => {
       const num_issues = await getProjectIssues();

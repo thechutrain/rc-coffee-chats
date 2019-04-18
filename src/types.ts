@@ -88,7 +88,9 @@ export enum Action {
   'HELP__SHOW' = 'HELP__SHOW',
   'HELP__UPDATE' = 'HELP__UPDATE',
 
-  'BOT__ISSUES' = 'BOT__ISSUES'
+  // BOT
+  'BOT__ISSUES' = 'BOT__ISSUES',
+  'BOT__HI' = 'BOT__HI'
 }
 
 export interface IActionObj {
@@ -128,6 +130,7 @@ export interface IMsgInfo extends IMsg {
 }
 
 export enum msgTemplate {
+  'BLANK' = 'BLANK',
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
 
