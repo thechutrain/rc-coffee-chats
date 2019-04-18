@@ -93,7 +93,7 @@ export class UserModel extends Model<UserRecord> {
    */
   // ✅: tests written
   public findUsersPrevMatchesToday(
-    inputWeekday?: WEEKDAY
+    inputWeekday?: number
   ): UserWithPrevMatchRecord[] {
     const weekday: number =
       inputWeekday !== undefined
@@ -101,6 +101,8 @@ export class UserModel extends Model<UserRecord> {
         : moment()
             .tz('America/New_York')
             .day();
+
+    console.log(weekday);
 
     const usersToMatchToday = this._findUsersToMatch(weekday);
     return usersToMatchToday.map(user => {
@@ -119,7 +121,7 @@ export class UserModel extends Model<UserRecord> {
    * dont have warning exceptions turned on
    * @param weekday
    */
-  public findUsersNextDayMatchWarning(weekday?: WEEKDAY): UserRecord[] {
+  public findUsersNextDayMatchWarning(weekday?: number): UserRecord[] {
     const todayInt =
       weekday !== undefined
         ? weekday
@@ -140,7 +142,7 @@ export class UserModel extends Model<UserRecord> {
    */
   // ✅: tests written
   public _findUsersToMatch(
-    weekday?: WEEKDAY
+    weekday?: number
   ): Array<UserRecord & { num_matches: number }> {
     const matchDayInt =
       weekday !== undefined

@@ -32,15 +32,15 @@ type logDataType = {
 
 export function makeMatches(sendMessages = false) {
   const db = initDB();
-  const today = moment()
-    .tz('America/New_York')
-    .day();
+  // const today = moment()
+  //   .tz('America/New_York')
+  //   .day();
 
   ////////////////////
   // Get Users to Match
   ////////////////////
   const usersToMatch: UserWithPrevMatchRecord[] = (() => {
-    return db.User.findUsersPrevMatchesToday(today);
+    return db.User.findUsersPrevMatchesToday();
   })();
 
   // Clear all the skip next match warnings for todays people
@@ -149,7 +149,14 @@ export function makeMatches(sendMessages = false) {
     .format('LLLL');
   console.log(`====== makeMatches() ======\n${localTime}`);
   console.log(`>> Users who want to be matched`);
-  // console.log(usersToMatch);
+  console.log(
+    usersToMatch.map(user => {
+      return {
+        email: user.email
+        // prevMatches: user.prevMatches
+      };
+    })
+  );
   console.log('\n>> Matches:');
   console.log(emailMatches);
   console.log(`total number of match pairs: ${emailMatches.length}`);
