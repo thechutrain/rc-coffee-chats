@@ -175,4 +175,4 @@ export function makeMatches(sendMessages = false) {
 // IMPORTANT!!! 💣
 // only pass in true to make Matches if you want to
 // annoy and send a bunch of people matches since Im using the prod db!
-makeMatches(false);
+makeMatches(true);
