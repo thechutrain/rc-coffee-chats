@@ -12,4 +12,4 @@ const usersToWarn: UserRecord[] = (() => {
   return db.User.findUsersNextDayMatchWarning(today);
 })();
 
-// console.log(usersToWarn);
+console.log(usersToWarn);
