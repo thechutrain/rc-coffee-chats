@@ -139,9 +139,8 @@ export function createMessageContent(
       template: `Hi! I'm :coffee: bot and I'm here to help!
       To talk to me, enter a valid command that begins with the following:
       \`\`\`SHOW | UPDATE | HELP\`\`\`
-
       To learn more about the **SHOW** or **UPDATE** commands, you can type:
-      **HELP SHOW** or **HELP UPDATE**
+      \`\`\`**HELP SHOW**\`\`\` or \`\`\`**HELP UPDATE**\`\`\`
 
       I'm also open-sourced, so you can help contribute and make me better :smile:
       You can see find my inner workings @ [github](${
@@ -151,9 +150,9 @@ export function createMessageContent(
     },
     HELP_SHOW: {
       template: `Here are the valid subcommands associated with the **SHOW** directive:
-     * \`\`\`SHOW DAYS\`\`\` 
-     * \`\`\`SHOW SKIP\`\`\` 
-     * \`\`\`SHOW WARNINGS\`\`\` 
+     * \`\`\`SHOW DAYS\`\`\`  - shows you what days you are currently signed up to be matched on
+     * \`\`\`SHOW SKIP\`\`\` - shows you whether you will be skipping your next match or not
+     * \`\`\`SHOW WARNINGS\`\`\` - shows whether you'll receive warning notifications the night before you get matched or not
       `
     },
     HELP_UPDATE: {
