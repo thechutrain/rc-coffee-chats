@@ -144,7 +144,7 @@ export function createMessageContent(
       I'm also open-sourced, so you can help contribute and make me better :smile:
       You can see find my inner workings @ [github](${
         process.env.HELP_URL
-      }) or post an issue @ [issues](${process.env.GITHUB_URL}/issues)
+      }) or read my [docs](${process.env.GITHUB_URL}/wiki/)
       `
     },
     HELP_SHOW: {
