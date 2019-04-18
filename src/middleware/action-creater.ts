@@ -10,6 +10,8 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   const justGreetingMe =
     req.body.data.match(/hi/gi) ||
     req.body.data.match(/hello/gi) ||
+    req.body.data.match(/hey/gi) ||
+    req.body.data.match(/howdy/gi) ||
     req.body.data.match(/sup/gi);
 
   // Case: not registered user

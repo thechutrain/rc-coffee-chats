@@ -205,7 +205,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   BOT__HI() {
     return new Promise(resolve => {
-      const helloResponses = ['Hey', 'Hi', 'Sup', '👋'];
+      const helloResponses = ['Hey', 'Hi', 'Howdy', '👋'];
       const index = Math.floor(Math.random() * helloResponses.length);
       const greeting = helloResponses[index];
       resolve({
