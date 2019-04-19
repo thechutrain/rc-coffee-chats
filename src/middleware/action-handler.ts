@@ -145,8 +145,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       resolve({
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
-          setting_key: 'Skipping your next scheduled match',
-          setting_value: skip_next_match === 1 ? 'YES' : 'NO'
+          setting_key: 'skip next match',
+          setting_value: skip_next_match === 1 ? 'TRUE' : 'FALSE'
         }
       });
     });
