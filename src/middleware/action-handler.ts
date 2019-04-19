@@ -146,7 +146,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
           setting_key: 'Skip Next Match',
-          setting_value: skip_next_match === 1 ? 'True' : 'False'
+          setting_value: skip_next_match === 1 ? 'False' : 'True'
         }
       });
     });
