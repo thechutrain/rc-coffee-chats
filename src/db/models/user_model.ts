@@ -165,7 +165,7 @@ export class UserModel extends Model<UserRecord> {
     SELECT U2.*, prevMatches.num_matches from User U2
       LEFT JOIN prevMatches
       ON prevMatches.user_id = U2.id
-      WHERE U2.coffee_days LIKE '%1%' and U2.is_active <> 0 and U2.skip_next_match <> 1;
+      WHERE U2.coffee_days LIKE '%${matchDayInt}%' and U2.is_active <> 0 and U2.skip_next_match <> 1;
     `);
 
     // NOTE: num_matches will be null if there are no prevmatches --> ensures num_matches

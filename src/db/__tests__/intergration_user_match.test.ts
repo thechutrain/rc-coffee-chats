@@ -79,7 +79,7 @@ describe('User-UserMatch-Match tests:', () => {
   });
 
   it('should be able to get users to match today, who are active and not skipping', () => {
-    const usersPrevMatch = DB.User.findUsersPrevMatchesToday();
+    const usersPrevMatch = DB.User.findUsersPrevMatchesToday(1);
     const todaysUsers = usersPrevMatch.map(user => user.email);
 
     usersPrevMatch.forEach(user => {
