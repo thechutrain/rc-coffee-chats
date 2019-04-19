@@ -145,8 +145,8 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       resolve({
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
-          setting_key: 'Skip Next Match',
-          setting_value: skip_next_match === 1 ? 'False' : 'True'
+          setting_key: 'Skipping your next scheduled match',
+          setting_value: skip_next_match === 1 ? 'YES' : 'NO'
         }
       });
     });
@@ -175,7 +175,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
           setting_key: 'Warning Exceptions',
-          setting_value: warning_exception === 1 ? 'True' : 'False'
+          setting_value: warning_exception === 1 ? 'ON' : 'OFF'
         }
       });
     });
