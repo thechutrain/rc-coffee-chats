@@ -2,7 +2,7 @@
 // Request
 ////////////////////////////
 export interface IZulipBody {
-  data: string;
+  data: string; // same thing as message.content // TODO: maybe I should only get the data from message.content?
   trigger: string;
   token: string;
   message: {
