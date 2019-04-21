@@ -147,15 +147,11 @@ describe('User-UserMatch-Match tests:', () => {
 
   it('should be able to find all of ones previous active + non-active matches', () => {
     const prevMatches = DB.User.findPrevMatches('user A');
-    console.log(prevMatches);
 
     expect(prevMatches[0]).toHaveProperty('email', ALL_USERS[4].email);
     expect(prevMatches[1]).toHaveProperty('email', ALL_USERS[3].email);
     expect(prevMatches[2]).toHaveProperty('email', ALL_USERS[2].email);
     expect(prevMatches[3]).toHaveProperty('email', ALL_USERS[1].email);
-    // expect(prevMatches[1]).toEqual(MATCHES[3]);
-    // expect(prevMatches[2]).toEqual(MATCHES[2]);
-    // expect(prevMatches[3]).toEqual(MATCHES[1]);
   });
 });
 
