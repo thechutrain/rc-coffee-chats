@@ -2,7 +2,7 @@
 // Request
 ////////////////////////////
 export interface IZulipBody {
-  data: string;
+  data: string; // same thing as message.content // TODO: maybe I should only get the data from message.content?
   trigger: string;
   token: string;
   message: {
@@ -74,7 +74,7 @@ export enum Action {
   '__REGISTER' = '__REGISTER',
   // === SHOW actions ====
   'SHOW__DAYS' = 'SHOW__DAYS',
-  // 'SHOW_PREV' = 'SHOW_PREV',
+  'SHOW__PREVIOUS' = 'SHOW__PREVIOUS',
   'SHOW__SKIP' = 'SHOW__SKIP',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
 
@@ -146,6 +146,7 @@ export enum msgTemplate {
   'STATUS_SKIP_FALSE' = 'STATUS_SKIP_FALSE',
   'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
   'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
+  'STATUS_PREVIOUS_MATCHES' = 'STATUS_PREVIOUS_MATCHES',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',

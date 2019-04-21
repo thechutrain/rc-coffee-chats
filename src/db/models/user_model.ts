@@ -67,6 +67,31 @@ export class UserModel extends Model<UserRecord> {
     );
     return findStatement.all();
   }
+  public findPrevMatches(email: string): MatchRecord[] {
+    const { id } = this.findByEmail(email);
+    const findStatement = Model.db.prepare(`
+    SELECT U.id, U.email, U.full_name, Match.date
+    FROM User U
+    LEFT Join User_Match
+      ON U.id = User_Match.user_id
+    LEFT JOIN Match
+      ON User_Match.match_id = Match.id
+    WHERE User_Match.user_id <> ${id} 
+    AND User_Match.match_id in (
+      SELECT Match.id
+      FROM User
+      LEFT JOIN User_Match
+        ON User.id = User_Match.user_id
+      LEFT JOIN Match
+        ON User_Match.match_id = Match.id
+      WHERE User.id = ${id}
+     )
+     ORDER BY Match.date DESC
+     LIMIT 100  
+    `);
+
+    return findStatement.all();
+  }
 
   /**
    * Finds the users who want to skip their next match
@@ -280,6 +305,13 @@ export type UserRecord = {
   skip_next_match: number;
   is_active: number;
   is_faculty: number;
+};
+
+export type MatchRecord = {
+  id: number;
+  email: string;
+  full_name: string;
+  date: string;
 };
 
 export type PrevMatchRecord = {

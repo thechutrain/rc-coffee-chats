@@ -102,6 +102,12 @@ export function createMessageContent(
     STATUS_WARNINGS_OFF: {
       template: `Your warning notifications  are turned *OFF*. \n\nYou will not receive warnings the night before matches are made. `
     },
+    STATUS_PREVIOUS_MATCHES: {
+      reqVars: ['prevMatches'],
+      template: `These are your previous matches: 
+      \n
+      ${vars.prevMatches}`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions

@@ -77,6 +77,21 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+  SHOW__PREVIOUS(ctx) {
+    return new Promise(resolve => {
+      const previousMatches = ctx.db.User.findPrevMatches(ctx.userEmail);
+      const prevMatchesAsStr = previousMatches
+        .map(match => {
+          return `${match.date}: ${match.full_name}`;
+        })
+        .join('\n');
+
+      resolve({
+        msgTemplate: types.msgTemplate.STATUS_PREVIOUS_MATCHES,
+        msgArgs: { prevMatches: prevMatchesAsStr }
+      });
+    });
+  },
   ////////////////
   // UPDATE
   ////////////////

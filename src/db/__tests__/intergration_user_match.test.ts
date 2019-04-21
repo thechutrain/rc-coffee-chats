@@ -144,6 +144,15 @@ describe('User-UserMatch-Match tests:', () => {
       expect(user.is_active).toBe(1);
     });
   });
+
+  it('should be able to find all of ones previous active + non-active matches', () => {
+    const prevMatches = DB.User.findPrevMatches('user A');
+
+    expect(prevMatches[0]).toHaveProperty('email', ALL_USERS[4].email);
+    expect(prevMatches[1]).toHaveProperty('email', ALL_USERS[3].email);
+    expect(prevMatches[2]).toHaveProperty('email', ALL_USERS[2].email);
+    expect(prevMatches[3]).toHaveProperty('email', ALL_USERS[1].email);
+  });
 });
 
 // ==== PREP ====
