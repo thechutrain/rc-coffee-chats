@@ -105,7 +105,6 @@ export function createMessageContent(
     STATUS_PREVIOUS_MATCHES: {
       reqVars: ['prevMatches'],
       template: `These are your previous matches: 
-      \n
       ${vars.prevMatches}`
     },
 
