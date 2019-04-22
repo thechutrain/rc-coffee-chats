@@ -111,15 +111,16 @@ export function makeMatches(sendMessages = false) {
   emailMatches.forEach(matchPair => {
     const acceptorEmail = matchPair[0];
     const suitorEmail = matchPair[1];
-    const acceptorUserPrevMatches = (acceptors.get(acceptorEmail) as Acceptor<
-      UserWithPrevMatchRecord
-    >).data.prevMatches;
+    // TODO: fix
+    // const acceptorUserPrevMatches = (acceptors.get(acceptorEmail) as Acceptor<
+    //   UserWithPrevMatchRecord
+    // >).data.prevMatches;
 
-    acceptorUserPrevMatches.forEach(prev_match => {
-      if (prev_match.email === suitorEmail) {
-        num_repeated_matches += 1;
-      }
-    });
+    // acceptorUserPrevMatches.forEach(prev_match => {
+    //   if (prev_match.email === suitorEmail) {
+    //     num_repeated_matches += 1;
+    //   }
+    // });
   });
 
   ////////////////////
