@@ -311,7 +311,7 @@ export function initActionHandler(db: types.myDB) {
 
     // TODO: make this targetUser, originUser separate
     const userEmail = req.local.user.email;
-    const { actionType } = req.local.action;
+    const { actionType, actionArgs } = req.local.action;
     const ctx = {
       db,
       userEmail
@@ -319,7 +319,7 @@ export function initActionHandler(db: types.myDB) {
     const { msgTemplate, msgArgs } = await dispatcher(
       ctx,
       actionType,
-      req.local.cmd.args,
+      actionArgs.rawInput,
       req.body
     );
 

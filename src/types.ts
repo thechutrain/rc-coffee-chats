@@ -97,7 +97,9 @@ export enum Action {
 
 export interface IActionObj {
   actionType: Action | null;
-  actionArgs?: any;
+  actionArgs: {
+    rawInput: any;
+  };
   targetUser?: string;
 }
 

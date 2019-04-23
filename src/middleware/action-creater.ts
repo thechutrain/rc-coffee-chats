@@ -19,7 +19,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
     req.local.action = {
       actionType,
-      actionArgs: {}
+      actionArgs: {
+        rawInput: {}
+      }
     };
     next();
   } else if (!isActive) {
@@ -31,9 +33,6 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   const actionFromRegex = getActionFromRegex(req.body.data);
   if (actionFromRegex !== null) {
     req.local.action = actionFromRegex;
-    console.log(actionFromRegex);
-    next();
-    return;
   } else {
     // DEFAULT: creation of action
     try {
@@ -53,8 +52,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
         rawInput: req.local.cmd.args
       }
     };
-    next();
   }
+
+  next();
 }
 
 /**
