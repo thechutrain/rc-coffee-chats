@@ -9,50 +9,50 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   // TEMP:
   const isActive = true;
   let actionType: types.Action | null = null;
-  const justGreetingMe =
-    req.body.data.match(/hi/gi) ||
-    req.body.data.match(/hello/gi) ||
-    req.body.data.match(/hey/gi) ||
-    req.body.data.match(/howdy/gi) ||
-    req.body.data.match(/sup/gi);
 
-  // Case: not registered user
+  // Case: Handle if user is not registered or is not active
   if (!isRegistered) {
     const wantsToSignUp = req.body.data.match(/signup/gi);
     actionType = wantsToSignUp
       ? types.Action.__REGISTER
       : types.Action.__PROMPT_SIGNUP;
+
+    req.local.action = {
+      actionType,
+      actionArgs: {}
+    };
+    next();
   } else if (!isActive) {
     // TODO: implement this!
-  } else if (justGreetingMe) {
-    actionType = types.Action.BOT__HI;
-  } else {
-    // DEFAULT: creation of action
-    try {
-      actionType = getActionFromCli(req.local.cmd);
-    } catch (e) {
-      actionType = null;
+  }
 
-      req.local.errors.push({
-        errorType: types.Errors.NO_VALID_ACTION,
-        customMessage: e
-      });
-    }
+  // Special Case: where users enters a command that does not follow
+  // conventional DISPATCH__SUBCOMMAND action.
+  const actionFromCli = getActionFromRegex(req.body.data);
+  if (actionFromCli !== null) {
+    req.local.action = actionFromCli;
+    next();
+  }
+
+  // DEFAULT: creation of action
+  try {
+    actionType = getActionFromCli(req.local.cmd);
+  } catch (e) {
+    actionType = null;
+
+    req.local.errors.push({
+      errorType: types.Errors.NO_VALID_ACTION,
+      customMessage: e
+    });
   }
 
   req.local.action = {
     actionType,
-    // TODO: save args as key-values in action!
     actionArgs: {
       rawInput: req.local.cmd.args
     }
   };
 
-  // ==== DEBUG ====
-  // console.log('========= START of actionCreater middleware ==========');
-  // console.log('req.local.action: ');
-  // console.log(req.local.action);
-  // console.log('========= END of actionCreater middleware ==========\n\n');
   next();
 }
 
@@ -60,19 +60,37 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
  *
  * @param body
  */
-export function getActionFromRegex(body: string): types.Action | null {
-  const stringsToMap: Partial<Record<types.Action, string[]>> = {
-    [types.Action.BOT__HI]: ['hi', 'hello', 'howdy', 'hey', 'sup'],
-    [types.Action.UPDATE__SKIP]: ['cancel next match']
+type keyArgs = {
+  keyWords: string[];
+  actionArgs: {
+    rawInput: any;
+  };
+};
+export function getActionFromRegex(body: string): types.IActionObj | null {
+  // TODO: rename this variable: stringsToMap
+  const stringsToMap: Partial<Record<types.Action, keyArgs>> = {
+    [types.Action.BOT__HI]: {
+      keyWords: ['hi', 'hello', 'howdy', 'hey', 'sup'],
+      actionArgs: {
+        rawInput: {}
+      }
+    },
+    [types.Action.UPDATE__SKIP]: {
+      keyWords: ['cancel next match'],
+      actionArgs: {
+        rawInput: ['TRUE']
+      }
+    }
   };
 
-  const inputString = body.toLowerCase();
-
   for (const action in stringsToMap) {
-    const keyWordsArray = stringsToMap[action].join('|');
+    const keyWordsArray = stringsToMap[action].keyWords.join('|');
     const regex = new RegExp(keyWordsArray, 'gi');
     if (regex.test(body)) {
-      return types.Action[action];
+      return {
+        actionType: types.Action[action],
+        actionArgs: stringsToMap[action].actionArgs
+      };
     }
   }
 
@@ -84,6 +102,8 @@ export function getActionFromRegex(body: string): types.Action | null {
  * NOTE: will never return null action, by default will return HELP action
  * @param cli
  */
+// TODO: this should return an ActionObj, instead of just an action.
+// so its similar to getActionFromRegex
 export function getActionFromCli(cli: types.IParsedCmd): types.Action {
   // TODO:
   // If user only has subcommand && subcommand = show, update --> change the action
