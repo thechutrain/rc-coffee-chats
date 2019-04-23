@@ -28,32 +28,33 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
   // Special Case: where users enters a command that does not follow
   // conventional DISPATCH__SUBCOMMAND action.
-  const actionFromCli = getActionFromRegex(req.body.data);
-  if (actionFromCli !== null) {
-    req.local.action = actionFromCli;
+  const actionFromRegex = getActionFromRegex(req.body.data);
+  if (actionFromRegex !== null) {
+    req.local.action = actionFromRegex;
+    console.log(actionFromRegex);
+    next();
+    return;
+  } else {
+    // DEFAULT: creation of action
+    try {
+      actionType = getActionFromCli(req.local.cmd);
+    } catch (e) {
+      actionType = null;
+
+      req.local.errors.push({
+        errorType: types.Errors.NO_VALID_ACTION,
+        customMessage: e
+      });
+    }
+
+    req.local.action = {
+      actionType,
+      actionArgs: {
+        rawInput: req.local.cmd.args
+      }
+    };
     next();
   }
-
-  // DEFAULT: creation of action
-  try {
-    actionType = getActionFromCli(req.local.cmd);
-  } catch (e) {
-    actionType = null;
-
-    req.local.errors.push({
-      errorType: types.Errors.NO_VALID_ACTION,
-      customMessage: e
-    });
-  }
-
-  req.local.action = {
-    actionType,
-    actionArgs: {
-      rawInput: req.local.cmd.args
-    }
-  };
-
-  next();
 }
 
 /**
