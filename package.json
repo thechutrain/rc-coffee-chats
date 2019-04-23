@@ -14,7 +14,7 @@
     "clean:db": "rimraf .data/test.db",
     "pretest": "rimraf src/db/__tests__/**/*.db",
     "test": "cross-env DB_FILE=test.db jest",
-    "t": "jest -- -- src/chrons/make-matches/__tests__/",
+    "t": "jest --watch -- -- src/middleware",
     "build": "npm run clean && tsc",
     "cron-matchify": "cross-env NODE_ENV=production ts-node src/crons/matchify",
     "cron-warnings": "cross-env NODE_ENV=production ts-node src/crons/match-warnings",
