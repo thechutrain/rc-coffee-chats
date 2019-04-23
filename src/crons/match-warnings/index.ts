@@ -3,9 +3,10 @@ import 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
+import * as types from '../../types';
 import { initDB } from '../../db';
 import { UserRecord } from '../../db/dbTypes';
-import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
+import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
 function sendNextDayMatchWarning(sendMessage = true) {
   const usersToWarn: UserRecord[] = (() => {
@@ -20,14 +21,9 @@ function sendNextDayMatchWarning(sendMessage = true) {
   console.log('Users to warn:');
   console.log(usersToWarn);
 
-  const warningMessage = `Hi there 👋\nJust a friendly reminder that you'll be matched for coffee chats tomorrow.
-  If you would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIP 0\`\`\`
-  If you would no longer wish to receive these warnings messages, you can update your warning settings by typing:  \`\`\`UPDATE WARNINGS 0\`\`\`
-  `;
-
   if (sendMessage) {
     usersToWarn.forEach(user => {
-      sendGenericMessage(user.email, warningMessage);
+      templateMessageSender(user.email, types.msgTemplate.WARNING_NOTIFICATION);
     });
   }
 }
