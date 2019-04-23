@@ -64,6 +64,21 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+  SHOW__SKIPPING(ctx) {
+    return new Promise(resolve => {
+      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+      // TODO: feature that lets user know when their next match is schedule to be
+
+      const msgTemplate =
+        skip_next_match === 1
+          ? types.msgTemplate.STATUS_SKIP_TRUE
+          : types.msgTemplate.STATUS_SKIP_FALSE;
+
+      resolve({
+        msgTemplate
+      });
+    });
+  },
   SHOW__WARNINGS(ctx) {
     return new Promise(resolve => {
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
@@ -160,8 +175,37 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       resolve({
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
-          setting_key: 'skip next match',
-          setting_value: skip_next_match === 1 ? 'TRUE' : 'FALSE'
+          setting_key: 'SKIPPING',
+          setting_value: skip_next_match === 1 ? 'YES' : 'NO'
+        }
+      });
+    });
+  },
+  UPDATE__SKIPPING(ctx, actionArgs) {
+    return new Promise(resolve => {
+      // Validate arguments:
+      const trueArgs = ['1', 'TRUE', 'YES'];
+      const falseArgs = ['0', 'FALSE', 'NO'];
+      const validArgs = new Set([...trueArgs, ...falseArgs]);
+      if (actionArgs.length !== 1) {
+        throw new Error(
+          `Update skipping takes one boolean argument. The following are valid arguments: *${trueArgs.join(
+            ', '
+          )}, ${falseArgs.join(', ')}*`
+        );
+      } else if (!validArgs.has(actionArgs[0])) {
+        throw new Error(`${actionArgs[0]} is not a valid argument`);
+      }
+
+      const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
+      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
+
+      resolve({
+        msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+        msgArgs: {
+          setting_key: 'SKIPPING',
+          setting_value: skip_next_match === 1 ? 'YES' : 'NO'
         }
       });
     });

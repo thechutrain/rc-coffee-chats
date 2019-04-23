@@ -91,10 +91,10 @@ export function createMessageContent(
       }`
     },
     STATUS_SKIP_TRUE: {
-      template: `Your *skip next match* is set to *True*. \n\nYou will be skipping your next match`
+      template: `You will be skipping your next scheduled match\n *SKIPPING* is set to "YES"`
     },
     STATUS_SKIP_FALSE: {
-      template: `Your *skip next match* is set to *False*.\n\n You will be matched according to your regular schedule.`
+      template: `You will be matched according to your regular schedule. \n *SKIPPING* is set to "NO"`
     },
     STATUS_WARNINGS_ON: {
       template: `Your warning notifications are turned *ON*. \n\nYou will receive a message from me letting you know that you'll be matched the next day. To turn your warning exceptions off, type in the following command: **UPDATE WARNINGS False**`
@@ -113,7 +113,7 @@ export function createMessageContent(
     ////////////////////////
     UPDATED_GENERAL: {
       reqVars: ['setting_key', 'setting_value'],
-      template: `✅ successful update. \n Your *${
+      template: `✅ successful update. \n *${
         vars.setting_key
       }* is now set to: *${vars.setting_value}*`
     },
@@ -199,8 +199,8 @@ export function createMessageContent(
     ////////////////////////
     WARNING_NOTIFICATION: {
       template: `Hi there 👋\nJust a friendly reminder that you'll be matched for coffee chats tomorrow.
-      If you would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIP 1\`\`\`
-      If you would no longer wish to receive these warnings messages, you can update your warning settings by typing:  \`\`\`UPDATE WARNINGS 0\`\`\``
+      If you would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIPPING YES\`\`\` or \`\`\`cancel next match\`\`\`
+      If you would no longer wish to receive these warnings messages, you can update your warning settings by typing:  \`\`\`UPDATE WARNINGS OFF\`\`\``
     },
 
     ////////////////////////
