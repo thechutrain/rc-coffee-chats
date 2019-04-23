@@ -91,10 +91,10 @@ export function createMessageContent(
       }`
     },
     STATUS_SKIP_TRUE: {
-      template: `Your *skip next match* is set to *True*. \n\nYou will be skipping your next match`
+      template: `You will be skipping your next scheduled match`
     },
     STATUS_SKIP_FALSE: {
-      template: `Your *skip next match* is set to *False*.\n\n You will be matched according to your regular schedule.`
+      template: `You will be matched according to your regular schedule.`
     },
     STATUS_WARNINGS_ON: {
       template: `Your warning notifications are turned *ON*. \n\nYou will receive a message from me letting you know that you'll be matched the next day. To turn your warning exceptions off, type in the following command: **UPDATE WARNINGS False**`
