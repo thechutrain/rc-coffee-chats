@@ -25,7 +25,7 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   } else {
     // DEFAULT: creation of action
     try {
-      actionType = getAction(req.local.cmd);
+      actionType = getActionFromCli(req.local.cmd);
     } catch (e) {
       actionType = null;
 
@@ -52,8 +52,35 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   next();
 }
 
-// NOTE: will never return null action, by default will return HELP action
-export function getAction(cli: types.IParsedCmd): types.Action {
+/**
+ *
+ * @param body
+ */
+export function getActionFromRegex(body: string): types.Action | null {
+  const stringsToMap: Partial<Record<types.Action, string[]>> = {
+    [types.Action.BOT__HI]: ['hi', 'hello', 'howdy', 'hey', 'sup'],
+    [types.Action.UPDATE__SKIP]: ['cancel next match']
+  };
+
+  const inputString = body.toLowerCase();
+
+  for (const action in stringsToMap) {
+    const keyWordsArray = stringsToMap[action].join('|');
+    const regex = new RegExp(keyWordsArray, 'gi');
+    if (regex.test(body)) {
+      return types.Action[action];
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Parses the CLI to create an action.
+ * NOTE: will never return null action, by default will return HELP action
+ * @param cli
+ */
+export function getActionFromCli(cli: types.IParsedCmd): types.Action {
   // TODO:
   // If user only has subcommand && subcommand = show, update --> change the action
 
