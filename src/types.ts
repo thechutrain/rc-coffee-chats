@@ -167,7 +167,10 @@ export enum msgTemplate {
   'BOT_ISSUES_NONE' = 'BOT_ISSUES_NONE',
 
   // Error
-  'ERROR' = 'ERROR'
+  'ERROR' = 'ERROR',
+
+  // Cron-related:
+  'WARNING_NOTIFICATION' = 'WARNING_NOTIFICATION'
 }
 
 export type msgCreaterMap = Record<
