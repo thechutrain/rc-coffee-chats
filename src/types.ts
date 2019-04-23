@@ -76,11 +76,13 @@ export enum Action {
   'SHOW__DAYS' = 'SHOW__DAYS',
   'SHOW__PREVIOUS' = 'SHOW__PREVIOUS',
   'SHOW__SKIP' = 'SHOW__SKIP',
+  'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
   'UPDATE__SKIP' = 'UPDATE__SKIP',
+  'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
@@ -171,6 +173,9 @@ export enum msgTemplate {
 
   // Cron-related:
   'WARNING_NOTIFICATION' = 'WARNING_NOTIFICATION'
+
+  // TEMP-MESSAGES:
+  // 'DEPRECATED__SKIP' = 'DEPRECATED__SKIP' // TODO?
 }
 
 export type msgCreaterMap = Record<
