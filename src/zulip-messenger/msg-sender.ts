@@ -188,12 +188,21 @@ export function createMessageContent(
       }/issues)`
     },
     ////////////////////////
-    // BLank Message
+    // Blank Message
     ////////////////////////
     BLANK: {
       reqVars: ['message'],
       template: `${vars.message}`
     },
+    ////////////////////////
+    // Warning Messages (cron)
+    ////////////////////////
+    WARNING_NOTIFICATION: {
+      template: `Hi there 👋\nJust a friendly reminder that you'll be matched for coffee chats tomorrow.
+      If you would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIP 1\`\`\`
+      If you would no longer wish to receive these warnings messages, you can update your warning settings by typing:  \`\`\`UPDATE WARNINGS 0\`\`\``
+    },
+
     ////////////////////////
     // Error Messages
     ////////////////////////
