@@ -77,7 +77,7 @@ export function getActionFromRegex(body: string): types.IActionObj | null {
       }
     },
     [types.Action.UPDATE__SKIP]: {
-      keyWords: ['cancel next match'],
+      keyWords: ['cancel next match', 'cancel', 'skip'],
       actionArgs: {
         rawInput: ['TRUE']
       }
