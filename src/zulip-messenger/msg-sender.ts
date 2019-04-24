@@ -80,6 +80,19 @@ export function createMessageContent(
       or just type: **HELP**`
     },
     ////////////////////////
+    // Activate related messages
+    ////////////////////////
+    PROMPT_ACTIVATE: {
+      template: `Hi, looks like you are not currently an active user of chat bot and will not be paired with anyone for any chats. You can type: *ACTIVATE* to rejoin.`
+    },
+    ACTIVATE: {
+      template: `Welcome back to Chat Bot! 🎉`
+    },
+    DEACTIVATE: {
+      template: `Your account has been deactivated 😭\n We're sad to see you go, but we hope you've had some wonderful chats at RC!`
+    },
+
+    ////////////////////////
     // Messages related to SHOW actions
     ////////////////////////
 
