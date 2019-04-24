@@ -1,5 +1,6 @@
 /** ==== Middleware fn that checks if user is registered ====
  * Checks if a given user is registered in the database &
+ *
  */
 
 /** TODO:
@@ -18,31 +19,39 @@ import { myDB } from '../db/dbTypes';
 export function initRegisteredHandler(db: myDB) {
   return (req: types.IZulipRequest, _, next) => {
     const senderEmail = req.body.message.sender_email;
-    const isRegistered = db.User.emailExists(senderEmail);
 
-    // TEMP: patches missing full_name column for users
-    if (isRegistered) {
-      try {
-        console.log('updating ...');
-        console.log(req.body.message.sender_full_name);
-        db.User.update(
-          { full_name: req.body.message.sender_full_name },
-          { email: senderEmail }
-        );
-      } catch (e) {
-        console.log(
-          `Error trying to update User's full_name: ${JSON.stringify(req.body)}`
-        );
-        req.local.errors = [{ errorType: types.Errors.FAILED_UPDATE }];
-      }
+    try {
+      const user = db.User.findByEmail(senderEmail);
+
+      req.local.user = {
+        email: user.email,
+        isRegistered: true,
+        isActive: user.is_active === 1
+      };
+    } catch (e) {
+      // CASE: user does not exist in User table
+      req.local.user = {
+        email: senderEmail,
+        isRegistered: false,
+        isActive: false
+      };
+
+      return next();
     }
 
-    req.local.user = {
-      email: senderEmail,
-      isRegistered
-    };
+    // TEMP: patches missing full_name column for users
+    try {
+      db.User.update(
+        { full_name: req.body.message.sender_full_name },
+        { email: senderEmail }
+      );
+    } catch (e) {
+      console.log(
+        `Error trying to update User's full_name: ${JSON.stringify(req.body)}`
+      );
+      req.local.errors = [{ errorType: types.Errors.FAILED_UPDATE }];
+    }
 
     next();
-    return;
   };
 }
