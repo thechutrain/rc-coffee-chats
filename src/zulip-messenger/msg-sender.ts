@@ -199,7 +199,7 @@ export function createMessageContent(
     ////////////////////////
     WARNING_NOTIFICATION: {
       template: `Hi there 👋\nJust a friendly reminder that you'll be matched for coffee chats tomorrow.
-      If you would like to cancel tomorrow's match, just type: \`\`\`UPDATE SKIPPING YES\`\`\` or \`\`\`cancel next match\`\`\`
+      If you would like to cancel tomorrow's match, just type: \`\`\`skip\`\`\` or \`\`\`cancel\`\`\`
       If you would no longer wish to receive these warnings messages, you can update your warning settings by typing:  \`\`\`UPDATE WARNINGS OFF\`\`\``
     },
 
