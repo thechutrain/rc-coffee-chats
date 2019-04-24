@@ -83,7 +83,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     return new Promise(resolve => {
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
       const msgTemplate =
-        warning_exception === 1
+        warning_exception === 0
           ? types.msgTemplate.STATUS_WARNINGS_ON
           : types.msgTemplate.STATUS_WARNINGS_OFF;
 
@@ -226,15 +226,21 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      const blnWarning = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
-      ctx.db.User.updateWarnings(ctx.userEmail, blnWarning);
+      /** NOTE: warning notifications --> stored in warning_exception column
+       * TODO: change the column name for clarification
+       * warnings on --> warning_exception = 0
+       * warnings off --> warning_exception = 1
+       */
+      const warningException =
+        trueArgs.indexOf(actionArgs[0]) !== -1 ? false : true;
+      ctx.db.User.updateWarnings(ctx.userEmail, warningException);
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
 
       resolve({
         msgTemplate: types.msgTemplate.UPDATED_GENERAL,
         msgArgs: {
-          setting_key: 'Warning Exceptions',
-          setting_value: warning_exception === 1 ? 'ON' : 'OFF'
+          setting_key: 'Warning Notifications',
+          setting_value: warning_exception === 0 ? 'ON' : 'OFF'
         }
       });
     });
