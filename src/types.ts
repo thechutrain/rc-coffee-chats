@@ -25,6 +25,7 @@ export interface IZulipRequest extends Express.Request {
     user: {
       email: string;
       isRegistered: boolean;
+      isActive: boolean;
       data?: UserRecord;
     };
     cmd: IParsedCmd;
@@ -72,6 +73,10 @@ export interface IParsedCmd {
 export enum Action {
   '__PROMPT_SIGNUP' = '__PROMPT_SIGNUP',
   '__REGISTER' = '__REGISTER',
+
+  '__ACTIVATE' = '__ACTIVATE',
+  '__PROMPT_ACTIVATE' = '__PROMPT_ACTIVATE',
+
   // === SHOW actions ====
   'SHOW__DAYS' = 'SHOW__DAYS',
   'SHOW__PREVIOUS' = 'SHOW__PREVIOUS',
@@ -84,7 +89,7 @@ export enum Action {
   'UPDATE__SKIP' = 'UPDATE__SKIP',
   'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
-  // 'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
+  'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
@@ -137,6 +142,10 @@ export enum msgTemplate {
   'BLANK' = 'BLANK',
   'PROMPT_SIGNUP' = 'PROMPT_SIGNUP',
   'SIGNED_UP' = 'SIGNED_UP',
+
+  'PROMPT_ACTIVATE' = 'PROMPT_ACTIVATE',
+  'ACTIVATE' = 'ACTIVATE',
+  'DEACTIVATE' = 'DEACTIVATE',
 
   // CLI Update-related cmds
   'UPDATED_GENERAL' = 'UPDATED_GENERAL',
@@ -193,7 +202,8 @@ export enum Errors {
   'COULD_NOT_VALIDATE_ACTION' = 'COULD_NOT_VALIDATE_ACTION',
   'NO_VALID_ACTION' = 'NO_VALID_ACTION',
   'DISPATCH_ACTION_DOES_NOT_EXIST' = 'DISPATCH_ACTION_DOES_NOT_EXIST',
-  'NOPE' = 'NOPE' // TODO: temp
+  'NOPE' = 'NOPE', // TODO: temp
+  'GENERAL' = 'GENERAL'
 }
 
 ////////////////////////////
