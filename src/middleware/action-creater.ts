@@ -80,7 +80,7 @@ type keyArgs = {
 };
 export function getActionFromRegex(body: string): types.IActionObj | null {
   // TODO: rename this variable: stringsToMap
-  const stringsToMap: Partial<Record<types.Action, keyArgs>> = {
+  const actionToStrMap: Partial<Record<types.Action, keyArgs>> = {
     [types.Action.BOT__HI]: {
       keyWords: ['hi', 'hello', 'howdy', 'hey', 'sup'],
       actionArgs: {
@@ -95,13 +95,14 @@ export function getActionFromRegex(body: string): types.IActionObj | null {
     }
   };
 
-  for (const action in stringsToMap) {
-    const keyWordsArray = stringsToMap[action].keyWords.join('|');
-    const regex = new RegExp(keyWordsArray, 'gi');
+  for (const action in actionToStrMap) {
+    // NOTE: want to check that messages match exactly from start to end:
+    const keyWordsArray = actionToStrMap[action].keyWords.join('$|^');
+    const regex = new RegExp(`^${keyWordsArray}$`, 'gi');
     if (regex.test(body)) {
       return {
         actionType: types.Action[action],
-        actionArgs: stringsToMap[action].actionArgs
+        actionArgs: actionToStrMap[action].actionArgs
       };
     }
   }
