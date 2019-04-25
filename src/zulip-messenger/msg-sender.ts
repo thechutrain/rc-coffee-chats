@@ -210,6 +210,17 @@ export function createMessageContent(
     ////////////////////////
     // Warning Messages (cron)
     ////////////////////////
+    TODAYS_MATCH: {
+      reqVars: ['full_name', 'first_name'],
+      template: `Hi there! 👋
+      You've been matched today with @**${vars.full_name}**
+      See [${
+        vars.first_name
+      }'s profile](https://www.recurse.com/directory?q=${encodeURIComponent(
+        vars.full_name
+      )}) for more details.`
+    },
+
     WARNING_NOTIFICATION: {
       template: `Hi there 👋\nJust a friendly reminder that you'll be matched for coffee chats tomorrow.
       If you would like to cancel tomorrow's match, just type: \`\`\`skip\`\`\` or \`\`\`cancel\`\`\`
