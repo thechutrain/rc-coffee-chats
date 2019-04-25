@@ -5,9 +5,7 @@
 import * as types from '../types';
 
 export function actionCreater(req: types.IZulipRequest, res, next) {
-  const { isRegistered, email } = req.local.user;
-  // TEMP:
-  const isActive = true;
+  const { isRegistered, isActive } = req.local.user;
   let actionType: types.Action | null = null;
 
   // Case: Handle if user is not registered or is not active
@@ -23,9 +21,22 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
         rawInput: {}
       }
     };
-    next();
+
+    return next();
   } else if (!isActive) {
-    // TODO: implement this!
+    const wantsToActivate = req.body.data.match(/activate/gi);
+    actionType = wantsToActivate
+      ? types.Action.__ACTIVATE
+      : types.Action.__PROMPT_ACTIVATE;
+
+    req.local.action = {
+      actionType,
+      actionArgs: {
+        rawInput: {}
+      }
+    };
+
+    return next();
   }
 
   // Special Case: where users enters a command that does not follow

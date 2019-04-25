@@ -10,6 +10,7 @@ import { getProjectIssues } from '../utils/getIssues';
 // NOTE: all errors thrown in action functions will be handled
 // by the dispatcher(), which will send a generic error msg:
 export const ActionHandlerMap: types.ActionHandlerMap = {
+  // isRegistered CMDS
   __PROMPT_SIGNUP() {
     return new Promise(resolve => {
       resolve({
@@ -27,6 +28,20 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       resolve({ msgTemplate: types.msgTemplate.SIGNED_UP });
     });
   },
+  // isActive CMDS
+  __ACTIVATE(ctx) {
+    return new Promise(resolve => {
+      ctx.db.User.update({ is_active: 1 }, { email: ctx.userEmail });
+
+      resolve({ msgTemplate: types.msgTemplate.ACTIVATE });
+    });
+  },
+  __PROMPT_ACTIVATE() {
+    return new Promise(resolve => {
+      resolve({ msgTemplate: types.msgTemplate.PROMPT_ACTIVATE });
+    });
+  },
+
   ////////////////
   // SHOW
   ////////////////
@@ -245,6 +260,32 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+
+  UPDATE__ACTIVE(ctx, actionArgs) {
+    return new Promise(resolve => {
+      // VALIDATE:
+      const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
+      const validArgs = new Set([...falseArgs]);
+
+      if (actionArgs.length !== 1) {
+        throw new Error(
+          `Update skip takes one boolean argument. The following are valid arguments: *${falseArgs.join(
+            ', '
+          )}*`
+        );
+      } else if (!validArgs.has(actionArgs[0])) {
+        throw new Error(`${actionArgs[0]} is not a valid argument`);
+      }
+
+      // UPDATE QUERY:
+      ctx.db.User.update({ is_active: 0 }, { email: ctx.userEmail });
+
+      resolve({
+        msgTemplate: types.msgTemplate.DEACTIVATE
+      });
+    });
+  },
+
   ////////////////
   // HELP
   ////////////////
