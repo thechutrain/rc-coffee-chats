@@ -38,8 +38,7 @@ export function makeMatches(sendMessages = false) {
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
   // Clear all the skip next match warnings for todays people
-  // TODO: 💣 TEMP!! UNCOMMENT LATER CLEAN UP LATER
-  // db.User.clearTodaysSkippers();
+  db.User.clearTodaysSkippers();
 
   ////////////////////////////////////////
   // Stable Marriage Algorithm
@@ -151,4 +150,4 @@ export function makeMatches(sendMessages = false) {
 // IMPORTANT!!! 💣
 // only pass in true to make Matches if you want to
 // annoy and send a bunch of people matches since Im using the prod db!
-makeMatches(false);
+makeMatches();
