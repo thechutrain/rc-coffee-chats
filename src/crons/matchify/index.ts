@@ -132,14 +132,21 @@ export function makeMatches(sendMessages = false) {
       };
     })
   );
-  console.log('\n>> Matches:');
-  TODAYS_MATCHES.forEach(matchPair => {
+  console.log('\n===== MATCHES ===:');
+  TODAYS_MATCHES.forEach((matchPair, index) => {
     console.log(
-      `${matchPair[0].full_name} | ${matchPair[0].email} <--> ${
+      `>> MATCH #${index + 1}: ${matchPair[0].full_name} <--> ${
         matchPair[1].full_name
-      } | ${matchPair[1].email}`
+      }`
     );
   });
+
+  console.log('\n === Matches as email[] ===');
+  const emailTodaysMatches = TODAYS_MATCHES.forEach(matchPair => {
+    return [matchPair[0].email, matchPair[1].email];
+  });
+  console.log(emailTodaysMatches);
+
   console.log(`>> fall back:`);
   console.log(fallBackMatch);
 
