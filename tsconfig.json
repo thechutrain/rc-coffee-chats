@@ -65,6 +65,6 @@
     /* Advanced Options */
     // "declarationDir": "lib"                /* Output directory for generated declaration files. */
   },
-  "include": ["src/*"],
+  "include": ["src/**/*.ts"],
   "exclude": ["**/__tests__/*.ts"]
 }
