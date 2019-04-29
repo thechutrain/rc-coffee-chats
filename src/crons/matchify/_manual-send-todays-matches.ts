@@ -1,15 +1,11 @@
-import { cloneDeep } from 'lodash';
-import moment from 'moment';
-import 'moment-timezone';
+/** Used for manually sending out matches:
+ *
+ */
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
 import * as types from '../../types';
-import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
-import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
-import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
-import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
 const MATCH_EMAILS = [];
