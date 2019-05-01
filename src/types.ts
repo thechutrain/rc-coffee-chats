@@ -28,7 +28,6 @@ export interface IZulipRequest extends Express.Request {
       isActive: boolean;
       data?: UserRecord;
     };
-    cmd: IParsedCmd;
     action: IActionObj;
     errors: IError[];
     // TODO: DEPRECATE THIS

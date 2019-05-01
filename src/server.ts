@@ -18,7 +18,6 @@ const db = initDB();
 /// Middleware
 /////////////////
 import { initRegisteredHandler } from './middleware/registered-handler';
-// import { parserHandler } from './middleware/parser-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
 import { messageHandler } from './middleware/message-handler';
