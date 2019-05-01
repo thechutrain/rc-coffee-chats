@@ -78,8 +78,14 @@ type keyArgs = {
     rawInput: any;
   };
 };
-export function getActionFromRegex(body: string): types.IActionObj | null {
-  // TODO: rename this variable: stringsToMap
+
+/** getActionFromAlias()
+ *  - creates ActionObj from aliased commands
+ *
+ * @param body
+ */
+// ✅ Tests Written
+export function getActionFromAlias(body: string): types.IActionObj {
   const actionToStrMap: Partial<Record<types.Action, keyArgs>> = {
     [types.Action.BOT__HI]: {
       keyWords: ['hi', 'hello', 'howdy', 'hey', 'sup'],
@@ -107,7 +113,27 @@ export function getActionFromRegex(body: string): types.IActionObj | null {
     }
   }
 
-  return null;
+  throw new Error(`Could not find an alias command for : "${body}"`);
+}
+
+/** parseContentAsCli()
+ * - parsers content into a CLI object format
+ *
+ * @param messageContent
+ */
+export function parseContentAsCli(messageContent: string): types.IParsedCmd {
+  const trimmedContent = messageContent.replace(/^\s+|\s+$|^\//g, '');
+
+  const tokenizedArgs = trimmedContent
+    .split(/[\s]+/)
+    .filter(token => token !== '')
+    .map(word => word.toUpperCase());
+
+  return {
+    directive: tokenizedArgs.length > 0 ? tokenizedArgs[0] : null,
+    subcommand: tokenizedArgs.length > 1 ? tokenizedArgs[1] : null,
+    args: tokenizedArgs.length > 2 ? tokenizedArgs.slice(2) : []
+  };
 }
 
 /**
@@ -135,4 +161,16 @@ export function getActionFromCli(cli: types.IParsedCmd): types.Action {
   } else {
     return types.Action.HELP;
   }
+}
+
+export function isAnAliasCommand(rawMessage: string): boolean {
+  const regexForwardSlash = /^\//gi;
+  return !regexForwardSlash.test(rawMessage);
+}
+
+export function createAction(rawMessage: string) {
+  // if (isAnAliasCommand(rawMessage)) {
+
+  // }
+  return rawMessage;
 }
