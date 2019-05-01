@@ -33,6 +33,7 @@ import {
 describe('parseContent helper fn:', () => {
   it('should be able to parse a command', () => {
     const parsedCli = parseContentAsCli(`/update skip true`);
+
     expect(parsedCli).toEqual({
       directive: 'UPDATE',
       subcommand: 'SKIP',
@@ -42,6 +43,7 @@ describe('parseContent helper fn:', () => {
 
   it('should be able to parse a command even if there is no forward slash', () => {
     const parsedCli = parseContentAsCli(`update skip true`);
+
     expect(parsedCli).toEqual({
       directive: 'UPDATE',
       subcommand: 'SKIP',
@@ -50,18 +52,21 @@ describe('parseContent helper fn:', () => {
   });
 });
 
-describe('new action creater:', () => {
+describe('isAnAliasCommand() helper fn:', () => {
   it('should be able to determine that its a full cli cmd', () => {
-    const isAlias = isAnAliasCommand('/update days mon');
+    const isAlias = isAnAliasCommand('/update ');
 
     expect(isAlias).toBe(false);
   });
 
-  it('should be able to determine that its an alias', () => {
+  it('should be able to determine that its an alias cmd', () => {
     const isAlias = isAnAliasCommand('skip');
 
     expect(isAlias).toBe(true);
   });
+});
+
+describe('new action creater:', () => {
   /**
    * Case 1: "/"
    *  a) valid command
@@ -73,7 +78,7 @@ describe('new action creater:', () => {
    */
 
   it('should be able to create valid action from a full cli cmd', () => {
-    const actionObj = getActionFromAlias('skip');
+    const actionObj = createAction('skip');
     expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
     expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
   });
@@ -81,7 +86,7 @@ describe('new action creater:', () => {
   it('should throw an error with a non-valid cli cmd', () => {
     let error = null;
     try {
-      getActionFromAlias('noasdfa');
+      createAction('noasdfa');
     } catch (e) {
       error = e;
     }
@@ -89,12 +94,19 @@ describe('new action creater:', () => {
   });
 
   it('should be able to create an action that is an alias', () => {
-    const isAlias = isAnAliasCommand('skip');
-    expect(true).toBe(false);
-    expect(isAlias).toBe(true);
+    const actionObj = createAction('/update skip true');
+    expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
+    expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
   });
 
   it('should throw an error with a non-valid alias command', () => {
-    expect(true).toBe(false);
+    let error = null;
+    try {
+      createAction('/updat sbasdfa');
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).not.toBeNull();
   });
 });
