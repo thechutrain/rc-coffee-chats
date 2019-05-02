@@ -1,9 +1,9 @@
-import sqlite from 'better-sqlite3';
+import * as sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { Model } from './__base_model';
 
 export class MatchModel extends Model<MatchRecord> {
-  constructor(db: sqlite) {
+  constructor(db: sqlite.Database) {
     super(db, TABLE_NAME, FIELDS);
     this.initTable();
   }

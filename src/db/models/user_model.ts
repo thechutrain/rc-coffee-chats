@@ -1,12 +1,12 @@
 import moment from 'moment';
 import 'moment-timezone';
-import sqlite from 'better-sqlite3';
+import * as sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { WEEKDAY } from '../../types';
 import { Model } from './__base_model';
 
 export class UserModel extends Model<UserRecord> {
-  constructor(db: sqlite) {
+  constructor(db: sqlite.Database) {
     super(db, TABLE_NAME, FIELDS);
     this.initTable();
   }
