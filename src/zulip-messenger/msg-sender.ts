@@ -237,6 +237,13 @@ export function createMessageContent(
       }/issues)
       `,
       reqVars: ['errorMessage']
+    },
+
+    ////////////////////////
+    // One-off Messages
+    ////////////////////////
+    OFFBOARDING: {
+      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has been automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
     }
   };
 
