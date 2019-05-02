@@ -23,13 +23,19 @@ import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-m
 import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
+import { notifyAdmin } from './notify_admin';
 
 const TODAYS_MATCHES: Array<
   [UserWithPrevMatchRecord, UserWithPrevMatchRecord]
 > = [];
 const REPEAT_MATCHES: Array<[string, string]> = [];
+const startTime = moment()
+  .tz('America/New_York')
+  .format('L h:mm:ss');
+const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
-export function makeMatches(sendMessages = false) {
+makeMatches();
+function makeMatches(runForReal = true) {
   const db = initDB();
 
   // TODO: Check if today is an exception or not!
@@ -38,7 +44,9 @@ export function makeMatches(sendMessages = false) {
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
   // Clear all the skip next match warnings for todays people
-  db.User.clearTodaysSkippers();
+  if (runForReal) {
+    db.User.clearTodaysSkippers();
+  }
 
   ////////////////////////////////////////
   // Stable Marriage Algorithm
@@ -56,6 +64,7 @@ export function makeMatches(sendMessages = false) {
     skip_next_match: 0,
     is_active: 1,
     is_faculty: 1,
+    is_admin: 0,
     num_matches: 0,
     prevMatches: []
   };
@@ -86,8 +95,10 @@ export function makeMatches(sendMessages = false) {
     const acceptorMatch = match[0];
     const suitorMatch = match[1];
     // Record matches in the user_match, match tables!
-    const user_ids = [acceptorMatch.id, suitorMatch.id];
-    db.UserMatch.addNewMatch(user_ids);
+    if (runForReal) {
+      const user_ids = [acceptorMatch.id, suitorMatch.id];
+      db.UserMatch.addNewMatch(user_ids);
+    }
 
     // Check if they are unique matches
     acceptorMatch.prevMatches.forEach(prevMatch => {
@@ -97,7 +108,7 @@ export function makeMatches(sendMessages = false) {
     });
 
     // Send out match emails!
-    if (sendMessages) {
+    if (runForReal) {
       templateMessageSender(
         acceptorMatch.email,
         types.msgTemplate.TODAYS_MATCH,
@@ -117,44 +128,42 @@ export function makeMatches(sendMessages = false) {
   ////////////////////
   // Logging
   ////////////////////
-  // ====== debugging =====
-  const localTime = moment()
-    .tz('America/New_York')
-    .format('LLLL');
-
-  console.log(`====== makeMatches() ======\n${localTime}`);
-  console.log(`>> Users who want to be matched`);
-  console.log(
-    usersToMatch.map(user => {
-      return {
-        email: user.email
-        // prevMatches: user.prevMatches
-      };
-    })
-  );
-  console.log('\n===== MATCHES ===:');
+  logArray.push('>> TODAYS MATCHES:');
   TODAYS_MATCHES.forEach((matchPair, index) => {
-    console.log(
+    logArray.push(
       `>> MATCH #${index + 1}: ${matchPair[0].full_name} <--> ${
         matchPair[1].full_name
       }`
     );
   });
 
+  // TEMP: keep printing this out?
   console.log('\n === Matches as email[] ===');
-  const emailTodaysMatches = TODAYS_MATCHES.forEach(matchPair => {
+  const emailTodaysMatches = TODAYS_MATCHES.map(matchPair => {
     return [matchPair[0].email, matchPair[1].email];
   });
   console.log(emailTodaysMatches);
 
-  console.log(`>> fall back:`);
-  console.log(fallBackMatch);
+  if (fallBackMatch) {
+    logArray.push(`todays fallback match: ${fallBackMatch.full_name}`);
+  } else {
+    logArray.push(`Not fallback match today`);
+  }
 
-  console.log(`total number of match pairs: ${TODAYS_MATCHES.length}`);
-  console.log(`Number of repeated matches: ${REPEAT_MATCHES.length}`);
+  if (REPEAT_MATCHES.length) {
+    REPEAT_MATCHES.forEach(matchpair => {
+      logArray.push(`Repeat Match: ${JSON.stringify(matchpair)}`);
+    });
+  }
+
+  logArray.push(`total number of match pairs: ${TODAYS_MATCHES.length}`);
+  logArray.push(`Number of repeated matches: ${REPEAT_MATCHES.length}`);
+  logArray.push(
+    `=========== END of Matchify cron @ ${moment()
+      .tz('America/New_York')
+      .format('L h:mm:ss')} ==============`
+  );
+
+  // Send messages to Admin
+  notifyAdmin(logArray.join(`\n`));
 }
-
-// IMPORTANT!!! 💣
-// only pass in true to make Matches if you want to
-// annoy and send a bunch of people matches since Im using the prod db!
-makeMatches(true);

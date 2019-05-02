@@ -24,6 +24,7 @@ export class UserModel extends Model<UserRecord> {
         warning_exception INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
         is_faculty INTEGER DEFAULT 0,
+        is_admin INTEGER DEFAULT 0,
         CHECK (is_faculty in (0,1)),
         CHECK (is_active in (0,1)),
         CHECK (skip_next_match in (0,1)),
@@ -56,9 +57,12 @@ export class UserModel extends Model<UserRecord> {
     return results[0];
   }
 
-  public findById(id: number): UserRecord | null {
+  public findById(id: number): UserRecord {
     const results = this.find({ id });
-    return results.length ? results[0] : null;
+    if (results.length === 0) {
+      throw new Error(`Could not find a user with the id: ${id}`);
+    }
+    return results[0];
   }
 
   public findActiveUsers(): UserRecord[] {
@@ -67,6 +71,23 @@ export class UserModel extends Model<UserRecord> {
     );
     return findStatement.all();
   }
+
+  public findAdmins(): UserRecord[] {
+    const findStatement = Model.db.prepare(
+      `SELECT * FROM User U WHERE U.is_admin = 1`
+    );
+    return findStatement.all();
+  }
+
+  public isAdmin(idOrEmail: string | number): boolean {
+    const user =
+      typeof idOrEmail === 'string'
+        ? this.findByEmail(idOrEmail)
+        : this.findById(idOrEmail);
+
+    return user.is_admin === 1;
+  }
+
   public findPrevMatches(email: string): MatchRecord[] {
     const { id } = this.findByEmail(email);
     const findStatement = Model.db.prepare(`
@@ -266,6 +287,10 @@ export class UserModel extends Model<UserRecord> {
     return this.update({ warning_exception }, { email });
   }
 
+  public updateIsAdmin(email: string, shouldBeAdmin: boolean) {
+    const is_admin = shouldBeAdmin ? '1' : '0';
+    return this.update({ is_admin }, { email });
+  }
   public updateSkipNextMatch(email, skipNextMatch: boolean) {
     const skip_next_match = skipNextMatch ? '1' : '0';
     return this.update({ skip_next_match }, { email });
@@ -305,6 +330,7 @@ export type UserRecord = {
   skip_next_match: number;
   is_active: number;
   is_faculty: number;
+  is_admin: number;
 };
 
 export type MatchRecord = {

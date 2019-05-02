@@ -87,6 +87,7 @@ describe('User Model:', () => {
       warning_exception INTEGER DEFAULT 0,
       is_active INTEGER DEFAULT 1,
       is_faculty INTEGER DEFAULT 0,
+      is_admin INTEGER DEFAULT 0,
       CHECK (is_faculty in (0,1)),
       CHECK (is_active in (0,1)),
       CHECK (skip_next_match in (0,1)),
@@ -180,9 +181,14 @@ describe('User Model:', () => {
     expect(results).toHaveProperty('id', 1);
   });
 
-  it('should return null for nonexistant id', () => {
-    const results = User.findById(4);
-    expect(results).toBeNull();
+  it('should throw an error for nonexistant id', () => {
+    let error = null;
+    try {
+      User.findById(4);
+    } catch (e) {
+      error = e;
+    }
+    expect(error).not.toBeNull();
   });
 
   it('should be able to update the users weekdays', () => {
@@ -213,5 +219,27 @@ describe('User Model:', () => {
 
     const updatedUser = User.findById(1);
     expect(updatedUser.skip_next_match).toBe(1);
+  });
+
+  /** Tests related to admins
+   *
+   */
+  it('Should not be able to find any admins', () => {
+    User.add({ email: 'admin@gmail.com', full_name: 'lucky person' });
+    const admins = User.findAdmins();
+    expect(admins).toEqual([]);
+  });
+
+  it('Should be able to update a user as an admin', () => {
+    User.updateIsAdmin('admin@gmail.com', true);
+    const admins = User.findAdmins();
+    expect(admins.length).toBe(1);
+    expect(User.isAdmin('admin@gmail.com')).toBe(true);
+  });
+
+  it('Should be able to remove admin status for a user', () => {
+    const adminUser = User.findByEmail('admin@gmail.com');
+    User.updateIsAdmin('admin@gmail.com', false);
+    expect(User.isAdmin('admin@gmail.com')).toBe(false);
   });
 });
