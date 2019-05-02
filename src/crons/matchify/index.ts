@@ -35,7 +35,7 @@ const startTime = moment()
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
 makeMatches(true);
-function makeMatches(debug = true) {
+function makeMatches(testing = false) {
   const db = initDB();
 
   // TODO: Check if today is an exception or not!
@@ -93,7 +93,7 @@ function makeMatches(debug = true) {
     const acceptorMatch = match[0];
     const suitorMatch = match[1];
     // Record matches in the user_match, match tables!
-    if (!debug) {
+    if (!testing) {
       const user_ids = [acceptorMatch.id, suitorMatch.id];
       db.UserMatch.addNewMatch(user_ids);
     }
@@ -106,7 +106,7 @@ function makeMatches(debug = true) {
     });
 
     // Send out match emails!
-    if (!debug) {
+    if (!testing) {
       templateMessageSender(
         acceptorMatch.email,
         types.msgTemplate.TODAYS_MATCH,
@@ -126,16 +126,6 @@ function makeMatches(debug = true) {
   ////////////////////
   // Logging
   ////////////////////
-  // ====== debugging =====
-  // const localTime = moment()
-  //   .tz('America/New_York')
-  //   .format('LLLL');
-
-  // logArray.push(`>> Users who want to be matched`);
-  // usersToMatch.forEach(user => {
-  //   logArray.push(`${user.email}`);
-  // });
-
   logArray.push('>> TODAYS MATCHES:');
   TODAYS_MATCHES.forEach((matchPair, index) => {
     logArray.push(
