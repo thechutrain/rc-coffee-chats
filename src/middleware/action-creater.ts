@@ -166,6 +166,12 @@ export function getActionFromAlias(body: string): types.IActionObj {
       actionArgs: {
         rawInput: ['TRUE']
       }
+    },
+    [types.Action.SHOW__DAYS]: {
+      keyWords: ['days'],
+      actionArgs: {
+        rawInput: []
+      }
     }
   };
 
