@@ -1,9 +1,7 @@
 import { cloneDeep } from 'lodash';
 
-import * as types from '../../types';
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
-import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 
 export function makeTodaysMatches(db, runForReal) {
