@@ -34,7 +34,8 @@ const startTime = moment()
   .format('L h:mm:ss');
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
-export function makeMatches(debug = true) {
+makeMatches(true);
+function makeMatches(debug = true) {
   const db = initDB();
 
   // TODO: Check if today is an exception or not!
@@ -174,8 +175,3 @@ export function makeMatches(debug = true) {
   // Send messages to Admin
   notifyAdmin(logArray.join(`\n`));
 }
-
-// IMPORTANT!!! 💣
-// only pass in true to make Matches if you want to
-// annoy and send a bunch of people matches since Im using the prod db!
-makeMatches();
