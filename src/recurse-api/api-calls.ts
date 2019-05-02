@@ -6,7 +6,7 @@ import * as types from './rctypes';
 
 export function getUsersFromBatch(batch_id) {
   const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
-  axios
+  return axios
     .get(`${apiEndpoint}`, {
       params: {
         batch_id
@@ -16,7 +16,8 @@ export function getUsersFromBatch(batch_id) {
       }
     })
     .then(response => {
-      console.log(response.data);
+      // console.log(response.data);
+      return response.data;
     });
 }
 
@@ -29,7 +30,10 @@ export function getBatches(): Promise<types.rc_batch[]> {
       }
     })
     .then(response => {
-      // console.log(response.data);
+      // console.log(response.data[0]);
+      // console.log(response.data[1]);
       return response.data;
     });
 }
+
+// getBatches(); // 63 --> mini batch, 60 --> spring 2
