@@ -10,6 +10,9 @@ import { getUsersFromBatch, getBatches } from './api-calls';
  *
  * @param day {opt}
  */
+// TODO: change this api
+// newBatches: types.rc_batch[];
+// currentBatches: types.rc_batch[]
 export async function getStartingEndingBatches(
   day?: string
 ): Promise<{
