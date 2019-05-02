@@ -1,6 +1,6 @@
-import { getStartingEndingBatches } from './index';
+// import { } from './index';
 
-describe('rc utility function', () => {
+xdescribe('rc utility function', () => {
   it('should be able to get start dates', async () => {
     // expect(false).toBe(true);
     const { starting_batches, ending_batches } = await getStartingEndingBatches(
