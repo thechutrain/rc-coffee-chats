@@ -34,8 +34,8 @@ const startTime = moment()
   .format('L h:mm:ss');
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
-makeMatches(true);
-function makeMatches(testing = false) {
+makeMatches(false);
+function makeMatches(runForReal = true) {
   const db = initDB();
 
   // TODO: Check if today is an exception or not!
@@ -44,7 +44,9 @@ function makeMatches(testing = false) {
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
   // Clear all the skip next match warnings for todays people
-  db.User.clearTodaysSkippers();
+  if (!runForReal) {
+    db.User.clearTodaysSkippers();
+  }
 
   ////////////////////////////////////////
   // Stable Marriage Algorithm
@@ -93,7 +95,7 @@ function makeMatches(testing = false) {
     const acceptorMatch = match[0];
     const suitorMatch = match[1];
     // Record matches in the user_match, match tables!
-    if (!testing) {
+    if (!runForReal) {
       const user_ids = [acceptorMatch.id, suitorMatch.id];
       db.UserMatch.addNewMatch(user_ids);
     }
@@ -106,7 +108,7 @@ function makeMatches(testing = false) {
     });
 
     // Send out match emails!
-    if (!testing) {
+    if (!runForReal) {
       templateMessageSender(
         acceptorMatch.email,
         types.msgTemplate.TODAYS_MATCH,
