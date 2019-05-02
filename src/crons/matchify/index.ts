@@ -17,10 +17,11 @@ dotenv.config();
 
 import { initDB } from '../../db';
 import * as types from '../../types';
+import { makeTodaysMatches } from './make-todays-matches';
+import { getStartingEndingBatches } from '../../recurse-api';
+// Messaging-related, TODO: import from a single file
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from '../../zulip-messenger/notify-admin';
-import { makeTodaysMatches } from './make-todays-matches';
-
 const startTime = moment()
   .tz('America/New_York')
   .format('L h:mm:ss');
@@ -28,10 +29,19 @@ const logArray = [`====== makeMatches() @ ${startTime} =====`];
 const REPEAT_MATCHES: Array<[string, string]> = [];
 
 makeMatches(false);
-function makeMatches(runForReal = true) {
+async function makeMatches(runForReal = true) {
   const db = initDB();
 
   // TODO: Check if today is an exception or not!
+  const { starting_batches, ending_batches } = await getStartingEndingBatches();
+  if (!starting_batches.length) {
+    // It's the first day! default do not run chat bot!
+    console.log('Its the first day of the batch!!!');
+  } else if (!ending_batches.length) {
+    // Its the last day! Off-board active users.
+    // TODO: offboarding messaging.
+    console.log('Its the end of the batch!!');
+  }
 
   const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db, runForReal);
 

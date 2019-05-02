@@ -6,6 +6,10 @@ dotenv.config();
 import * as types from './rctypes';
 import { getUsersFromBatch, getBatches } from './api-calls';
 
+/** Gets the batches that are starting and ending today
+ *
+ * @param day {opt}
+ */
 export async function getStartingEndingBatches(
   day?: string
 ): Promise<{
