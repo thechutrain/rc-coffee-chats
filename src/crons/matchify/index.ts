@@ -44,7 +44,7 @@ function makeMatches(runForReal = true) {
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
   // Clear all the skip next match warnings for todays people
-  if (!runForReal) {
+  if (runForReal) {
     db.User.clearTodaysSkippers();
   }
 
@@ -95,7 +95,7 @@ function makeMatches(runForReal = true) {
     const acceptorMatch = match[0];
     const suitorMatch = match[1];
     // Record matches in the user_match, match tables!
-    if (!runForReal) {
+    if (runForReal) {
       const user_ids = [acceptorMatch.id, suitorMatch.id];
       db.UserMatch.addNewMatch(user_ids);
     }
@@ -108,7 +108,7 @@ function makeMatches(runForReal = true) {
     });
 
     // Send out match emails!
-    if (!runForReal) {
+    if (runForReal) {
       templateMessageSender(
         acceptorMatch.email,
         types.msgTemplate.TODAYS_MATCH,
