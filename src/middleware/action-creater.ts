@@ -59,10 +59,35 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
  * - attempts to create an ActionObject from given string input
  * - will throw an error if it cannot make a valid action!
  */
-export function createAction(rawMessage: string) {
-  return isAnAliasCommand(rawMessage)
-    ? getActionFromAlias(rawMessage)
-    : getActionFromCli(rawMessage);
+export function createAction(rawMessage: string): types.IActionObj {
+  // SITUATION: strict use of "/" for all the full commands
+  // return isAnAliasCommand(rawMessage)
+  //   ? getActionFromAlias(rawMessage)
+  //   : getActionFromCli(rawMessage);
+
+  // TEMP: backward compatibility, support the v2 syntax of update without requiring backlash
+  let failedAlias = false;
+  if (isAnAliasCommand(rawMessage)) {
+    try {
+      const actionObj = getActionFromAlias(rawMessage);
+      return actionObj;
+    } catch (e) {
+      failedAlias = true;
+    }
+  }
+
+  try {
+    const actionObj = getActionFromCli(rawMessage);
+    return actionObj;
+  } catch (e) {
+    if (failedAlias) {
+      throw new Error(
+        `Could not find an alias or full cli action for ${rawMessage}`
+      );
+    } else {
+      throw new Error(e);
+    }
+  }
 }
 
 /** parseContentAsCli()

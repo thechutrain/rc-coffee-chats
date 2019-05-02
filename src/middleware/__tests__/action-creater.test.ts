@@ -99,6 +99,12 @@ describe('new action creater:', () => {
     expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
   });
 
+  it('should still be able to update an action even without the / command', () => {
+    const actionObj = createAction('update skip true');
+    expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
+    expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
+  });
+
   it('should throw an error with a non-valid alias command', () => {
     let error = null;
     try {
