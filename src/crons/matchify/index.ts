@@ -34,7 +34,7 @@ const startTime = moment()
   .format('L h:mm:ss');
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
-makeMatches(false);
+makeMatches();
 function makeMatches(runForReal = true) {
   const db = initDB();
 
