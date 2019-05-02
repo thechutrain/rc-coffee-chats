@@ -29,6 +29,10 @@ const TODAYS_MATCHES: Array<
   [UserWithPrevMatchRecord, UserWithPrevMatchRecord]
 > = [];
 const REPEAT_MATCHES: Array<[string, string]> = [];
+const startTime = moment()
+  .tz('America/New_York')
+  .format('L h:mm:ss');
+const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
 export function makeMatches(debug = true) {
   const db = initDB();
@@ -125,12 +129,7 @@ export function makeMatches(debug = true) {
   // const localTime = moment()
   //   .tz('America/New_York')
   //   .format('LLLL');
-  const startTime = moment()
-    .tz('America/New_York')
-    .format('L h:mm:ss');
-  const logArray: string[] = [];
 
-  logArray.push(`====== makeMatches() @ ${startTime} =====`);
   // logArray.push(`>> Users who want to be matched`);
   // usersToMatch.forEach(user => {
   //   logArray.push(`${user.email}`);
@@ -147,12 +146,16 @@ export function makeMatches(debug = true) {
 
   // TEMP: keep printing this out?
   console.log('\n === Matches as email[] ===');
-  const emailTodaysMatches = TODAYS_MATCHES.forEach(matchPair => {
+  const emailTodaysMatches = TODAYS_MATCHES.map(matchPair => {
     return [matchPair[0].email, matchPair[1].email];
   });
   console.log(emailTodaysMatches);
 
-  logArray.push(`>> fall back: \n${fallBackMatch}`);
+  if (fallBackMatch) {
+    logArray.push(`todays fallback match: ${fallBackMatch.full_name}`);
+  } else {
+    logArray.push(`Not fallback match today`);
+  }
   logArray.push(`total number of match pairs: ${TODAYS_MATCHES.length}`);
   logArray.push(`Number of repeated matches: ${REPEAT_MATCHES.length}`);
   logArray.push(
