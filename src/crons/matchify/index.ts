@@ -156,6 +156,13 @@ export function makeMatches(debug = true) {
   } else {
     logArray.push(`Not fallback match today`);
   }
+
+  if (REPEAT_MATCHES.length) {
+    REPEAT_MATCHES.forEach(matchpair => {
+      logArray.push(`Repeat Match: ${JSON.stringify(matchpair)}`);
+    });
+  }
+
   logArray.push(`total number of match pairs: ${TODAYS_MATCHES.length}`);
   logArray.push(`Number of repeated matches: ${REPEAT_MATCHES.length}`);
   logArray.push(
