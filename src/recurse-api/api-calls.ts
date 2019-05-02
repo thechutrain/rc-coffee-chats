@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import * as types from './rctypes';
 
-export function getUsersFromBatch(batch_id) {
+export function getUsersFromBatch(batch_id): Promise<types.rc_profile[]> {
   const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
   return axios
     .get(`${apiEndpoint}`, {
@@ -36,4 +36,6 @@ export function getBatches(): Promise<types.rc_batch[]> {
     });
 }
 
+// TESTING:
 // getBatches(); // 63 --> mini batch, 60 --> spring 2
+// getUsersFromBatch(63);
