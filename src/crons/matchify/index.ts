@@ -10,7 +10,6 @@
  *  -- record matches in the DB!!
  *  -- send message to admin folks the results of the match pairs!
  */
-import { cloneDeep } from 'lodash';
 import moment from 'moment';
 import 'moment-timezone';
 import * as dotenv from 'dotenv-safe';

@@ -2,7 +2,9 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 import axios from 'axios';
 
-function getUsersFromBatch(batch_id) {
+import * as types from './rctypes';
+
+export function getUsersFromBatch(batch_id) {
   const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
   axios
     .get(`${apiEndpoint}`, {
@@ -18,36 +20,16 @@ function getUsersFromBatch(batch_id) {
     });
 }
 
-function getMostRecentBatch() {
+export function getBatches(): Promise<types.rc_batch[]> {
   const apiEndpoint = 'https://www.recurse.com/api/v1';
-  axios
+  return axios
     .get(`${apiEndpoint}/batches`, {
       headers: {
         Authorization: `Bearer ${process.env.RC_TOKEN}`
       }
     })
     .then(response => {
-      console.log(response.data);
-      /**
-       * 
-  [ { id: 63,
-    name: 'Mini 3, 2019',
-    start_date: '2019-04-01',
-    end_date: '2019-04-05' },
-  { id: 60,
-    name: 'Spring 2, 2019',
-    start_date: '2019-04-01',
-    end_date: '2019-06-27' },
-  { id: 58,
-    name: 'Spring 1, 2019',
-    start_date: '2019-02-18',
-    end_date: '2019-05-09' },
-       * 
-       * 
-       * 
-       */
+      // console.log(response.data);
+      return response.data;
     });
 }
-
-// getMostRecentBatch();
-getUsersFromBatch(63);
