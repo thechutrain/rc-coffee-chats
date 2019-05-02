@@ -8,7 +8,10 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
   const { isRegistered, isActive } = req.local.user;
   let actionType: types.Action | null = null;
 
-  // Case: Handle if user is not registered or is not active
+  /** HANDLE SPECIAL CASES:
+   * - Case 1: user has never been registered with Chat Bot
+   * - Case 2: returning user who needs to reactivate their account
+   */
   if (!isRegistered) {
     const wantsToSignUp = req.body.data.match(/signup/gi);
     actionType = wantsToSignUp
@@ -39,47 +42,118 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     return next();
   }
 
-  // Special Case: where users enters a command that does not follow
-  // conventional DISPATCH__SUBCOMMAND action.
-  const actionFromRegex = getActionFromRegex(req.body.data);
-  if (actionFromRegex !== null) {
-    req.local.action = actionFromRegex;
-  } else {
-    // DEFAULT: creation of action
-    try {
-      actionType = getActionFromCli(req.local.cmd);
-    } catch (e) {
-      actionType = null;
-
-      req.local.errors.push({
-        errorType: types.Errors.NO_VALID_ACTION,
-        customMessage: e
-      });
-    }
-
-    req.local.action = {
-      actionType,
-      actionArgs: {
-        rawInput: req.local.cmd.args
-      }
-    };
+  // Normal Action Creation, via: alias or full CLI
+  try {
+    req.local.action = createAction(req.body.data);
+  } catch (e) {
+    req.local.errors.push({
+      errorType: types.Errors.NO_VALID_ACTION,
+      customMessage: e
+    });
   }
 
   next();
 }
 
-/**
- *
- * @param body
+/** createAction()
+ * - attempts to create an ActionObject from given string input
+ * - will throw an error if it cannot make a valid action!
  */
+export function createAction(rawMessage: string): types.IActionObj {
+  // SITUATION: strict use of "/" for all the full commands
+  // return isAnAliasCommand(rawMessage)
+  //   ? getActionFromAlias(rawMessage)
+  //   : getActionFromCli(rawMessage);
+
+  // TEMP: backward compatibility, support the v2 syntax of update without requiring backlash
+  let failedAlias = false;
+  if (isAnAliasCommand(rawMessage)) {
+    try {
+      const actionObj = getActionFromAlias(rawMessage);
+      return actionObj;
+    } catch (e) {
+      failedAlias = true;
+    }
+  }
+
+  try {
+    const actionObj = getActionFromCli(rawMessage);
+    return actionObj;
+  } catch (e) {
+    if (failedAlias) {
+      throw new Error(
+        `Could not find an alias or full cli action for ${rawMessage}`
+      );
+    } else {
+      throw new Error(e);
+    }
+  }
+}
+
+/** parseContentAsCli()
+ * - parsers content into a CLI object format
+ *
+ * @param messageContent
+ */
+// ✅ Tests Written
+export function parseContentAsCli(messageContent: string): types.IParsedCmd {
+  const trimmedContent = messageContent.replace(/^\s+|\s+$|^\//g, '');
+
+  const tokenizedArgs = trimmedContent
+    .split(/[\s]+/)
+    .filter(token => token !== '')
+    .map(word => word.toUpperCase());
+
+  return {
+    directive: tokenizedArgs.length > 0 ? tokenizedArgs[0] : null,
+    subcommand: tokenizedArgs.length > 1 ? tokenizedArgs[1] : null,
+    args: tokenizedArgs.length > 2 ? tokenizedArgs.slice(2) : []
+  };
+}
+
+/** getActionFromCli()
+ *  -
+ * Parses the CLI to create an action.
+ * NOTE: will never return null action, by default will return HELP action
+ * @param cli
+ */
+export function getActionFromCli(messageContent: string): types.IActionObj {
+  const cli = parseContentAsCli(messageContent);
+
+  const actionStr = cli.subcommand
+    ? `${cli.directive}__${cli.subcommand}`
+    : `${cli.directive}`;
+
+  if (!(actionStr in types.Action) && actionStr !== '') {
+    throw new Error(
+      `Unrecognized command: ${actionStr} \nCould not create a valid action`
+    );
+  }
+
+  const actionType =
+    actionStr in types.Action ? types.Action[actionStr] : types.Action.HELP;
+
+  return {
+    actionType,
+    actionArgs: { rawInput: cli.args }
+  };
+}
+
+// TODO: move this into types file
 type keyArgs = {
   keyWords: string[];
   actionArgs: {
     rawInput: any;
   };
 };
-export function getActionFromRegex(body: string): types.IActionObj | null {
-  // TODO: rename this variable: stringsToMap
+
+/** getActionFromAlias()
+ *  - creates ActionObj from aliased commands
+ *
+ * @param body
+ */
+// ✅ Tests Written
+export function getActionFromAlias(body: string): types.IActionObj {
   const actionToStrMap: Partial<Record<types.Action, keyArgs>> = {
     [types.Action.BOT__HI]: {
       keyWords: ['hi', 'hello', 'howdy', 'hey', 'sup'],
@@ -91,6 +165,12 @@ export function getActionFromRegex(body: string): types.IActionObj | null {
       keyWords: ['cancel next match', 'cancel', 'skip'],
       actionArgs: {
         rawInput: ['TRUE']
+      }
+    },
+    [types.Action.SHOW__DAYS]: {
+      keyWords: ['days'],
+      actionArgs: {
+        rawInput: []
       }
     }
   };
@@ -107,32 +187,10 @@ export function getActionFromRegex(body: string): types.IActionObj | null {
     }
   }
 
-  return null;
+  throw new Error(`Could not find an alias command for : "${body}"`);
 }
 
-/**
- * Parses the CLI to create an action.
- * NOTE: will never return null action, by default will return HELP action
- * @param cli
- */
-// TODO: this should return an ActionObj, instead of just an action.
-// so its similar to getActionFromRegex
-export function getActionFromCli(cli: types.IParsedCmd): types.Action {
-  // TODO:
-  // If user only has subcommand && subcommand = show, update --> change the action
-
-  // DEFAULT ACTION creator:
-  const command = cli.subcommand
-    ? `${cli.directive}__${cli.subcommand}`
-    : `${cli.directive}`;
-
-  if (!(command in types.Action) && command !== '') {
-    throw new Error(
-      `Unrecognized command: ${command} \nCould not create a valid action`
-    );
-  } else if (command in types.Action) {
-    return types.Action[command];
-  } else {
-    return types.Action.HELP;
-  }
+export function isAnAliasCommand(rawMessage: string): boolean {
+  const regexForwardSlash = /^\//gi;
+  return !regexForwardSlash.test(rawMessage);
 }
