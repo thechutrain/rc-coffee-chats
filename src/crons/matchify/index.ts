@@ -19,9 +19,11 @@ import { initDB } from '../../db';
 import * as types from '../../types';
 import { makeTodaysMatches } from './make-todays-matches';
 import { getNewCurrentBatches } from '../../recurse-api';
+import { handlePossibleOffboarding } from '../../one-off-services/offboarding/index';
 // Messaging-related, TODO: import from a single file
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from '../../zulip-messenger/notify-admin';
+
 const startTime = moment()
   .tz('America/New_York')
   .format('L h:mm:ss');
@@ -39,24 +41,12 @@ async function matchify(runForReal = true) {
    * c) Holidays --> warn the day before? Do Later ...
    */
   const { newBatches, currentBatches } = await getNewCurrentBatches();
+  // CASE: First day of the batch
   if (!newBatches.length) {
-    // It's the first day! default do not run chat bot!
-    console.log('Its the first day of the batch!!!');
-    /** TODO: tasks for the first day
-     * - notify all users who were suppose to be matched today that they won't have a match
-     * - warn the maintainers that today is the first day so matches are skipped... spread the word!
-     */
-  } else if (currentBatches.length) {
-    // NOTE: need to check if its the last day for any of theses users
-    // Its the last day! Off-board active users.
-    /** TODO: tasks for end of batch
-     * - find all users of chat bot who are also in this last batch
-     * - notify them that they have been deactivated, but if they want to stay in touch. welcome to!
-     * - warn matinainer that today is the last day of the batch? And everything is Okay.
-     *
-     */
-    console.log('Its the end of the batch!!');
+    // DO Later: notify users who wanted a match today that we're skipping chats!
+    notifyAdmin('Its the first day of the batch, no matches are made', 'OK');
   }
+  handlePossibleOffboarding(currentBatches);
 
   const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db, runForReal);
 
