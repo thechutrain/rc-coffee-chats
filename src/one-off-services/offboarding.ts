@@ -14,14 +14,17 @@ import { notifyAdmin } from '../zulip-messenger/notify-admin';
 
 type email = string;
 
-export async function offBoardUsers(usersToOffBoard: email[], dryRun = false) {
+export async function offBoardUsers(
+  usersToOffBoard: email[],
+  runForReal = false
+) {
   const succDeactivations: email[] = [];
   const errDeactivations: email[] = [];
 
   for (const userEmail of usersToOffBoard) {
     // Deactivate Users:
     try {
-      if (dryRun) {
+      if (runForReal) {
         db.User.update({ is_active: 0 }, { email: userEmail });
         // Notify Users their account is frozen
         templateMessageSender(userEmail, types.msgTemplate.OFFBOARDING);
@@ -75,8 +78,9 @@ export async function getUsersToOffBoard(batchId: number) {
 
 // TESTING!
 (async () => {
-  console.log('running off boarding!!!');
   const usersToOffBoard = await getUsersToOffBoard(60);
   console.log(usersToOffBoard);
-  offBoardUsers(usersToOffBoard, true);
+  // TEMP:
+  // NOTE: need to pass true to run for real
+  offBoardUsers(usersToOffBoard, false);
 })();
