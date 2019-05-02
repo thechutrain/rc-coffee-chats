@@ -18,7 +18,7 @@ dotenv.config();
 import { initDB } from '../../db';
 import * as types from '../../types';
 import { makeTodaysMatches } from './make-todays-matches';
-import { getStartingEndingBatches } from '../../recurse-api';
+import { getNewCurrentBatches } from '../../recurse-api';
 // Messaging-related, TODO: import from a single file
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from '../../zulip-messenger/notify-admin';
@@ -38,15 +38,16 @@ async function matchify(runForReal = true) {
    * b) Last Day of Batch   --> deactivate all users automatically & notify them offboarding.
    * c) Holidays --> warn the day before? Do Later ...
    */
-  const { starting_batches, ending_batches } = await getStartingEndingBatches();
-  if (!starting_batches.length) {
+  const { newBatches, currentBatches } = await getNewCurrentBatches();
+  if (!newBatches.length) {
     // It's the first day! default do not run chat bot!
     console.log('Its the first day of the batch!!!');
     /** TODO: tasks for the first day
      * - notify all users who were suppose to be matched today that they won't have a match
      * - warn the maintainers that today is the first day so matches are skipped... spread the word!
      */
-  } else if (!ending_batches.length) {
+  } else if (currentBatches.length) {
+    // NOTE: need to check if its the last day for any of theses users
     // Its the last day! Off-board active users.
     /** TODO: tasks for end of batch
      * - find all users of chat bot who are also in this last batch

@@ -10,17 +10,14 @@ import { getUsersFromBatch, getBatches } from './api-calls';
  *
  * @param day {opt}
  */
-// TODO: change this api
-// newBatches: types.rc_batch[];
-// currentBatches: types.rc_batch[]
-export async function getStartingEndingBatches(
+export async function getNewCurrentBatches(
   day?: string
 ): Promise<{
-  starting_batches: types.rc_batch[];
-  ending_batches: types.rc_batch[];
+  newBatches: types.rc_batch[];
+  currentBatches: types.rc_batch[];
 }> {
-  const starting_batches: types.rc_batch[] = [];
-  const ending_batches: types.rc_batch[] = [];
+  const newBatches: types.rc_batch[] = [];
+  const currentBatches: types.rc_batch[] = [];
   const today =
     day ||
     moment()
@@ -30,15 +27,15 @@ export async function getStartingEndingBatches(
   const allBatches = await getBatches();
   allBatches.forEach(batch => {
     if (batch.start_date === today) {
-      starting_batches.push(batch);
+      newBatches.push(batch);
     } else if (batch.end_date === today) {
-      ending_batches.push(batch);
+      currentBatches.push(batch);
     }
   });
 
   return {
-    starting_batches,
-    ending_batches
+    newBatches,
+    currentBatches
   };
 }
 
