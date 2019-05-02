@@ -24,6 +24,7 @@ export class UserModel extends Model<UserRecord> {
         warning_exception INTEGER DEFAULT 0,
         is_active INTEGER DEFAULT 1,
         is_faculty INTEGER DEFAULT 0,
+        is_admin INTEGER DEFAULT 0,
         CHECK (is_faculty in (0,1)),
         CHECK (is_active in (0,1)),
         CHECK (skip_next_match in (0,1)),

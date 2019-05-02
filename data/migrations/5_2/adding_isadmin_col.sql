@@ -1,0 +1,4 @@
+ALTER TABLE
+  User
+ADD
+  is_admin INTEGER NOT NULL DEFAULT 0
