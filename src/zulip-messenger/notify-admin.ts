@@ -1,6 +1,6 @@
-import { initDB } from '../../db';
-import * as types from '../../types';
-import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
+import { initDB } from '../db';
+import * as types from '../types';
+import { sendGenericMessage } from './msg-sender';
 
 export function notifyAdmin(message: string) {
   const db = initDB();
