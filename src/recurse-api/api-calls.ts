@@ -53,27 +53,7 @@ export function getBatches(): Promise<types.rc_batch[]> {
       }
     })
     .then(response => {
-      console.log(response.data);
+      // console.log(response.data);
       return response.data;
     });
 }
-
-// export function getFutureBatch(batch_id: number): Promise<types.rc_batch[]> {
-//   const apiEndpoint = 'https://www.recurse.com/api/v1';
-//   return axios
-//     .get(`${apiEndpoint}/batches/${batch_id}`, {
-//       headers: {
-//         Authorization: `Bearer ${process.env.RC_TOKEN}`
-//       }
-//     })
-//     .then(response => {
-//       console.log(response);
-//       return response.data;
-//     })
-//     .catch(err => {
-//       console.log(err);
-//     });
-// }
-
-// getUsersFromBatch(60);
-// getBatches();

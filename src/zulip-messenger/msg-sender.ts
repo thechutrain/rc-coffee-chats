@@ -26,6 +26,14 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      `sendGenericMessage(): Skipping Message Sending b/c you'e not in prod:`
+    );
+    console.log({ toEmail, messageContent });
+    return;
+  }
+
   return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'

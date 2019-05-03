@@ -42,7 +42,6 @@ export async function handlePossibleOffboarding() {
   const { error, success } = offBoardUsers(users.map(user => user.email));
   console.log('success', success);
   console.error('error', error);
-  return;
 
   notifyAdminOffboardingResults(error, success);
   notifyDeactivatedUsers(success);
