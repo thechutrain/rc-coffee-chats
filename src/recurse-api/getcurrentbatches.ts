@@ -21,7 +21,6 @@ export async function getCurrentBatches(
       .format('YYYY-MM-DD');
 
   const allBatches = await getBatches();
-  // console.log(allBatches);
 
   allBatches.forEach(batch => {
     if (batch.end_date >= today && batch.start_date <= today) {
@@ -31,34 +30,3 @@ export async function getCurrentBatches(
 
   return currentBatches;
 }
-
-// export async function getNewCurrentBatches(
-//   day?: string
-// ): Promise<{
-//   newBatches: types.rc_batch[];
-//   currentBatches: types.rc_batch[];
-// }> {
-//   const newBatches: types.rc_batch[] = [];
-//   const currentBatches: types.rc_batch[] = [];
-//   const today =
-//     day ||
-//     moment()
-//       .tz('America/New_York')
-//       .format('YYYY-MM-DD');
-
-//   const allBatches = await getBatches();
-//   // console.log(allBatches);
-
-//   allBatches.forEach(batch => {
-//     if (batch.start_date === today) {
-//       newBatches.push(batch);
-//     } else if (batch.end_date >= today && batch.start_date < today) {
-//       currentBatches.push(batch);
-//     }
-//   });
-
-//   return {
-//     newBatches,
-//     currentBatches
-//   };
-// }
