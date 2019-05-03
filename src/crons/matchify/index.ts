@@ -18,7 +18,7 @@ dotenv.config();
 import { initDB } from '../../db';
 import * as types from '../../types';
 import { makeTodaysMatches } from './make-todays-matches';
-import { getNewCurrentBatches } from '../../recurse-api';
+// import { getNewCurrentBatches } from '../../recurse-api';
 import { handlePossibleOffboarding } from '../../one-off-services/offboarding/index';
 // Messaging-related, TODO: import from a single file
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
@@ -40,13 +40,13 @@ async function matchify(runForReal = true) {
    * b) Last Day of Batch   --> deactivate all users automatically & notify them offboarding.
    * c) Holidays --> warn the day before? Do Later ...
    */
-  const { newBatches, currentBatches } = await getNewCurrentBatches();
-  // CASE: First day of the batch
-  if (!newBatches.length) {
-    // DO Later: notify users who wanted a match today that we're skipping chats!
-    notifyAdmin('Its the first day of the batch, no matches are made', 'OK');
-  }
-  handlePossibleOffboarding(currentBatches);
+  // const currentBatches = await getNewCurrentBatches();
+  // // CASE: First day of the batch
+  // if (!newBatches.length) {
+  //   // DO Later: notify users who wanted a match today that we're skipping chats!
+  //   notifyAdmin('Its the first day of the batch, no matches are made', 'OK');
+  // }
+  // handlePossibleOffboarding(currentBatches);
 
   const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db, runForReal);
 

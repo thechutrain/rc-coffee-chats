@@ -30,3 +30,23 @@ export async function getCurrentBatches(
 
   return currentBatches;
 }
+
+export function isMiniBatch(batch: types.rc_batch): boolean {
+  const regex = /^Mini/gi;
+
+  return regex.test(batch.name);
+}
+
+export function getSixWeekEndDate(batch: types.rc_batch): string {
+  if (isMiniBatch(batch)) {
+    throw new Error(
+      'You should not be getting the 6wk endpoint of a mini batch'
+    );
+  }
+
+  return moment(batch.start_date)
+    .add(5, 'weeks')
+    .startOf('week')
+    .add(4, 'days')
+    .format('YYYY-MM-DD');
+}

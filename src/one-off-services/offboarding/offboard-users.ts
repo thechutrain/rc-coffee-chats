@@ -20,45 +20,49 @@ type email = string;
   // offBoardUsers(usersToOffBoard, false);
 })();
 
+// export function get
+
 /**
  *
  * @param usersToOffBoard
  * @param runForReal
  */
 // ✅ Working
-export async function offBoardUsers(
-  usersToOffBoard: email[],
-  runForReal = false
-) {
-  const succDeactivations: email[] = [];
-  const errDeactivations: email[] = [];
+export function offBoardUsers(usersToOffBoard: email[]) {
+  const error: email[] = [];
+  const success: email[] = [];
+  const runForReal = process.env.NODE_ENV === 'production';
 
   for (const userEmail of usersToOffBoard) {
-    // Deactivate Users:
     try {
       if (runForReal) {
         db.User.update({ is_active: 0 }, { email: userEmail });
-        // Notify Users their account is frozen
-        templateMessageSender(userEmail, types.msgTemplate.OFFBOARDING);
       }
-      succDeactivations.push(userEmail);
+      success.push(userEmail);
     } catch (e) {
-      errDeactivations.push(userEmail);
+      error.push(userEmail);
     }
   }
 
-  // Log info to admin:
+  return { error, success };
+}
+
+export function notifyAdminOffboardingResults(err, deactivated) {
   notifyAdmin(
-    `Off boarded the following users: ${JSON.stringify(succDeactivations)}`,
+    `Off boarded the following users: ${JSON.stringify(deactivated)}`,
     'LOG'
   );
 
-  if (errDeactivations.length) {
+  if (err.length) {
     notifyAdmin(
-      `ERROR off boarding the following users: ${JSON.stringify(
-        errDeactivations
-      )}`,
+      `ERROR off boarding the following users: ${JSON.stringify(err)}`,
       'WARNING'
     );
   }
+}
+
+export function notifyDeactivatedUsers(deactivated: email[]) {
+  deactivated.forEach(userEmail => {
+    templateMessageSender(userEmail, types.msgTemplate.OFFBOARDING);
+  });
 }

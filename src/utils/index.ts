@@ -1,5 +1,6 @@
 import { EXCEPTION_DATES, WEEKDAYS } from '../constants';
 
+// DEPRECATION PENDING
 export function log(msgArr: any[], debug = true) {
   const shouldLog = debug ? true : process.env.DEVELOPMENT === 'development';
 

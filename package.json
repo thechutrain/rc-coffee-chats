@@ -20,7 +20,7 @@
     "cron-warnings": "cross-env NODE_ENV=production ts-node src/crons/match-warnings",
     "_notify-users": "cross-env NODE_ENV=production ts-node src/one-off-services/notify-users",
     "_send-matches": "cross-env NODE_ENV=production ts-node src/one-off-services/_manual-send-todays-matches.ts",
-    "_offboarding": "cross-env NODE_ENV=production ts-node src/one-off-services/offboarding.ts"
+    "_offboarding": "cross-env NODE_ENV=development ts-node src/one-off-services/offboarding"
   },
   "lint-staged": {
     "src/*.ts": [

@@ -5,10 +5,16 @@ export type rc_batch = {
   end_date: string;
 };
 
+export type rc_stint = {
+  start_date: string;
+  end_date: string | null;
+};
+
 export type rc_profile = {
   id: number;
   first_name: string;
   last_name: string;
   name: string;
   email: string;
+  stints: rc_stint[];
 };
