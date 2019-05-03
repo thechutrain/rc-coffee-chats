@@ -1,15 +1,20 @@
+/** Note: no tests are written for this file since it would
+ * basically be testing the recurse API. Could be useful if
+ * the api does change!
+ *
+ */
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 import axios from 'axios';
 
 import * as types from './rctypes';
 
-export function getUsersFromBatch(batch_id): Promise<types.rc_profile[]> {
+export function getUsersFromBatch(batchId): Promise<types.rc_profile[]> {
   const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
   return axios
     .get(`${apiEndpoint}`, {
       params: {
-        batch_id
+        batch_id: batchId
       },
       headers: {
         Authorization: `Bearer ${process.env.RC_TOKEN}`
@@ -30,12 +35,24 @@ export function getBatches(): Promise<types.rc_batch[]> {
       }
     })
     .then(response => {
-      // console.log(response.data[0]);
-      // console.log(response.data[1]);
+      // console.log(response.data);
       return response.data;
     });
 }
 
-// TESTING:
-// getBatches(); // 63 --> mini batch, 60 --> spring 2
-// getUsersFromBatch(63);
+// export function getFutureBatch(batch_id: number): Promise<types.rc_batch[]> {
+//   const apiEndpoint = 'https://www.recurse.com/api/v1';
+//   return axios
+//     .get(`${apiEndpoint}/batches/${batch_id}`, {
+//       headers: {
+//         Authorization: `Bearer ${process.env.RC_TOKEN}`
+//       }
+//     })
+//     .then(response => {
+//       console.log(response);
+//       return response.data;
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// }
