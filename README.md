@@ -44,18 +44,9 @@ npm run dev
 
 Happy hacking!
 
-## Background
-The original prototype began during Sheridan's batch in fall 2018. The original project can be found on glitch [here](https://glitch.com/~zulip-coffee-bot).
-
+## Goals
 The current goal has now been to make Coffee Chat more robust and extendable so it can be easily maintained and additional features can be added. These goals include the following:
 
 * decoupling the code into separate modules
 * writing tests to ensure there are no regression bugs
 * Using TypeScript for type safety and documentation
-
-### Contributors
-* Alan Chu - releasing the second version 
-* Sheridan Kates - started the project 
-* Liz Krane
-* Greg Altman
-* John Paul Ashenfelter
