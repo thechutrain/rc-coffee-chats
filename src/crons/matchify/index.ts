@@ -30,25 +30,12 @@ const startTime = moment()
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
 const REPEAT_MATCHES: Array<[string, string]> = [];
 
-matchify(false);
-async function matchify(runForReal = true) {
+matchify();
+async function matchify() {
   const db = initDB();
+  const isProd = process.env.NODE_ENV === 'production';
 
-  /** TODO: Exception & Special Day handling
-   * Special day cases:
-   * a) First Day of Batch  --> do not match && notify users who planned on matching today?
-   * b) Last Day of Batch   --> deactivate all users automatically & notify them offboarding.
-   * c) Holidays --> warn the day before? Do Later ...
-   */
-  // const currentBatches = await getNewCurrentBatches();
-  // // CASE: First day of the batch
-  // if (!newBatches.length) {
-  //   // DO Later: notify users who wanted a match today that we're skipping chats!
-  //   notifyAdmin('Its the first day of the batch, no matches are made', 'OK');
-  // }
-  // handlePossibleOffboarding(currentBatches);
-
-  const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db, runForReal);
+  const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db);
 
   // TODO: organize code more
   // const { REPEAT_MATCHES } = findRepeatMatches(TODAYS_MATCHES);
@@ -60,7 +47,7 @@ async function matchify(runForReal = true) {
     const acceptorMatch = match[0];
     const suitorMatch = match[1];
     // Record matches in the user_match, match tables!
-    if (runForReal) {
+    if (isProd) {
       const user_ids = [acceptorMatch.id, suitorMatch.id];
       db.UserMatch.addNewMatch(user_ids);
     }
@@ -73,7 +60,7 @@ async function matchify(runForReal = true) {
     });
 
     // Send out match emails!
-    if (runForReal) {
+    if (isProd) {
       templateMessageSender(
         acceptorMatch.email,
         types.msgTemplate.TODAYS_MATCH,

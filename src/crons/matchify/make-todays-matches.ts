@@ -4,7 +4,8 @@ import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
 import { UserWithPrevMatchRecord } from '../../db/models/user_model';
 
-export function makeTodaysMatches(db, runForReal) {
+export function makeTodaysMatches(db) {
+  const isProd = process.env.NODE_ENV === 'production';
   const TODAYS_MATCHES: Array<
     [UserWithPrevMatchRecord, UserWithPrevMatchRecord]
   > = [];
@@ -12,7 +13,7 @@ export function makeTodaysMatches(db, runForReal) {
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
   // Clear all the skip next match warnings for todays people
-  if (runForReal) {
+  if (isProd) {
     db.User.clearTodaysSkippers();
   }
   ////////////////////////////////////////
