@@ -14,5 +14,9 @@ Before setting up crons for the first time, you must have access to the server.
   ```
   If you need to adjust the cron to run more frequently, you can update this command. [crontab.guru](https://crontab.guru/)  is a great site to test how frequently your cron runs.
 
-3. Make a `cron/` in your root directory and copy the `cron-hourly.sh` into the directory.
-4. Make sure that `cron-hourly.sh` can be executed. You can do `chmod +x cron-hourly.sh` to change the priviledges so it can be executed.
+3. From the root directory of this project type: `cp -r cron/ ../`
+
+#### Trouble shooting
+* Ensure that the `hourly.sh` has execution priviledge. You can do `chmod +x cron-hourly.sh` to change the priviledges so it can be executed.
+
+* If the name of the project name changes from `rc-coffee-chats` then change the directory name that you are `cd`ing in the `hourly.sh` file.
