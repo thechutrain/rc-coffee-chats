@@ -1,4 +1,5 @@
-# Coffee Chats 2.0
+# Coffee Chats 2.0 
+[![Build Status](https://travis-ci.com/thechutrain/rc-coffee-chats.svg?branch=master)](https://travis-ci.com/thechutrain/rc-coffee-chats)
 > Zulip bot that pairs Recursers for coffee chats
 
 ## Signing up  
@@ -14,7 +15,7 @@ Before you get started, make sure you have:
 * some version of SQLite3
 * Python 2.7 (any recent version)
 
-The `better-sqlite3` npm package requires Python 2 as a dependency. Python 3 will through a syntax error. Things get even more complicated on Windows. Just make sure you can run Python 2.7 from the CLI.
+The `better-sqlite3` npm package requires Python 2 as a dependency. Python 3 will throw a syntax error. Things get even more complicated on Windows. Just make sure you can run Python 2.7 from the CLI.
 
 The basic installation is what you'd expect: `npm install`.
 
@@ -45,8 +46,12 @@ npm run dev
 Happy hacking!
 
 ## Goals
-The current goal has now been to make Coffee Chat more robust and extendable so it can be easily maintained and additional features can be added. These goals include the following:
+The current goal has now been to make Coffee Chat more robust and extensible so it can be easily maintained and additional features can be made with confidence. These goals include the following:
 
-* decoupling the code into separate modules
-* writing tests to ensure there are no regression bugs
-* Using TypeScript for type safety and documentation
+- [x] decoupling the code into separate modules
+- [x] writing tests to ensure there are no regression bugs
+- [ ] Using TypeScript for type safety and documentation
+- [ ] adding features to make maintaince easier
+  - [ ] automation of onboarding/offboarding
+  - [ ] logging cronjobs to maintainers through zulip
+  - [ ] allowing maintainers to update configurations (i.e. fallback user)
