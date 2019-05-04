@@ -1,23 +1,14 @@
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import * as rctypes from '../../recurse-api/rctypes';
 import { isToday } from '../../utils/dates';
 import { getAllUsers } from '../../recurse-api';
 import {
   offBoardUsers,
   notifyAdminOffboardingResults,
   notifyDeactivatedUsers
-} from '../../crons/off-boarding/offboard-users';
+} from './offboard-users';
 
-/**
- *  NOTE: not all Users are here for the full batch!
- *  - need to address the fact some batches (mini) end_date: true.
- *  - half batchers need to get notified 6 weeks earlier than the   end_date
- * TODO:
- * - find all users in the given batch
- * - find all active users who are in the current batch
- */
 export const getUsersToOffBoard = async () =>
   getAllUsers({ scope: 'current' }).then(users =>
     users.filter(user =>
