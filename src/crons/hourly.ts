@@ -6,7 +6,7 @@ function hourly() {
   const now = moment().tz('America/New_York');
   const hour = now.hour();
 
-  console.log('Cron hourly task:', now.toString(), { hour });
+  console.log('\n==============\nCron hourly task:', now.toString(), { hour });
 
   // Run at 8pm EST
   if (hour === 8) {
