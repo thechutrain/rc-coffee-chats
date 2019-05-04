@@ -1,6 +1,7 @@
 ## crontab -e file:
 0 8 * * * /root/chron-matchify.sh 
 0 19 * * * /root/chron-warnings.sh
+0 * * * * ~/cron/hourly.sh
 
 
 # NOTE: must set up crontab on the linux machine:
