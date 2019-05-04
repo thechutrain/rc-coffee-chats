@@ -8,9 +8,13 @@ function hourly() {
 
   console.log('Cron hourly task:', now.toString(), { hour });
 
-  // Run at 5pm EST
-  if (hour === 17) {
+  // Run at 8pm EST
+  if (hour === 8) {
+    // run matching
+  } else if (hour === 17) {
     handlePossibleOffboarding();
+  } else if (hour === 19) {
+    // send warning notifications
   }
 }
 

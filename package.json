@@ -17,6 +17,7 @@
     "t": "jest --watch -- -- src/middleware",
     "build": "npm run clean && tsc",
     "cron-hourly": "cross-env NODE_ENV=production node dist/crons/hourly.js",
+    "dev-cron-hourly": "cross-env NODE_ENV=development node dist/crons/hourly.js",
     "copy-prod-dev": "cp data/prod.db data/development.db",
     "dev-matchify": "cross-env NODE_ENV=development ts-node src/crons/matchify",
     "dev-warnings": "cross-env NODE_ENV=development ts-node src/crons/match-warnings",
