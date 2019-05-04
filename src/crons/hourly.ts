@@ -4,6 +4,7 @@ dotenv.config();
 
 import { matchify } from './matchify';
 import { handlePossibleOffboarding } from '../one-off-services/offboarding';
+import { sendNextDayMatchWarning } from './match-warnings';
 
 // This file should be called from cron every hour :)
 function hourly() {
@@ -22,6 +23,7 @@ function hourly() {
     handlePossibleOffboarding();
   } else if (hour === 19) {
     // send warning notifications
+    sendNextDayMatchWarning();
   }
 }
 
