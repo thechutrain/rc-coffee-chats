@@ -12,6 +12,7 @@ function hourly() {
   if (hour === 8) {
     // run matching
   } else if (hour === 17) {
+    console.log('running at 5pm yooo');
     handlePossibleOffboarding();
   } else if (hour === 19) {
     // send warning notifications
