@@ -1,5 +1,9 @@
-import { handlePossibleOffboarding } from '../one-off-services/offboarding';
 import moment from 'moment-timezone';
+import * as dotenv from 'dotenv-safe';
+dotenv.config();
+
+import { matchify } from './matchify';
+import { handlePossibleOffboarding } from '../one-off-services/offboarding';
 
 // This file should be called from cron every hour :)
 function hourly() {
@@ -10,11 +14,11 @@ function hourly() {
 
   // Run at 8pm EST
   if (hour === 8) {
-    // run matching
-  } else if (hour === 16) {
-    console.log('testing ... the hour of 4pm');
+    // makes matches and notifies users
+    matchify();
+  } else if (hour === 14) {
+    // handle possible Onboarding
   } else if (hour === 17) {
-    console.log('running at 5pm yooo');
     handlePossibleOffboarding();
   } else if (hour === 19) {
     // send warning notifications

@@ -10,35 +10,28 @@
  *  -- record matches in the DB!!
  *  -- send message to admin folks the results of the match pairs!
  */
-import moment from 'moment';
-import 'moment-timezone';
+import moment from 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
 import * as types from '../../types';
 import { makeTodaysMatches } from './make-todays-matches';
-// import { getNewCurrentBatches } from '../../recurse-api';
-import { handlePossibleOffboarding } from '../../one-off-services/offboarding/index';
-// Messaging-related, TODO: import from a single file
-import { templateMessageSender } from '../../zulip-messenger/msg-sender';
-import { notifyAdmin } from '../../zulip-messenger/notify-admin';
+import { templateMessageSender, notifyAdmin } from '../../zulip-messenger/';
 
 const startTime = moment()
   .tz('America/New_York')
   .format('L h:mm:ss');
 const logArray = [`====== makeMatches() @ ${startTime} =====`];
-const REPEAT_MATCHES: Array<[string, string]> = [];
 
-matchify();
-async function matchify() {
+export async function matchify() {
   const db = initDB();
   const isProd = process.env.NODE_ENV === 'production';
 
   const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db);
 
-  // TODO: organize code more
   // const { REPEAT_MATCHES } = findRepeatMatches(TODAYS_MATCHES);
+  const REPEAT_MATCHES: Array<[string, string]> = [];
 
   ////////////////////////////////////
   // Send Notifications of matches etc
