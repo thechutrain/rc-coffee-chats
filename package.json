@@ -21,7 +21,7 @@
     "copy-prod-dev": "cp data/prod.db data/development.db",
     "dev-matchify": "cross-env NODE_ENV=development ts-node src/crons/matchify",
     "dev-warnings": "cross-env NODE_ENV=development ts-node src/crons/match-warnings",
-    "dev-offboarding": "cross-env NODE_ENV=development ts-node src/one-off-services/offboarding",
+    "dev-offboarding": "cross-env NODE_ENV=development ts-node src/cron/off-boarding/index.ts",
     "dev-notify-users": "cross-env NODE_ENV=development ts-node src/one-off-services/notify-users",
     "dev-send-matches": "cross-env NODE_ENV=development ts-node src/one-off-services/_manual-send-todays-matches.ts"
   },
