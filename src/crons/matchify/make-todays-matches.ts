@@ -42,16 +42,11 @@ export function makeMatches(
     fallBackUser
   );
 
+  // Stable Marriage Algo to make matches
   const acceptorSuitorMatches = makeStableMarriageMatches(
     cloneDeep(suitors),
     cloneDeep(acceptors)
   );
-
-  acceptorSuitorMatches.forEach(acceptorSuitorMatch => {
-    const acceptor = acceptorSuitorMatch[0];
-    const suitor = acceptorSuitorMatch[1];
-    todaysMatches.push([acceptor.data, suitor.data]);
-  });
 
   const todaysMatches = acceptorSuitorMatches.map(match => {
     // NOTE: necessary for TS, since tuples are not inferred!
