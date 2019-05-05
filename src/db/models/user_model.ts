@@ -340,6 +340,8 @@ export type MatchRecord = {
   date: string;
 };
 
+export type matchPair = [UserWithPrevMatchRecord, UserWithPrevMatchRecord];
+
 export type PrevMatchRecord = {
   id: number;
   email: string;
