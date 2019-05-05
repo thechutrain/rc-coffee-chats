@@ -20,6 +20,7 @@ export function sendNextDayMatchWarning() {
   console.log('Users to warn:');
   console.log(usersToWarn);
 
+  // NOTE: templateMessageSender will check NODE_ENV to send messages for real or not
   usersToWarn.forEach(user => {
     templateMessageSender(user.email, types.msgTemplate.WARNING_NOTIFICATION);
   });
