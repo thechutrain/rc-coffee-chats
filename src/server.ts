@@ -37,6 +37,10 @@ app.use((req: types.ILocalsReq, res, next) => {
   next();
 });
 
+app.get('/', (req, res) => {
+  res.json({ message: 'hello there!' });
+});
+
 // Handle messages received from Zulip outgoing webhooks
 app.post(
   '/webhooks/zulip',
