@@ -15,100 +15,64 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
-import * as types from '../../types';
-import { makeTodaysMatches } from './make-todays-matches';
-import { templateMessageSender, notifyAdmin } from '../../zulip-messenger/';
+import { makeMatches } from './make-todays-matches';
+import { clearSkippers } from './clear-skipping-users';
+import { isRepeatMatch } from './is-repeat-match';
+import { notifyMatchPair } from './notify-match-pair';
+import { notifyAdmin } from '../../zulip-messenger/';
 
 const startTime = moment()
   .tz('America/New_York')
   .format('L h:mm:ss');
-const logArray = [`====== makeMatches() @ ${startTime} =====`];
 
 export async function matchify() {
   const db = initDB();
-  const isProd = process.env.NODE_ENV === 'production';
 
-  const { TODAYS_MATCHES, fallBackMatch } = makeTodaysMatches(db);
+  const { todaysMatches, fallBackMatch } = makeMatches(db);
+  const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
-  // const { REPEAT_MATCHES } = findRepeatMatches(TODAYS_MATCHES);
-  const REPEAT_MATCHES: Array<[string, string]> = [];
-
-  ////////////////////////////////////
-  // Send Notifications of matches etc
-  ///////////////////////////////////
-  TODAYS_MATCHES.forEach(match => {
-    const acceptorMatch = match[0];
-    const suitorMatch = match[1];
-    // Record matches in the user_match, match tables!
-    if (isProd) {
-      const user_ids = [acceptorMatch.id, suitorMatch.id];
-      db.UserMatch.addNewMatch(user_ids);
-    }
-
-    // Check if they are unique matches
-    acceptorMatch.prevMatches.forEach(prevMatch => {
-      if (prevMatch.id === suitorMatch.id) {
-        REPEAT_MATCHES.push([acceptorMatch.email, suitorMatch.email]);
-      }
-    });
-
-    // Send out match emails!
-    if (isProd) {
-      templateMessageSender(
-        acceptorMatch.email,
-        types.msgTemplate.TODAYS_MATCH,
-        {
-          full_name: suitorMatch.full_name,
-          first_name: suitorMatch.full_name.split(' ')[0]
-        }
-      );
-
-      templateMessageSender(suitorMatch.email, types.msgTemplate.TODAYS_MATCH, {
-        full_name: acceptorMatch.full_name,
-        first_name: acceptorMatch.full_name.split(' ')[0]
-      });
-    }
+  // Record Matches:
+  todaysMatches.forEach(match => {
+    const userIds = [match[0].id, match[1].id];
+    db.UserMatch.add(userIds);
   });
+
+  // Clear skip status of users who wanted to skip today:
+  const skippingUsers = clearSkippers(db); // Only
+
+  // Notify each match pair who they've been matched with:
+  todaysMatches.forEach(notifyMatchPair);
 
   ////////////////////
   // Logging
   ////////////////////
-  logArray.push('>> TODAYS MATCHES:');
-  TODAYS_MATCHES.forEach((matchPair, index) => {
-    logArray.push(
-      `>> MATCH #${index + 1}: ${matchPair[0].full_name} <--> ${
-        matchPair[1].full_name
-      }`
-    );
+
+  const logs = {
+    todaysMatches,
+    numMatches: todaysMatches.length,
+    repeatedMatches,
+    numRepeats: repeatedMatches.length,
+    fallBackMatch,
+    skippingUsers,
+    numSkips: skippingUsers.length,
+    runTime: startTime
+  };
+
+  console.log(`\n>> Todays Matches: ${todaysMatches.length}`, {
+    todaysMatches
   });
-
-  // TEMP: keep printing this out?
-  console.log('\n === Matches as email[] ===');
-  const emailTodaysMatches = TODAYS_MATCHES.map(matchPair => {
-    return [matchPair[0].email, matchPair[1].email];
+  console.log(`\n>> Repeated Mathces: ${repeatedMatches.length}`, {
+    repeatedMatches
   });
-  console.log(emailTodaysMatches);
-
-  if (fallBackMatch) {
-    logArray.push(`todays fallback match: ${fallBackMatch.full_name}`);
-  } else {
-    logArray.push(`Not fallback match today`);
-  }
-
-  if (REPEAT_MATCHES.length) {
-    REPEAT_MATCHES.forEach(matchpair => {
-      logArray.push(`Repeat Match: ${JSON.stringify(matchpair)}`);
-    });
-  }
-
-  logArray.push(`total number of match pairs: ${TODAYS_MATCHES.length}`);
-  logArray.push(`Number of repeated matches: ${REPEAT_MATCHES.length}`);
-  logArray.push(
-    `=========== END of Matchify cron @ ${moment()
-      .tz('America/New_York')
-      .format('L h:mm:ss')} ==============`
-  );
+  console.log('\n>> Fallback', { fallBackMatch });
 
   // Send messages to Admin
-  notifyAdmin(logArray.join(`\n`));
+  console.log(JSON.stringify(logs));
+  notifyAdmin(JSON.stringify(logs));
+}
+
+// TESTING purposes
+if (process.env.NODE_ENV === 'development') {
+  console.log(`DEV: ${startTime}`);
+  matchify();
 }

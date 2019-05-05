@@ -2,26 +2,25 @@ import { cloneDeep } from 'lodash';
 
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
-import { UserWithPrevMatchRecord } from '../../db/models/user_model';
+import {
+  UserWithPrevMatchRecord,
+  UserRecord,
+  matchPair
+} from '../../db/models/user_model';
 
-export function makeTodaysMatches(db) {
-  const isProd = process.env.NODE_ENV === 'production';
-  const TODAYS_MATCHES: Array<
-    [UserWithPrevMatchRecord, UserWithPrevMatchRecord]
-  > = [];
+export function makeMatches(
+  db
+  // date?: string // for testing purposes?
+): {
+  todaysMatches: matchPair[];
+  fallBackMatch: UserWithPrevMatchRecord | null;
+} {
   // Get Users to Match for Today:
   const usersToMatch = db.User.findUsersPrevMatchesToday();
 
-  // Clear all the skip next match warnings for todays people
-  if (isProd) {
-    db.User.clearTodaysSkippers();
-  }
   ////////////////////////////////////////
   // Stable Marriage Algorithm
   ////////////////////////////////////////
-  // PREP: create a pool of suitors, acceptors
-  // NOTE: fallbackUser is used to ensure we have an even subset of suitors/acceptors
-
   // TODO: get the fallbackuser from the user table!!! 💣
   const fallBackUser = {
     id: 117,
@@ -37,13 +36,11 @@ export function makeTodaysMatches(db) {
     prevMatches: []
   };
 
-  const { suitors, acceptors, fallBackMatch } = (() => {
-    return createSuitorAcceptorPool(usersToMatch, fallBackUser);
-  })();
-
-  if (fallBackMatch !== null) {
-    TODAYS_MATCHES.push([fallBackUser, fallBackMatch]);
-  }
+  // PREP for stable marriage algorithm.
+  const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+    usersToMatch,
+    fallBackUser
+  );
 
   const acceptorSuitorMatches = makeStableMarriageMatches(
     cloneDeep(suitors),
@@ -53,8 +50,18 @@ export function makeTodaysMatches(db) {
   acceptorSuitorMatches.forEach(acceptorSuitorMatch => {
     const acceptor = acceptorSuitorMatch[0];
     const suitor = acceptorSuitorMatch[1];
-    TODAYS_MATCHES.push([acceptor.data, suitor.data]);
+    todaysMatches.push([acceptor.data, suitor.data]);
   });
 
-  return { TODAYS_MATCHES, fallBackMatch };
+  const todaysMatches = acceptorSuitorMatches.map(match => {
+    // NOTE: necessary for TS, since tuples are not inferred!
+    const matchPairData: matchPair = [match[0].data, match[1].data];
+    return matchPairData;
+  });
+
+  if (fallBackMatch !== null) {
+    todaysMatches.push([fallBackUser, fallBackMatch]);
+  }
+
+  return { todaysMatches, fallBackMatch };
 }
