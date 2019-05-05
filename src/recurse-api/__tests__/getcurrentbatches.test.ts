@@ -1,5 +1,5 @@
 import { getCurrentBatches, isMiniBatch } from '../index';
-import { getSixWeekEndDate } from '../getcurrentbatches';
+// import { getSixWeekEndDate } from '../getcurrentbatches';
 
 const mockSpringBatch = {
   id: 58,
@@ -48,9 +48,9 @@ describe('isMiniBatch(): ', () => {
   });
 });
 
-describe('getSixWeekEndDate(): ', () => {
-  it('should work', () => {
-    const sixWeekDate = getSixWeekEndDate(mockSpringBatch);
-    expect(sixWeekDate).toBe('2019-03-28');
-  });
-});
+// describe('getSixWeekEndDate(): ', () => {
+//   it('should work', () => {
+//     const sixWeekDate = getSixWeekEndDate(mockSpringBatch);
+//     expect(sixWeekDate).toBe('2019-03-28');
+//   });
+// });
