@@ -8,7 +8,7 @@ import {
 } from './offboardinghelpers';
 import { notifyAdmin } from '../../zulip-messenger';
 
-export async function handlePossibleOffboarding() {
+export async function handlePossibleOffBoarding() {
   const users = await getUsersToOffBoard();
 
   if (!users.length) {
