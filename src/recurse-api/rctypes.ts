@@ -6,8 +6,11 @@ export type rc_batch = {
 };
 
 export type rc_stint = {
+  type: 'retreat' | 'employment';
   start_date: string;
   end_date: string | null;
+  in_progress?: boolean; // docs look like this may not be in batches from 2016?
+  for_half_batch?: boolean; // docs look like this may not be in batches from 2016?
 };
 
 export type rc_profile = {
