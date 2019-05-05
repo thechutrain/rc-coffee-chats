@@ -168,14 +168,16 @@ beforeAll(done => {
 
   // creates new DB
   DB = initDB(DB_PATH, false);
-  expect(DB.DB_CONNECTION.open).toBe(true);
+  const { DB_CONNECTION } = DB;
+  expect(DB_CONNECTION.open).toBe(true);
 
   done();
 });
 
 afterAll(done => {
-  DB.DB_CONNECTION.close();
-  expect(DB.DB_CONNECTION.open).toBe(false);
+  const { DB_CONNECTION } = DB;
+  DB_CONNECTION.close();
+  expect(DB_CONNECTION.open).toBe(false);
 
   done();
 });
