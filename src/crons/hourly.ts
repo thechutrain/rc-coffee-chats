@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { matchify } from './matchify';
-import { handlePossibleOffboarding } from '../one-off-services/offboarding';
+import { handlePossibleOffboarding } from './off-boarding';
 import { sendNextDayMatchWarning } from './match-warnings';
 
 // This file should be called from cron every hour :)

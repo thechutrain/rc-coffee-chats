@@ -7,7 +7,7 @@ import {
   offBoardUsers,
   notifyAdminOffboardingResults,
   notifyDeactivatedUsers
-} from './offboard-users';
+} from '../../crons/off-boarding/offboard-users';
 
 export const getUsersToOffBoard = async () =>
   getAllUsers({ scope: 'current' }).then(users =>
@@ -17,10 +17,6 @@ export const getUsersToOffBoard = async () =>
     )
   );
 
-/** check each base to determine if it should offboard users who are leaving
- *
- * @param batches
- */
 export async function handlePossibleOffboarding() {
   const users = await getUsersToOffBoard();
 
@@ -31,11 +27,7 @@ export async function handlePossibleOffboarding() {
   console.log('offboarding ', users.length, 'users on', new Date());
 
   const { error, success } = offBoardUsers(users.map(user => user.email));
-  console.log('success', success);
-  console.error('error', error);
 
   notifyAdminOffboardingResults(error, success);
   notifyDeactivatedUsers(success);
 }
-
-handlePossibleOffboarding();
