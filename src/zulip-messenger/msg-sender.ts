@@ -218,6 +218,7 @@ export function createMessageContent(
     ////////////////////////
     // Warning Messages (cron)
     ////////////////////////
+    // TODO: DEPRECATION PENDING
     TODAYS_MATCH: {
       reqVars: ['full_name', 'first_name'],
       template: `Hi there! 👋
