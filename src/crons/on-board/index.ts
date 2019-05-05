@@ -8,18 +8,24 @@ import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from '../../zulip-messenger';
 
 export async function handlePossibleOnBoarding() {
-  const usersToOnBoard = await getUsersToOnBoard();
-  const usersToOnBoardEmail = usersToOnBoard.map(user => user.email);
+  const users = await getUsersToOnBoard();
+  const usersEmails = users.map(user => user.email);
 
-  if (!usersToOnBoard.length) {
+  if (!users.length) {
     // Case: no users to on board
+    console.log('handlePossibleOnBoard(): no users to onboard');
     return;
   }
 
-  console.log('onboarding ', usersToOnBoard.length, 'users on', new Date());
+  onBoardUsers(usersEmails);
+}
+
+// TODO: test this fn
+export function onBoardUsers(userEmails: string[]) {
+  console.log('onboarding ', userEmails.length, 'users on', new Date());
 
   // Notify Users about Chat Bot
-  usersToOnBoard.forEach(({ email }) => {
+  userEmails.forEach(email => {
     templateMessageSender(email, types.msgTemplate.ONBOARDING);
   });
 
@@ -28,8 +34,8 @@ export async function handlePossibleOnBoarding() {
     process.env.NODE_ENV === 'production'
       ? 'PROD: onboarding'
       : 'DEV: Would onboard'
-  } ${usersToOnBoard.length} number of users. They include: ${JSON.stringify(
-    usersToOnBoardEmail
+  } ${userEmails.length} number of users. They include: ${JSON.stringify(
+    userEmails
   )}`;
   notifyAdmin(adminMessage, 'LOG');
 }
