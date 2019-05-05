@@ -186,7 +186,7 @@ export enum msgTemplate {
   'TODAYS_MATCH' = 'TODAYS_MATCH',
 
   // One-off Messages:
-  // 'ONBOARDING' = 'ONBOARDING',
+  'ONBOARDING' = 'ONBOARDING',
   'OFFBOARDING' = 'OFFBOARDING'
 }
 
