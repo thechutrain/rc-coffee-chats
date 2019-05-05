@@ -8,7 +8,7 @@ import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
 type email = string;
 
-export const getUsersToOffBoard = async () =>
+export const getUsersToOffBoard = () =>
   getUsersAtRc().then(users =>
     users.filter(user =>
       // NOTE: faculty members have stints with end_date = null.
