@@ -12,7 +12,7 @@ export async function handlePossibleOnBoarding() {
   const usersEmails = users.map(user => user.email);
 
   if (!users.length) {
-    // Case: no users to on board
+    // Case: no users to on-board
     console.log('handlePossibleOnBoard(): no users to onboard');
     return;
   }
