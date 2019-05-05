@@ -2,4 +2,4 @@
 
 cd ~/rc-coffee-chats
 
-npm run dev-cron-hourly >> ~/cron/logs
+npm run cron-hourly >> ~/cron/logs
