@@ -8,19 +8,21 @@ dotenv.config();
 import axios from 'axios';
 import * as types from './rctypes';
 
-export function getPaginatedUsers(params): Promise<types.rc_profile[]> {
-  const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
-  return axios
-    .get(`${apiEndpoint}`, {
-      params,
-      headers: {
-        Authorization: `Bearer ${process.env.RC_TOKEN}`
-      }
-    })
-    .then(resp => resp.data);
+// Gets all the users coming to Ngw
+export function getUsersAtNgw(): Promise<types.rc_profile[]> {
+  return getUsers({ scope: 'ngw' });
 }
 
-export function getAllUsers(params): Promise<types.rc_profile[]> {
+// Gets all the users currently at RC
+export function getUsersAtRc(): Promise<types.rc_profile[]> {
+  return getUsers({ scope: 'current' });
+}
+
+/**
+ * See more @ https://github.com/recursecenter/wiki/wiki/Recurse-Center-API#profiles
+ * @param params
+ */
+export function getUsers(params): Promise<types.rc_profile[]> {
   return new Promise(async resolve => {
     let allUsers: any = [];
     let hasMore = true;
@@ -40,20 +42,32 @@ export function getAllUsers(params): Promise<types.rc_profile[]> {
   });
 }
 
-export function getUsersFromBatch(batchId): Promise<types.rc_profile[]> {
-  return getAllUsers({ batch_id: batchId });
-}
-
-export function getBatches(): Promise<types.rc_batch[]> {
-  const apiEndpoint = 'https://www.recurse.com/api/v1';
+export function getPaginatedUsers(params): Promise<types.rc_profile[]> {
+  const apiEndpoint = 'https://www.recurse.com/api/v1/profiles';
   return axios
-    .get(`${apiEndpoint}/batches`, {
+    .get(`${apiEndpoint}`, {
+      params,
       headers: {
         Authorization: `Bearer ${process.env.RC_TOKEN}`
       }
     })
-    .then(response => {
-      // console.log(response.data);
-      return response.data;
-    });
+    .then(resp => resp.data);
 }
+
+// export function getUsersFromBatch(batchId): Promise<types.rc_profile[]> {
+//   return getAllUsers({ batch_id: batchId });
+// }
+
+// export function getBatches(): Promise<types.rc_batch[]> {
+//   const apiEndpoint = 'https://www.recurse.com/api/v1';
+//   return axios
+//     .get(`${apiEndpoint}/batches`, {
+//       headers: {
+//         Authorization: `Bearer ${process.env.RC_TOKEN}`
+//       }
+//     })
+//     .then(response => {
+//       // console.log(response.data);
+//       return response.data;
+//     });
+// }
