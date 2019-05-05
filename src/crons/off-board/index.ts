@@ -12,6 +12,7 @@ export async function handlePossibleOffBoarding() {
   const users = await getUsersToOffBoard();
 
   if (!users.length) {
+    // Case: no users to offboard
     return;
   }
 
