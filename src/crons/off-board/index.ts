@@ -12,15 +12,19 @@ export async function handlePossibleOffBoarding() {
   const users = await getUsersToOffBoard();
 
   if (!users.length) {
-    // Case: no users to offboard
+    // Case: no users to off-board
+    console.log('handlePossibleOffBoard(): no users to offboard');
     return;
   }
 
-  console.log('offboarding ', users.length, 'users on', new Date());
+  const userEmails = users.map(user => user.email);
+  offBoardUsers(userEmails);
+}
 
-  const { deactivatedUsers, errorUsers } = deactivateUsers(
-    users.map(user => user.email)
-  );
+export const offBoardUsers = (userEmails: string[]) => {
+  console.log('offboarding ', userEmails.length, 'users on', new Date());
+
+  const { deactivatedUsers, errorUsers } = deactivateUsers(userEmails);
 
   notifyDeactivatedUsers(deactivatedUsers);
 
@@ -40,4 +44,4 @@ export async function handlePossibleOffBoarding() {
       'WARNING'
     );
   }
-}
+};
