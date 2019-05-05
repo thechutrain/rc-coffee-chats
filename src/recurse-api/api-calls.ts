@@ -54,20 +54,26 @@ export function getPaginatedUsers(params): Promise<types.rc_profile[]> {
     .then(resp => resp.data);
 }
 
-// export function getUsersFromBatch(batchId): Promise<types.rc_profile[]> {
-//   return getAllUsers({ batch_id: batchId });
-// }
+/**
+ *  No longer necesssary!
+ *  - previously we were getting batch info --> users
+ *  - now we can go from user --> batch (stints)
+ */
+export function getUsersFromBatch(batchId): Promise<types.rc_profile[]> {
+  return getUsers({ batch_id: batchId });
+}
 
-// export function getBatches(): Promise<types.rc_batch[]> {
-//   const apiEndpoint = 'https://www.recurse.com/api/v1';
-//   return axios
-//     .get(`${apiEndpoint}/batches`, {
-//       headers: {
-//         Authorization: `Bearer ${process.env.RC_TOKEN}`
-//       }
-//     })
-//     .then(response => {
-//       // console.log(response.data);
-//       return response.data;
-//     });
-// }
+// No longer necessary
+export function getBatches(): Promise<types.rc_batch[]> {
+  const apiEndpoint = 'https://www.recurse.com/api/v1';
+  return axios
+    .get(`${apiEndpoint}/batches`, {
+      headers: {
+        Authorization: `Bearer ${process.env.RC_TOKEN}`
+      }
+    })
+    .then(response => {
+      // console.log(response.data);
+      return response.data;
+    });
+}
