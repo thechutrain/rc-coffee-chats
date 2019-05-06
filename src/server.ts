@@ -51,6 +51,7 @@ app.post(
   actionHandler,
   messageHandler,
   (req: types.IZulipRequest, res) => {
+    console.log(res.body);
     res.json({});
   }
 );
