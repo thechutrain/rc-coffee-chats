@@ -3,10 +3,13 @@ FROM mhart/alpine-node:10
 
 # Lock python to 2.7 somehowa
 RUN apk update && apk add python make g++ git
-RUN git clone https://github.com/thechutrain/rc-coffee-chats.git app
+# RUN git clone https://github.com/thechutrain/rc-coffee-chats.git app
+# RUN git checkout -t origin/v2.1
+
 WORKDIR /app
-RUN git checkout -t origin/v2.1
+COPY package-lock.json /
 RUN npm install
+COPY /src /app
 
 # COPY .env.example .env
 RUN ["cp", ".env.example", ".env"] 
