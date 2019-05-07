@@ -64,9 +64,72 @@ describe('User Model:', () => {
     let somebody = await user.findByEmail(email);
     expect(somebody.warning_notification).toBe(true);
 
-    await user.updateSkip(email, false);
+    await user.updateWarnings(email, false);
 
     somebody = await user.findByEmail(email);
     expect(somebody.warning_notification).toBe(false);
+  })
+
+  it("should find all active users", async() => {
+    let emails = [
+      {
+        email: "somebody@recurse.com",
+        days: [1, 2, 4]
+      },
+      {
+        email: "someoneelse@recurse.com",
+        days: [1, 2, 5],
+        warnings: false,
+      },
+      {
+        email: "smashmouth@recurse.com",
+        days: [2, 3, 4],
+      }
+    ];
+
+    for (const email of emails) {
+      await user.add(email.email, "anon");
+      if (email.warnings === false) {
+        await user.updateWarnings(email.email, false)
+      }
+      await user.updateDays(email.email, email.days);
+    }
+
+    let users = await user.usersToWarn(1);
+    expect(users.length).toBe(1);
+    expect(users[0].email).toBe("somebody@recurse.com");
+  })
+
+  it("should find users skipping today", async() => {
+    let emails = [
+      {
+        // Not skipping
+        email: "smashmouth@recurse.com",
+        days: [1, 2, 4]
+      },
+      {
+        email: "somebody@recurse.com",
+        days: [1, 2, 5],
+        skipNext: true,
+      },
+      {
+        // Not going today
+        email: "someoneelse@recurse.com",
+        days: [2, 3, 4],
+        skipNext: true,
+      }
+    ];
+
+    for (const email of emails) {
+      await user.add(email.email, "anon");
+      if (email.skipNext === true) {
+        await user.updateSkip(email.email, true)
+      }
+      await user.updateDays(email.email, email.days);
+    }
+
+    let users = await user.usersToSkip(1);
+    expect(users.length).toBe(1);
+    expect(users[0].email).toBe("somebody@recurse.com");
   })
 })

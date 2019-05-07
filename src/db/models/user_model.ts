@@ -305,9 +305,7 @@ export class UserModel extends Model<UserRecord> {
             .tz('America/New_York')
             .day();
     const updateQuery = Model.db
-      .prepare(`with todaysSkipped as (SELECT U.id FROM User U WHERE U.coffee_Days LIKE '%${weekdayInt}%' and U.is_active <> 0 and U.skip_next_match = 1)
-
-    UPDATE User SET skip_next_match = 0 WHERE User.id in todaysSkipped;`);
+      .prepare();
 
     return updateQuery.run();
   }

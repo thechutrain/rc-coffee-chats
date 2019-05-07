@@ -2,6 +2,7 @@ import { Client } from 'pg';
 import { UserRecord } from '../../olddb/dbTypes';
 import { WeekSpec } from 'moment';
 import { WEEKDAYS } from '../../constants';
+import { WEEKDAY } from '../../types';
 
 export class User {
   db: Client;
@@ -40,7 +41,7 @@ export class User {
     return await this.db.query(`INSERT INTO "User" (email, full_name) VALUES ($1, $2)`, [email, full_name]);
   }
 
-  public async updateDays(email: string, days: WEEKDAYS[]): Promise<void> {
+  public async updateDays(email: string, days: WEEKDAY[]): Promise<void> {
     const weekdayStr = days
       .sort((a, b) => {
         if (a > b) {
@@ -57,8 +58,29 @@ export class User {
     return
   }
 
-  public async updateSkip(email: string, shouldSkip: boolean): Promise<void> {
+  public async updateWarnings(email: string, shouldSkip: boolean): Promise<void> {
     await this.db.query(`UPDATE "User" SET warning_notification = $1 WHERE email = $2`, [shouldSkip, email]);
     return
+  }
+
+  public async updateActive(email: string, isActive: boolean): Promise<void> {
+    await this.db.query(`UPDATE "User" SET is_active = $1 WHERE email = $2`, [isActive, email]);
+    return
+  }
+
+  public async updateSkip(email: string, skip: boolean): Promise<void> {
+    await this.db.query(`UPDATE "User" SET skip_next_match = $1 WHERE email = $2`, [skip, email]);
+    return
+  }
+
+  public async usersToWarn(weekday: WEEKDAY): Promise<UserRecord[]> {
+    const nextDayWarnings = await this.db.query(`SELECT *
+FROM "User" U WHERE U.coffee_days LIKE '%${weekday}%' AND U.warning_notification = True AND U.skip_next_match = False AND U.is_active = True`);
+    return nextDayWarnings.rows;
+  }
+
+  public async usersToSkip(weekday: WEEKDAY): Promise<UserRecord[]> {
+    const skipping = await this.db.query(`SELECT U.id, U.email FROM "User" U WHERE U.coffee_Days LIKE '%${weekday}%' and U.is_active = True and U.skip_next_match = True`);
+    return skipping.rows;
   }
 }
