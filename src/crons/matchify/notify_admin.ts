@@ -1,4 +1,4 @@
-import { initDB } from '../../db';
+import { initDB } from '../../olddb';
 import * as types from '../../types';
 import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
 

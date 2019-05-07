@@ -16,12 +16,12 @@ import 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import { initDB } from '../../db';
+import { initDB } from '../../olddb';
 import * as types from '../../types';
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
 import { Acceptor } from '../../matching-algo/stable-marriage-matching/marriage-types';
-import { UserWithPrevMatchRecord } from '../../db/models/user_model';
+import { UserWithPrevMatchRecord } from '../../olddb/models/user_model';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from './notify_admin';
 

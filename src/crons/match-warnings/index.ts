@@ -4,8 +4,8 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import * as types from '../../types';
-import { initDB } from '../../db';
-import { UserRecord } from '../../db/dbTypes';
+import { initDB } from '../../olddb';
+import { UserRecord } from '../../olddb/dbTypes';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
 function sendNextDayMatchWarning(sendMessage = true) {

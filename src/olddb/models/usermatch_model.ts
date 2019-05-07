@@ -1,7 +1,7 @@
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { Model } from './__base_model';
-import { UserModel, MatchModel } from '.';
+import { UserModel, MatchModel } from '../models';
 
 export class UserMatchModel extends Model<UserMatchRecord> {
   private User: UserModel;

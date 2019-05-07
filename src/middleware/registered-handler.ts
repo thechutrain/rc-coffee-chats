@@ -11,7 +11,7 @@
  */
 
 import * as types from '../types';
-import { myDB } from '../db/dbTypes';
+import { myDB } from '../olddb/dbTypes';
 
 // TODO: make a generic interface for this msg sender!
 // seperate the concerns so it can handle three events: onSuccessfulSignup, onFailedSignup, promptSignup

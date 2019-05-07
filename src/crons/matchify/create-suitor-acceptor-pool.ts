@@ -13,7 +13,7 @@ import {
 import {
   UserWithPrevMatchRecord,
   PrevMatchRecord
-} from '../../db/models/user_model';
+} from '../../olddb/models/user_model';
 // export type basicPrevMatch = {
 //   email: string;
 //   date?: string;

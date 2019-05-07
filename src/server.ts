@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 8080;
 
 // ===== My Custom Modules =====
 import * as types from './types';
-import { initDB } from './db';
+import { initDB } from './olddb';
 // import { parseStrAsBool, validatePayload } from './utils/';
 
 //////////////////////////////////

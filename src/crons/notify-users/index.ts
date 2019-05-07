@@ -4,7 +4,7 @@
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import { initDB } from '../../db';
+import { initDB } from '../../olddb';
 import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
 
 function sendUserNotification(msg: string) {

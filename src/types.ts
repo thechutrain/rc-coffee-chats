@@ -112,7 +112,7 @@ export interface IActionObj {
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 
-import { myDB, UserRecord } from './db/dbTypes';
+import { myDB, UserRecord } from './olddb/dbTypes';
 export { myDB };
 export interface ICtx {
   db: myDB;
