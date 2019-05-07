@@ -21,18 +21,6 @@
     "_notify-users": "cross-env NODE_ENV=production ts-node src/crons/notify-users",
     "_send-matches": "cross-env NODE_ENV=production ts-node src/crons/matchify/_manual-send-todays-matches.ts"
   },
-  "lint-staged": {
-    "src/*.ts": [
-      "npm run format",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run test"
-    }
-  },
   "dependencies": {
     "axios": "^0.18.0",
     "better-sqlite3": "^5.4.0",
@@ -43,6 +31,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.25",
+    "pg": "^7.10.0",
     "sequelize": "^5.8.5",
     "winston": "^2.4.0"
   },
