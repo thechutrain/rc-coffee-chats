@@ -6,12 +6,16 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/nginx:/etc/nginx/conf.d
-      - ./config/certbot/conf:/etc/letsencrypt
-      - ./config/certbot/www:/var/www/certbot
+      # - ./config/certbot/conf:/etc/letsencrypt
+      # - ./config/certbot/www:/var/www/certbot
     ports:
       - '80:80'
-      - '443:443'
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+      # - '443:443'
+    # command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
   # certbot:
   #   image: certbot/certbot
   #   restart: unless-stopped
