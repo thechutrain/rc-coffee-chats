@@ -1,24 +1,24 @@
-import * as Sequelize from 'sequelize';
-// import productFactory from './product';
+import { User } from './user';
+import { Client } from 'pg';
 
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config.json')[env];
+export async function initDB() {
+  const client = new Client({
+    connectionString:
+      process.env.POSTGRES_URL || 'postgres://localhost:5432/coffeechatbot',
+    statement_timeout: 5000
+  });
 
-const sequelize = new Sequelize(
-  config.url || process.env.POSTGRES_URL
-  config
-);
+  await client.connect();
 
-const db = {
-  sequelize,
-  Sequelize,
-  Product: productFactory(sequelize)
-};
+  const userModel = new User(client);
+  // await userModel.initTable();
 
-Object.values(db).forEach((model: any) => {
-  if (model.associate) {
-    model.associate(db);
-  }
+  return {
+    user: userModel
+  };
+}
+
+// testing
+initDB().catch(e => {
+  console.log(e);
 });
-
-export default db;
