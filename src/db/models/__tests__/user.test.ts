@@ -1,6 +1,6 @@
 import { Client } from 'pg';
-import { User } from './user';
-import { WEEKDAY } from '../../types';
+import { User } from '../user';
+import { WEEKDAY } from '../../../types';
 
 describe('User Model:', () => {
   let db_conn: Client;
