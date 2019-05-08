@@ -54,6 +54,16 @@ describe('User Model:', () => {
     expect(somebody.coffee_days).toEqual('15');
   });
 
+  it('should update active', async () => {
+    const email = 'somebody@recurse.com';
+    await user.add(email, 'somebody');
+    let somebody = await user.findByEmail(email);
+    expect(somebody.is_active).toBe(true);
+    await user.updateActive(email, false);
+    somebody = await user.findByEmail(email);
+    expect(somebody.is_active).toBe(false);
+  });
+
   it('should update skip next', async () => {
     const email = 'somebody@recurse.com';
     await user.add(email, 'Some BODY');
