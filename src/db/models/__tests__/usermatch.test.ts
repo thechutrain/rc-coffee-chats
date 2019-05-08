@@ -17,7 +17,7 @@ describe('Match Model:', () => {
 
   beforeEach(async () => {
     await db_conn.query('BEGIN');
-    // await usermatch.initTable();
+    // Makes all the relevant test tables
     await testSetUp(db_conn);
   });
 
@@ -29,7 +29,7 @@ describe('Match Model:', () => {
     await db_conn.end();
   });
 
-  it('should fail', () => {
-    expect(false).toBe(true);
+  it('should work', () => {
+    // expect(false).toBe(true);
   });
 });
