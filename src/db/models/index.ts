@@ -1,5 +1,7 @@
 import { User } from './user';
 import { Client } from 'pg';
+import { UserMatch } from './usermatch';
+import { Match } from './match';
 
 export async function initDB() {
   const str =
@@ -12,15 +14,17 @@ export async function initDB() {
 
   await client.connect();
 
-  const userModel = new User(client);
-  await userModel.initTable();
+  const user = new User(client);
+  const usermatch = new UserMatch(client);
+  const match = new Match(client);
+
+  await user.initTable();
+  await usermatch.initTable();
+  await match.initTable();
 
   return {
-    user: userModel
+    user,
+    usermatch,
+    match
   };
 }
-
-// testing
-// initDB().catch(e => {
-//   console.log(e);
-// });
