@@ -128,4 +128,26 @@ describe('User Model:', () => {
     expect(skippingUsers.length).toBe(1);
     expect(skippingUsers[0].email).toBe('somebody@recurse.com');
   });
+
+  it('should be able to clear the skip status of users who want to skip today', async () => {
+    const userSeedData = [
+      { email: 'liz@recurse.com', days: [1, 2], skipNext: true },
+      { email: 'al@recurse.com', days: [4], skipNext: true },
+      { email: 'noskip@recurse.com', days: [1, 2] }
+    ];
+
+    for (const userData of userSeedData) {
+      await user.add(userData.email, 'full_name_here');
+      if (userData.skipNext) {
+        user.updateSkip(userData.email, true);
+      }
+      user.updateDays(userData.email, userData.days);
+    }
+
+    let skippingUsers = await user.usersToSkip(1);
+    expect(skippingUsers.length).toBe(1);
+    await user.clearSkipping(1);
+    skippingUsers = await user.usersToSkip(1);
+    expect(skippingUsers.length).toBe(0);
+  });
 });

@@ -107,4 +107,11 @@ FROM "User" U WHERE U.coffee_days LIKE '%${weekday}%' AND U.warning_notification
     );
     return skipping.rows;
   }
+
+  public async clearSkipping(weekday: WEEKDAY): Promise<void> {
+    await this.db.query(
+      `UPDATE "User" U SET skip_next_match = False WHERE U.coffee_days LIKE '%${weekday}%' and U.is_active = True and U.skip_next_match = True`
+    );
+    return;
+  }
 }
