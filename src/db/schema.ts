@@ -10,6 +10,19 @@ export type UserRecord = {
   is_admin: boolean;
 };
 
+export type UserWithPrevMatchRecord = UserRecord & {
+  prevMatches: PrevMatchRecord[];
+} & {
+  num_matches: number;
+};
+
+export type PrevMatchRecord = {
+  id: number;
+  email: string;
+  full_name: string;
+  date: string;
+};
+
 export type MatchRecord = {
   id: number;
   match_date: Date; // "YYYY-MM-DD"
