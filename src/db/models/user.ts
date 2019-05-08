@@ -116,4 +116,39 @@ FROM "User" U WHERE U.coffee_days LIKE '%${weekday}%' AND U.warning_notification
     );
     return;
   }
+
+  public async findToMatch(weekday: WEEKDAY): Promise<UserRecord[]> {
+    const results = await this.db.query(
+      `SELECT * FROM "User" WHERE coffee_days LIKE '%${weekday}%' AND skip_next_match = False and is_active = True`,
+      []
+    );
+    return results.rows;
+  }
+
+  public async findToMatchWithPrevMatches(
+    weekday: WEEKDAY
+  ): Promise<UserWithPrevMatchRecord[]> {
+    //     const results = await this.db
+    //       .query(`with todaysMatches as (SELECT U.id FROM "User" U WHERE U.coffee_days LIKE '%${weekday}%' and U.is_active = True and U.skip_next_match = False),
+    //       prevMatches as (SELECT UM.user_id from User_match UM LEFT JOIN Match M On UM.match_id = M.id INNER JOIN USER_MATCH UM2 on UM2.match_id = M.id WHERE UM.user_id in (SELECT * FROM todaysMatches))
+    // SELECT * from todaysMatches`);
+
+    const results = await this.db
+      .query(`with todayMatches as (SELECT U.id FROM "User" U WHERE U.coffee_days LIKE '%${weekday}%' and U.is_active = True and U.skip_next_match = False),
+    prevMatches as (SELECT UM.user_id, count (UM.user_id) as num_matches from User_Match UM
+    LEFT JOIN MATCH M
+      ON UM.match_id = M.id
+    INNER JOIN User_Match UM2
+      ON UM2.match_id = M.id
+     WHERE UM.user_id in (SELECT id FROM todayMatches) and UM2.user_id in (SELECT id FROM todayMatches) and UM.user_id != UM2.user_id
+     group by um.user_id
+     order by num_matches desc
+     )
+    SELECT U2.*, prevMatches.num_matches from "User" U2
+      LEFT JOIN prevMatches
+      ON prevMatches.user_id = U2.id
+      WHERE U2.coffee_days LIKE '%${weekday}%' and U2.is_active = True and U2.skip_next_match = False`);
+
+    return results.rows;
+  }
 }

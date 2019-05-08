@@ -213,12 +213,12 @@ describe('More complicated User Model queries:', () => {
       { email: 'noskip@recurse.com', days: [1, 2] }
     ];
     await seedUserData(userData);
-    const result = await user.usersToMatch(WEEKDAY.MON);
+    const result = await user.findToMatch(WEEKDAY.MON);
     expect(result.length).toBe(1);
     expect(result[0].email).toBe('noskip@recurse.com');
   });
 
-  xit('should be able to find users and their previous matches for today', async () => {
+  it('should be able to find users and their previous matches for today', async () => {
     const userData = [
       { email: 'liz@recurse.com', days: [1, 2] },
       { email: 'al@recurse.com', days: [1], skipNext: true },
@@ -231,7 +231,7 @@ describe('More complicated User Model queries:', () => {
     await usermatch.addMatch(liz.id, al.id);
 
     // Users with their matches:
-    const usersToday = await user.usersToMatchPrevMatches(WEEKDAY.MON);
+    const usersToday = await user.findToMatchWithPrevMatches(WEEKDAY.MON);
     // const sortedResults = usersToday.map(result => result.email).sort();
     const sortedResults = usersToday.sort((a, b) => {
       return a.email < b.email ? 1 : 0;
