@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { UserRecord } from '../schema';
+import { UserRecord, UserWithPrevMatchRecord } from '../schema';
 import { WEEKDAY } from '../../types';
 
 export class User {
@@ -41,11 +41,13 @@ export class User {
     return results.rows[0];
   }
 
-  public add(email: string, full_name: string) {
-    return this.db.query(
-      `INSERT INTO "User" (email, full_name) VALUES ($1, $2)`,
+  public async add(email: string, full_name: string): Promise<UserRecord> {
+    const result = await this.db.query(
+      `INSERT INTO "User" (email, full_name) VALUES ($1, $2) RETURNING *`,
       [email, full_name]
     );
+
+    return result.rows[0];
   }
 
   public async updateDays(email: string, days: WEEKDAY[]): Promise<void> {
