@@ -9,3 +9,9 @@ export type UserRecord = {
   is_faculty: boolean;
   is_admin: boolean;
 };
+
+export type MatchRecord = {
+  id: number;
+  match_date: Date; // "YYYY-MM-DD"
+  rain_checked: boolean;
+};
