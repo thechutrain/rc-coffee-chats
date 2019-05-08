@@ -1,10 +1,10 @@
 import { Client } from 'pg';
 import { User } from './user';
-import { WEEKDAYS } from '../../constants';
+import { WEEKDAY } from '../../types';
 
 describe('User Model:', () => {
   let db_conn: Client;
-  let user: User
+  let user: User;
 
   beforeAll(async () => {
     const str = process.env.POSTGRES_URL || 'postgres:///coffeechatbot_test';
@@ -15,52 +15,48 @@ describe('User Model:', () => {
 
     await db_conn.connect();
     user = new User(db_conn);
-
-
-
-  })
-
-  beforeEach(async () => {
-    await db_conn.query("BEGIN"); // Never commit test data
-    await user.initTable();
-  })
-
-  afterEach(async () => {
-    await db_conn.query("ROLLBACK"); // Never commit test data
-  })
-
-  afterAll(async () => {
-    await db_conn.end()
-  })
-
-  it("should not find unknown user", async () => {
-    await expect(user.findByEmail('nobody@recurse.com'))
-    .rejects.toThrowError('Could not find a user with the email: nobody@recurse.com');
   });
 
-  it("should say unknown email exists", async () => {
-    expect(await user.emailExists("nobody@recurse.com"))
-      .toBe(false);
-  })
+  beforeEach(async () => {
+    await db_conn.query('BEGIN'); // Never commit test data
+    await user.initTable();
+  });
 
-  it("should add new user", async() => {
-    await user.add("somebody@recurse.com", "Some BODY");
-    expect(await user.emailExists("somebody@recurse.com"))
-      .toBe(true);
-  })
+  afterEach(async () => {
+    await db_conn.query('ROLLBACK'); // Never commit test data
+  });
 
-  it("should update days", async() => {
-    let email = "somebody@recurse.com";
-    await user.add(email, "Some BODY");
-    await user.updateDays(email, [WEEKDAYS.MON, WEEKDAYS.FRI]);
+  afterAll(async () => {
+    await db_conn.end();
+  });
 
-    let somebody = await user.findByEmail(email);
-    expect(somebody.coffee_days).toEqual("15");
-  })
+  it('should not find unknown user', async () => {
+    await expect(user.findByEmail('nobody@recurse.com')).rejects.toThrowError(
+      'Could not find a user with the email: nobody@recurse.com'
+    );
+  });
 
-  it("should update skip next", async() => {
-    let email = "somebody@recurse.com";
-    await user.add(email, "Some BODY");
+  it('should say unknown email does not exist', async () => {
+    expect(await user.emailExists('nobody@recurse.com')).toBe(false);
+  });
+
+  it('should add new user', async () => {
+    await user.add('somebody@recurse.com', 'Some BODY');
+    expect(await user.emailExists('somebody@recurse.com')).toBe(true);
+  });
+
+  it('should update days', async () => {
+    const email = 'somebody@recurse.com';
+    await user.add(email, 'Some BODY');
+    await user.updateDays(email, [WEEKDAY.MON, WEEKDAY.FRI]);
+
+    const somebody = await user.findByEmail(email);
+    expect(somebody.coffee_days).toEqual('15');
+  });
+
+  it('should update skip next', async () => {
+    const email = 'somebody@recurse.com';
+    await user.add(email, 'Some BODY');
     let somebody = await user.findByEmail(email);
     expect(somebody.warning_notification).toBe(true);
 
@@ -68,68 +64,68 @@ describe('User Model:', () => {
 
     somebody = await user.findByEmail(email);
     expect(somebody.warning_notification).toBe(false);
-  })
+  });
 
-  it("should find all active users", async() => {
-    let emails = [
+  it('should find all active users', async () => {
+    const emails = [
       {
-        email: "somebody@recurse.com",
+        email: 'somebody@recurse.com',
         days: [1, 2, 4]
       },
       {
-        email: "someoneelse@recurse.com",
+        email: 'someoneelse@recurse.com',
         days: [1, 2, 5],
-        warnings: false,
+        warnings: false
       },
       {
-        email: "smashmouth@recurse.com",
-        days: [2, 3, 4],
+        email: 'smashmouth@recurse.com',
+        days: [2, 3, 4]
       }
     ];
 
     for (const email of emails) {
-      await user.add(email.email, "anon");
+      await user.add(email.email, 'anon');
       if (email.warnings === false) {
-        await user.updateWarnings(email.email, false)
+        await user.updateWarnings(email.email, false);
       }
       await user.updateDays(email.email, email.days);
     }
 
-    let users = await user.usersToWarn(1);
+    const users = await user.usersToWarn(1);
     expect(users.length).toBe(1);
-    expect(users[0].email).toBe("somebody@recurse.com");
-  })
+    expect(users[0].email).toBe('somebody@recurse.com');
+  });
 
-  it("should find users skipping today", async() => {
-    let emails = [
+  it('should find users skipping today', async () => {
+    const userSeedData = [
       {
         // Not skipping
-        email: "smashmouth@recurse.com",
+        email: 'smashmouth@recurse.com',
         days: [1, 2, 4]
       },
       {
-        email: "somebody@recurse.com",
+        email: 'somebody@recurse.com',
         days: [1, 2, 5],
-        skipNext: true,
+        skipNext: true
       },
       {
         // Not going today
-        email: "someoneelse@recurse.com",
+        email: 'someoneelse@recurse.com',
         days: [2, 3, 4],
-        skipNext: true,
+        skipNext: true
       }
     ];
 
-    for (const email of emails) {
-      await user.add(email.email, "anon");
-      if (email.skipNext === true) {
-        await user.updateSkip(email.email, true)
+    for (const userData of userSeedData) {
+      await user.add(userData.email, 'anon');
+      if (userData.skipNext === true) {
+        await user.updateSkip(userData.email, true);
       }
-      await user.updateDays(email.email, email.days);
+      await user.updateDays(userData.email, userData.days);
     }
 
-    let users = await user.usersToSkip(1);
-    expect(users.length).toBe(1);
-    expect(users[0].email).toBe("somebody@recurse.com");
-  })
-})
+    const skippingUsers = await user.usersToSkip(1);
+    expect(skippingUsers.length).toBe(1);
+    expect(skippingUsers[0].email).toBe('somebody@recurse.com');
+  });
+});
