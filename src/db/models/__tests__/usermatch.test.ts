@@ -1,9 +1,22 @@
 import { Client } from 'pg';
 import { testSetUp } from './dbtesthelper';
 import { UserMatch } from '../usermatch';
+import { User } from '../user';
 
 describe('Match Model:', () => {
   let db_conn: Client;
+  let user: User;
+  let usermatch: UserMatch;
+
+  async function seedUserData(userSeedData) {
+    for (const userData of userSeedData) {
+      await user.add(userData.email, 'full_name_here');
+      if (userData.skipNext) {
+        user.updateSkip(userData.email, true);
+      }
+      user.updateDays(userData.email, userData.days);
+    }
+  }
 
   beforeAll(async () => {
     db_conn = new Client({
@@ -13,6 +26,8 @@ describe('Match Model:', () => {
     });
 
     await db_conn.connect();
+    user = new User(db_conn);
+    usermatch = new UserMatch(db_conn);
   });
 
   beforeEach(async () => {
@@ -29,7 +44,10 @@ describe('Match Model:', () => {
     await db_conn.end();
   });
 
-  it('should work', () => {
-    // expect(false).toBe(true);
+  it('should be able to create a new match', async () => {
+    const liz = await user.add('liz@recurse.com', 'anon');
+    const al = await user.add('al@recurse.com', 'anon');
+
+    await usermatch.addMatch(liz.id, al.id);
   });
 });
