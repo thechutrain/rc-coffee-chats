@@ -7,12 +7,13 @@ export class Match {
     this.db = db;
   }
 
-  public async initTable() {
-    this.db.query(`CREATE TABLE IF NOT EXISTS Match (
+  public async initTable(): Promise<void> {
+    await this.db.query(`CREATE TABLE Match (
       id SERIAL PRIMARY KEY,
       match_date DATE NOT NULL DEFAULT CURRENT_DATE,
       rain_checked BOOLEAN DEFAULT False
     )`);
+    return;
   }
 
   public async add(date?: string): Promise<MatchRecord> {

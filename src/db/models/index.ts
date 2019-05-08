@@ -21,6 +21,6 @@ export async function initDB() {
 }
 
 // testing
-initDB().catch(e => {
-  console.log(e);
-});
+// initDB().catch(e => {
+//   console.log(e);
+// });

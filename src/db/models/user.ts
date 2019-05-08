@@ -9,7 +9,7 @@ export class User {
   }
 
   public async initTable(): Promise<void> {
-    await this.db.query(`CREATE TABLE IF NOT EXISTS "User" (
+    await this.db.query(`CREATE TABLE "User" (
       id SERIAL PRIMARY KEY NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       full_name TEXT NOT NULL,
