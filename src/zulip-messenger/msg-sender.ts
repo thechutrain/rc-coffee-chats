@@ -26,6 +26,14 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      `sendGenericMessage(): Skipping Message Sending b/c you'e not in prod:`
+    );
+    console.log({ toEmail, messageContent });
+    return;
+  }
+
   return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -210,6 +218,7 @@ export function createMessageContent(
     ////////////////////////
     // Warning Messages (cron)
     ////////////////////////
+    // TODO: DEPRECATION PENDING
     TODAYS_MATCH: {
       reqVars: ['full_name', 'first_name'],
       template: `Hi there! 👋
@@ -237,6 +246,18 @@ export function createMessageContent(
       }/issues)
       `,
       reqVars: ['errorMessage']
+    },
+
+    ////////////////////////
+    // One-off Messages
+    ////////////////////////
+    ONBOARDING: {
+      template: `👋 Hi there, I'm Chat Bot. \nI like to randomly pair up RC community members for one-on-one chats so that they have someone new to talk to and learn about on days that they are available. Its often a nice time to go out for coffee, lunch, or just a walk and talk to other amazing RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow. Learn more at my [wiki](${
+        process.env.GITHUB_URL
+      }/wiki)`
+    },
+    OFFBOARDING: {
+      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has been automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
     }
   };
 

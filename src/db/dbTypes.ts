@@ -5,7 +5,7 @@ export type myDB = {
   User: UserModel;
   UserMatch: UserMatchModel;
   Match: MatchModel;
-  DB_CONNECTION: sqlite;
+  DB_CONNECTION: sqlite.Database;
 };
 
 export enum sqliteType {

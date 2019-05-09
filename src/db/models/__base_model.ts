@@ -1,12 +1,16 @@
-import sqlite from 'better-sqlite3';
+import * as sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 
 export class Model<M> {
-  protected static db: sqlite;
+  protected static db: sqlite.Database;
   tableName: string; // ex. User
   fields: types.fieldListing;
 
-  constructor(db: sqlite, tableName: string, fields: types.fieldListing) {
+  constructor(
+    db: sqlite.Database,
+    tableName: string,
+    fields: types.fieldListing
+  ) {
     if (!Model.db) {
       Model.db = db;
     }
@@ -143,6 +147,7 @@ export class Model<M> {
     const query = db.prepare(queryStr);
     const result = query.run(queryArgs);
 
+    // @ts-ignore
     return result;
   }
 

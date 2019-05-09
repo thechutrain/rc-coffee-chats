@@ -4,6 +4,8 @@
 import * as types from '../types';
 import { getProjectIssues } from '../utils/getIssues';
 
+import { notifyAdmin } from '../zulip-messenger/notify-admin';
+
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
  */
@@ -96,6 +98,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   SHOW__WARNINGS(ctx) {
     return new Promise(resolve => {
+      // TESTING TEMP:
+      notifyAdmin('multi-user test');
+
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
       const msgTemplate =
         warning_exception === 0

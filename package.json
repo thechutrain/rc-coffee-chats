@@ -16,10 +16,15 @@
     "test": "cross-env DB_FILE=test.db jest",
     "t": "jest --watch -- -- src/middleware",
     "build": "npm run clean && tsc",
-    "cron-matchify": "cross-env NODE_ENV=production ts-node src/crons/matchify",
-    "cron-warnings": "cross-env NODE_ENV=production ts-node src/crons/match-warnings",
-    "_notify-users": "cross-env NODE_ENV=production ts-node src/crons/notify-users",
-    "_send-matches": "cross-env NODE_ENV=production ts-node src/crons/matchify/_manual-send-todays-matches.ts"
+    "cron-hourly": "cross-env NODE_ENV=production node dist/crons/hourly.js",
+    "dev-cron-hourly": "cross-env NODE_ENV=development ts-node src/crons/hourly.ts",
+    "copy-prod-dev": "cp data/prod.db data/development.db",
+    "dev-matchify": "cross-env NODE_ENV=development ts-node src/crons/matchify",
+    "dev-warnings": "cross-env NODE_ENV=development ts-node src/crons/match-warnings",
+    "dev-offboard": "cross-env NODE_ENV=development ts-node src/crons/off-board/index.ts",
+    "dev-onboard": "cross-env NODE_ENV=development ts-node src/crons/on-board/index.ts",
+    "dev-notify-users": "cross-env NODE_ENV=development ts-node src/one-off-services/notify-users",
+    "dev-send-matches": "cross-env NODE_ENV=development ts-node src/one-off-services/_manual-send-todays-matches.ts"
   },
   "lint-staged": {
     "src/*.ts": [

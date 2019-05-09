@@ -183,10 +183,11 @@ export enum msgTemplate {
 
   // Cron-related:
   'WARNING_NOTIFICATION' = 'WARNING_NOTIFICATION',
-  'TODAYS_MATCH' = 'TODAYS_MATCH'
+  'TODAYS_MATCH' = 'TODAYS_MATCH',
 
-  // TEMP-MESSAGES:
-  // 'DEPRECATED__SKIP' = 'DEPRECATED__SKIP' // TODO?
+  // One-off Messages:
+  'ONBOARDING' = 'ONBOARDING',
+  'OFFBOARDING' = 'OFFBOARDING'
 }
 
 export type msgCreaterMap = Record<
