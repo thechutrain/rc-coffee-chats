@@ -252,12 +252,12 @@ export function createMessageContent(
     // One-off Messages
     ////////////////////////
     ONBOARDING: {
-      template: `👋 Hi there, I'm Chat Bot. \nI like to randomly pair up RC community members for one-on-one chats so that they have someone new to talk to and learn about on days that they are available. Its often a nice time to go out for coffee, lunch, or just a walk and talk to other amazing RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow. Learn more at my [wiki](${
+      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other interesting RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow. Learn more at my [wiki](${
         process.env.GITHUB_URL
       }/wiki)`
     },
     OFFBOARDING: {
-      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has been automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
+      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
     }
   };
 
