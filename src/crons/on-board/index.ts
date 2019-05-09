@@ -46,11 +46,12 @@ export function onBoardUsers(userEmails: string[]) {
   notifyAdmin(adminMessage, 'LOG');
 }
 
-export const getUsersToOnBoard = () =>
-  getUsersAtRc().then(users =>
+export function getUsersToOnBoard() {
+  return getUsersAtRc().then(users =>
     users.filter(user =>
       user.stints.some(
         stint => stint.type === 'retreat' && isToday(stint.start_date)
       )
     )
   );
+}
