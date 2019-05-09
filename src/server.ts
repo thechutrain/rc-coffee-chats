@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import moment from 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 const PORT = process.env.PORT || 8080;
@@ -51,6 +52,17 @@ app.post(
   actionHandler,
   messageHandler,
   (req: types.IZulipRequest, res) => {
+    const currTime = moment()
+      .tz('America/New_York')
+      .format('L hh:mm:ss A');
+
+    console.log(`\n======= START of Zulip Request =======`);
+    console.log('>> current time: ', currTime);
+    console.log('>> data: ', req.body.data);
+    console.log('>> sender: ', req.body.message.sender_full_name);
+    console.log(req.local.action);
+    console.log('msg info', req.local.msgInfo);
+    console.log('errors: ', req.local.errors);
     console.log(res.body);
     res.json({});
   }
