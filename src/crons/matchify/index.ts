@@ -57,26 +57,41 @@ export async function matchify() {
   ////////////////////
 
   const logs = {
-    todaysMatches,
     numMatches: todaysMatches.length,
-    repeatedMatches,
     numRepeats: repeatedMatches.length,
-    fallBackMatch,
-    skippingUsers,
     numSkips: skippingUsers.length,
+    todaysMatchesEmails: todaysMatches.map(pair => [
+      pair[0].email,
+      pair[1].email
+    ]),
+    repeatedMatches,
+    fallBackMatch,
     runTime: startTime
+  };
+
+  const full_logs = {
+    ...logs,
+    skippingUsers,
+    todaysMatches
   };
 
   console.log(`\n>> Todays Matches: ${todaysMatches.length}`, {
     todaysMatches
   });
-  console.log(`\n>> Repeated Mathces: ${repeatedMatches.length}`, {
+  console.log(`\n>> Repeated Matches: ${repeatedMatches.length}`, {
     repeatedMatches
   });
+
+  repeatedMatches.forEach(matchPair => {
+    console.log('>> REPEAT MATCH DETAILS:');
+    console.log(matchPair[0].full_name, matchPair[0].prevMatches);
+    console.log(matchPair[1].full_name, matchPair[1].prevMatches);
+  });
+
   console.log('\n>> Fallback', { fallBackMatch });
 
   // Send messages to Admin
-  console.log(JSON.stringify(logs));
+  console.log(full_logs);
   notifyAdmin(JSON.stringify(logs));
 }
 
