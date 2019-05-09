@@ -172,6 +172,12 @@ export function getActionFromAlias(body: string): types.IActionObj {
       actionArgs: {
         rawInput: []
       }
+    },
+    [types.Action.UPDATE__ACTIVE]: {
+      keyWords: ['deactivate'],
+      actionArgs: {
+        rawInput: ['FALSE']
+      }
     }
   };
 
