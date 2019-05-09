@@ -7,6 +7,12 @@ import { initDB } from '../../db';
 import { UserRecord } from '../../db/dbTypes';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
+// TESTING: so we can run this from package.json as a script
+if (process.env.NODE_ENV === 'development') {
+  console.log('In development, running sendNextDayMatchWarning()');
+  sendNextDayMatchWarning();
+}
+
 export function sendNextDayMatchWarning() {
   const usersToWarn: UserRecord[] = (() => {
     const db = initDB();

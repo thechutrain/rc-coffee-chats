@@ -7,6 +7,12 @@ import { getUsersAtRc } from '../../recurse-api';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 import { notifyAdmin } from '../../zulip-messenger';
 
+// TESTING: so we can run this from package.json as a script
+if (process.env.NODE_ENV === 'development') {
+  console.log('In development, running handlePossibleOnBoarding()');
+  handlePossibleOnBoarding();
+}
+
 export async function handlePossibleOnBoarding() {
   const users = await getUsersToOnBoard();
   const usersEmails = users.map(user => user.email);

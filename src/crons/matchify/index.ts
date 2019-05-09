@@ -25,6 +25,12 @@ const startTime = moment()
   .tz('America/New_York')
   .format('L h:mm:ss');
 
+// TESTING: so we can run this from package.json as a script
+if (process.env.NODE_ENV === 'development') {
+  console.log('... running matchify() in DEV mode');
+  matchify();
+}
+
 export async function matchify() {
   const db = initDB();
 
@@ -32,10 +38,13 @@ export async function matchify() {
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
-  todaysMatches.forEach(match => {
-    const userIds = [match[0].id, match[1].id];
-    db.UserMatch.add(userIds);
-  });
+  if (process.env.NODE_ENV === 'production') {
+    console.log('In production, recording matches!');
+    todaysMatches.forEach(match => {
+      const userIds = [match[0].id, match[1].id];
+      db.UserMatch.add(userIds);
+    });
+  }
 
   // Clear skip status of users who wanted to skip today:
   const skippingUsers = clearSkippers(db); // Only

@@ -8,6 +8,12 @@ import {
 } from './offboardinghelpers';
 import { notifyAdmin } from '../../zulip-messenger';
 
+// TESTING: so we can run this from package.json as a script
+if (process.env.NODE_ENV === 'development') {
+  console.log('In development, running handlePossibleOffBoarding()');
+  handlePossibleOffBoarding();
+}
+
 export async function handlePossibleOffBoarding() {
   const users = await getUsersToOffBoard();
 
