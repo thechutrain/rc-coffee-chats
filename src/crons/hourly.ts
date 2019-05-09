@@ -20,11 +20,9 @@ function hourly() {
   if (hour === 8) {
     // makes matches and notifies users
     matchify();
-  } else if (hour === 14) {
-    // handle possible Onboarding
-  } else if (hour === 17) {
-    handlePossibleOnBoarding();
+  } else if (hour === 15) {
     handlePossibleOffBoarding();
+    handlePossibleOnBoarding();
   } else if (hour === 19) {
     // send warning notifications
     sendNextDayMatchWarning();
