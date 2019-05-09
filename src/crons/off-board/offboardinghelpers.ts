@@ -12,12 +12,8 @@ export const getUsersToOffBoard = () =>
   getUsersAtRc().then(users =>
     users.filter(user =>
       // NOTE: faculty members have stints with end_date = null.
-      user.stints.some(
-        stint =>
-          !!stint.end_date &&
-          stint.type === 'retreat' &&
-          isToday(stint.end_date)
-      )
+      // stint.type = 'retreat' or employement? (employment for facilitators)
+      user.stints.some(stint => !!stint.end_date && isToday(stint.end_date))
     )
   );
 
