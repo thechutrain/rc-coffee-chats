@@ -197,6 +197,7 @@ export type msgCreaterMap = Record<
 
 // REMOVE THIS:
 export enum Errors {
+  'INVALID_ZULIP_TOKEN' = 'INVALID_ZULIP_TOKEN',
   'FAILED_UPDATE' = 'FAILED_UPDATE',
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?

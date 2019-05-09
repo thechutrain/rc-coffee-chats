@@ -18,6 +18,10 @@ import { myDB } from '../db/dbTypes';
 
 export function initRegisteredHandler(db: myDB) {
   return (req: types.IZulipRequest, _, next) => {
+    if (req.local.errors && req.local.errors.length) {
+      next();
+    }
+
     const senderEmail = req.body.message.sender_email;
 
     try {

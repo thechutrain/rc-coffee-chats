@@ -18,6 +18,7 @@ const db = initDB();
 /////////////////
 /// Middleware
 /////////////////
+import { zulipTokenValidator } from './middleware/zulip-token-validator';
 import { initRegisteredHandler } from './middleware/registered-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
@@ -46,8 +47,8 @@ app.get('/', (req, res) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
+  zulipTokenValidator,
   registerHandler,
-  // parserHandler,
   actionCreater,
   actionHandler,
   messageHandler,

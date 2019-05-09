@@ -5,6 +5,10 @@
 import * as types from '../types';
 
 export function actionCreater(req: types.IZulipRequest, res, next) {
+  if (req.local.errors && req.local.errors.length) {
+    next();
+  }
+
   const { isRegistered, isActive } = req.local.user;
   let actionType: types.Action | null = null;
 
