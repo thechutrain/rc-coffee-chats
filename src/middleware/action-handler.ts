@@ -377,12 +377,6 @@ export function initActionHandler(db: types.myDB) {
 
     req.local.msgInfo = { msgTemplate, msgArgs, sendTo: userEmail };
 
-    console.log('\n======= Start of actionHandler ======');
-    console.log('req.local.action:');
-    console.log(req.local.action);
-    console.log('\nreq.local.msgInfo');
-    console.log(req.local.msgInfo);
-    console.log('\n');
     next();
   };
 }

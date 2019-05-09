@@ -9,10 +9,6 @@ import {
 import * as types from '../types';
 
 export function messageHandler(req: types.IZulipRequest, res, next) {
-  console.log(`======== send message handler ===========`);
-  console.log(req.local.msgInfo);
-  console.log(`\n`);
-
   const originUser = req.local.user.email;
   // const { targetUser } = req.local.action;
   const { errors } = req.local;
@@ -35,8 +31,6 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
 
   // Case: given a msgType
   const { msgTemplate, sendTo, msgArgs } = req.local.msgInfo;
-  // console.log(msgTemplate);
-  // console.log('===== template above =====');
 
   if (msgTemplate in types.msgTemplate) {
     templateMessageSender(sendTo, msgTemplate, msgArgs);
