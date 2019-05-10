@@ -27,7 +27,8 @@ export function initRegisteredHandler(db: myDB) {
         email: user.email,
         isRegistered: true,
         isActive: user.is_active === 1,
-        isAdmin: user.is_admin === 1
+        isAdmin: user.is_admin === 1,
+        data: user
       };
     } catch (e) {
       // CASE: user does not exist in User table
