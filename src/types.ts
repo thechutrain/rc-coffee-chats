@@ -26,6 +26,7 @@ export interface IZulipRequest extends Express.Request {
       email: string;
       isRegistered: boolean;
       isActive: boolean;
+      isAdmin: boolean;
       data?: UserRecord;
     };
     action: IActionObj;
