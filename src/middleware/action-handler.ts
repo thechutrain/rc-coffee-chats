@@ -129,11 +129,18 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   SHOW__FALLBACK(ctx) {
     return new Promise(resolve => {
-      const { full_name } = ctx.db.Config.getFallBackUser();
-      resolve({
-        msgTemplate: types.msgTemplate.STATUS_FALLBACK,
-        msgArgs: { full_name }
-      });
+      const user = ctx.db.Config.getFallBackUser();
+
+      if (user && user.full_name) {
+        resolve({
+          msgTemplate: types.msgTemplate.STATUS_FALLBACK,
+          msgArgs: { full_name: user.full_name }
+        });
+      } else {
+        resolve({
+          msgTemplate: types.msgTemplate.STATUS_FALLBACK_NULL
+        });
+      }
     });
   },
   ////////////////

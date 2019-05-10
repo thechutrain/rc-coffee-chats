@@ -134,6 +134,9 @@ export function createMessageContent(
         vars.full_name
       }". The fallback user is added to the pool of users to match when there is an odd number of users who want to be paired up.`
     },
+    STATUS_FALLBACK_NULL: {
+      template: `The fallback user is not set!`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions
