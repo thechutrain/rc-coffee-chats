@@ -129,12 +129,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   SHOW__FALLBACK(ctx) {
     return new Promise(resolve => {
-      const user = ctx.db.Config.getFallBackUser();
+      const fallBackEmail = ctx.db.Config.getFallBackUser();
 
-      if (user && user.email) {
+      if (fallBackEmail) {
         resolve({
           msgTemplate: types.msgTemplate.STATUS_FALLBACK,
-          msgArgs: { email: user.email }
+          msgArgs: { email: fallBackEmail }
         });
       } else {
         resolve({
