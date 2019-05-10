@@ -15,7 +15,7 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
-import { makeMatches } from './make-todays-matches';
+import { makeMatches } from './make-matches';
 import { clearSkippers } from './clear-skipping-users';
 import { isRepeatMatch } from './is-repeat-match';
 import { notifyMatchPair } from './notify-match-pair';
