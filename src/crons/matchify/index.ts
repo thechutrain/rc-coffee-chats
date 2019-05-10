@@ -94,9 +94,3 @@ export async function matchify() {
   console.log(full_logs);
   notifyAdmin(JSON.stringify(logs));
 }
-
-// TESTING purposes
-if (process.env.NODE_ENV === 'development') {
-  console.log(`DEV: ${startTime}`);
-  matchify();
-}
