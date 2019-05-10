@@ -164,7 +164,7 @@ export function getActionFromAlias(body: string): types.IActionObj {
     [types.Action.UPDATE__SKIP]: {
       keyWords: ['cancel next match', 'cancel', 'skip'],
       actionArgs: {
-        rawInput: ['TRUE']
+        rawInput: ['true']
       }
     },
     [types.Action.SHOW__DAYS]: {
@@ -176,7 +176,7 @@ export function getActionFromAlias(body: string): types.IActionObj {
     [types.Action.UPDATE__ACTIVE]: {
       keyWords: ['deactivate'],
       actionArgs: {
-        rawInput: ['FALSE']
+        rawInput: ['false']
       }
     }
   };

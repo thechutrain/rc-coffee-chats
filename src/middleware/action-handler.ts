@@ -192,6 +192,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__SKIP(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // Validate arguments:
       const trueArgs = ['1', 'TRUE', 'YES'];
       const falseArgs = ['0', 'FALSE', 'NO'];
@@ -202,11 +203,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      const blnSkip = trueArgs.indexOf(inputCaps) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -221,6 +222,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__SKIPPING(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // Validate arguments:
       const trueArgs = ['1', 'TRUE', 'YES'];
       const falseArgs = ['0', 'FALSE', 'NO'];
@@ -231,11 +233,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      const blnSkip = trueArgs.indexOf(inputCaps) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -250,6 +252,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__WARNINGS(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       const trueArgs = ['1', 'TRUE', 'YES', 'ON'];
       const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
       const validArgs = new Set([...trueArgs, ...falseArgs]);
@@ -260,7 +263,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
@@ -270,7 +273,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
        * warnings off --> warning_exception = 1
        */
       const warningException =
-        trueArgs.indexOf(actionArgs[0]) !== -1 ? false : true;
+        trueArgs.indexOf(inputCaps) !== -1 ? false : true;
       ctx.db.User.updateWarnings(ctx.userEmail, warningException);
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -286,6 +289,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
 
   UPDATE__ACTIVE(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // VALIDATE:
       const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
       const validArgs = new Set([...falseArgs]);
@@ -296,7 +300,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
