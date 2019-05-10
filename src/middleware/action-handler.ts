@@ -131,10 +131,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     return new Promise(resolve => {
       const user = ctx.db.Config.getFallBackUser();
 
-      if (user && user.full_name) {
+      if (user && user.email) {
         resolve({
           msgTemplate: types.msgTemplate.STATUS_FALLBACK,
-          msgArgs: { full_name: user.full_name }
+          msgArgs: { email: user.email }
         });
       } else {
         resolve({
@@ -307,6 +307,26 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     });
   },
 
+  UPDATE__FALLBACK(ctx, actionArgs) {
+    return new Promise(resolve => {
+      // CHECK that the user is an admin:
+      if (ctx.user && ctx.user.is_admin) {
+        ctx.db.Config.setFallBackUser(actionArgs[0]);
+        const fallBackUser = ctx.db.Config.getFallBackUser();
+        resolve({
+          msgTemplate: types.msgTemplate.UPDATED_FALLBACK,
+          msgArgs: {
+            email: fallBackUser.email,
+            full_name: fallBackUser.full_name
+          }
+        });
+      } else {
+        throw new Error(
+          `You must be an admin in order to update the fallback user`
+        );
+      }
+    });
+  },
   ////////////////
   // HELP
   ////////////////

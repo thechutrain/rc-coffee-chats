@@ -91,6 +91,7 @@ export enum Action {
   'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
+  'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
@@ -124,7 +125,7 @@ export interface ICtx {
 
 export type actionFn = (
   ctx: ICtx,
-  actionArgs: any,
+  actionArgs: string[],
   zulipBody: IZulipBody
 ) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
@@ -152,6 +153,7 @@ export enum msgTemplate {
   // CLI Update-related cmds
   'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
+  'UPDATED_FALLBACK' = 'UPDATED_FALLBACK',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
