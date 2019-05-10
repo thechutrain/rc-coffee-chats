@@ -11,7 +11,8 @@ export type myDB = {
 export enum sqliteType {
   'TEXT' = 'TEXT',
   'INTEGER' = 'INTEGER',
-  'BOOLEAN' = 'BOOLEAN'
+  'BOOLEAN' = 'BOOLEAN',
+  'BLOB' = 'BLOB'
 }
 
 export interface ISchema {
