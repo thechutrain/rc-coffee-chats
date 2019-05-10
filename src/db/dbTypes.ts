@@ -1,10 +1,11 @@
 import * as sqlite from 'better-sqlite3';
-import { UserModel, UserMatchModel, MatchModel } from './models';
+import { UserModel, UserMatchModel, MatchModel, ConfigModel } from './models';
 
 export type myDB = {
   User: UserModel;
   UserMatch: UserMatchModel;
   Match: MatchModel;
+  Config: ConfigModel;
   DB_CONNECTION: sqlite.Database;
 };
 
