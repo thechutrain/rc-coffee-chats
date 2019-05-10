@@ -67,11 +67,11 @@ export class ConfigModel extends Model<ConfigRecord> {
   public setFallBackUser(email: string) {
     const user = this.User.findByEmail(email);
     this.addConfig('fallBackUserEmail', user.email);
-    return user;
   }
 
   public getFallBackUser(): null | any {
     const records = this.find({ key: 'fallBackUserEmail' });
+    console.log(records);
     if (records.length === 0) {
       return null;
     }
