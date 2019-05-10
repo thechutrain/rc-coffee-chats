@@ -70,8 +70,11 @@ export class ConfigModel extends Model<ConfigRecord> {
     return user;
   }
 
-  public getFallBackUser() {
+  public getFallBackUser(): null | any {
     const records = this.find({ key: 'fallBackUserEmail' });
+    if (records.length === 0) {
+      return null;
+    }
     return records[0].value;
   }
 }
