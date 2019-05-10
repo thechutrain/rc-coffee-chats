@@ -128,6 +128,12 @@ export function createMessageContent(
       template: `These are your previous matches: 
       ${vars.prevMatches}`
     },
+    STATUS_FALLBACK: {
+      reqVars: ['full_name'],
+      template: `The current fallback user is: "${
+        vars.full_name
+      }". The fallback user is added to the pool of users to match when there is an odd number of users who want to be paired up.`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions

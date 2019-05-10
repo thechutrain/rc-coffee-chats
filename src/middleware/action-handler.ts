@@ -127,6 +127,15 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+  SHOW__FALLBACK(ctx) {
+    return new Promise(resolve => {
+      const { full_name } = ctx.db.Config.getFallBackUser();
+      resolve({
+        msgTemplate: types.msgTemplate.STATUS_FALLBACK,
+        msgArgs: { full_name }
+      });
+    });
+  },
   ////////////////
   // UPDATE
   ////////////////
