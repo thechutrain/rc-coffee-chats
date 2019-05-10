@@ -366,7 +366,8 @@ export function initActionHandler(db: types.myDB) {
     const { actionType, actionArgs } = req.local.action;
     const ctx = {
       db,
-      userEmail
+      userEmail,
+      user: req.local.user.data
     };
     const { msgTemplate, msgArgs } = await dispatcher(
       ctx,

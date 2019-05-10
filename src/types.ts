@@ -118,6 +118,7 @@ export { myDB };
 export interface ICtx {
   db: myDB;
   userEmail: string;
+  user?: UserRecord;
 }
 
 export type actionFn = (
