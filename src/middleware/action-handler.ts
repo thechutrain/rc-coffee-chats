@@ -154,7 +154,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         );
       }
       // Validate that all the arguments are in Weekdays
-      const weekdays = actionArgs.map(day => {
+      const weekdays = actionArgs.map(d => {
+        // Note: input arguments are no longer all capitalized.
+        const day = d.toUpperCase();
         if (!(day in types.WEEKDAY)) {
           throw new Error(
             `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`

@@ -104,8 +104,6 @@ export function parseContentAsCli(messageContent: string): types.IParsedCmd {
     .filter(token => token !== '')
     .map((word, index) => (index < 2 ? word.toUpperCase() : word));
 
-  console.log(tokenizedArgs);
-
   return {
     directive: tokenizedArgs.length > 0 ? tokenizedArgs[0] : null,
     subcommand: tokenizedArgs.length > 1 ? tokenizedArgs[1] : null,
