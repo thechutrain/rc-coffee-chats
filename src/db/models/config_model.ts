@@ -71,7 +71,7 @@ export class ConfigModel extends Model<ConfigRecord> {
 
   public getFallBackUser(): null | any {
     const records = this.find({ key: 'fallBackUserEmail' });
-    console.log(records);
+
     if (records.length === 0) {
       return null;
     }

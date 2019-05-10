@@ -315,12 +315,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       console.log(ctx.user);
       if (ctx.user && ctx.user.is_admin) {
         ctx.db.Config.setFallBackUser(actionArgs[0]);
-        const fallBackUser = ctx.db.Config.getFallBackUser();
+        const fallBackEmail = ctx.db.Config.getFallBackUser();
         resolve({
           msgTemplate: types.msgTemplate.UPDATED_FALLBACK,
           msgArgs: {
-            email: fallBackUser.email,
-            full_name: fallBackUser.full_name
+            email: fallBackEmail
           }
         });
       } else {
