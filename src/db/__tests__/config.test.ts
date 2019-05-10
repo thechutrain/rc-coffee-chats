@@ -63,4 +63,20 @@ describe('config model:', () => {
     const fallback = config.getFallBackUser();
     expect(fallback).toBe('fallback@recurse.com');
   });
+
+  it('should be able to reset the fallback user multiple times', () => {
+    DB.User.add({
+      email: 'A',
+      full_name: 'anon'
+    });
+    DB.User.add({
+      email: 'B',
+      full_name: 'barry'
+    });
+
+    config.setFallBackUser('A');
+    expect(config.getFallBackUser()).toBe('A');
+    config.setFallBackUser('B');
+    expect(config.getFallBackUser()).toBe('B');
+  });
 });

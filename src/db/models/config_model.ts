@@ -53,7 +53,11 @@ export class ConfigModel extends Model<ConfigRecord> {
   }
 
   public addConfig(key: string, value: any) {
-    this.add({ key, value });
+    const query = Model.db.prepare(
+      `INSERT or REPLACE INTO Config(key, value) values (?, ?)`
+    );
+
+    query.run([key, value]);
   }
 
   public findConfig(key: string): ConfigRecord {
