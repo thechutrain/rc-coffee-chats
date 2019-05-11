@@ -265,7 +265,7 @@ export function createMessageContent(
     // One-off Messages
     ////////////////////////
     ONBOARDING: {
-      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other interesting RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow. Learn more at my [wiki](${
+      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other interesting RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow or \`\`\`activate\`\`\` if you're a returning coffee chatter. Learn more at my [wiki](${
         process.env.GITHUB_URL
       }/wiki)`
     },
