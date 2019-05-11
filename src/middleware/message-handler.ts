@@ -10,9 +10,7 @@ import * as types from '../types';
 
 export async function messageHandler(req: types.IZulipRequest, res, next) {
   const originUser = req.local.user.email;
-  // const { targetUser } = req.local.action;
   const { errors } = req.local;
-  console.log(errors);
 
   // Case: handle error messages
   // NOTE: originUser may not be there if bad token
@@ -34,6 +32,7 @@ export async function messageHandler(req: types.IZulipRequest, res, next) {
 
   // Case: given a msgType
   const { msgTemplate, sendTo, msgArgs } = req.local.msgInfo;
+  console.log(sendTo);
 
   try {
     if (msgTemplate in types.msgTemplate) {

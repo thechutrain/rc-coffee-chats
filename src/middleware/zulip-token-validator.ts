@@ -8,6 +8,8 @@ export function zulipTokenValidator(req: types.IZulipRequest, res, next) {
     req.local.errors.push({
       errorType: types.Errors.INVALID_ZULIP_TOKEN
     });
+  } else {
+    console.log('TOKEN IS VALID');
   }
 
   next();
