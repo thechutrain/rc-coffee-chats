@@ -18,12 +18,14 @@ describe('config model:', () => {
   });
 
   beforeEach(done => {
-    DB.DB_CONNECTION.prepare('BEGIN');
+    const begin = DB.DB_CONNECTION.prepare('BEGIN');
+    begin.run();
     done();
   });
 
   afterEach(done => {
-    DB.DB_CONNECTION.prepare('ROLLBACK');
+    const rollback = DB.DB_CONNECTION.prepare('ROLLBACK');
+    rollback.run();
     done();
   });
 
