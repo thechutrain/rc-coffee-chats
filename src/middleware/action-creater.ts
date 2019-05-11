@@ -106,7 +106,7 @@ export function parseContentAsCli(messageContent: string): types.IParsedCmd {
   const tokenizedArgs = trimmedContent
     .split(/[\s]+/)
     .filter(token => token !== '')
-    .map(word => word.toUpperCase());
+    .map((word, index) => (index < 2 ? word.toUpperCase() : word));
 
   return {
     directive: tokenizedArgs.length > 0 ? tokenizedArgs[0] : null,
@@ -168,13 +168,19 @@ export function getActionFromAlias(body: string): types.IActionObj {
     [types.Action.UPDATE__SKIP]: {
       keyWords: ['cancel next match', 'cancel', 'skip'],
       actionArgs: {
-        rawInput: ['TRUE']
+        rawInput: ['true']
       }
     },
     [types.Action.SHOW__DAYS]: {
       keyWords: ['days'],
       actionArgs: {
         rawInput: []
+      }
+    },
+    [types.Action.UPDATE__ACTIVE]: {
+      keyWords: ['deactivate'],
+      actionArgs: {
+        rawInput: ['false']
       }
     }
   };

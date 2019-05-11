@@ -7,29 +7,6 @@ import {
   createAction
 } from '../action-creater';
 
-// describe('action-creater tests:', () => {
-//   it('should be able to create the BOT__HI action', () => {
-//     const actionObj = getActionFromRegex('hi');
-//     expect(actionObj).toHaveProperty('actionType', types.Action.BOT__HI);
-//   });
-
-//   it('should be able to create the BOT__HI action, despite capitalization or spacing issues', () => {
-//     const actionObj = getActionFromRegex('hoWdY');
-//     expect(actionObj).toHaveProperty('actionType', types.Action.BOT__HI);
-//   });
-
-//   it('should be able to create the UDPATE_SKIP action', () => {
-//     const actionObj = getActionFromRegex('cancel next match');
-//     expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
-//     expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
-//   });
-
-//   it('should not create UPDATE_SKIP action for UPDATE SKIPPING False', () => {
-//     const actionObj = getActionFromRegex('UPDATE SKIPPING False');
-//     expect(actionObj).toBeNull();
-//   });
-// });
-
 describe('parseContent helper fn:', () => {
   it('should be able to parse a command', () => {
     const parsedCli = parseContentAsCli(`/update skip true`);
@@ -37,7 +14,7 @@ describe('parseContent helper fn:', () => {
     expect(parsedCli).toEqual({
       directive: 'UPDATE',
       subcommand: 'SKIP',
-      args: ['TRUE']
+      args: ['true']
     });
   });
 
@@ -47,7 +24,7 @@ describe('parseContent helper fn:', () => {
     expect(parsedCli).toEqual({
       directive: 'UPDATE',
       subcommand: 'SKIP',
-      args: ['TRUE']
+      args: ['true']
     });
   });
 });
@@ -80,7 +57,7 @@ describe('new action creater:', () => {
   it('should be able to create valid action from a full cli cmd', () => {
     const actionObj = createAction('skip');
     expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
-    expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
+    expect(actionObj.actionArgs).toEqual({ rawInput: ['true'] });
   });
 
   it('should throw an error with a non-valid cli cmd', () => {
@@ -96,13 +73,13 @@ describe('new action creater:', () => {
   it('should be able to create an action that is an alias', () => {
     const actionObj = createAction('/update skip true');
     expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
-    expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
+    expect(actionObj.actionArgs).toEqual({ rawInput: ['true'] });
   });
 
   it('should still be able to update an action even without the / command', () => {
     const actionObj = createAction('update skip true');
     expect(actionObj).toHaveProperty('actionType', types.Action.UPDATE__SKIP);
-    expect(actionObj.actionArgs).toEqual({ rawInput: ['TRUE'] });
+    expect(actionObj.actionArgs).toEqual({ rawInput: ['true'] });
   });
 
   it('should throw an error with a non-valid alias command', () => {

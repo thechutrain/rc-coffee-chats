@@ -127,6 +127,22 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+  SHOW__FALLBACK(ctx) {
+    return new Promise(resolve => {
+      const fallBackEmail = ctx.db.Config.getFallBackUser();
+
+      if (fallBackEmail) {
+        resolve({
+          msgTemplate: types.msgTemplate.STATUS_FALLBACK,
+          msgArgs: { email: fallBackEmail }
+        });
+      } else {
+        resolve({
+          msgTemplate: types.msgTemplate.STATUS_FALLBACK_NULL
+        });
+      }
+    });
+  },
   ////////////////
   // UPDATE
   ////////////////
@@ -138,7 +154,9 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         );
       }
       // Validate that all the arguments are in Weekdays
-      const weekdays = actionArgs.map(day => {
+      const weekdays = actionArgs.map(d => {
+        // Note: input arguments are no longer all capitalized.
+        const day = d.toUpperCase();
         if (!(day in types.WEEKDAY)) {
           throw new Error(
             `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
@@ -174,6 +192,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__SKIP(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // Validate arguments:
       const trueArgs = ['1', 'TRUE', 'YES'];
       const falseArgs = ['0', 'FALSE', 'NO'];
@@ -184,11 +203,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      const blnSkip = trueArgs.indexOf(inputCaps) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -203,6 +222,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__SKIPPING(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // Validate arguments:
       const trueArgs = ['1', 'TRUE', 'YES'];
       const falseArgs = ['0', 'FALSE', 'NO'];
@@ -213,11 +233,11 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      const blnSkip = trueArgs.indexOf(actionArgs[0]) !== -1 ? true : false;
+      const blnSkip = trueArgs.indexOf(inputCaps) !== -1 ? true : false;
       ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -232,6 +252,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   UPDATE__WARNINGS(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       const trueArgs = ['1', 'TRUE', 'YES', 'ON'];
       const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
       const validArgs = new Set([...trueArgs, ...falseArgs]);
@@ -242,7 +263,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}, ${falseArgs.join(', ')}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
@@ -252,7 +273,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
        * warnings off --> warning_exception = 1
        */
       const warningException =
-        trueArgs.indexOf(actionArgs[0]) !== -1 ? false : true;
+        trueArgs.indexOf(inputCaps) !== -1 ? false : true;
       ctx.db.User.updateWarnings(ctx.userEmail, warningException);
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
 
@@ -268,6 +289,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
 
   UPDATE__ACTIVE(ctx, actionArgs) {
     return new Promise(resolve => {
+      const inputCaps = actionArgs[0].toUpperCase();
       // VALIDATE:
       const falseArgs = ['0', 'FALSE', 'NO', 'OFF'];
       const validArgs = new Set([...falseArgs]);
@@ -278,7 +300,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
             ', '
           )}*`
         );
-      } else if (!validArgs.has(actionArgs[0])) {
+      } else if (!validArgs.has(inputCaps)) {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
@@ -291,6 +313,26 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     });
   },
 
+  UPDATE__FALLBACK(ctx, actionArgs) {
+    return new Promise(resolve => {
+      // CHECK that the user is an admin:
+      console.log(ctx.user);
+      if (ctx.user && ctx.user.is_admin) {
+        ctx.db.Config.setFallBackUser(actionArgs[0]);
+        const fallBackEmail = ctx.db.Config.getFallBackUser();
+        resolve({
+          msgTemplate: types.msgTemplate.UPDATED_FALLBACK,
+          msgArgs: {
+            email: fallBackEmail
+          }
+        });
+      } else {
+        throw new Error(
+          `You must be an admin in order to update the fallback user`
+        );
+      }
+    });
+  },
   ////////////////
   // HELP
   ////////////////
@@ -366,7 +408,8 @@ export function initActionHandler(db: types.myDB) {
     const { actionType, actionArgs } = req.local.action;
     const ctx = {
       db,
-      userEmail
+      userEmail,
+      user: req.local.user.data
     };
     const { msgTemplate, msgArgs } = await dispatcher(
       ctx,

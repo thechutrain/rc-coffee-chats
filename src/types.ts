@@ -26,6 +26,7 @@ export interface IZulipRequest extends Express.Request {
       email: string;
       isRegistered: boolean;
       isActive: boolean;
+      isAdmin: boolean;
       data?: UserRecord;
     };
     action: IActionObj;
@@ -82,6 +83,7 @@ export enum Action {
   'SHOW__SKIP' = 'SHOW__SKIP',
   'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
+  'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
@@ -89,6 +91,7 @@ export enum Action {
   'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
+  'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
@@ -117,11 +120,12 @@ export { myDB };
 export interface ICtx {
   db: myDB;
   userEmail: string;
+  user?: UserRecord;
 }
 
 export type actionFn = (
   ctx: ICtx,
-  actionArgs: any,
+  actionArgs: string[],
   zulipBody: IZulipBody
 ) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
@@ -149,6 +153,7 @@ export enum msgTemplate {
   // CLI Update-related cmds
   'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
+  'UPDATED_FALLBACK' = 'UPDATED_FALLBACK',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
@@ -159,6 +164,8 @@ export enum msgTemplate {
   'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
   'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
   'STATUS_PREVIOUS_MATCHES' = 'STATUS_PREVIOUS_MATCHES',
+  'STATUS_FALLBACK' = 'STATUS_FALLBACK',
+  'STATUS_FALLBACK_NULL' = 'STATUS_FALLBACK_NULL',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',

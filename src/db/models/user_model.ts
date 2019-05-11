@@ -233,8 +233,15 @@ export class UserModel extends Model<UserRecord> {
   // ✅: tests written
   public _findPrevActiveMatches(
     user_id: number,
-    weekday: WEEKDAY
+    inputWeekday?: WEEKDAY
   ): PrevMatchRecord[] {
+    const weekday: number =
+      inputWeekday !== undefined
+        ? inputWeekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+
     const prevMatchesQuery = Model.db.prepare(
       `
     SELECT U.id, U.email, U.full_name, Match.date

@@ -15,7 +15,7 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
-import { makeMatches } from './make-todays-matches';
+import { makeMatches } from './make-matches';
 import { clearSkippers } from './clear-skipping-users';
 import { isRepeatMatch } from './is-repeat-match';
 import { notifyMatchPair } from './notify-match-pair';
@@ -93,10 +93,4 @@ export async function matchify() {
   // Send messages to Admin
   console.log(full_logs);
   notifyAdmin(JSON.stringify(logs));
-}
-
-// TESTING purposes
-if (process.env.NODE_ENV === 'development') {
-  console.log(`DEV: ${startTime}`);
-  matchify();
 }

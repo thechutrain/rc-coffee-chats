@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
 
+import * as types from '../../types';
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
 import {
@@ -9,7 +10,7 @@ import {
 } from '../../db/models/user_model';
 
 export function makeMatches(
-  db
+  db: types.myDB
   // date?: string // for testing purposes?
 ): {
   todaysMatches: matchPair[];
@@ -21,19 +22,16 @@ export function makeMatches(
   ////////////////////////////////////////
   // Stable Marriage Algorithm
   ////////////////////////////////////////
-  // TODO: get the fallbackuser from the user table!!! 💣
+  // TODO: put this into separate function
+  const fallBackEmail = db.Config.getFallBackUser();
+  const fallBackUserRecord = db.User.findByEmail(fallBackEmail);
+  const fallBackPrevMatches = db.User._findPrevActiveMatches(
+    fallBackUserRecord.id
+  );
   const fallBackUser = {
-    id: 117,
-    email: 'alicia@recurse.com',
-    full_name: 'Alicia',
-    coffee_days: 'not right',
-    warning_exception: 0,
-    skip_next_match: 0,
-    is_active: 1,
-    is_faculty: 1,
-    is_admin: 0,
-    num_matches: 0,
-    prevMatches: []
+    ...fallBackUserRecord,
+    prevMatches: fallBackPrevMatches,
+    num_matches: fallBackEmail.length
   };
 
   // PREP for stable marriage algorithm.

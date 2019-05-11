@@ -128,6 +128,15 @@ export function createMessageContent(
       template: `These are your previous matches: 
       ${vars.prevMatches}`
     },
+    STATUS_FALLBACK: {
+      reqVars: ['email'],
+      template: `The current fallback user is: "${
+        vars.email
+      }". The fallback user is added to the pool of users to match when there is an odd number of users who want to be paired up.`
+    },
+    STATUS_FALLBACK_NULL: {
+      template: `The fallback user is not set!`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions
@@ -144,6 +153,12 @@ export function createMessageContent(
       //   vars.coffeeDays
       // }`
       template: `✅ UPDATED your coffee chat days`
+    },
+    UPDATED_FALLBACK: {
+      reqVars: ['email', 'full_name'],
+      template: `✅ UPDATED the fallback user. \nCurrent fallback user is now: ${
+        vars.full_name
+      }. Their email is: ${vars.email}`
     },
     ////////////////////////
     // MATCHED Related Messages
