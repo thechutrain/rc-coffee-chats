@@ -130,9 +130,7 @@ export function createMessageContent(
     },
     STATUS_FALLBACK: {
       reqVars: ['email'],
-      template: `The current fallback user is: "${
-        vars.email
-      }". The fallback user is added to the pool of users to match when there is an odd number of users who want to be paired up.`
+      template: `The email of the current fallback user is: "${vars.email}".`
     },
     STATUS_FALLBACK_NULL: {
       template: `The fallback user is not set!`
