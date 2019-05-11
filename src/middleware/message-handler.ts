@@ -14,7 +14,8 @@ export function messageHandler(req: types.IZulipRequest, res, next) {
   const { errors } = req.local;
 
   // Case: handle error messages
-  if (errors.length) {
+  // NOTE: originUser may not be there if bad token
+  if (originUser && errors.length) {
     errors.forEach(err => {
       const messageContent = err.customMessage
         ? `${err.customMessage}`
