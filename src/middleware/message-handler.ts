@@ -20,8 +20,8 @@ export async function messageHandler(req: types.IZulipRequest, res, next) {
 
   // Case: handle error messages
   // NOTE: originUser may not be there if bad token
+  const originUser = req.local.user.email;
   if (req.local.user && errors.length) {
-    const originUser = req.local.user.email;
     errors.forEach(async err => {
       const messageContent = err.customMessage
         ? `${err.customMessage}`
