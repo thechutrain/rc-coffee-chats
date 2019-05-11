@@ -9,12 +9,19 @@ import {
 import * as types from '../types';
 
 export async function messageHandler(req: types.IZulipRequest, res, next) {
-  const originUser = req.local.user.email;
   const { errors } = req.local;
+
+  // Case: handle errors with no user (invalid zulip token)
+  if (!req.local.user && errors.length) {
+    console.log('Errors!');
+    console.warn(errors);
+    return next();
+  }
 
   // Case: handle error messages
   // NOTE: originUser may not be there if bad token
-  if (originUser && errors.length) {
+  if (req.local.user && errors.length) {
+    const originUser = req.local.user.email;
     errors.forEach(async err => {
       const messageContent = err.customMessage
         ? `${err.customMessage}`
