@@ -42,7 +42,7 @@ export async function matchify() {
     console.log('In production, recording matches!');
     todaysMatches.forEach(match => {
       const userIds = [match[0].id, match[1].id];
-      db.UserMatch.add(userIds);
+      db.UserMatch.addNewMatch(userIds);
     });
   }
 
