@@ -156,9 +156,9 @@ export function createMessageContent(
     },
     UPDATED_FALLBACK: {
       reqVars: ['email', 'full_name'],
-      template: `✅ UPDATED the fallback user. \nCurrent fallback user is now: ${
-        vars.full_name
-      }. Their email is: ${vars.email}`
+      template: `✅ UPDATED the fallback user. \nCurrent fallback user email is set to:  ${
+        vars.email
+      }`
     },
     ////////////////////////
     // MATCHED Related Messages
