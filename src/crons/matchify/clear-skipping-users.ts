@@ -1,11 +1,14 @@
 import { UserRecord } from '../../db/dbTypes';
-
+import * as types from '../../types';
 // TODO: write tests
-// const usersWhoSkipped = db.User.findUsersWhoAreSkipping();
-export function clearSkippers(db): UserRecord[] {
-  const usersWhoSkipped = []; // TODO: make this query!
+
+export function clearSkippers(
+  db: types.myDB,
+  weekday: types.WEEKDAY
+): UserRecord[] {
+  const usersWhoSkipped = db.User.usersToSkip(weekday);
 
   db.User.clearTodaysSkippers();
 
-  return [];
+  return usersWhoSkipped;
 }

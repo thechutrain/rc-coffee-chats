@@ -304,7 +304,7 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ✅: tests written
-  public usersToSkip(weekday: WEEKDAY) {
+  public usersToSkip(weekday: WEEKDAY): UserRecord[] {
     const skipping = Model.db.prepare(
       `SELECT U.id, U.email FROM User U WHERE U.coffee_Days LIKE '%${weekday}%' and U.is_active = 1 and U.skip_next_match = 1`
     );
