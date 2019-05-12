@@ -221,6 +221,12 @@ export function createMessageContent(
         process.env.GITHUB_URL
       }/issues)`
     },
+    BOT_STATS: {
+      reqVars: ['num_matches'],
+      template: `There have currently been ${
+        vars.num_matches
+      } made so far on coffee chat and counting!`
+    },
     ////////////////////////
     // Blank Message
     ////////////////////////
