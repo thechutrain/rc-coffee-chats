@@ -223,9 +223,9 @@ export function createMessageContent(
     },
     BOT_STATS: {
       reqVars: ['num_matches'],
-      template: `There have currently been ${
+      template: `Coffee chat has made \`${
         vars.num_matches
-      } made so far on coffee chat and counting!`
+      }\` matches to date. That's a lot of ☕️ 📊 🤗`
     },
     ////////////////////////
     // Blank Message
