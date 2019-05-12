@@ -33,8 +33,11 @@ if (process.env.NODE_ENV === 'development') {
 
 export async function matchify() {
   const db = initDB();
+  const weekday = moment()
+    .tz('America/New_York')
+    .day();
 
-  const { todaysMatches, fallBackMatch } = makeMatches(db);
+  const { todaysMatches, fallBackMatch } = makeMatches(db, weekday);
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
@@ -47,7 +50,7 @@ export async function matchify() {
   }
 
   // Clear skip status of users who wanted to skip today:
-  const skippingUsers = clearSkippers(db); // Only
+  const skippingUsers = clearSkippers(db, weekday); // Only
 
   // Notify each match pair who they've been matched with:
   todaysMatches.forEach(notifyMatchPair);
