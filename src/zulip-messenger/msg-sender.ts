@@ -175,10 +175,10 @@ export function createMessageContent(
     // HELP messages
     ////////////////////////
     HELP: {
-      template: `Hi! I'm a 🤖 that likes to pair Recursers up for chats. Here are some simple commands you can use to communicate with me:
-      * \`\`\`show days\`\`\`  : tells you what days you'll be matching on (by default its Mon, Tue, Wed, Thu) 
-      * \`\`\`update days [mon tue wed ...] : updates the days you will match on. Use the first three letters of the weekday
-      * \`\`\`skip\`\`\` : skips your next planned matching day
+      template: `Hi! I'm a  🤖  that likes to pair Recursers up for chats. Here are some simple commands you can use to communicate with me:
+      * \`\`\`show days\`\`\`: tells you what days you'll be matching on (by default its Mon, Tue, Wed, Thu) 
+      * \`\`\`update days [mon tue wed ...]\`\`\`: updates the days you will match on. Use the first three letters of the weekday
+      * \`\`\`skip\`\`\`: skips your next planned matching day
       * \`\`\`Deactivate\`\`\`\: freezes your account, you will no longer receive matches
       
       See more @[wiki](${process.env.GITHUB_URL}/wiki/)
