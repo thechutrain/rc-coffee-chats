@@ -4,9 +4,10 @@
  * 2) Send message (if in prod)
  * 3) notify admin that users who were onboarded & failed onboarding
  */
-import * as dotenv from 'dotenv-safe';
 import { getUsersAtNgw } from '../recurse-api';
 import { initDB } from '../db';
+import { onBoardUsers } from '../crons/on-board';
+import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 async function getInactiveNGWUsers() {
@@ -24,6 +25,7 @@ async function getInactiveNGWUsers() {
 // TESTING
 (async () => {
   console.log('immediately invoked function expression');
-  const results = await getInactiveNGWUsers();
-  console.log(results);
+  const users = await getInactiveNGWUsers();
+  onBoardUsers(users);
+  console.log(users);
 })();
