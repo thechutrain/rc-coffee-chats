@@ -18,6 +18,11 @@ export async function messageHandler(req: types.IZulipRequest, res, next) {
     return next();
   }
 
+  // TEMP: do not respond to any group messages:
+  if (req.body.message.display_recipient.length !== 2) {
+    return next();
+  }
+
   // Case: handle error messages
   // NOTE: originUser may not be there if bad token
   const originUser = req.local.user.email;

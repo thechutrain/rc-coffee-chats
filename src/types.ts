@@ -11,6 +11,7 @@ export interface IZulipBody {
     content: string;
     sender_email: string;
     subject: string;
+    display_recipient: any[]; // type has email, full_name etc.
   };
   bot_email: string;
 }
