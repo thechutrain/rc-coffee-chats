@@ -27,5 +27,5 @@ async function getInactiveNGWUsers() {
   console.log('immediately invoked function expression');
   const users = await getInactiveNGWUsers();
   onBoardUsers(users);
-  console.log(users);
+  // console.log(users);
 })();
