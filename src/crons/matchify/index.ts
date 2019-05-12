@@ -57,6 +57,7 @@ export async function matchify() {
   ////////////////////
 
   const logs = {
+    runTime: startTime,
     numMatches: todaysMatches.length,
     numRepeats: repeatedMatches.length,
     numSkips: skippingUsers.length,
@@ -65,8 +66,7 @@ export async function matchify() {
       pair[1].email
     ]),
     repeatedMatches,
-    fallBackMatch,
-    runTime: startTime
+    fallBackMatch
   };
 
   const full_logs = {
