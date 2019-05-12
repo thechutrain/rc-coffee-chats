@@ -368,6 +368,18 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
+  BOT__STATS(ctx) {
+    return new Promise(resolve => {
+      const num_matches = ctx.db.UserMatch.totalMatchesToDate();
+
+      resolve({
+        msgTemplate: types.msgTemplate.BOT_STATS,
+        msgArgs: {
+          num_matches: `${num_matches}`
+        }
+      });
+    });
+  },
   BOT__ISSUES() {
     return new Promise(async resolve => {
       const num_issues = await getProjectIssues();

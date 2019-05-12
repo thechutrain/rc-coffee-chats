@@ -31,6 +31,11 @@ export class UserMatchModel extends Model<UserMatchRecord> {
     return { rawQuery };
   }
 
+  // gets the total number of matches to date:
+  public totalMatchesToDate(): number {
+    return this.count() / 2;
+  }
+
   public addNewMatch(user_ids: number[], inputDate?: string) {
     // Create the Match Record
     const date = inputDate ? inputDate : new Date().toISOString().split('T')[0];

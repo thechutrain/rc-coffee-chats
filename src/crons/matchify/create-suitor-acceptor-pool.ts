@@ -64,7 +64,10 @@ export function createSuitorAcceptorPool(
   acceptors: Map<mTypes.marriage_id, mTypes.Acceptor<UserWithPrevMatchRecord>>;
   fallBackMatch: UserWithPrevMatchRecord | null;
 } {
-  const userCopy = cloneDeep(users);
+  const userCopy = cloneDeep(
+    // Note: remove fallback person if they happen to be in the user pool
+    users.filter(user => user.email !== fallBackPerson.email)
+  );
   let fallBackMatch: null | UserWithPrevMatchRecord = null;
   if (!isEvenNumberUsers(userCopy)) {
     // TODO: Improved feature that removes a user who hasn't matched with fallback person!
