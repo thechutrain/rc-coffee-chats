@@ -4,9 +4,9 @@
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import { initDB } from '../../db';
-import * as types from '../../types';
-import { templateMessageSender } from '../../zulip-messenger/msg-sender';
+import { initDB } from '../db';
+import * as types from '../types';
+import { templateMessageSender } from '../zulip-messenger/msg-sender';
 
 const MATCH_EMAILS = [];
 

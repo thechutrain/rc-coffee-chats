@@ -1,3 +1,7 @@
+/** NOTE: will eventually put these tests into the user.test.ts file
+ *
+ */
+
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';

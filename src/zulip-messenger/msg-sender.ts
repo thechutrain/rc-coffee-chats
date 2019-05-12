@@ -26,6 +26,14 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      `sendGenericMessage(): Skipping Message Sending b/c you'e not in prod:`
+    );
+    console.log({ toEmail, messageContent });
+    return;
+  }
+
   return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -120,6 +128,13 @@ export function createMessageContent(
       template: `These are your previous matches: 
       ${vars.prevMatches}`
     },
+    STATUS_FALLBACK: {
+      reqVars: ['email'],
+      template: `The email of the current fallback user is: "${vars.email}".`
+    },
+    STATUS_FALLBACK_NULL: {
+      template: `The fallback user is not set!`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions
@@ -136,6 +151,12 @@ export function createMessageContent(
       //   vars.coffeeDays
       // }`
       template: `✅ UPDATED your coffee chat days`
+    },
+    UPDATED_FALLBACK: {
+      reqVars: ['email', 'full_name'],
+      template: `✅ UPDATED the fallback user. \nCurrent fallback user email is set to:  ${
+        vars.email
+      }`
     },
     ////////////////////////
     // MATCHED Related Messages
@@ -210,6 +231,7 @@ export function createMessageContent(
     ////////////////////////
     // Warning Messages (cron)
     ////////////////////////
+    // TODO: DEPRECATION PENDING
     TODAYS_MATCH: {
       reqVars: ['full_name', 'first_name'],
       template: `Hi there! 👋
@@ -237,6 +259,18 @@ export function createMessageContent(
       }/issues)
       `,
       reqVars: ['errorMessage']
+    },
+
+    ////////////////////////
+    // One-off Messages
+    ////////////////////////
+    ONBOARDING: {
+      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other interesting RCers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow or \`\`\`activate\`\`\` if you're a returning coffee chatter. Learn more at my [wiki](${
+        process.env.GITHUB_URL
+      }/wiki)`
+    },
+    OFFBOARDING: {
+      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
     }
   };
 

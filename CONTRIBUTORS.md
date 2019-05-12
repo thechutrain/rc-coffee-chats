@@ -9,8 +9,10 @@ much better (listed alphabetically by first name):
 
 * [Alan Chu](https://github.com/thechutrain) - Released V2
 * [Anna Walsh](https://github.com/waalsh) - Paired on using the Stable Marriage Algorithm for matching users
+* [Anushriadhia](anushriadhia) - paired on the onboarding of NGW users
 * [Greg Altman](https://github.com/fewf)
 * [John Paul Ashenfelter](https://github.com/johnpaulashenfelter) - Travis CI and Readme
+* [stillinbeta](https://github.com/stillinbeta) - Postgres inspiration & began the migration process
 * [Liz Krane](https://github.com/LearningNerd)
 * [Nick Aversano](https://github.com/nickav) - Paired on automating onboarding/offboarding; updating cronjobs
 * [Sheridan Kates](https://github.com/sheridanvk) - Original Coffee Chat Bot

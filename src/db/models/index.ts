@@ -1,5 +1,4 @@
-import { UserModel } from './user_model';
-import { UserMatchModel } from './usermatch_model';
-import { MatchModel } from './match_model';
-
-export { UserModel, UserMatchModel, MatchModel };
+export { UserModel } from './user_model';
+export { UserMatchModel } from './usermatch_model';
+export { MatchModel } from './match_model';
+export { ConfigModel } from './config_model';

@@ -8,41 +8,48 @@ import {
 } from '../zulip-messenger/msg-sender';
 import * as types from '../types';
 
-export function messageHandler(req: types.IZulipRequest, res, next) {
-  console.log(`======== send message handler ===========`);
-  console.log(req.local.msgInfo);
-  console.log(`\n`);
-
-  const originUser = req.local.user.email;
-  // const { targetUser } = req.local.action;
+export async function messageHandler(req: types.IZulipRequest, res, next) {
   const { errors } = req.local;
 
+  // Case: handle errors with no user (invalid zulip token)
+  if (!req.local.user && errors.length) {
+    console.log('Errors!');
+    console.warn(errors);
+    return next();
+  }
+
   // Case: handle error messages
-  if (errors.length) {
-    errors.forEach(err => {
+  // NOTE: originUser may not be there if bad token
+  const originUser = req.local.user.email;
+  if (req.local.user && errors.length) {
+    errors.forEach(async err => {
       const messageContent = err.customMessage
         ? `${err.customMessage}`
         : `Error: unspecified error ... ooops!`;
       try {
-        sendGenericMessage(originUser, messageContent);
+        await sendGenericMessage(originUser, messageContent);
       } catch (e) {
-        console.warn(`Error trying to sendGenericMEssage: ${e}`);
+        console.warn(`Error trying to sendGenericMessage: ${e}`);
       }
     });
+
     next();
     return;
   }
 
   // Case: given a msgType
   const { msgTemplate, sendTo, msgArgs } = req.local.msgInfo;
-  // console.log(msgTemplate);
-  // console.log('===== template above =====');
+  console.log(sendTo);
 
-  if (msgTemplate in types.msgTemplate) {
-    templateMessageSender(sendTo, msgTemplate, msgArgs);
-  } else {
-    const msg = JSON.stringify(req.local.msgInfo);
-    sendGenericMessage(originUser, `Req.local.msgInfo: ${msg}`);
+  try {
+    if (msgTemplate in types.msgTemplate) {
+      await templateMessageSender(sendTo, msgTemplate, msgArgs);
+    } else {
+      const msg = JSON.stringify(req.local.msgInfo);
+      await sendGenericMessage(originUser, `Req.local.msgInfo: ${msg}`);
+    }
+  } catch (e) {
+    console.warn(`Error trying to send a message!!!!`, req.local.msgInfo);
   }
   next();
 }

@@ -1,4 +1,4 @@
-import { basicUser, findUserPriority } from '../create-suitor-acceptor-pool';
+import { findUserPriority } from '../create-suitor-acceptor-pool';
 
 describe('findUserPriority(): ', () => {
   /**
@@ -19,7 +19,8 @@ describe('findUserPriority(): ', () => {
       { email: 'w_4', prevMatches: [] }
     ];
 
-    const user_a_priority = findUserPriority<basicUser>(user_a, oppositePool);
+    // @ts-ignore
+    const user_a_priority = findUserPriority(user_a, oppositePool);
 
     // TEST: make sure the returned priority list is the same length of given oppositePool
     expect(user_a_priority.length).toBe(oppositePool.length);
@@ -56,7 +57,8 @@ describe('findUserPriority(): ', () => {
       { email: 'w_3', prevMatches: [] }
     ];
 
-    const user_a_priority = findUserPriority<basicUser>(user_a, oppositePool);
+    // @ts-ignore
+    const user_a_priority = findUserPriority(user_a, oppositePool);
 
     for (let i = 0; i < user_a_priority.length; i++) {
       expect(user_a_priority[i]).toEqual(oppositePool[i]);
@@ -95,7 +97,8 @@ describe('findUserPriority(): ', () => {
       { email: 'w_3', prevMatches: [] }
     ];
 
-    const user_a_priority = findUserPriority<basicUser>(user_a, oppositePool);
+    // @ts-ignore
+    const user_a_priority = findUserPriority(user_a, oppositePool);
 
     for (let i = 0; i < user_a_priority.length; i++) {
       expect(user_a_priority[i]).toEqual(oppositePool[i]);
@@ -124,7 +127,8 @@ describe('findUserPriority(): ', () => {
       { email: 'unique match 2', prevMatches: [] }
     ];
 
-    const priority = findUserPriority<basicUser>(user_a, oppositePool);
+    // @ts-ignore
+    const priority = findUserPriority(user_a, oppositePool);
 
     const last_index = priority.length - 1;
     expect(priority[last_index].email).toBe('w_1');

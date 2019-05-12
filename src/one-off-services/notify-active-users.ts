@@ -4,8 +4,8 @@
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
-import { initDB } from '../../db';
-import { sendGenericMessage } from '../../zulip-messenger/msg-sender';
+import { initDB } from '../db';
+import { sendGenericMessage } from '../zulip-messenger/msg-sender';
 
 function sendUserNotification(msg: string) {
   const db = initDB();

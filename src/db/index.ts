@@ -1,7 +1,7 @@
 import * as path from 'path';
 import sqlite from 'better-sqlite3';
 
-import { UserModel, UserMatchModel, MatchModel } from './models';
+import { UserModel, UserMatchModel, MatchModel, ConfigModel } from './models';
 import * as types from './dbTypes';
 
 export function initDB(
@@ -23,17 +23,19 @@ export function initDB(
     fileMustExist
   });
 
-  console.log(`==== initDB() =====\nconnected to database: ${dbFilePath}\n`);
+  console.log(`connected to database:`, { dbFilePath });
 
   // Initialize Models:
   const User = new UserModel(DB_CONNECTION);
   const Match = new MatchModel(DB_CONNECTION);
   const UserMatch = new UserMatchModel(DB_CONNECTION, User, Match);
+  const Config = new ConfigModel(DB_CONNECTION);
 
   return {
     User,
     Match,
     UserMatch,
+    Config,
     DB_CONNECTION
   };
 }
