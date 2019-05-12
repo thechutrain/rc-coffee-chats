@@ -22,7 +22,7 @@
     "onboard-ngw": "cross-env NODE_ENV=development ts-node src/one-off-services/onboard-ngw.ts",
     "copy-prod-dev": "cp data/prod.db data/development.db",
     "dev-matchify": "cross-env NODE_ENV=development ts-node src/crons/matchify",
-    "prod-matchify": "cross-env NODE_ENV=production dist/crons/matchify",
+    "prod-matchify": "cross-env NODE_ENV=production node dist/crons/matchify",
     "dev-warnings": "cross-env NODE_ENV=development ts-node src/crons/match-warnings",
     "dev-offboard": "cross-env NODE_ENV=development ts-node src/crons/off-board/index.ts",
     "dev-onboard": "cross-env NODE_ENV=development ts-node src/crons/on-board/index.ts",
