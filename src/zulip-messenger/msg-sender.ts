@@ -83,7 +83,7 @@ export function createMessageContent(
       If you would like to join, just type: **SIGNUP**`
     },
     SIGNED_UP: {
-      template: `You've successfully been added to coffee chat! 🤠
+      template: `You've successfully been added to coffee chat! 🎉
       You can learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)
       or just type: **HELP**`
     },
