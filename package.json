@@ -19,6 +19,7 @@
     "build-ts": "tsc",
     "cron-hourly": "cross-env NODE_ENV=production node dist/crons/hourly.js",
     "dev-cron-hourly": "cross-env NODE_ENV=development ts-node src/crons/hourly.ts",
+    "onboard-ngw": "cross-env NODE_ENV=development ts-node src/one-off-services/onboard-ngw.ts",
     "copy-prod-dev": "cp data/prod.db data/development.db",
     "dev-matchify": "cross-env NODE_ENV=development ts-node src/crons/matchify",
     "prod-matchify": "cross-env NODE_ENV=production dist/crons/matchify",
