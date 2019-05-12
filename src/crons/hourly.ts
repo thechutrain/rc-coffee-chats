@@ -6,8 +6,17 @@ import { matchify } from './matchify';
 import { handlePossibleOffBoarding } from './off-board';
 import { handlePossibleOnBoarding } from './on-board';
 import { sendNextDayMatchWarning } from './match-warnings';
+import { notifyAdmin } from '../zulip-messenger';
 
-// This file should be called from cron every hour :)
+// NOTE: need to wrap hourly cron in try/catch since it won't log the error
+// in logs if an exception is thrown.
+try {
+  hourly();
+} catch (e) {
+  console.warn(e);
+  notifyAdmin(e, 'WARNING');
+}
+
 function hourly() {
   const now = moment().tz('America/New_York');
   const hour = now.hour();
@@ -28,6 +37,3 @@ function hourly() {
     sendNextDayMatchWarning();
   }
 }
-
-// run main
-hourly();
