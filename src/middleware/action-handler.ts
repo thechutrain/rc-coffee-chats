@@ -316,7 +316,6 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   UPDATE__FALLBACK(ctx, actionArgs) {
     return new Promise(resolve => {
       // CHECK that the user is an admin:
-      console.log(ctx.user);
       if (ctx.user && ctx.user.is_admin) {
         ctx.db.Config.setFallBackUser(actionArgs[0]);
         const fallBackEmail = ctx.db.Config.getFallBackUser();
