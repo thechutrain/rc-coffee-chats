@@ -6,7 +6,7 @@
  */
 import { getUsersAtNgw } from '../recurse-api';
 import { initDB } from '../db';
-import { onBoardUsers } from '../crons/on-board';
+import { onBoardUsers } from '../crons/on-board/helpers';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
