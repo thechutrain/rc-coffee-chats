@@ -10,14 +10,15 @@ import {
 } from '../../db/models/user_model';
 
 export function makeMatches(
-  db: types.myDB
+  db: types.myDB,
+  weekday: types.WEEKDAY
   // date?: string // for testing purposes?
 ): {
   todaysMatches: matchPair[];
   fallBackMatch: UserWithPrevMatchRecord | null;
 } {
   // Get Users to Match for Today:
-  const usersToMatch = db.User.findUsersPrevMatchesToday();
+  const usersToMatch = db.User.findUsersPrevMatchesToday(weekday);
 
   ////////////////////////////////////////
   // Stable Marriage Algorithm
