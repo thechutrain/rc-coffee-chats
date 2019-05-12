@@ -181,7 +181,6 @@ export function createMessageContent(
       * \`\`\`skip\`\`\` -- skips your next planned matching day
       * \`\`\`deactivate\`\`\`\ -- freezes your account, you will no longer receive matches
       
-      
       See more @[wiki](${process.env.GITHUB_URL}/wiki/)
       `
     },
