@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - 🚀 automated off-boarding of RC members leaving their batch, using RC API. Also, automated the onboard invitation of RC members.
 - `Config` table for storing the fallbackuser email; admin users can update the fallbackuser.
-- send messages to users in a group message now
+- send matches as a group message
+- added admin feature (notified on errors from cron, match results)
 - added a `deactivate` short hand command as an alias to `update active false`.
 - added a changelog 😎
+- added a partially working Dockerfile
 
 ### Changed
 - separate cron job `.sh` files to a single entry point for cron jobs; `cron-hourly.sh` file will call the `src/crons/hourly.ts` file hourly
+- CLI arguments are no longer capitalized by default in the `action-creater` parser. Needed case sensitivity when updating the fallback user's email
 
 
 ### Security
