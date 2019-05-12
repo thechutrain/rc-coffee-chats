@@ -180,7 +180,6 @@ export function createMessageContent(
       * \`\`\`update days [mon tue wed ...]\`\`\` -- updates the days you will match on. Use the first three letters of the weekday
       * \`\`\`skip\`\`\` -- skips your next planned matching day
       * \`\`\`deactivate\`\`\`\ -- freezes your account, you will no longer receive matches
-      
       See more @[wiki](${process.env.GITHUB_URL}/wiki/)
       `
     },
