@@ -94,7 +94,7 @@ export function createMessageContent(
       template: `Hi, looks like you are not currently an active user of chat bot and will not be paired with anyone for any chats. You can type: *ACTIVATE* to rejoin.`
     },
     ACTIVATE: {
-      template: `Welcome back to Chat Bot! 🎉 \nYou can type: \`\`\`HELP\`\`\` or go to [wiki](https://github.com/thechutrain/rc-coffee-chats/wiki) learn more`
+      template: `Welcome back to Chat Bot! 🎉 \nYou can type: \`\`\`HELP\`\`\` or go to the [wikis](https://github.com/thechutrain/rc-coffee-chats/wiki) to learn more`
     },
     DEACTIVATE: {
       template: `Your account has been deactivated 😭\n We're sad to see you go, but we hope you've had some wonderful chats at RC!`
