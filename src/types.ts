@@ -18,8 +18,15 @@ export interface IZulipBody {
 
 export interface ILocalsReq extends Express.Request {
   body: any;
+  // TODO: change to locals
   local?: any;
 }
+
+// TODO: extend each
+interface IBaseZulip {}
+// IZulipRequestWithUser
+//
+
 export interface IZulipRequest extends Express.Request {
   body: IZulipBody;
   local: {
@@ -132,6 +139,7 @@ export type actionFn = (
 ) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
+// type ActionType = 'UPDATE__DATES' | 'SHOW__DAYS';
 ////////////////////////////
 // Messaging
 ////////////////////////////
@@ -142,6 +150,14 @@ export interface IMsg {
 export interface IMsgInfo extends IMsg {
   sendTo: string;
 }
+const foo = {
+  // bar: 'hello',
+  baz: 1
+};
+
+function x(y: typeof foo) {}
+
+x({ baz: 'asdfa' });
 
 export enum msgTemplate {
   'BLANK' = 'BLANK',
@@ -200,8 +216,31 @@ export enum msgTemplate {
   'OFFBOARDING' = 'OFFBOARDING'
 }
 
+enum t {
+  'appple',
+  'pear'
+}
+
+export type msgCreaterMapp = Record<
+  keyof typeof t,
+  // [keyof msgTemplate],
+  string
+  // { template: string; reqVars?: string[] }
+>;
+
+const test: msgCreaterMapp = {
+  appple: 'asdfasd',
+  pear: 'asdfa'
+};
+
+const a = {
+  apple: 0,
+  0: 'apple'
+};
+
 export type msgCreaterMap = Record<
   keyof typeof msgTemplate,
+  // [keyof msgTemplate],
   { template: string; reqVars?: string[] }
 >;
 
