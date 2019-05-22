@@ -100,6 +100,7 @@ export enum Action {
 
   // BOT
   'BOT__ISSUES' = 'BOT__ISSUES',
+  'BOT__USERS' = 'BOT__USERS',
   'BOT__STATS' = 'BOT__STATS',
   'BOT__HI' = 'BOT__HI'
 }
@@ -187,6 +188,7 @@ export enum msgTemplate {
   'BOT_ISSUES_FEW' = 'BOT_ISSUES_FEW',
   'BOT_ISSUES_NONE' = 'BOT_ISSUES_NONE',
   'BOT_STATS' = 'BOT_STATS',
+  'BOT_USERS' = 'BOT_USERS',
 
   // Error
   'ERROR' = 'ERROR',

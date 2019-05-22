@@ -224,6 +224,9 @@ export function createMessageContent(
         vars.num_matches
       }\` matches to date. That's a lot of ☕️ 📊 🤗`
     },
+    BOT_USERS: {
+      template: `There are X active users right now.`
+    },
     ////////////////////////
     // Blank Message
     ////////////////////////
