@@ -371,7 +371,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   BOT__USERS(ctx) {
     return new Promise(resolve => {
       resolve({
-        msgTemplate: types.msgTemplate.BLANK
+        msgTemplate: types.msgTemplate.BOT_USERS
       });
     });
   },
