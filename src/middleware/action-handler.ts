@@ -370,8 +370,13 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   },
   BOT__USERS(ctx) {
     return new Promise(resolve => {
+      const numActive = ctx.db.User.findActiveUsers().length;
+
       resolve({
-        msgTemplate: types.msgTemplate.BOT_USERS
+        msgTemplate: types.msgTemplate.BOT_USERS,
+        msgArgs: {
+          num_active: `${numActive}`
+        }
       });
     });
   },
