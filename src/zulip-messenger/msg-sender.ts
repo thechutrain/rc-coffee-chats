@@ -26,6 +26,14 @@ export function sendGenericMessage(
     .map(key => `${key}=${rawData[key]}`)
     .join('&');
 
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      `sendGenericMessage(): Skipping Message Sending b/c you'e not in prod:`
+    );
+    console.log({ toEmail, messageContent });
+    return;
+  }
+
   return axios.post(`${process.env.ZULIP_URL_ENDPOINT}`, dataAsQueryParams, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -75,7 +83,7 @@ export function createMessageContent(
       If you would like to join, just type: **SIGNUP**`
     },
     SIGNED_UP: {
-      template: `You've successfully been added to coffee chat! 🤠
+      template: `You've successfully been added to coffee chat! 🎉
       You can learn more at [github.com/thechutrain/rc-coffee-chats](https://github.com/thechutrain/rc-coffee-chats)
       or just type: **HELP**`
     },
@@ -86,7 +94,7 @@ export function createMessageContent(
       template: `Hi, looks like you are not currently an active user of chat bot and will not be paired with anyone for any chats. You can type: *ACTIVATE* to rejoin.`
     },
     ACTIVATE: {
-      template: `Welcome back to Chat Bot! 🎉`
+      template: `Welcome back to Chat Bot! 🎉 \nYou can type: \`\`\`HELP\`\`\` or go to the [wikis](https://github.com/thechutrain/rc-coffee-chats/wiki) to learn more`
     },
     DEACTIVATE: {
       template: `Your account has been deactivated 😭\n We're sad to see you go, but we hope you've had some wonderful chats at RC!`
@@ -120,6 +128,13 @@ export function createMessageContent(
       template: `These are your previous matches: 
       ${vars.prevMatches}`
     },
+    STATUS_FALLBACK: {
+      reqVars: ['email'],
+      template: `The email of the current fallback user is: "${vars.email}".`
+    },
+    STATUS_FALLBACK_NULL: {
+      template: `The fallback user is not set!`
+    },
 
     ////////////////////////
     // Messages related to UPDATE actions
@@ -136,6 +151,12 @@ export function createMessageContent(
       //   vars.coffeeDays
       // }`
       template: `✅ UPDATED your coffee chat days`
+    },
+    UPDATED_FALLBACK: {
+      reqVars: ['email', 'full_name'],
+      template: `✅ UPDATED the fallback user. \nCurrent fallback user email is set to:  ${
+        vars.email
+      }`
     },
     ////////////////////////
     // MATCHED Related Messages
@@ -154,15 +175,12 @@ export function createMessageContent(
     // HELP messages
     ////////////////////////
     HELP: {
-      template: `Hi! I'm :coffee: bot and I'm here to help!
-      To talk to me, enter a valid command that begins with the following:
-      \`\`\`SHOW | UPDATE | HELP\`\`\`
-      To learn more about the **SHOW** or **UPDATE** commands, you can type:
-      \`\`\`**HELP SHOW**\`\`\` or \`\`\`**HELP UPDATE**\`\`\`
-      I'm also open-sourced, so you can help contribute and make me better :smile:
-      You can see find my inner workings @ [github](${
-        process.env.HELP_URL
-      }) or read my [docs](${process.env.GITHUB_URL}/wiki/)
+      template: `Hi! I'm a  🤖  that likes to pair Recursers up for chats. Here are some simple commands you can use to communicate with me:
+      * \`\`\`show days\`\`\` -- tells you what days you'll be matching on (by default its Mon, Tue, Wed, Thu) 
+      * \`\`\`update days [mon tue wed ...]\`\`\` -- updates the days you will match on. Use the first three letters of the weekday
+      * \`\`\`skip\`\`\` -- skips your next planned matching day
+      * \`\`\`deactivate\`\`\`\ -- freezes your account, you will no longer receive matches
+      See more @[wiki](${process.env.GITHUB_URL}/wiki/)
       `
     },
     HELP_SHOW: {
@@ -200,6 +218,16 @@ export function createMessageContent(
         process.env.GITHUB_URL
       }/issues)`
     },
+    BOT_STATS: {
+      reqVars: ['num_matches'],
+      template: `Coffee chat has made \`${
+        vars.num_matches
+      }\` matches to date. That's a lot of ☕️ 📊 🤗`
+    },
+    BOT_USERS: {
+      reqVars: ['num_active'],
+      template: `There are ${vars.num_active} active users right now. 📊`
+    },
     ////////////////////////
     // Blank Message
     ////////////////////////
@@ -210,6 +238,7 @@ export function createMessageContent(
     ////////////////////////
     // Warning Messages (cron)
     ////////////////////////
+    // TODO: DEPRECATION PENDING
     TODAYS_MATCH: {
       reqVars: ['full_name', 'first_name'],
       template: `Hi there! 👋
@@ -237,6 +266,18 @@ export function createMessageContent(
       }/issues)
       `,
       reqVars: ['errorMessage']
+    },
+
+    ////////////////////////
+    // One-off Messages
+    ////////////////////////
+    ONBOARDING: {
+      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other Recursers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow or \`\`\`activate\`\`\` if you're a returning user. 
+      
+      Learn more at my [wiki](${process.env.GITHUB_URL}/wiki)`
+    },
+    OFFBOARDING: {
+      template: `It's the end of the batch and we're 😢 to see you go~ \nYour account has automatically been deactivated, so you will no longer receive matches from me. But if you're in the area and would like to meet and chat with other recursers again just type: \`\`\`ACTIVATE\`\`\`\ any time. ✌️`
     }
   };
 

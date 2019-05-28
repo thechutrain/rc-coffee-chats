@@ -18,6 +18,10 @@ import { myDB } from '../olddb/dbTypes';
 
 export function initRegisteredHandler(db: myDB) {
   return (req: types.IZulipRequest, _, next) => {
+    if (req.local.errors && req.local.errors.length) {
+      next();
+    }
+
     const senderEmail = req.body.message.sender_email;
 
     try {
@@ -26,14 +30,17 @@ export function initRegisteredHandler(db: myDB) {
       req.local.user = {
         email: user.email,
         isRegistered: true,
-        isActive: user.is_active === 1
+        isActive: user.is_active === 1,
+        isAdmin: user.is_admin === 1,
+        data: user
       };
     } catch (e) {
       // CASE: user does not exist in User table
       req.local.user = {
         email: senderEmail,
         isRegistered: false,
-        isActive: false
+        isActive: false,
+        isAdmin: false
       };
 
       return next();

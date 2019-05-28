@@ -11,6 +11,7 @@ export interface IZulipBody {
     content: string;
     sender_email: string;
     subject: string;
+    display_recipient: any[]; // type has email, full_name etc.
   };
   bot_email: string;
 }
@@ -26,13 +27,14 @@ export interface IZulipRequest extends Express.Request {
       email: string;
       isRegistered: boolean;
       isActive: boolean;
+      isAdmin: boolean;
       data?: UserRecord;
     };
     action: IActionObj;
     errors: IError[];
+    msgInfo: IMsgInfo;
     // TODO: DEPRECATE THIS
     sqlResult?: any;
-    msgInfo: IMsgInfo;
   };
 }
 
@@ -82,6 +84,7 @@ export enum Action {
   'SHOW__SKIP' = 'SHOW__SKIP',
   'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
+  'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
@@ -89,6 +92,7 @@ export enum Action {
   'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
+  'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
@@ -96,6 +100,8 @@ export enum Action {
 
   // BOT
   'BOT__ISSUES' = 'BOT__ISSUES',
+  'BOT__USERS' = 'BOT__USERS',
+  'BOT__STATS' = 'BOT__STATS',
   'BOT__HI' = 'BOT__HI'
 }
 
@@ -117,11 +123,12 @@ export { myDB };
 export interface ICtx {
   db: myDB;
   userEmail: string;
+  user?: UserRecord;
 }
 
 export type actionFn = (
   ctx: ICtx,
-  actionArgs: any,
+  actionArgs: string[],
   zulipBody: IZulipBody
 ) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
@@ -149,6 +156,7 @@ export enum msgTemplate {
   // CLI Update-related cmds
   'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
+  'UPDATED_FALLBACK' = 'UPDATED_FALLBACK',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
@@ -159,6 +167,8 @@ export enum msgTemplate {
   'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
   'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
   'STATUS_PREVIOUS_MATCHES' = 'STATUS_PREVIOUS_MATCHES',
+  'STATUS_FALLBACK' = 'STATUS_FALLBACK',
+  'STATUS_FALLBACK_NULL' = 'STATUS_FALLBACK_NULL',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',
@@ -177,16 +187,19 @@ export enum msgTemplate {
   'BOT_ISSUES_MANY' = 'BOT_ISSUES_MANY',
   'BOT_ISSUES_FEW' = 'BOT_ISSUES_FEW',
   'BOT_ISSUES_NONE' = 'BOT_ISSUES_NONE',
+  'BOT_STATS' = 'BOT_STATS',
+  'BOT_USERS' = 'BOT_USERS',
 
   // Error
   'ERROR' = 'ERROR',
 
   // Cron-related:
   'WARNING_NOTIFICATION' = 'WARNING_NOTIFICATION',
-  'TODAYS_MATCH' = 'TODAYS_MATCH'
+  'TODAYS_MATCH' = 'TODAYS_MATCH',
 
-  // TEMP-MESSAGES:
-  // 'DEPRECATED__SKIP' = 'DEPRECATED__SKIP' // TODO?
+  // One-off Messages:
+  'ONBOARDING' = 'ONBOARDING',
+  'OFFBOARDING' = 'OFFBOARDING'
 }
 
 export type msgCreaterMap = Record<
@@ -196,6 +209,7 @@ export type msgCreaterMap = Record<
 
 // REMOVE THIS:
 export enum Errors {
+  'INVALID_ZULIP_TOKEN' = 'INVALID_ZULIP_TOKEN',
   'FAILED_UPDATE' = 'FAILED_UPDATE',
   'NOT_VALID_DIRECTIVE' = 'NOT_VALID_DIRECTIVE',
   'NOT_VALID_COMMAND' = 'NOT_VALID_COMMAND', // overlap?

@@ -1,4 +1,4 @@
-import sqlite from 'better-sqlite3';
+import * as sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { Model } from './__base_model';
 import { UserModel, MatchModel } from '../models';
@@ -7,7 +7,7 @@ export class UserMatchModel extends Model<UserMatchRecord> {
   private User: UserModel;
   private Match: MatchModel;
 
-  constructor(db: sqlite, userM: UserModel, matchM: MatchModel) {
+  constructor(db: sqlite.Database, userM: UserModel, matchM: MatchModel) {
     super(db, TABLE_NAME, FIELDS);
     this.User = userM;
     this.Match = matchM;
@@ -29,6 +29,11 @@ export class UserMatchModel extends Model<UserMatchRecord> {
     createStmt.run();
 
     return { rawQuery };
+  }
+
+  // gets the total number of matches to date:
+  public totalMatchesToDate(): number {
+    return this.count() / 2;
   }
 
   public addNewMatch(user_ids: number[], inputDate?: string) {

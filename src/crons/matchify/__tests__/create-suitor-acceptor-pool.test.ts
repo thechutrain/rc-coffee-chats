@@ -1,8 +1,4 @@
-import {
-  basicUser,
-  findUserPriority,
-  createSuitorAcceptorPool
-} from '../create-suitor-acceptor-pool';
+import { createSuitorAcceptorPool } from '../create-suitor-acceptor-pool';
 
 describe('createSuitorAcceptorPool(): ', () => {
   /**
@@ -33,6 +29,7 @@ describe('createSuitorAcceptorPool(): ', () => {
     };
 
     const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+      // @ts-ignore
       usersToMatch,
       fallBackUser
     );
@@ -57,6 +54,7 @@ describe('createSuitorAcceptorPool(): ', () => {
     };
 
     const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+      // @ts-ignore
       usersToMatch,
       fallBackUser
     );
@@ -78,6 +76,7 @@ describe('createSuitorAcceptorPool(): ', () => {
       prevMatches: []
     };
     const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+      // @ts-ignore
       usersToMatch,
       fallBackUser
     );

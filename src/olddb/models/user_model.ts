@@ -1,12 +1,12 @@
 import moment from 'moment';
 import 'moment-timezone';
-import sqlite from 'better-sqlite3';
+import * as sqlite from 'better-sqlite3';
 import * as types from '../dbTypes';
 import { WEEKDAY } from '../../types';
 import { Model } from './__base_model';
 
 export class UserModel extends Model<UserRecord> {
-  constructor(db: sqlite) {
+  constructor(db: sqlite.Database) {
     super(db, TABLE_NAME, FIELDS);
     this.initTable();
   }
@@ -233,8 +233,15 @@ export class UserModel extends Model<UserRecord> {
   // ✅: tests written
   public _findPrevActiveMatches(
     user_id: number,
-    weekday: WEEKDAY
+    inputWeekday?: WEEKDAY
   ): PrevMatchRecord[] {
+    const weekday: number =
+      inputWeekday !== undefined
+        ? inputWeekday
+        : moment()
+            .tz('America/New_York')
+            .day();
+
     const prevMatchesQuery = Model.db.prepare(
       `
     SELECT U.id, U.email, U.full_name, Match.date
@@ -297,6 +304,14 @@ export class UserModel extends Model<UserRecord> {
   }
 
   // ✅: tests written
+  public usersToSkip(weekday: WEEKDAY): UserRecord[] {
+    const skipping = Model.db.prepare(
+      `SELECT U.id, U.email FROM User U WHERE U.coffee_Days LIKE '%${weekday}%' and U.is_active = 1 and U.skip_next_match = 1`
+    );
+
+    return skipping.all();
+  }
+
   public clearTodaysSkippers(weekday?: WEEKDAY) {
     const weekdayInt: number =
       weekday !== undefined
@@ -339,6 +354,8 @@ export type MatchRecord = {
   full_name: string;
   date: string;
 };
+
+export type matchPair = [UserWithPrevMatchRecord, UserWithPrevMatchRecord];
 
 export type PrevMatchRecord = {
   id: number;

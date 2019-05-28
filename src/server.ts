@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import moment from 'moment-timezone';
 import * as dotenv from 'dotenv-safe';
 dotenv.config();
 const PORT = process.env.PORT || 8080;
@@ -17,6 +18,7 @@ const db = initDB();
 /////////////////
 /// Middleware
 /////////////////
+import { zulipTokenValidator } from './middleware/zulip-token-validator';
 import { initRegisteredHandler } from './middleware/registered-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
@@ -45,13 +47,24 @@ app.get('/', (req, res) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
+  zulipTokenValidator,
   registerHandler,
-  // parserHandler,
   actionCreater,
   actionHandler,
   messageHandler,
   (req: types.IZulipRequest, res) => {
-    console.log(res.body);
+    const currTime = moment()
+      .tz('America/New_York')
+      .format('L hh:mm:ss A');
+
+    console.log(`\n======= START of Zulip Request =======`);
+    console.log('>> current time: ', currTime);
+    console.log('>> data: ', req.body.data);
+    console.log('>> sender: ', req.body.message.sender_full_name);
+    console.log('ACTION:', req.local.action);
+    console.log('MSG:', req.local.msgInfo);
+    console.log('ERRORS: ', req.local.errors);
+    console.log('\n');
     res.json({});
   }
 );

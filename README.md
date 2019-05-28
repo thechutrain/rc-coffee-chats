@@ -1,15 +1,17 @@
 # Coffee Chats 2.0 
-[![Build Status](https://travis-ci.com/thechutrain/rc-coffee-chats.svg?branch=master)](https://travis-ci.com/thechutrain/rc-coffee-chats)
+[![Build Status](https://travis-ci.com/thechutrain/rc-coffee-chats.svg?branch=master)](https://travis-ci.com/thechutrain/rc-coffee-chats) <a href='http://www.recurse.com' title='Made with love at the Recurse Center'><img src='https://cloud.githubusercontent.com/assets/2883345/11325206/336ea5f4-9150-11e5-9e90-d86ad31993d8.png' height='20px'/></a>
 > Zulip bot that pairs Recursers for coffee chats
 
-## Signing up  
-Message the @chat-bot directly.
+## Commands and Documentation
+For a full list of commands see the [wiki page](https://github.com/thechutrain/rc-coffee-chats/wiki/)
 
-~~If you're looking to get paired for coffeechats you can subscribe to the coffee chat stream.~~
+## Signing up  
+Just say hi directly to `@chat-bot`. 
 
 ## Installing
 #### With Docker
 Before you get started, make sure you have docker on your local machine and have the daemon running. You can do a `docker info` to check if you're connected to the daemon.
+
 
 ```
 docker build -t coffee . // builds the image
@@ -55,13 +57,3 @@ npm run dev
 
 Happy hacking!
 
-## Goals
-The current goal has now been to make Coffee Chat more robust and extensible so it can be easily maintained and additional features can be made with confidence. These goals include the following:
-
-- [x] decoupling the code into separate modules
-- [x] writing tests to ensure there are no regression bugs
-- [ ] Using TypeScript for type safety and documentation
-- [ ] adding features to make maintaince easier
-  - [ ] automation of onboarding/offboarding
-  - [ ] logging cronjobs to maintainers through zulip
-  - [ ] allowing maintainers to update configurations (i.e. fallback user)
