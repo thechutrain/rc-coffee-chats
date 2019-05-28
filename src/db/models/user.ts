@@ -22,6 +22,9 @@ export class User {
     )`);
   }
 
+  /** ====== Finding Records() =====
+   *
+   */
   public async emailExists(email: string): Promise<boolean> {
     const results = await this.db.query(
       `SELECT * FROM "User" WHERE EMAIL = $1`,
@@ -41,6 +44,29 @@ export class User {
     return results.rows[0];
   }
 
+  public async findById(id: number): Promise<UserRecord> {
+    const result = await this.db.query(`SELECT * FROM "User" WHERE Id = $1`, [
+      id
+    ]);
+
+    if (result.rows.length !== 1) {
+      throw new Error(`Could not find a user with the id of: "${id}"`);
+    }
+    return result.rows[0];
+  }
+
+  public async findActive(isActive = true): Promise<UserRecord[]> {
+    const result = await this.db.query(
+      `SELECT * FROM "User" WHERE is_active = $1`,
+      [isActive]
+    );
+
+    return result.rows;
+  }
+
+  /** ====== Adding Records() =====
+   *
+   */
   public async add(email: string, full_name: string): Promise<UserRecord> {
     const result = await this.db.query(
       `INSERT INTO "User" (email, full_name) VALUES ($1, $2) RETURNING *`,
@@ -50,6 +76,9 @@ export class User {
     return result.rows[0];
   }
 
+  /** ====== Updating Records() =====
+   *
+   */
   public async updateDays(email: string, days: WEEKDAY[]): Promise<void> {
     const weekdayStr = days
       .sort((a, b) => {

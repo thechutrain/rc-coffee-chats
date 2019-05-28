@@ -39,7 +39,6 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.25",
     "pg": "^7.10.0",
-    "sequelize": "^5.8.5",
     "winston": "^2.4.0"
   },
   "engines": {
