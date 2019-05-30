@@ -3,4 +3,7 @@ export interface IError {
   customMessage?: string;
 }
 
-export type Errors = 'INVALID_ZULIP_TOKEN' | 'DB_UPDATE_ERROR';
+export type Errors =
+  | 'INVALID_ZULIP_TOKEN'
+  | 'DB_UPDATE_ERROR'
+  | 'NO_VALID_ACTION';

@@ -23,6 +23,7 @@ import { initRegisteredHandler } from './middleware/registered-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
 import { messageHandler } from './middleware/message-handler';
+import { IBaseZulip } from './types/ZulipRequestTypes';
 
 const registerHandler = initRegisteredHandler(db);
 const actionHandler = initActionHandler(db);
@@ -32,13 +33,6 @@ const actionHandler = initActionHandler(db);
 /////////////////
 const app = express();
 
-app.use((req: types.ILocalsReq, res, next) => {
-  req.local = {
-    errors: []
-  };
-  next();
-});
-
 app.get('/', (req, res) => {
   res.json({ message: 'hello there!' });
 });
@@ -47,6 +41,10 @@ app.get('/', (req, res) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
+  (req, res, next) => {
+    req.locals = {};
+    next();
+  },
   zulipTokenValidator,
   registerHandler,
   actionCreater,

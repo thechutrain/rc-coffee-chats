@@ -1,16 +1,18 @@
 /** ==== middleware for creating an action from cli/command
- * takes a req.local.cli --> creates an action
+ * takes a req.locals.cli --> creates an action
  */
 
 import * as types from '../types';
+import { IZulipRequestWithAction } from '../types/ZulipRequestTypes';
+import { Action, IAction, ActionAliasMap } from '../types/actionTypes';
 
-export function actionCreater(req: types.IZulipRequest, res, next) {
-  if (req.local.errors && req.local.errors.length) {
+export function actionCreater(req: IZulipRequestWithAction, res, next) {
+  if (req.locals.errors && req.locals.errors.length) {
     return next();
   }
 
-  const { isRegistered, isActive } = req.local.user;
-  let actionType: types.Action | null = null;
+  const { isRegistered, isActive } = req.locals.user;
+  let actionType: Action;
 
   /** HANDLE SPECIAL CASES:
    * - Case 1: user has never been registered with Chat Bot
@@ -18,11 +20,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
    */
   if (!isRegistered) {
     const wantsToSignUp = req.body.data.match(/signup/gi);
-    actionType = wantsToSignUp
-      ? types.Action.__REGISTER
-      : types.Action.__PROMPT_SIGNUP;
+    actionType = wantsToSignUp ? Action.__REGISTER : Action.__PROMPT_SIGNUP;
 
-    req.local.action = {
+    req.locals.action = {
       actionType,
       actionArgs: {
         rawInput: {}
@@ -32,11 +32,9 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
     return next();
   } else if (!isActive) {
     const wantsToActivate = req.body.data.match(/activate/gi);
-    actionType = wantsToActivate
-      ? types.Action.__ACTIVATE
-      : types.Action.__PROMPT_ACTIVATE;
+    actionType = wantsToActivate ? Action.__ACTIVATE : Action.__PROMPT_ACTIVATE;
 
-    req.local.action = {
+    req.locals.action = {
       actionType,
       actionArgs: {
         rawInput: {}
@@ -48,10 +46,10 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
 
   // Normal Action Creation, via: alias or full CLI
   try {
-    req.local.action = createAction(req.body.data);
+    req.locals.action = createAction(req.body.data);
   } catch (e) {
-    req.local.errors.push({
-      errorType: types.Errors.NO_VALID_ACTION,
+    req.locals.errors.push({
+      errorType: 'NO_VALID_ACTION',
       customMessage: e
     });
   }
@@ -63,7 +61,7 @@ export function actionCreater(req: types.IZulipRequest, res, next) {
  * - attempts to create an ActionObject from given string input
  * - will throw an error if it cannot make a valid action!
  */
-export function createAction(rawMessage: string): types.IActionObj {
+export function createAction(rawMessage: string): IAction {
   // SITUATION: strict use of "/" for all the full commands
   // return isAnAliasCommand(rawMessage)
   //   ? getActionFromAlias(rawMessage)
@@ -100,7 +98,7 @@ export function createAction(rawMessage: string): types.IActionObj {
  * @param messageContent
  */
 // ✅ Tests Written
-export function parseContentAsCli(messageContent: string): types.IParsedCmd {
+export function parseContentAsCli(messageContent: string) {
   const trimmedContent = messageContent.replace(/^\s+|\s+$|^\//g, '');
 
   const tokenizedArgs = trimmedContent
@@ -121,7 +119,7 @@ export function parseContentAsCli(messageContent: string): types.IParsedCmd {
  * NOTE: will never return null action, by default will return HELP action
  * @param cli
  */
-export function getActionFromCli(messageContent: string): types.IActionObj {
+export function getActionFromCli(messageContent: string): IAction {
   const cli = parseContentAsCli(messageContent);
 
   const actionStr = cli.subcommand
@@ -134,8 +132,7 @@ export function getActionFromCli(messageContent: string): types.IActionObj {
     );
   }
 
-  const actionType =
-    actionStr in types.Action ? types.Action[actionStr] : types.Action.HELP;
+  const actionType = actionStr in Action ? Action[actionStr] : Action.HELP;
 
   return {
     actionType,
@@ -143,42 +140,38 @@ export function getActionFromCli(messageContent: string): types.IActionObj {
   };
 }
 
-// TODO: move this into types file
-type keyArgs = {
-  keyWords: string[];
-  actionArgs: {
-    rawInput: any;
-  };
-};
-
 /** getActionFromAlias()
  *  - creates ActionObj from aliased commands
  *
  * @param body
  */
 // ✅ Tests Written
-export function getActionFromAlias(body: string): types.IActionObj {
-  const actionToStrMap: Partial<Record<types.Action, keyArgs>> = {
-    [types.Action.BOT__HI]: {
+export function getActionFromAlias(body: string): IAction {
+  const actionToStrMap: ActionAliasMap = {
+    [Action.BOT__HI]: {
       keyWords: ['hi', 'hello', 'howdy', 'hey', 'sup'],
+      actionType: Action.BOT__HI,
       actionArgs: {
         rawInput: {}
       }
     },
-    [types.Action.UPDATE__SKIP]: {
+    [Action.UPDATE__SKIP]: {
       keyWords: ['cancel next match', 'cancel', 'skip'],
+      actionType: Action.UPDATE__SKIP,
       actionArgs: {
         rawInput: ['true']
       }
     },
-    [types.Action.SHOW__DAYS]: {
+    [Action.SHOW__DAYS]: {
       keyWords: ['days'],
+      actionType: Action.SHOW__DAYS,
       actionArgs: {
         rawInput: []
       }
     },
-    [types.Action.UPDATE__ACTIVE]: {
-      keyWords: ['deactivate'],
+    [Action.UPDATE__ACTIVE]: {
+      keyWords: ['deactivate', 'freeze'],
+      actionType: Action.UPDATE__ACTIVE,
       actionArgs: {
         rawInput: ['false']
       }

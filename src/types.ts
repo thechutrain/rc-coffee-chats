@@ -41,7 +41,6 @@ export interface IZulipRequest extends Express.Request {
     errors: IError[];
     msgInfo: IMsgInfo;
     // TODO: DEPRECATE THIS
-    sqlResult?: any;
   };
 }
 
@@ -49,28 +48,6 @@ export interface IError {
   errorType: Errors;
   customMessage?: string;
 }
-
-////////////////////////////
-// Cli
-////////////////////////////
-export enum CliDirectives {
-  UPDATE = 'UPDATE',
-  STATUS = 'STATUS',
-  HELP = 'HELP'
-}
-
-export interface IParsedCmd {
-  directive: string | null;
-  subcommand: string | null;
-  args: string[];
-}
-
-// export interface IValidatedCmd extends IParsedCmd {
-//   isValid: boolean;
-//   action: Action | null;
-//   currentUser: string;
-//   targetUser: string;
-// }
 
 ////////////////////////////
 // Dispatch, Action, Commands
@@ -89,14 +66,14 @@ export enum Action {
   'SHOW__DAYS' = 'SHOW__DAYS',
   'SHOW__PREVIOUS' = 'SHOW__PREVIOUS',
   'SHOW__SKIP' = 'SHOW__SKIP',
-  'SHOW__SKIPPING' = 'SHOW__SKIPPING',
+  // 'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
   'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
   'UPDATE__SKIP' = 'UPDATE__SKIP',
-  'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
+  // 'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
   'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
@@ -112,7 +89,7 @@ export enum Action {
 }
 
 export interface IActionObj {
-  actionType: Action | null;
+  actionType: Action;
   actionArgs: {
     rawInput: any;
   };

@@ -1,5 +1,14 @@
 import { IError } from './ErrorTypes';
 import { UserRecord } from './DbTypes';
+import { IAction } from './actionTypes';
+
+type currUser = {
+  email: string;
+  isRegistered: boolean;
+  isActive: boolean;
+  isAdmin: boolean;
+  data?: UserRecord;
+};
 
 export interface IBaseZulip extends Express.Request {
   locals: {
@@ -22,13 +31,15 @@ export interface IBaseZulip extends Express.Request {
 
 export interface IZulipRequestWithUser extends IBaseZulip {
   locals: {
-    user: {
-      email: string;
-      isRegistered: boolean;
-      isActive: boolean;
-      isAdmin: boolean;
-      data?: UserRecord;
-    };
     errors: IError[];
+    user: currUser;
+  };
+}
+
+export interface IZulipRequestWithAction extends IBaseZulip {
+  locals: {
+    errors: IError[];
+    user: currUser;
+    action: IAction;
   };
 }
