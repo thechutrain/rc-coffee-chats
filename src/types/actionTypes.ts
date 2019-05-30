@@ -1,6 +1,6 @@
 import { ZulipBody } from './zulipRequestTypes';
 import { IMsg } from './msgTypes';
-import { myDB, UserRecord } from './DbTypes';
+import { myDB, UserRecord } from './dbTypes';
 
 // NOTE: using an Action Enum as oppposed to a type since
 // we are checking later if a string exists as an Action key
