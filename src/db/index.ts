@@ -2,7 +2,7 @@ import * as path from 'path';
 import sqlite from 'better-sqlite3';
 
 import { UserModel, UserMatchModel, MatchModel, ConfigModel } from './models';
-import * as types from './dbTypes';
+import * as types from '../types/dbTypes';
 
 export function initDB(
   optDbFilePath?: string,

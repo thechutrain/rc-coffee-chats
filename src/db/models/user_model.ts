@@ -1,7 +1,7 @@
 import moment from 'moment';
 import 'moment-timezone';
 import * as sqlite from 'better-sqlite3';
-import * as types from '../dbTypes';
+import * as types from '../../types/dbTypes';
 import { WEEKDAY } from '../../types';
 import { Model } from './__base_model';
 

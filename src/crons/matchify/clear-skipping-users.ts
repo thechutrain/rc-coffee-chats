@@ -1,4 +1,4 @@
-import { UserRecord } from '../../db/dbTypes';
+import { UserRecord } from '../../types/dbTypes';
 import * as types from '../../types';
 // TODO: write tests
 
