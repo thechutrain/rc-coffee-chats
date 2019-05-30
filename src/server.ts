@@ -6,9 +6,7 @@ dotenv.config();
 const PORT = process.env.PORT || 8080;
 
 // ===== My Custom Modules =====
-import * as types from './types';
 import { initDB } from './db';
-// import { parseStrAsBool, validatePayload } from './utils/';
 
 //////////////////////////////////
 /// Database
