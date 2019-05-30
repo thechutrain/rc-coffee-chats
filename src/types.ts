@@ -16,17 +16,6 @@ export interface IZulipBody {
   bot_email: string;
 }
 
-export interface ILocalsReq extends Express.Request {
-  body: any;
-  // TODO: change to locals
-  local?: any;
-}
-
-// TODO: extend each
-// interface IBaseZulip {}
-// IZulipRequestWithUser
-//
-
 export interface IZulipRequest extends Express.Request {
   body: IZulipBody;
   local: {

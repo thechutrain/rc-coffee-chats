@@ -1,3 +1,7 @@
+import { ZulipBody } from './ZulipRequestTypes';
+import { IMsg } from './MsgTypes';
+import { myDB, UserRecord } from './DbTypes';
+
 // NOTE: using an Action Enum as oppposed to a type since
 // we are checking later if a string exists as an Action key
 export enum Action {
@@ -49,3 +53,16 @@ type keyArgs = {
 };
 
 export type ActionAliasMap = Partial<Record<Action, keyArgs>>;
+
+export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
+export type actionFn = (
+  ctx: ICtx,
+  actionArgs: string[],
+  zulipBody: ZulipBody
+) => Promise<IMsg>;
+
+export interface ICtx {
+  db: myDB;
+  userEmail: string;
+  user?: UserRecord;
+}
