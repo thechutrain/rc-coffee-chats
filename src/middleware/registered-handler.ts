@@ -4,7 +4,7 @@
  */
 import * as types from '../types';
 import { myDB } from '../types/dbTypes';
-import { IZulipRequestWithUser } from '../types/ZulipRequestTypes';
+import { IZulipRequestWithUser } from '../types/zulipRequestTypes';
 
 export function initRegisteredHandler(db: myDB) {
   return (req: IZulipRequestWithUser, _, next) => {

@@ -1,5 +1,5 @@
-import { ZulipBody } from './ZulipRequestTypes';
-import { IMsg } from './MsgTypes';
+import { ZulipBody } from './zulipRequestTypes';
+import { IMsg } from './msgTypes';
 import { myDB, UserRecord } from './DbTypes';
 
 // NOTE: using an Action Enum as oppposed to a type since

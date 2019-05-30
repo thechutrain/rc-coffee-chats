@@ -3,7 +3,7 @@
  */
 
 import * as types from '../types';
-import { IZulipRequestWithAction } from '../types/ZulipRequestTypes';
+import { IZulipRequestWithAction } from '../types/zulipRequestTypes';
 import { Action, IAction, ActionAliasMap } from '../types/actionTypes';
 
 export function actionCreater(req: IZulipRequestWithAction, res, next) {

@@ -1,7 +1,7 @@
-import { IError } from './ErrorTypes';
-import { UserRecord } from './DbTypes';
+import { IError } from './errorTypes';
+import { UserRecord } from './dbTypes';
 import { IAction } from './actionTypes';
-import { Msg } from './MsgTypes';
+import { Msg } from './msgTypes';
 
 type currUser = {
   email: string;

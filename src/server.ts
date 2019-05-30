@@ -26,7 +26,7 @@ import { messageHandler } from './middleware/message-handler';
 import {
   IBaseZulip,
   IZulipRequestWithMessage
-} from './types/ZulipRequestTypes';
+} from './types/zulipRequestTypes';
 
 const registerHandler = initRegisteredHandler(db);
 const actionHandler = initActionHandler(db);

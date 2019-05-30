@@ -6,11 +6,11 @@ import { getProjectIssues } from '../utils/getIssues';
 
 import { WEEKDAY } from '../types';
 import { Action, ActionHandlerMap, ICtx } from '../types/actionTypes';
-import { MsgTemplate, IMsg } from '../types/MsgTypes';
+import { MsgTemplate, IMsg } from '../types/msgTypes';
 import {
   IZulipRequestWithMessage,
   ZulipBody
-} from '../types/ZulipRequestTypes';
+} from '../types/zulipRequestTypes';
 import { myDB } from '../types/dbTypes';
 
 /** Rules that guide what function gets invoked with what action

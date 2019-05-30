@@ -1,4 +1,4 @@
-import { IBaseZulip } from '../types/ZulipRequestTypes';
+import { IBaseZulip } from '../types/zulipRequestTypes';
 
 export function zulipTokenValidator(req: IBaseZulip, res, next) {
   if (req.body.token !== process.env.ZULIP_BOT_TOKEN) {

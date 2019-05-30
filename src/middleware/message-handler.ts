@@ -6,7 +6,7 @@ import {
   sendGenericMessage,
   templateMessageSender
 } from '../zulip-messenger/msg-sender';
-import { IZulipRequestWithMessage } from '../types/ZulipRequestTypes';
+import { IZulipRequestWithMessage } from '../types/zulipRequestTypes';
 // import * as types from '../types';
 
 export async function messageHandler(req: IZulipRequestWithMessage, res, next) {
