@@ -357,8 +357,6 @@ export function initActionHandler(db: myDB) {
   return async (req: IZulipRequestWithMessage, res, next) => {
     // Case: errors are already present, skip the dispatcher middleware
     // Case: no action specified, skip this middleware
-    const errors = req.locals.errors;
-    console.log({ errors });
     if (
       (req.locals.errors && req.locals.errors.length !== 0) ||
       req.locals.action.actionType === null

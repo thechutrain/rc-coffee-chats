@@ -17,7 +17,7 @@ export async function messageHandler(req: IZulipRequestWithMessage, res, next) {
   }
 
   // Case: handle errors with no user (invalid zulip token)
-  if (!req.locals.user && errors.length) {
+  if (!req.locals.user && errors && errors.length) {
     console.log('Errors!');
     console.warn(errors);
     return next();

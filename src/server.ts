@@ -43,7 +43,9 @@ app.post(
   '/webhooks/zulip',
   bodyParser.json(),
   (req, res, next) => {
-    req.locals = {};
+    req.locals = {
+      errors: []
+    };
     next();
   },
   zulipTokenValidator,
