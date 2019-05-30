@@ -23,7 +23,7 @@ export interface ILocalsReq extends Express.Request {
 }
 
 // TODO: extend each
-interface IBaseZulip {}
+// interface IBaseZulip {}
 // IZulipRequestWithUser
 //
 
@@ -157,7 +157,7 @@ const foo = {
 
 function x(y: typeof foo) {}
 
-x({ baz: 'asdfa' });
+// x({ baz: 'asdfa' });
 
 export enum msgTemplate {
   'BLANK' = 'BLANK',
