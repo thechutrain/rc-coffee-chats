@@ -8,6 +8,15 @@ export interface IMsg {
   msgTemplate: MsgTemplate;
   msgArgs?: Record<any, string>;
 }
+
+export type MsgCreaterMap = Record<
+  MsgTemplate,
+  {
+    template: string;
+    reqVars?: string[];
+  }
+>;
+
 export type MsgTemplate =
   | 'BLANK'
   | 'PROMPT_SIGNUP'

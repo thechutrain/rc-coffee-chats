@@ -4,7 +4,8 @@
  */
 
 import axios from 'axios';
-import * as types from '../types';
+// import * as types from '../types';
+import { MsgTemplate, MsgCreaterMap } from '../types/MsgTypes';
 
 /** ======= Zulip-specific simple msg sender ========
  *
@@ -53,7 +54,7 @@ export function sendGenericMessage(
  */
 export function templateMessageSender(
   toEmail: string | string[],
-  messageType: types.msgTemplate,
+  messageType: MsgTemplate,
   msgOpt: any = {}
 ) {
   const messageContent = createMessageContent(messageType, msgOpt);
@@ -66,14 +67,14 @@ export function templateMessageSender(
  * @param overloadArgs
  */
 export function createMessageContent(
-  messageType: types.msgTemplate,
+  messageType: MsgTemplate,
   overloadArgs = {}
 ): string {
   const vars: any = overloadArgs;
 
   // TODO: validate that all vars exist on overloadArgs!
 
-  const msgCreaterMap: types.msgCreaterMap = {
+  const msgCreaterMap: MsgCreaterMap = {
     ////////////////////////
     // Registration related messages
     ////////////////////////
@@ -111,10 +112,10 @@ export function createMessageContent(
         vars.coffeeDays
       }`
     },
-    STATUS_SKIP_TRUE: {
+    STATUS_SKIPPING: {
       template: `You will be skipping your next scheduled match\n *SKIPPING* is set to "YES"`
     },
-    STATUS_SKIP_FALSE: {
+    STATUS_NOT_SKIPPING: {
       template: `You will be matched according to your regular schedule. \n *SKIPPING* is set to "NO"`
     },
     STATUS_WARNINGS_ON: {

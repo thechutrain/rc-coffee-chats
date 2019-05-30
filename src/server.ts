@@ -23,7 +23,10 @@ import { initRegisteredHandler } from './middleware/registered-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
 import { messageHandler } from './middleware/message-handler';
-import { IBaseZulip } from './types/ZulipRequestTypes';
+import {
+  IBaseZulip,
+  IZulipRequestWithMessage
+} from './types/ZulipRequestTypes';
 
 const registerHandler = initRegisteredHandler(db);
 const actionHandler = initActionHandler(db);
@@ -50,19 +53,22 @@ app.post(
   actionCreater,
   actionHandler,
   messageHandler,
-  (req: types.IZulipRequest, res) => {
+  (req: IZulipRequestWithMessage, res) => {
     const currTime = moment()
       .tz('America/New_York')
       .format('L hh:mm:ss A');
 
-    console.log(`\n======= START of Zulip Request =======`);
-    console.log('>> current time: ', currTime);
-    console.log('>> data: ', req.body.data);
-    console.log('>> sender: ', req.body.message.sender_full_name);
-    console.log('ACTION:', req.local.action);
-    console.log('MSG:', req.local.msgInfo);
-    console.log('ERRORS: ', req.local.errors);
-    console.log('\n');
+    // NOTE: only log messages that are directly to chat bot
+    if (req.body.message.display_recipient.length === 2) {
+      console.log(`\n======= START of Zulip Request =======`);
+      console.log('>> current time: ', currTime);
+      console.log('>> data: ', req.body.data);
+      console.log('>> sender: ', req.body.message.sender_full_name);
+      console.log('ACTION:', req.locals.action);
+      console.log('MSG:', req.locals.msg);
+      console.log('ERRORS: ', req.locals.errors);
+      console.log('\n');
+    }
     res.json({});
   }
 );
