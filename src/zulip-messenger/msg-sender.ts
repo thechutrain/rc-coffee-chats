@@ -4,7 +4,6 @@
  */
 
 import axios from 'axios';
-// import * as types from '../types';
 import { MsgTemplate, MsgCreaterMap } from '../types/msgTypes';
 
 /** ======= Zulip-specific simple msg sender ========
