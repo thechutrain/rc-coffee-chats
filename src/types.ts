@@ -16,10 +16,6 @@ export interface IZulipBody {
   bot_email: string;
 }
 
-export interface ILocalsReq extends Express.Request {
-  body: any;
-  local?: any;
-}
 export interface IZulipRequest extends Express.Request {
   body: IZulipBody;
   local: {
@@ -33,8 +29,6 @@ export interface IZulipRequest extends Express.Request {
     action: IActionObj;
     errors: IError[];
     msgInfo: IMsgInfo;
-    // TODO: DEPRECATE THIS
-    sqlResult?: any;
   };
 }
 
@@ -42,28 +36,6 @@ export interface IError {
   errorType: Errors;
   customMessage?: string;
 }
-
-////////////////////////////
-// Cli
-////////////////////////////
-export enum CliDirectives {
-  UPDATE = 'UPDATE',
-  STATUS = 'STATUS',
-  HELP = 'HELP'
-}
-
-export interface IParsedCmd {
-  directive: string | null;
-  subcommand: string | null;
-  args: string[];
-}
-
-// export interface IValidatedCmd extends IParsedCmd {
-//   isValid: boolean;
-//   action: Action | null;
-//   currentUser: string;
-//   targetUser: string;
-// }
 
 ////////////////////////////
 // Dispatch, Action, Commands
@@ -82,14 +54,14 @@ export enum Action {
   'SHOW__DAYS' = 'SHOW__DAYS',
   'SHOW__PREVIOUS' = 'SHOW__PREVIOUS',
   'SHOW__SKIP' = 'SHOW__SKIP',
-  'SHOW__SKIPPING' = 'SHOW__SKIPPING',
+  // 'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
   'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
   'UPDATE__SKIP' = 'UPDATE__SKIP',
-  'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
+  // 'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
   'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
@@ -106,7 +78,7 @@ export enum Action {
 }
 
 export interface IActionObj {
-  actionType: Action | null;
+  actionType: Action;
   actionArgs: {
     rawInput: any;
   };
@@ -118,7 +90,7 @@ export interface IActionObj {
  * reqKeys: must have these keys, && each key needs to pass this validator
  */
 
-import { myDB, UserRecord } from './db/dbTypes';
+import { myDB, UserRecord } from './types/dbTypes';
 export { myDB };
 export interface ICtx {
   db: myDB;
@@ -133,6 +105,7 @@ export type actionFn = (
 ) => Promise<IMsg>;
 export type ActionHandlerMap = Record<keyof typeof Action, actionFn>;
 
+// type ActionType = 'UPDATE__DATES' | 'SHOW__DAYS';
 ////////////////////////////
 // Messaging
 ////////////////////////////
@@ -202,12 +175,6 @@ export enum msgTemplate {
   'OFFBOARDING' = 'OFFBOARDING'
 }
 
-export type msgCreaterMap = Record<
-  keyof typeof msgTemplate,
-  { template: string; reqVars?: string[] }
->;
-
-// REMOVE THIS:
 export enum Errors {
   'INVALID_ZULIP_TOKEN' = 'INVALID_ZULIP_TOKEN',
   'FAILED_UPDATE' = 'FAILED_UPDATE',

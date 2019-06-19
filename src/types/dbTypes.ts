@@ -1,5 +1,10 @@
 import * as sqlite from 'better-sqlite3';
-import { UserModel, UserMatchModel, MatchModel, ConfigModel } from './models';
+import {
+  UserModel,
+  UserMatchModel,
+  MatchModel,
+  ConfigModel
+} from '../db/models';
 
 export type myDB = {
   User: UserModel;
@@ -51,8 +56,8 @@ export interface IField {
 }
 
 // ======== MODEL RELATED TYPES ==================
-import { UserRecord } from './models/user_model';
-import { UserMatchRecord } from './models/usermatch_model';
-import { MatchRecord } from './models/match_model';
+import { UserRecord } from '../db/models/user_model';
+import { UserMatchRecord } from '../db/models/usermatch_model';
+import { MatchRecord } from '../db/models/match_model';
 
 export { UserRecord, UserMatchRecord, MatchRecord };

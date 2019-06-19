@@ -1,22 +1,29 @@
 /**
  * dispatches command/action
  */
-import * as types from '../types';
+import { notifyAdmin } from '../zulip-messenger/notify-admin';
 import { getProjectIssues } from '../utils/getIssues';
 
-import { notifyAdmin } from '../zulip-messenger/notify-admin';
+import { WEEKDAY } from '../types';
+import { Action, ActionHandlerMap, ICtx } from '../types/actionTypes';
+import { MsgTemplate, IMsg } from '../types/msgTypes';
+import {
+  IZulipRequestWithMessage,
+  ZulipBody
+} from '../types/zulipRequestTypes';
+import { myDB } from '../types/dbTypes';
 
 /** Rules that guide what function gets invoked with what action
  *  && what messages get sent if functions are successful
  */
 // NOTE: all errors thrown in action functions will be handled
 // by the dispatcher(), which will send a generic error msg:
-export const ActionHandlerMap: types.ActionHandlerMap = {
+export const actionHandlerMap: ActionHandlerMap = {
   // isRegistered CMDS
   __PROMPT_SIGNUP() {
     return new Promise(resolve => {
       resolve({
-        msgTemplate: types.msgTemplate.PROMPT_SIGNUP
+        msgTemplate: 'PROMPT_SIGNUP'
       });
     });
   },
@@ -27,7 +34,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         full_name: zulipReqBody.message.sender_full_name
       });
 
-      resolve({ msgTemplate: types.msgTemplate.SIGNED_UP });
+      resolve({ msgTemplate: 'SIGNED_UP' });
     });
   },
   // isActive CMDS
@@ -35,12 +42,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
     return new Promise(resolve => {
       ctx.db.User.update({ is_active: 1 }, { email: ctx.userEmail });
 
-      resolve({ msgTemplate: types.msgTemplate.ACTIVATE });
+      resolve({ msgTemplate: 'ACTIVATE' });
     });
   },
   __PROMPT_ACTIVATE() {
     return new Promise(resolve => {
-      resolve({ msgTemplate: types.msgTemplate.PROMPT_ACTIVATE });
+      resolve({ msgTemplate: 'PROMPT_ACTIVATE' });
     });
   },
 
@@ -54,12 +61,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const coffeeDays = User.coffee_days
         .split('')
         .map(day => {
-          return types.WEEKDAY[day];
+          return WEEKDAY[day];
         })
         .join(' ');
 
       resolve({
-        msgTemplate: types.msgTemplate.STATUS_DAYS,
+        msgTemplate: 'STATUS_DAYS',
         msgArgs: {
           coffeeDays
         }
@@ -69,30 +76,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   SHOW__SKIP(ctx) {
     return new Promise(resolve => {
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
-      // TODO: feature that lets user know when their next match is schedule to be
-
-      const msgTemplate =
-        skip_next_match === 1
-          ? types.msgTemplate.STATUS_SKIP_TRUE
-          : types.msgTemplate.STATUS_SKIP_FALSE;
 
       resolve({
-        msgTemplate
-      });
-    });
-  },
-  SHOW__SKIPPING(ctx) {
-    return new Promise(resolve => {
-      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
-      // TODO: feature that lets user know when their next match is schedule to be
-
-      const msgTemplate =
-        skip_next_match === 1
-          ? types.msgTemplate.STATUS_SKIP_TRUE
-          : types.msgTemplate.STATUS_SKIP_FALSE;
-
-      resolve({
-        msgTemplate
+        msgTemplate:
+          skip_next_match === 1 ? 'STATUS_SKIPPING' : 'STATUS_NOT_SKIPPING'
       });
     });
   },
@@ -102,13 +89,10 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       notifyAdmin('multi-user test');
 
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
-      const msgTemplate =
-        warning_exception === 0
-          ? types.msgTemplate.STATUS_WARNINGS_ON
-          : types.msgTemplate.STATUS_WARNINGS_OFF;
 
       resolve({
-        msgTemplate
+        msgTemplate:
+          warning_exception === 0 ? 'STATUS_WARNINGS_ON' : 'STATUS_WARNINGS_OFF'
       });
     });
   },
@@ -122,7 +106,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         .join('\n');
 
       resolve({
-        msgTemplate: types.msgTemplate.STATUS_PREVIOUS_MATCHES,
+        msgTemplate: 'STATUS_PREVIOUS_MATCHES',
         msgArgs: { prevMatches: prevMatchesAsStr }
       });
     });
@@ -133,12 +117,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
 
       if (fallBackEmail) {
         resolve({
-          msgTemplate: types.msgTemplate.STATUS_FALLBACK,
+          msgTemplate: 'STATUS_FALLBACK',
           msgArgs: { email: fallBackEmail }
         });
       } else {
         resolve({
-          msgTemplate: types.msgTemplate.STATUS_FALLBACK_NULL
+          msgTemplate: 'STATUS_FALLBACK_NULL'
         });
       }
     });
@@ -157,7 +141,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const weekdays = actionArgs.map(d => {
         // Note: input arguments are no longer all capitalized.
         const day = d.toUpperCase();
-        if (!(day in types.WEEKDAY)) {
+        if (!(day in WEEKDAY)) {
           throw new Error(
             `Inproper input for updating days. Received: "${day}". Use the first three letters for each day of the week`
           );
@@ -168,7 +152,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
           );
         }
 
-        return types.WEEKDAY[day]; // return int of the day
+        return WEEKDAY[day]; // return int of the day
       });
 
       // Must save the days of the week as a string of numbers
@@ -177,12 +161,12 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const coffeeDays = User.coffee_days
         .split('')
         .map(day => {
-          return types.WEEKDAY[day];
+          return WEEKDAY[day];
         })
         .join(' ');
 
       resolve({
-        msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+        msgTemplate: 'UPDATED_GENERAL',
         msgArgs: {
           setting_key: 'Coffee Days',
           setting_value: coffeeDays
@@ -212,7 +196,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
 
       resolve({
-        msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+        msgTemplate: 'UPDATED_GENERAL',
         msgArgs: {
           setting_key: 'SKIPPING',
           setting_value: skip_next_match === 1 ? 'YES' : 'NO'
@@ -220,36 +204,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
-  UPDATE__SKIPPING(ctx, actionArgs) {
-    return new Promise(resolve => {
-      const inputCaps = actionArgs[0].toUpperCase();
-      // Validate arguments:
-      const trueArgs = ['1', 'TRUE', 'YES'];
-      const falseArgs = ['0', 'FALSE', 'NO'];
-      const validArgs = new Set([...trueArgs, ...falseArgs]);
-      if (actionArgs.length !== 1) {
-        throw new Error(
-          `Update skipping takes one boolean argument. The following are valid arguments: *${trueArgs.join(
-            ', '
-          )}, ${falseArgs.join(', ')}*`
-        );
-      } else if (!validArgs.has(inputCaps)) {
-        throw new Error(`${actionArgs[0]} is not a valid argument`);
-      }
 
-      const blnSkip = trueArgs.indexOf(inputCaps) !== -1 ? true : false;
-      ctx.db.User.updateSkipNextMatch(ctx.userEmail, blnSkip);
-      const { skip_next_match } = ctx.db.User.findByEmail(ctx.userEmail);
-
-      resolve({
-        msgTemplate: types.msgTemplate.UPDATED_GENERAL,
-        msgArgs: {
-          setting_key: 'SKIPPING',
-          setting_value: skip_next_match === 1 ? 'YES' : 'NO'
-        }
-      });
-    });
-  },
   UPDATE__WARNINGS(ctx, actionArgs) {
     return new Promise(resolve => {
       const inputCaps = actionArgs[0].toUpperCase();
@@ -267,18 +222,13 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         throw new Error(`${actionArgs[0]} is not a valid argument`);
       }
 
-      /** NOTE: warning notifications --> stored in warning_exception column
-       * TODO: change the column name for clarification
-       * warnings on --> warning_exception = 0
-       * warnings off --> warning_exception = 1
-       */
       const warningException =
         trueArgs.indexOf(inputCaps) !== -1 ? false : true;
       ctx.db.User.updateWarnings(ctx.userEmail, warningException);
       const { warning_exception } = ctx.db.User.findByEmail(ctx.userEmail);
 
       resolve({
-        msgTemplate: types.msgTemplate.UPDATED_GENERAL,
+        msgTemplate: 'UPDATED_GENERAL',
         msgArgs: {
           setting_key: 'Warning Notifications',
           setting_value: warning_exception === 0 ? 'ON' : 'OFF'
@@ -286,7 +236,6 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       });
     });
   },
-
   UPDATE__ACTIVE(ctx, actionArgs) {
     return new Promise(resolve => {
       const inputCaps = actionArgs[0].toUpperCase();
@@ -308,7 +257,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       ctx.db.User.update({ is_active: 0 }, { email: ctx.userEmail });
 
       resolve({
-        msgTemplate: types.msgTemplate.DEACTIVATE
+        msgTemplate: 'DEACTIVATE'
       });
     });
   },
@@ -320,7 +269,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
         ctx.db.Config.setFallBackUser(actionArgs[0]);
         const fallBackEmail = ctx.db.Config.getFallBackUser();
         resolve({
-          msgTemplate: types.msgTemplate.UPDATED_FALLBACK,
+          msgTemplate: 'UPDATED_FALLBACK',
           msgArgs: {
             email: fallBackEmail
           }
@@ -337,18 +286,18 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   ////////////////
   HELP() {
     return new Promise(resolve => {
-      resolve({ msgTemplate: types.msgTemplate.HELP });
+      resolve({ msgTemplate: 'HELP' });
     });
   },
   HELP__SHOW() {
     return new Promise(resolve => {
-      resolve({ msgTemplate: types.msgTemplate.HELP_SHOW });
+      resolve({ msgTemplate: 'HELP_SHOW' });
     });
   },
   HELP__UPDATE() {
     return new Promise(resolve => {
       resolve({
-        msgTemplate: types.msgTemplate.HELP_UPDATE
+        msgTemplate: 'HELP_UPDATE'
       });
     });
   },
@@ -361,7 +310,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const index = Math.floor(Math.random() * helloResponses.length);
       const greeting = helloResponses[index];
       resolve({
-        msgTemplate: types.msgTemplate.BLANK,
+        msgTemplate: 'BLANK',
         msgArgs: {
           message: greeting
         }
@@ -385,7 +334,7 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
       const num_matches = ctx.db.UserMatch.totalMatchesToDate();
 
       resolve({
-        msgTemplate: types.msgTemplate.BOT_STATS,
+        msgTemplate: 'BOT_STATS',
         msgArgs: {
           num_matches: `${num_matches}`
         }
@@ -395,14 +344,14 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
   BOT__ISSUES() {
     return new Promise(async resolve => {
       const num_issues = await getProjectIssues();
-      let msgTemplate: types.msgTemplate;
+      let msgTemplate: MsgTemplate;
 
       if (num_issues === 0) {
-        msgTemplate = types.msgTemplate.BOT_ISSUES_NONE;
+        msgTemplate = 'BOT_ISSUES_NONE';
       } else if (num_issues < 4) {
-        msgTemplate = types.msgTemplate.BOT_ISSUES_FEW;
+        msgTemplate = 'BOT_ISSUES_FEW';
       } else {
-        msgTemplate = types.msgTemplate.BOT_ISSUES_MANY;
+        msgTemplate = 'BOT_ISSUES_MANY';
       }
 
       resolve({ msgTemplate, msgArgs: { num_issues: `${num_issues}` } });
@@ -414,25 +363,25 @@ export const ActionHandlerMap: types.ActionHandlerMap = {
  *  --> dispatches an action that returns a message
  *
  */
-export function initActionHandler(db: types.myDB) {
-  const dispatcher = initDispatcher(ActionHandlerMap);
+export function initActionHandler(db: myDB) {
+  const dispatcher = initDispatcher(actionHandlerMap);
 
-  return async (req: types.IZulipRequest, res, next) => {
+  return async (req: IZulipRequestWithMessage, res, next) => {
     // Case: errors are already present, skip the dispatcher middleware
     // Case: no action specified, skip this middleware
-    if (req.local.errors.length !== 0 || req.local.action.actionType === null) {
-      console.log('there was an error so skipping ....');
-      next();
-      return;
+    if (
+      (req.locals.errors && req.locals.errors.length !== 0) ||
+      req.locals.action.actionType === null
+    ) {
+      return next();
     }
 
-    // TODO: make this targetUser, originUser separate
-    const userEmail = req.local.user.email;
-    const { actionType, actionArgs } = req.local.action;
+    const userEmail = req.locals.user.email;
+    const { actionType, actionArgs } = req.locals.action;
     const ctx = {
       db,
       userEmail,
-      user: req.local.user.data
+      user: req.locals.user.data
     };
     const { msgTemplate, msgArgs } = await dispatcher(
       ctx,
@@ -441,7 +390,11 @@ export function initActionHandler(db: types.myDB) {
       req.body
     );
 
-    req.local.msgInfo = { msgTemplate, msgArgs, sendTo: userEmail };
+    req.locals.msg = {
+      msgTemplate,
+      msgArgs,
+      sendTo: userEmail
+    };
 
     next();
   };
@@ -453,24 +406,24 @@ export function initActionHandler(db: types.myDB) {
  * @param MapActionToFn
  */
 export function initDispatcher(
-  MapActionToFn: types.ActionHandlerMap
+  MapActionToFn: ActionHandlerMap
 ): (
-  ctx: types.ICtx,
-  action: types.Action,
+  ctx: ICtx,
+  action: Action,
   actionArgs: any[],
-  zulipBody: types.IZulipBody
-) => Promise<types.IMsg> {
+  zulipBody: ZulipBody
+) => Promise<IMsg> {
   return async function dispatcher(ctx, action, actionArgs, zulipBody) {
     const actionfn = MapActionToFn[action];
 
     // Note: these actions are not coded for async action! but we can just wrap with async & await
     try {
-      const IMsg = await actionfn(ctx, actionArgs, zulipBody);
-      return IMsg;
+      const messageTemplate = await actionfn(ctx, actionArgs, zulipBody);
+      return messageTemplate;
     } catch (e) {
       console.warn(`Error trying to dispatch an action: ${action}`);
       return {
-        msgTemplate: types.msgTemplate.ERROR,
+        msgTemplate: 'ERROR',
         msgArgs: { errorMessage: e }
       };
     }

@@ -4,7 +4,7 @@ dotenv.config();
 
 import * as types from '../../types';
 import { initDB } from '../../db';
-import { UserRecord } from '../../db/dbTypes';
+import { UserRecord } from '../../types/dbTypes';
 import { templateMessageSender } from '../../zulip-messenger/msg-sender';
 
 // TESTING: so we can run this from package.json as a script

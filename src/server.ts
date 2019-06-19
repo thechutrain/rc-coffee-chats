@@ -6,9 +6,7 @@ dotenv.config();
 const PORT = process.env.PORT || 8080;
 
 // ===== My Custom Modules =====
-import * as types from './types';
 import { initDB } from './db';
-// import { parseStrAsBool, validatePayload } from './utils/';
 
 //////////////////////////////////
 /// Database
@@ -23,6 +21,10 @@ import { initRegisteredHandler } from './middleware/registered-handler';
 import { actionCreater } from './middleware/action-creater';
 import { initActionHandler } from './middleware/action-handler';
 import { messageHandler } from './middleware/message-handler';
+import {
+  IBaseZulip,
+  IZulipRequestWithMessage
+} from './types/zulipRequestTypes';
 
 const registerHandler = initRegisteredHandler(db);
 const actionHandler = initActionHandler(db);
@@ -32,13 +34,6 @@ const actionHandler = initActionHandler(db);
 /////////////////
 const app = express();
 
-app.use((req: types.ILocalsReq, res, next) => {
-  req.local = {
-    errors: []
-  };
-  next();
-});
-
 app.get('/', (req, res) => {
   res.json({ message: 'hello there!' });
 });
@@ -47,24 +42,33 @@ app.get('/', (req, res) => {
 app.post(
   '/webhooks/zulip',
   bodyParser.json(),
+  (req, res, next) => {
+    req.locals = {
+      errors: []
+    };
+    next();
+  },
   zulipTokenValidator,
   registerHandler,
   actionCreater,
   actionHandler,
   messageHandler,
-  (req: types.IZulipRequest, res) => {
+  (req: IZulipRequestWithMessage, res) => {
     const currTime = moment()
       .tz('America/New_York')
       .format('L hh:mm:ss A');
 
-    console.log(`\n======= START of Zulip Request =======`);
-    console.log('>> current time: ', currTime);
-    console.log('>> data: ', req.body.data);
-    console.log('>> sender: ', req.body.message.sender_full_name);
-    console.log('ACTION:', req.local.action);
-    console.log('MSG:', req.local.msgInfo);
-    console.log('ERRORS: ', req.local.errors);
-    console.log('\n');
+    // NOTE: only log messages that are directly to chat bot
+    if (req.body.message.display_recipient.length === 2) {
+      console.log(`\n======= START of Zulip Request =======`);
+      console.log('>> current time: ', currTime);
+      console.log('>> data: ', req.body.data);
+      console.log('>> sender: ', req.body.message.sender_full_name);
+      console.log('ACTION:', req.locals.action);
+      console.log('MSG:', req.locals.msg);
+      console.log('ERRORS: ', req.locals.errors);
+      console.log('\n');
+    }
     res.json({});
   }
 );
