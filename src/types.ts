@@ -29,7 +29,6 @@ export interface IZulipRequest extends Express.Request {
     action: IActionObj;
     errors: IError[];
     msgInfo: IMsgInfo;
-    // TODO: DEPRECATE THIS
   };
 }
 
@@ -116,14 +115,6 @@ export interface IMsg {
 export interface IMsgInfo extends IMsg {
   sendTo: string;
 }
-const foo = {
-  // bar: 'hello',
-  baz: 1
-};
-
-function x(y: typeof foo) {}
-
-// x({ baz: 'asdfa' });
 
 export enum msgTemplate {
   'BLANK' = 'BLANK',
@@ -182,35 +173,6 @@ export enum msgTemplate {
   'OFFBOARDING' = 'OFFBOARDING'
 }
 
-enum t {
-  'appple',
-  'pear'
-}
-
-export type msgCreaterMapp = Record<
-  keyof typeof t,
-  // [keyof msgTemplate],
-  string
-  // { template: string; reqVars?: string[] }
->;
-
-const test: msgCreaterMapp = {
-  appple: 'asdfasd',
-  pear: 'asdfa'
-};
-
-const a = {
-  apple: 0,
-  0: 'apple'
-};
-
-export type msgCreaterMap = Record<
-  keyof typeof msgTemplate,
-  // [keyof msgTemplate],
-  { template: string; reqVars?: string[] }
->;
-
-// REMOVE THIS:
 export enum Errors {
   'INVALID_ZULIP_TOKEN' = 'INVALID_ZULIP_TOKEN',
   'FAILED_UPDATE' = 'FAILED_UPDATE',
