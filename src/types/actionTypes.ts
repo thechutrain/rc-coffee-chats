@@ -34,6 +34,7 @@ export enum Action {
   // BOT
   'BOT__ISSUES' = 'BOT__ISSUES',
   'BOT__STATS' = 'BOT__STATS',
+  'BOT__USERS' = 'BOT__USERS',
   'BOT__HI' = 'BOT__HI'
 }
 

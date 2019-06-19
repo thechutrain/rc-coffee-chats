@@ -51,6 +51,7 @@ export type MsgTemplate =
   | 'BOT_ISSUES_FEW'
   | 'BOT_ISSUES_NONE'
   | 'BOT_STATS'
+  | 'BOT_USERS'
 
   // Error
   | 'ERROR'

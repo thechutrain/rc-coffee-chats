@@ -322,7 +322,7 @@ export const actionHandlerMap: ActionHandlerMap = {
       const numActive = ctx.db.User.findActiveUsers().length;
 
       resolve({
-        msgTemplate: types.msgTemplate.BOT_USERS,
+        msgTemplate: 'BOT_USERS',
         msgArgs: {
           num_active: `${numActive}`
         }
