@@ -328,8 +328,7 @@ export class UserModel extends Model<UserRecord> {
   }
 }
 
-// TODO: how can I make this UserRecord a type that
-// gets all its keys from the FIELDS?
+// ! TODO: Fix inconsistency with snake_case and camelCase! num_matches, is_active etc
 export type UserWithPrevMatchRecord = UserRecord & {
   prevMatches: PrevMatchRecord[];
 } & {
