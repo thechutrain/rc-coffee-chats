@@ -37,7 +37,7 @@ export async function matchify() {
     .tz('America/New_York')
     .day();
 
-  const { todaysMatches } = makeMatches(db, weekday);
+  const todaysMatches = makeMatches(db, weekday);
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
