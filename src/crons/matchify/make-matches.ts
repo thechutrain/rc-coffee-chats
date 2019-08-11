@@ -8,7 +8,10 @@ import { matchPair, UserWithPrevMatchRecord } from '../../db/models/user_model';
 export function makeMatches(
   db: types.myDB,
   weekday: types.WEEKDAY
-): matchPair[] {
+): {
+  todaysMatches: Array<[UserWithPrevMatchRecord, UserWithPrevMatchRecord]>;
+  unmatchedUser: UserWithPrevMatchRecord | null;
+} {
   const usersToMatch = getUsersToMatchToday(db, weekday);
   return stableMarriageMatcher(usersToMatch);
 }
@@ -18,9 +21,7 @@ export function getUsersToMatchToday(db: types.myDB, weekday: types.WEEKDAY) {
 }
 
 // ✅ Tests written
-export function stableMarriageMatcher(
-  usersToMatch: UserWithPrevMatchRecord[]
-): matchPair[] {
+export function stableMarriageMatcher(usersToMatch: UserWithPrevMatchRecord[]) {
   const { suitors, acceptors, unmatchedUser } = createSuitorAcceptorPool(
     usersToMatch
   );
@@ -41,5 +42,8 @@ export function stableMarriageMatcher(
     todaysMatches[todaysMatches.length - 1].push(unmatchedUser);
   }
 
-  return todaysMatches;
+  return {
+    todaysMatches,
+    unmatchedUser
+  };
 }

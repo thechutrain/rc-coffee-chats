@@ -37,7 +37,7 @@ export async function matchify() {
     .tz('America/New_York')
     .day();
 
-  const todaysMatches = makeMatches(db, weekday);
+  const { todaysMatches, unmatchedUser } = makeMatches(db, weekday);
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
@@ -55,6 +55,8 @@ export async function matchify() {
   // Notify each match pair who they've been matched with:
   todaysMatches.forEach(notifyMatchPair);
 
+  // TODO: notify the unmatchedUser that they don't have a match today
+
   ////////////////////
   // Logging
   ////////////////////
@@ -68,7 +70,8 @@ export async function matchify() {
       pair[0].email,
       pair[1].email
     ]),
-    repeatedMatches
+    repeatedMatches,
+    unmatchedUser
   };
 
   const full_logs = {
