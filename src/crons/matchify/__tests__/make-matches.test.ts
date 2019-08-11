@@ -52,26 +52,38 @@ describe('make-matches test:', () => {
   });
 
   it('should only have pairs of two for an even number of users to match', () => {
-    const { todaysMatches } = stableMarriageMatcher([userAl, userBob]);
+    const { todaysMatches, unmatchedUser } = stableMarriageMatcher([
+      userAl,
+      userBob
+    ]);
     expect(todaysMatches.length).toBe(1);
     expect(todaysMatches[0].length).toBe(2);
+    expect(unmatchedUser).toBeNull();
   });
 
-  it('should have a single pairs of three for an odd number of users to match', () => {
-    const { todaysMatches } = stableMarriageMatcher([userAl, userBob, userCat]);
+  it('should have a single pair of three for an odd number of users to match', () => {
+    const { todaysMatches, unmatchedUser } = stableMarriageMatcher([
+      userAl,
+      userBob,
+      userCat
+    ]);
 
     expect(todaysMatches.length).toBe(1);
     expect(todaysMatches[0].length).toBe(3);
+    expect(unmatchedUser).toBeNull();
   });
 
-  it('should not return any match pairs if there is only a single users', () => {
-    const { todaysMatches } = stableMarriageMatcher([userAl, userBob, userCat]);
-    expect(todaysMatches.length).toBe(1);
-    expect(todaysMatches[0].length).toBe(3);
+  it('should not return any match pairs if there is only a single user', () => {
+    const { todaysMatches, unmatchedUser } = stableMarriageMatcher([userAl]);
+
+    expect(todaysMatches.length).toBe(0);
+    expect(unmatchedUser).toEqual(userAl);
   });
 
   it('should not return any match pairs if there are no users', () => {
-    const { todaysMatches } = stableMarriageMatcher([]);
+    const { todaysMatches, unmatchedUser } = stableMarriageMatcher([]);
+
     expect(todaysMatches.length).toBe(0);
+    expect(unmatchedUser).toBeNull();
   });
 });

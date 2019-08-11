@@ -44,6 +44,8 @@ export function stableMarriageMatcher(usersToMatch: UserWithPrevMatchRecord[]) {
 
   return {
     todaysMatches,
-    unmatchedUser
+    // Note: there will only be an unmatched user if there are not matches for today
+    // since we will add the unmatched user to the group of three
+    unmatchedUser: todaysMatches.length === 0 ? null : unmatchedUser
   };
 }
