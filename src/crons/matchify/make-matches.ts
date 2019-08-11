@@ -3,23 +3,24 @@ import { cloneDeep } from 'lodash';
 import * as types from '../../types';
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
-import { matchPair } from '../../db/models/user_model';
+import { matchPair, UserWithPrevMatchRecord } from '../../db/models/user_model';
 
 export function makeMatches(
   db: types.myDB,
   weekday: types.WEEKDAY
-  // date?: string // for testing purposes?
-): {
-  todaysMatches: matchPair[];
-} {
-  // Get Users to Match for Today:
-  const usersToMatch = db.User.findUsersPrevMatchesToday(weekday);
+): matchPair[] {
+  const usersToMatch = getUsersToMatchToday(db, weekday);
+  return stableMarriageMatcher(usersToMatch);
+}
 
-  ////////////////////////////////////////
-  // Stable Marriage Algorithm
-  ////////////////////////////////////////
+export function getUsersToMatchToday(db: types.myDB, weekday: types.WEEKDAY) {
+  return db.User.findUsersPrevMatchesToday(weekday);
+}
 
-  // PREP for stable marriage algorithm.
+// ✅ Tests written
+export function stableMarriageMatcher(
+  usersToMatch: UserWithPrevMatchRecord[]
+): matchPair[] {
   const { suitors, acceptors, unmatchedUser } = createSuitorAcceptorPool(
     usersToMatch
   );
@@ -40,5 +41,5 @@ export function makeMatches(
     todaysMatches[todaysMatches.length - 1].push(unmatchedUser);
   }
 
-  return { todaysMatches };
+  return todaysMatches;
 }
