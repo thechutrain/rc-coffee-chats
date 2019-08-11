@@ -37,7 +37,7 @@ export async function matchify() {
     .tz('America/New_York')
     .day();
 
-  const { todaysMatches, fallBackMatch } = makeMatches(db, weekday);
+  const { todaysMatches } = makeMatches(db, weekday);
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
@@ -68,8 +68,7 @@ export async function matchify() {
       pair[0].email,
       pair[1].email
     ]),
-    repeatedMatches,
-    fallBackMatch
+    repeatedMatches
   };
 
   const full_logs = {
@@ -90,8 +89,6 @@ export async function matchify() {
     console.log(matchPair[0].full_name, matchPair[0].prevMatches);
     console.log(matchPair[1].full_name, matchPair[1].prevMatches);
   });
-
-  console.log('\n>> Fallback', { fallBackMatch });
 
   // Send messages to Admin
   console.log(full_logs);

@@ -23,20 +23,15 @@ describe('createSuitorAcceptorPool(): ', () => {
       { email: 'chris', prevMatches: [] },
       { email: 'dan', prevMatches: [] }
     ];
-    const fallBackUser = {
-      email: 'fallback',
-      prevMatches: []
-    };
 
-    const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+    const { suitors, acceptors, unmatchedUser } = createSuitorAcceptorPool(
       // @ts-ignore
-      usersToMatch,
-      fallBackUser
+      usersToMatch
     );
 
     expect(suitors.size).toBe(Math.floor(usersToMatch.length / 2));
     expect(acceptors.size).toBe(Math.floor(usersToMatch.length / 2));
-    expect(fallBackMatch).toBeNull();
+    expect(unmatchedUser).toBeNull();
   });
 
   /////////////////////
@@ -48,20 +43,15 @@ describe('createSuitorAcceptorPool(): ', () => {
       { email: 'bob', prevMatches: [] },
       { email: 'chris', prevMatches: [] }
     ];
-    const fallBackUser = {
-      email: 'fallback',
-      prevMatches: []
-    };
 
-    const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+    const { suitors, acceptors, unmatchedUser } = createSuitorAcceptorPool(
       // @ts-ignore
-      usersToMatch,
-      fallBackUser
+      usersToMatch
     );
 
     expect(suitors.size).toBe(Math.floor(usersToMatch.length / 2));
     expect(acceptors.size).toBe(Math.floor(usersToMatch.length / 2));
-    expect(fallBackMatch).not.toBeNull();
+    expect(unmatchedUser).not.toBeNull();
   });
 
   it('should include a priority list for each suitor that includes users from acceptor pool', () => {
@@ -71,14 +61,10 @@ describe('createSuitorAcceptorPool(): ', () => {
       { email: 'chris', prevMatches: [] },
       { email: 'dan', prevMatches: [] }
     ];
-    const fallBackUser = {
-      email: 'fallback',
-      prevMatches: []
-    };
-    const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
+
+    const { suitors, acceptors } = createSuitorAcceptorPool(
       // @ts-ignore
-      usersToMatch,
-      fallBackUser
+      usersToMatch
     );
 
     // TEST: check that each priority list for suitor, includes everyone from acceptor map

@@ -3,11 +3,7 @@ import { cloneDeep } from 'lodash';
 import * as types from '../../types';
 import { createSuitorAcceptorPool } from './create-suitor-acceptor-pool';
 import { makeStableMarriageMatches } from '../../matching-algo/stable-marriage-matching/stable-marriage-algo';
-import {
-  UserWithPrevMatchRecord,
-  UserRecord,
-  matchPair
-} from '../../db/models/user_model';
+import { matchPair } from '../../db/models/user_model';
 
 export function makeMatches(
   db: types.myDB,
@@ -15,7 +11,6 @@ export function makeMatches(
   // date?: string // for testing purposes?
 ): {
   todaysMatches: matchPair[];
-  fallBackMatch: UserWithPrevMatchRecord | null;
 } {
   // Get Users to Match for Today:
   const usersToMatch = db.User.findUsersPrevMatchesToday(weekday);
@@ -23,22 +18,10 @@ export function makeMatches(
   ////////////////////////////////////////
   // Stable Marriage Algorithm
   ////////////////////////////////////////
-  // TODO: put this into separate function
-  const fallBackEmail = db.Config.getFallBackUser();
-  const fallBackUserRecord = db.User.findByEmail(fallBackEmail);
-  const fallBackPrevMatches = db.User._findPrevActiveMatches(
-    fallBackUserRecord.id
-  );
-  const fallBackUser = {
-    ...fallBackUserRecord,
-    prevMatches: fallBackPrevMatches,
-    num_matches: fallBackEmail.length
-  };
 
   // PREP for stable marriage algorithm.
-  const { suitors, acceptors, fallBackMatch } = createSuitorAcceptorPool(
-    usersToMatch,
-    fallBackUser
+  const { suitors, acceptors, unmatchedUser } = createSuitorAcceptorPool(
+    usersToMatch
   );
 
   // Stable Marriage Algo to make matches
@@ -53,9 +36,9 @@ export function makeMatches(
     return matchPairData;
   });
 
-  if (fallBackMatch !== null) {
-    todaysMatches.push([fallBackUser, fallBackMatch]);
+  if (unmatchedUser && todaysMatches.length) {
+    todaysMatches[todaysMatches.length - 1].push(unmatchedUser);
   }
 
-  return { todaysMatches, fallBackMatch };
+  return { todaysMatches };
 }
