@@ -44,9 +44,16 @@ export async function matchify() {
   if (process.env.NODE_ENV === 'production') {
     console.log('In production, recording matches!');
     todaysMatches.forEach(match => {
-      // TODO: need to record the third person match!
-      const userIds = [match[0].id, match[1].id];
-      db.UserMatch.addNewMatch(userIds);
+      if (match.length === 3) {
+        // ! TEMP: make a better addNewMatch that takes in an array of users and matches them all
+        // Case: three person pairing
+        db.UserMatch.addNewMatch([match[0].id, match[1].id]);
+        db.UserMatch.addNewMatch([match[0].id, match[2].id]);
+        db.UserMatch.addNewMatch([match[1].id, match[2].id]);
+      } else {
+        const userIds = [match[0].id, match[1].id];
+        db.UserMatch.addNewMatch(userIds);
+      }
     });
   }
 
