@@ -16,22 +16,6 @@ export interface IZulipBody {
   bot_email: string;
 }
 
-export interface IZulipRequest extends Express.Request {
-  body: IZulipBody;
-  local: {
-    user: {
-      email: string;
-      isRegistered: boolean;
-      isActive: boolean;
-      isAdmin: boolean;
-      data?: UserRecord;
-    };
-    action: IActionObj;
-    errors: IError[];
-    msgInfo: IMsgInfo;
-  };
-}
-
 export interface IError {
   errorType: Errors;
   customMessage?: string;
@@ -73,14 +57,6 @@ export enum Action {
   'BOT__USERS' = 'BOT__USERS',
   'BOT__STATS' = 'BOT__STATS',
   'BOT__HI' = 'BOT__HI'
-}
-
-export interface IActionObj {
-  actionType: Action;
-  actionArgs: {
-    rawInput: any;
-  };
-  targetUser?: string;
 }
 
 // TODO: rethink how to shape the action handler:
