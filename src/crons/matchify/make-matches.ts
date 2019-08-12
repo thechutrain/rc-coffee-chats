@@ -9,7 +9,7 @@ export function makeMatches(
   db: types.myDB,
   weekday: types.WEEKDAY
 ): {
-  todaysMatches: Array<[UserWithPrevMatchRecord, UserWithPrevMatchRecord]>;
+  todaysMatches: matchPair[];
   unmatchedUser: UserWithPrevMatchRecord | null;
 } {
   const usersToMatch = getUsersToMatchToday(db, weekday);
