@@ -16,22 +16,6 @@ export interface IZulipBody {
   bot_email: string;
 }
 
-export interface IZulipRequest extends Express.Request {
-  body: IZulipBody;
-  local: {
-    user: {
-      email: string;
-      isRegistered: boolean;
-      isActive: boolean;
-      isAdmin: boolean;
-      data?: UserRecord;
-    };
-    action: IActionObj;
-    errors: IError[];
-    msgInfo: IMsgInfo;
-  };
-}
-
 export interface IError {
   errorType: Errors;
   customMessage?: string;
@@ -56,7 +40,6 @@ export enum Action {
   'SHOW__SKIP' = 'SHOW__SKIP',
   // 'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
-  'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
@@ -64,7 +47,6 @@ export enum Action {
   // 'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
-  'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',
@@ -75,14 +57,6 @@ export enum Action {
   'BOT__USERS' = 'BOT__USERS',
   'BOT__STATS' = 'BOT__STATS',
   'BOT__HI' = 'BOT__HI'
-}
-
-export interface IActionObj {
-  actionType: Action;
-  actionArgs: {
-    rawInput: any;
-  };
-  targetUser?: string;
 }
 
 // TODO: rethink how to shape the action handler:
@@ -129,7 +103,6 @@ export enum msgTemplate {
   // CLI Update-related cmds
   'UPDATED_GENERAL' = 'UPDATED_GENERAL',
   'UPDATED_DAYS' = 'UPDATED_DAYS',
-  'UPDATED_FALLBACK' = 'UPDATED_FALLBACK',
   // 'UPDATED_SKIP' = 'UPDATED_SKIP',
   // 'UPDATED_WARNINGS' = 'UPDATED_WARNINGS',
 
@@ -140,8 +113,6 @@ export enum msgTemplate {
   'STATUS_WARNINGS_ON' = 'STATUS_WARNINGS_ON',
   'STATUS_WARNINGS_OFF' = 'STATUS_WARNINGS_OFF',
   'STATUS_PREVIOUS_MATCHES' = 'STATUS_PREVIOUS_MATCHES',
-  'STATUS_FALLBACK' = 'STATUS_FALLBACK',
-  'STATUS_FALLBACK_NULL' = 'STATUS_FALLBACK_NULL',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_SKIP' = 'STATUS_SKIP',
   // 'STATUS_WARNINGS' = 'STATUS_WARNINGS',

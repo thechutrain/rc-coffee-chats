@@ -37,13 +37,14 @@ export async function matchify() {
     .tz('America/New_York')
     .day();
 
-  const { todaysMatches, fallBackMatch } = makeMatches(db, weekday);
+  const { todaysMatches, unmatchedUser } = makeMatches(db, weekday);
   const repeatedMatches = todaysMatches.filter(isRepeatMatch);
 
   // Record Matches:
   if (process.env.NODE_ENV === 'production') {
     console.log('In production, recording matches!');
     todaysMatches.forEach(match => {
+      // TODO: need to record the third person match!
       const userIds = [match[0].id, match[1].id];
       db.UserMatch.addNewMatch(userIds);
     });
@@ -54,6 +55,8 @@ export async function matchify() {
 
   // Notify each match pair who they've been matched with:
   todaysMatches.forEach(notifyMatchPair);
+
+  // TODO: notify the unmatchedUser that they don't have a match today
 
   ////////////////////
   // Logging
@@ -69,7 +72,7 @@ export async function matchify() {
       pair[1].email
     ]),
     repeatedMatches,
-    fallBackMatch
+    unmatchedUser
   };
 
   const full_logs = {
@@ -90,8 +93,6 @@ export async function matchify() {
     console.log(matchPair[0].full_name, matchPair[0].prevMatches);
     console.log(matchPair[1].full_name, matchPair[1].prevMatches);
   });
-
-  console.log('\n>> Fallback', { fallBackMatch });
 
   // Send messages to Admin
   console.log(full_logs);

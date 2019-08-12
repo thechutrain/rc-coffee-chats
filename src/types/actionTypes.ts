@@ -17,7 +17,6 @@ export enum Action {
   'SHOW__SKIP' = 'SHOW__SKIP',
   // 'SHOW__SKIPPING' = 'SHOW__SKIPPING',
   'SHOW__WARNINGS' = 'SHOW__WARNINGS',
-  'SHOW__FALLBACK' = 'SHOW__FALLBACK',
 
   // === UPDATE actions ====
   'UPDATE__DAYS' = 'UPDATE__DAYS',
@@ -25,7 +24,6 @@ export enum Action {
   // 'UPDATE__SKIPPING' = 'UPDATE__SKIPPING',
   'UPDATE__WARNINGS' = 'UPDATE__WARNINGS',
   'UPDATE__ACTIVE' = 'UPDATE__ACTIVE',
-  'UPDATE__FALLBACK' = 'UPDATE__FALLBACK',
 
   'HELP' = 'HELP',
   'HELP__SHOW' = 'HELP__SHOW',

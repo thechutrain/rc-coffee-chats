@@ -1,10 +1,6 @@
-/**
- * find user who hasn't matched with
- */
 import { shuffle, cloneDeep } from 'lodash';
 
 import * as mTypes from '../../matching-algo/stable-marriage-matching/marriage-types';
-// import { PrevMatchRecord } from '../../db/models/user_model';
 
 import {
   makeSuitorPool,
@@ -14,14 +10,6 @@ import {
   UserWithPrevMatchRecord,
   PrevMatchRecord
 } from '../../db/models/user_model';
-// export type basicPrevMatch = {
-//   email: string;
-//   date?: string;
-// };
-// export type basicUser = {
-//   email: string;
-//   prevMatches: basicPrevMatch[];
-// };
 
 // ✅ tested!
 export function findUserPriority(
@@ -57,22 +45,18 @@ export function findUserPriority(
 
 // ✅ tested!1
 export function createSuitorAcceptorPool(
-  users: UserWithPrevMatchRecord[],
-  fallBackPerson: UserWithPrevMatchRecord
+  users: UserWithPrevMatchRecord[]
 ): {
   suitors: Map<mTypes.marriage_id, mTypes.Suitor<UserWithPrevMatchRecord>>;
   acceptors: Map<mTypes.marriage_id, mTypes.Acceptor<UserWithPrevMatchRecord>>;
-  fallBackMatch: UserWithPrevMatchRecord | null;
+  unmatchedUser: UserWithPrevMatchRecord | null;
 } {
-  const userCopy = cloneDeep(
-    // Note: remove fallback person if they happen to be in the user pool
-    users.filter(user => user.email !== fallBackPerson.email)
-  );
-  let fallBackMatch: null | UserWithPrevMatchRecord = null;
+  const userCopy = cloneDeep(users);
+  let unmatchedUser: null | UserWithPrevMatchRecord = null;
   if (!isEvenNumberUsers(userCopy)) {
-    // TODO: Improved feature that removes a user who hasn't matched with fallback person!
-    const fallBackIndex = findFallBackMatch(userCopy, fallBackPerson);
-    fallBackMatch = userCopy.splice(fallBackIndex, 1)[0];
+    const randomIndex = Math.floor(Math.random() * userCopy.length);
+    unmatchedUser = userCopy[randomIndex];
+    userCopy.splice(randomIndex, 1);
   }
 
   const shuffledUsers = shuffle(userCopy);
@@ -96,38 +80,8 @@ export function createSuitorAcceptorPool(
   return {
     suitors,
     acceptors,
-    fallBackMatch
+    unmatchedUser
   };
-}
-
-/**
- * ✳️ EDGE CASE: if the fallbackPerson isn't someone who was suppose to be
- *  matched for today, they will not show up in another one's previous matches
- *
- *  TODO: Need to fix the sql query for getting prevMatches!
- *
- *
- */
-export function findFallBackMatch(
-  people: UserWithPrevMatchRecord[],
-  fallBackPerson: UserWithPrevMatchRecord
-): number {
-  // let match: A | null = null;
-  for (let i = people.length - 1; i >= 0; i--) {
-    let haveMatched = false;
-    for (const prevMatch of people[i].prevMatches) {
-      if (prevMatch.email === fallBackPerson.email) {
-        haveMatched = true;
-        break;
-      }
-    }
-
-    if (!haveMatched) {
-      return i;
-    }
-  }
-
-  return 0;
 }
 
 export function isEvenNumberUsers(people: UserWithPrevMatchRecord[]): boolean {

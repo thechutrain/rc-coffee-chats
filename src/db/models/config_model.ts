@@ -68,19 +68,22 @@ export class ConfigModel extends Model<ConfigRecord> {
     return results[0];
   }
 
-  public setFallBackUser(email: string) {
-    const user = this.User.findByEmail(email);
-    this.addConfig('fallBackUserEmail', user.email);
-  }
+  /** // ! Pending Deprecation
+   *
+   */
+  // public setFallBackUser(email: string) {
+  //   const user = this.User.findByEmail(email);
+  //   this.addConfig('fallBackUserEmail', user.email);
+  // }
 
-  public getFallBackUser(): null | any {
-    const records = this.find({ key: 'fallBackUserEmail' });
+  // public getFallBackUser(): null | any {
+  //   const records = this.find({ key: 'fallBackUserEmail' });
 
-    if (records.length === 0) {
-      return null;
-    }
-    return records[0].value;
-  }
+  //   if (records.length === 0) {
+  //     return null;
+  //   }
+  //   return records[0].value;
+  // }
 }
 
 type ConfigRecord = {
