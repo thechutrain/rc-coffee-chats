@@ -279,7 +279,7 @@ export class UserModel extends Model<UserRecord> {
         if (a > b) {
           return 1;
         }
-        if (b < a) {
+        if (a < b) {
           return -1;
         }
         return 0;
