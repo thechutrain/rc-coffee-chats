@@ -27,7 +27,8 @@
     "dev-offboard": "cross-env NODE_ENV=development ts-node src/crons/off-board/index.ts",
     "dev-onboard": "cross-env NODE_ENV=development ts-node src/crons/on-board/index.ts",
     "dev-notify-users": "cross-env NODE_ENV=development ts-node src/one-off-services/notify-users",
-    "dev-send-matches": "cross-env NODE_ENV=development ts-node src/one-off-services/_manual-send-todays-matches.ts"
+    "dev-send-matches": "cross-env NODE_ENV=development ts-node src/one-off-services/_manual-send-todays-matches.ts",
+    "dev-update-zoom-urls": "cross-env NODE_ENV=development ts-node src/crons/getZoomUrls/index.ts"
   },
   "lint-staged": {
     "src/*.ts": [
