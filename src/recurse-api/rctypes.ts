@@ -19,5 +19,6 @@ export type rc_profile = {
   last_name: string;
   name: string;
   email: string;
+  zoom_url: string | null;
   stints: rc_stint[];
 };
