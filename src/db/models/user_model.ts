@@ -19,6 +19,7 @@ export class UserModel extends Model<UserRecord> {
         id INTEGER PRIMARY KEY NOT NULL UNIQUE,
         email TEXT NOT NULL UNIQUE,
         full_name TEXT NOT NULL,
+        zoom_url TEXT DEFAULT NULL,
         coffee_days TEXT DEFAULT 1234,
         skip_next_match INTEGER DEFAULT 0,
         warning_exception INTEGER DEFAULT 0,
@@ -53,6 +54,14 @@ export class UserModel extends Model<UserRecord> {
     const results = this.find({ email });
     if (results.length === 0) {
       throw new Error(`Could not find a user with the email: ${email}`);
+    }
+    return results[0];
+  }
+
+  public findByEmailOrNull(email: string): UserRecord | null {
+    const results = this.find({ email });
+    if (results.length === 0) {
+      return null;
     }
     return results[0];
   }
@@ -289,6 +298,10 @@ export class UserModel extends Model<UserRecord> {
     return this.update({ coffee_days: weekdayStr }, { email });
   }
 
+  public updateZoomUrl(zoomUrl: string | null, email: string) {
+    return this.update({ zoom_url: zoomUrl }, { email });
+  }
+
   public updateWarnings(email: string, warnings: boolean) {
     const warning_exception = warnings ? '1' : '0';
     return this.update({ warning_exception }, { email });
@@ -339,6 +352,7 @@ export type UserRecord = {
   id: number;
   email: string;
   full_name: string;
+  zoom_url: string | null;
   coffee_days: string; // NOTE: or the enum days?
   warning_exception: number; // NOTE: todo, add a sqlite type of bool, that will convert them to be an actual boolean in JS
   skip_next_match: number;
@@ -389,6 +403,14 @@ export const FIELDS: types.fieldListing = {
     type: types.sqliteType.TEXT,
     meta: {
       isNotNull: true
+    }
+  },
+  zoom_url: {
+    colName: 'zoom_url',
+    type: types.sqliteType.TEXT,
+    meta: {
+      isNotNull: false,
+      defaultValue: null
     }
   },
   coffee_days: {
