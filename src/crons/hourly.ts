@@ -7,6 +7,7 @@ import { handlePossibleOffBoarding } from './off-board';
 import { handlePossibleOnBoarding } from './on-board';
 import { sendNextDayMatchWarning } from './match-warnings';
 import { notifyAdmin } from '../zulip-messenger';
+import { UpdateZoomUrlForUsers } from './getZoomUrls';
 
 // NOTE: need to wrap hourly cron in try/catch since it won't log the error
 // in logs if an exception is thrown.
@@ -35,5 +36,7 @@ function hourly() {
   } else if (hour === 19) {
     // send warning notifications
     sendNextDayMatchWarning();
+  } else if (hour === 23) {
+    UpdateZoomUrlForUsers();
   }
 }
