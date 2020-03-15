@@ -3,11 +3,7 @@ import * as dotenv from 'dotenv-safe';
 dotenv.config();
 
 import { initDB } from '../../db';
-// get all current rc-ers
 
-// check to see if they are in our coffee chat db
-
-// if they have a zoom url, save that in the user record
 export async function UpdateZoomUrlForUsers() {
   const db = initDB();
   const allRCUsers = await getUsersAtRc();
