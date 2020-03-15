@@ -11,6 +11,7 @@ much better (listed alphabetically by first name):
 * [Anna Walsh](https://github.com/waalsh) - Paired on using the Stable Marriage Algorithm for matching users
 * [Anushriadhia](anushriadhia) - paired on the onboarding of NGW users
 * [Greg Altman](https://github.com/fewf)
+* [porterjamesj](https://github.com/porterjamesj) - paired on adding zoom url to match messages
 * [John Paul Ashenfelter](https://github.com/johnpaulashenfelter) - Travis CI and Readme
 * [stillinbeta](https://github.com/stillinbeta) - Postgres inspiration & began the migration process
 * [Liz Krane](https://github.com/LearningNerd)
