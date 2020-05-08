@@ -4,14 +4,19 @@ import { notifyAdmin } from '../../zulip-messenger';
 import { isToday } from '../../utils/dates';
 import { getUsersAtRc } from '../../recurse-api';
 
+function sleep(millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
+}
+
 // TODO: test this fn
-export function onBoardUsers(userEmails: string[]) {
+export async function onBoardUsers(userEmails: string[]) {
   console.log('onboarding ', userEmails.length, 'users on', new Date());
 
   // Notify Users about Chat Bot
-  userEmails.forEach(email => {
+  for (let email of userEmails) {
+    await sleep(500);
     templateMessageSender(email, types.msgTemplate.ONBOARDING);
-  });
+  }
 
   // Notify Admin that num of users messaged
   const adminMessage = `${
