@@ -27,9 +27,9 @@ export function notifyMatchPair(match: matchPair) {
 
   // TODO: add links to the names of the users here
   const msgContent =
-    `Hello ${nameLinks.join(
+    `☀️ Good morning ${nameLinks.join(
       ' and '
-    )}! \nYou have been paired for a chat!` +
+    )}! \nThe two of you have been paired for a chat today. Hope you get a chance to chat over coffee or tea or anything that you fancy -- enjoy!` +
     '\n\n' +
     zoomMessage;
 
