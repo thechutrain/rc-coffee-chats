@@ -125,7 +125,7 @@ export function createMessageContent(
     },
     STATUS_PREVIOUS_MATCHES: {
       reqVars: ['prevMatches'],
-      template: `These are your previous matches: 
+      template: `These are your previous matches:
       ${vars.prevMatches}`
     },
     STATUS_FALLBACK: {
@@ -176,7 +176,7 @@ export function createMessageContent(
     ////////////////////////
     HELP: {
       template: `Hi! I'm a  🤖  that likes to pair Recursers up for chats. Here are some simple commands you can use to communicate with me:
-      * \`\`\`show days\`\`\` -- tells you what days you'll be matching on (by default its Mon, Tue, Wed, Thu) 
+      * \`\`\`show days\`\`\` -- tells you what days you'll be matching on (by default its Mon, Tue, Wed, Thu)
       * \`\`\`update days [mon tue wed ...]\`\`\` -- updates the days you will match on. Use the first three letters of the weekday
       * \`\`\`skip\`\`\` -- skips your next planned matching day
       * \`\`\`deactivate\`\`\`\ -- freezes your account, you will no longer receive matches
@@ -192,9 +192,9 @@ export function createMessageContent(
     },
     HELP_UPDATE: {
       template: `Here are the valid subcommands associated with the **UPDATE** directive. Valid arguments for each command are listed in the square braces:
-     * \`\`\`UPDATE DAYS [mon tue wed thu fri sat sun]\`\`\` 
-     * \`\`\`UPDATE SKIP [0, 1]\`\`\` 
-     * \`\`\`UPDATE WARNINGS [0, 1]\`\`\` 
+     * \`\`\`UPDATE DAYS [mon tue wed thu fri sat sun]\`\`\`
+     * \`\`\`UPDATE SKIP [0, 1]\`\`\`
+     * \`\`\`UPDATE WARNINGS [0, 1]\`\`\`
       `
     },
     ////////////////////////
@@ -272,8 +272,8 @@ export function createMessageContent(
     // One-off Messages
     ////////////////////////
     ONBOARDING: {
-      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. Its often a nice break to go on a walk, grab coffee and chat with other Recursers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow or \`\`\`activate\`\`\` if you're a returning user. 
-      
+      template: `👋 Hi there, I'm Chat Bot. \nI like to pair up RC community members for one-on-one chats. It's often nice to take a break during the day to chat with other Recursers like yourself! \nIf you're interested, just type: \`\`\`signup\`\`\` to start getting paired tomorrow or \`\`\`activate\`\`\` if you're a returning user.
+
       Learn more at my [wiki](${process.env.GITHUB_URL}/wiki)`
     },
     OFFBOARDING: {
