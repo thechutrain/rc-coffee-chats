@@ -26,8 +26,9 @@ function hourly() {
   console.log(`>> Cron timecheck:`, now.toString(), { hour });
   console.log('>> Node env:', process.env.NODE_ENV);
 
-  if (hour === 22) {
-    // Run at 10pm EST and send matches for the next day
+  // Run at 8pm EST
+  if (hour === 8) {
+    // makes matches and notifies users
     matchify();
   } else if (hour === 15) {
     handlePossibleOffBoarding();
@@ -35,7 +36,7 @@ function hourly() {
   } else if (hour === 19) {
     // send warning notifications
     sendNextDayMatchWarning();
-  } else if (hour === 21) {
+  } else if (hour === 23) {
     UpdateZoomUrlForUsers();
   }
 }

@@ -35,9 +35,6 @@ export async function matchify() {
   const db = initDB();
   const weekday = moment()
     .tz('America/New_York')
-     // Add one day because we run matchify at 10pm the previous day.
-     // So if we're running on Tuesday, we want to make matches for Wednesday.
-    .add(1, 'day')
     .day();
 
   const { todaysMatches, unmatchedUser } = makeMatches(db, weekday);
