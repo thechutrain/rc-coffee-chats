@@ -43,7 +43,7 @@
     }
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "better-sqlite3": "^5.4.0",
     "body-parser": "^1.18.3",
     "cross-env": "^5.2.0",
