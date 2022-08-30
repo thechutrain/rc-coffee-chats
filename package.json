@@ -51,7 +51,7 @@
     "express": "^4.16.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.25",
+    "moment-timezone": "^0.5.35",
     "winston": "^2.4.0"
   },
   "engines": {
